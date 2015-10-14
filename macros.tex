@@ -1,0 +1,40 @@
+% !TEX root = omar-thesis.tex
+% Calculi
+\newcommand{\LTSM}{\mathcal{L}^\text{TSM}}
+
+% Expanded types
+\newcommand{\parr}[2]{#1 \rightharpoonup #2}
+\newcommand{\forallt}[2]{\forall #1.#2}
+\newcommand{\rect}[2]{\mu #1.#2}
+\newcommand{\unitt}{\mathsf{1}}
+\newcommand{\prodt}[2]{#1 \times #2}
+\newcommand{\sumt}[2]{#1 + #2}
+
+% Expanded expressions
+\newcommand{\lam}[3]{\lambda #1{:}#2.#3}
+\newcommand{\app}[2]{#1(#2)}
+\newcommand{\Lam}[2]{\Lambda #1.#2}
+\newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
+\newcommand{\fold}[3]{\mathsf{fold}[#1.#2](#3)}
+\newcommand{\unfold}[1]{\mathsf{unfold}(#1)}
+\newcommand{\triv}{()}
+
+% Marked types
+\newcommand{\mtau}{\dot{\tau}}
+\newcommand{\mtspliced}[1]{\mathsf{spliced}(#1)}
+
+% TSM expressions
+\newcommand{\tsme}{\eta}
+\newcommand{\tsmv}{m}
+\newcommand{\utsmdef}[2]{\mathsf{syntax}~@~#1~\{#2\}}
+
+% Unexpanded expressions
+\newcommand{\ue}{\hat{e}}
+\newcommand{\uletsyntax}[3]{\mathsf{let}~\mathsf{syntax}~#1=#2~\mathsf{in}~#3}
+\newcommand{\utsmapp}[2]{#1~\texttt{/}#2\texttt{/}}
+
+% Marked expressions
+\newcommand{\me}{\dot{e}}
+\newcommand{\mspliced}[1]{\mathsf{spliced}(#1)}
+
+% Contexts

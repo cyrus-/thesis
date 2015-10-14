@@ -1,0 +1,57 @@
+% !TEX root = omar-thesis.tex
+
+\section{Motivating Examples}\label{sec:motivating-examples}
+\subsection{Lists and Other Containers}\label{sec:syntax-examples-lists}
+\subsection{HTML and Other Web Languages}\label{sec:syntax-examples-html}
+\subsection{Dates, URLs and Other Standardized Formats}\label{sec:syntax-examples-dates}
+\subsection{Regular Expressions and Other Query Languages}\label{sec:syntax-examples-regexps}
+Let us now take the perspective of a regular expression library provider. We assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}. We will discuss a standard variant of regular expressions that supports marking \emph{captured groups} (with parentheses in the concrete syntax) to make certain examples more interesting.
+
+\paragraph{Abstract Syntax} The abstract syntax of {patterns}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r) ~|~ \textbf{group}(r)\]
+One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. Verse supports these as datatypes:
+
+\begin{lstlisting}[numbers=none]
+datatype Rx {
+    Empty | Str of string | Seq of Rx * Rx 
+    | Or of Rx * Rx | Star of Rx | Group of Rx
+}
+\end{lstlisting}
+
+However, there are some reasons not to expose this representation of patterns directly to clients. First, regular expression patterns are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It might be useful for patterns with the same normal form to be  indistinguishable from the perspective of client code. Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automata) without exposing this ``implementation detail'' to clients. Indeed, there may be many ways to represent regular expression patterns, each with different performance trade-offs. For these reasons, a better approach in Verse, as in ML, is to abstract over the choice of representation using  the module system's support for type abstraction. In particular, we can define the following \emph{module signature}, where the type of patterns, \lstinline{t}, is held abstract:
+%Notice that it exposes an interface otherwise  to the one available using a case type:
+
+\begin{lstlisting}[deletekeywords={case},numbers=none]
+signature RX = sig {
+  type t
+  val Empty : t
+  val Str : string -> t
+  val Seq : t * t -> t
+  val Or : t * t -> t
+  val Star : t -> t
+  val Group : t -> t
+  val case : (
+    t -> {
+    	Empty : 'a,
+    	Str : string -> 'a,
+    	Seq : t * t -> 'a,
+    	Or : t * t -> 'a,
+    	Star : t -> 'a,
+    	Group : t -> 'a
+    } -> 'a
+}
+\end{lstlisting}
+ Clients of any module \lstinline{R} that has been sealed against \lstinline{RX}, written \lstinline{R :> RX}, manipulate patterns as values of the type \li{R.t} using the interface described by this signature. The identity of the type \lstinline{R.t} is held abstract outside the module during typechecking (i.e. it acts as a newly generated type). As a result, the burden of proving that there is no way to use the case analysis function to distinguish patterns with the same normal form is local to the module, and implementation details do not escape (and can thus evolve freely). %The details are standard and not particularly relevant for our purposes, so we omit them here.
+
+\paragraph{Concrete Syntax} The abstract syntax of patterns is too verbose to be practical  in all but the most trivial examples, so programmers conventionally write patterns using a more concise concrete syntax. For example, the concrete syntax \lstinline{A|T|G|C} corresponds to the following much more verbose pattern expression (assuming some module \lstinline{R : RX} is in scope here and in the remainder of the document):
+\begin{lstlisting}[numbers=none,mathescape=|]
+R.Or(R.Str "SSTRAESTR", R.Or(R.Str "SSTRTESTR", R.Or(R.Str "SSTRGESTR", R.Str "SSTRCESTR")))
+\end{lstlisting} 
+
+\subsection{Monadic Commands}\label{sec:syntax-examples-monads}
+\subsection{Quasiquotation}\label{sec:syntax-examples-quasiquotation}
+\subsection{Grammars}\label{sec:syntax-examples-grammars}
+\subsection{Mathematical and Scientific Notations}\label{sec:syntax-examples-math-science}
+\begin{itemize}
+\item Chemistry: SMILES \url{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}
+\item Math: LaTeX formula syntax
+\end{itemize}

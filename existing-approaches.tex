@@ -1,0 +1,163 @@
+% !TEX root = omar-thesis.tex
+\section{Existing Approaches}\label{sec:existing-approaches}
+
+\subsection{Dynamic String Parsing}\label{sec:dynamic-string-parsing}
+To expose this more concise concrete syntax for regular expression patterns to clients, the most common approach is to provide a function that parses strings to produce patterns. Because, as just mentioned, there  may be many implementations of the \lstinline{RX} signature, the usual approach is to define a parameterized module (a.k.a. a \emph{functor} in SML) defining utility functions like this abstractly:
+
+\begin{lstlisting}[numbers=none]
+module RXUtil(R : RX) => mod {
+  fun parse(s : string) : R.t => (* ... regex parser here ... *)
+}
+\end{lstlisting}
+This allows a client of any module \lstinline{R : RX} to use the following definitions:
+\begin{lstlisting}[numbers=none]
+let module RUtil = RXUtil(R)
+let val rxparse = RUtil.parse
+\end{lstlisting}
+to construct patterns like this:
+\begin{lstlisting}[numbers=none]
+rxparse "SSTRA|T|G|CESTR"
+\end{lstlisting}
+ %Again, none of our goals are comprehensively achieved.
+Unfortunately, this approach is imperfect for several reasons:
+\begin{enumerate} 
+\item First, there are syntactic conflicts between string escape sequences and pattern escape sequences. For example, the following is not a well-formed term:
+\begin{lstlisting}[numbers=none,mathescape=|]
+let val ssn = rxparse "SSTR\d\d\d-\d\d-\d\d\d\dESTR"
+\end{lstlisting}
+When compiling an expression like this, the client would see an error message like \verb|error: illegal escape character|\footnote{This is the error message that \texttt{javac} produces. When compiling an analagous expression using SML of New Jersey (SML/NJ), we encounter a more confusing error message: \texttt{Error: unclosed string}.}, because \verb|\d| is not a valid string escape sequence. In a small lab study, we observed that this class of error often confused even experienced programmers if they had not used regular expressions recently \cite{Omar:2012:ACC:2337223.2337324}. One workaround has higher syntactic cost -- we must double all backslashes:
+\begin{lstlisting}[numbers=none]
+let val ssn = rxparse "SSTR\\d\\d\\d-\\d\\d-\\d\\d\\d\\dESTR"
+\end{lstlisting}
+
+Some languages, anticipating such modes of use, build in alternative string forms that leave escape sequences uninterpreted. For example, OCaml supports the following, which has only a constant syntactic cost:
+\begin{lstlisting}[numbers=none]
+let val ssn = rxparse {rx|SSTR\d\d\d-\d\d-\d\d\d\dESTR|rx}
+\end{lstlisting}
+
+\item The next problem is that dynamic string parsing mainly decreases the syntactic cost of complete patterns. Patterns constructed compositionally cannot easily benefit from this technique. For example, consider the following function from strings to patterns:
+\begin{lstlisting}[numbers=none]
+fun example(name : string) => 
+  R.Seq(R.Str(name), R.Seq(rxparse "SSTR: ESTR", ssn)) (* ssn as above *)
+\end{lstlisting}
+%We needed to use both dynamic string parsing and explicit applications of pattern constructors to achieve the intended semantics. 
+Had we built derived syntax for regular expression patterns into the language primitively (following Unix conventions of using forward slashes as delimiters), we could have used \emph{splicing syntax}:
+\begin{lstlisting}[numbers=none]
+fun example_shorter(name : string) => /SURL@EURLnameSURL: %EURLssn/
+\end{lstlisting}
+An identifier (or parenthesized expression, not shown) prefixed with an \lstinline{@} is a spliced string, and one prefixed with a \lstinline{%} is a spliced pattern.
+
+It is difficult to capture idioms like this using dynamic string parsing, because strings cannot contain sub-expressions directly. 
+
+%(we will see an example of syntax that does capture such idioms below).
+
+\item For functions like \lstinline{example} where we are constructing patterns on the basis of data of type \lstinline{string}, using strings coincidentally to introduce patterns tempts programmers to use string concatenation in subtly incorrect ways. For example, consider the following seemingly more readable definition of \lstinline{example}:
+\begin{lstlisting}[numbers=none,escapechar=~]
+fun example_bad(name : string) => 
+  rxparse (name ^ {rx|SSTR: \d\d\d-\d\d-\d\d\d\dESTR|rx})
+\end{lstlisting}
+%The (unstated) intent here was to treat \lstinline{name} as a sub-pattern matching only itself, but this is not the observed behavior when \lstinline{name} contains special characters that have other meanings in patterns.
+
+Both \lstinline{example} and \lstinline{example_bad} have the same type and behave identically at many inputs, particularly ``typical'' inputs (i.e. alphabetic names). It is only when the input \lstinline{name} contains special characters that have meaning in the concrete syntax of patterns that a problem arises. 
+
+In applications that query sensitive data, mistakes like this lead to \emph{injection attacks}, which are among the most common and catastrophic security threats on the web today \cite{owasp2013}. These are, of course, a consequence of the programmer making a mistake in an effort to decrease syntactic cost, but proving that mistakes like this have not been made involves reasoning about complex run-time data flows, so it is once again notoriously difficult to automate. If our language supported derived syntax for patterns, this kind of mistake would be substantially less common (because \lstinline{example_shorter} has lower syntactic cost than \lstinline{example_bad}).
+ %Ultimately, of course, mistakes like this are the fault of a programmer using a flawed heuristic, and they could be avoided with discipline. The problem is once again that it is difficult to detect violations of this discipline automatically. 
+
+ %Ideally, our library would be able to make it more difficult to inadvertently introduce subtle security bugs like this.
+\item The next problem is that pattern parsing does not occur until the pattern is evaluated. For example, the following malformed pattern will only trigger an exception when this expression is evaluated during the full moon: %Achieving this goal is an explicit goal of this proposal, so we are obviously not happy with this.
+
+\begin{lstlisting}[numbers=none]
+case(moon_phase) {
+    Full => rxparse "SSTR(GCESTR" (* malformedness not statically detected *)
+  | _ => (* ... *)
+}
+\end{lstlisting}
+Though malformed patterns can sometimes be discovered dynamically via testing, empirical data gathered from large open source projects suggests that there remain many malformed regular expression patterns that are not detected by a project's test suite ``in the wild'' \cite{spishak2012type}. 
+
+Statically verifying that pattern formation errors will not dynamically arise requires reasoning about arbitrary dynamic behavior. This is an undecidable verification problem in general and can be difficult to even partially automate. In this example, the verification procedure would first need to be able to establish that the variable \lstinline{rxparse} is equal to the parse function \lstinline{RUtil.parse}. If the string argument had not been written literally but rather computed, e.g. as \lstinline{"SSTR(GESTR" ^ "SSTRCESTR"} where \lstinline{^} is the string concatenation function applied in infix style, it would also need to be able to establish that this expression is equivalent to the string \lstinline{"SSTR(GCESTR"}. For patterns that are dynamically constructed based on input to a function, evaluating the expression statically (or, more generally, in some earlier ``stage'' of evaluation \cite{Jones:Gomard:Sestoft:93:PartialEvaluation}) also does not suffice. 
+
+Of course, asking the client to provide a proof of well-formedness would defeat the purpose of lowering syntactic cost.
+
+In contrast, were our language to primitively support  derived pattern syntax, pattern parsing would occur at compile-time and so malformed patterns would produce a compile-time error.
+
+\item Dynamic string parsing also necessarily incurs dynamic cost. Regular expression patterns are common when processing large datasets, so it is easy to inadvertently incur this cost repeatedly. For example, consider mapping over a list of strings:
+\begin{lstlisting}[numbers=none]
+map exmpl_list (fn s => rxmatch (rxparse "SSTRA|T|G|CESTR") s)
+\end{lstlisting}
+To avoid incurring the parsing cost for each element of \lstinline{exmpl_list}, the programmer or compiler must move the parsing step out of the closure (for example, by eta-reduction in this simple example).\footnote{Anecdotally, in major contemporary compilers, this optimization is not automatic.} If the programmer must do this, it can (in more complex examples) increase syntactic cost and cognitive cost by moving the pattern itself far away from its use site. Alternatively, an appropriately tuned memoization (i.e. caching) strategy could be used to amortize some of this cost, but it is difficult to reason compositionally about performance using such a strategy. %If the programmer does it, it can sometimes make the program more difficult to read. 
+
+%This too is difficult if a portion of the pattern is dynamically generated. % Regular expressions are often used across large datasets in scientific applications, so the absolute peformance penalty can be non-trivial.
+
+In contrast, were our language to primitively support derived pattern syntax, the expansion would be computed at compile-time and incur no dynamic cost.
+\end{enumerate}
+
+The problems above are not unique to regular expression patterns. Whenever a library encourages the use of dynamic string parsing to address the issue of syntactic cost (which is, fundamentally, not a dynamic issue), these problems arise. %Strings are, simply put, not ideally suited for this task. 
+	This fact has motivated much research on reducing the need for dynamic string parsing \cite{Bravenboer:2007:PIA:1289971.1289975}. Existing alternatives can be broadly classified as being based on either \emph{direct syntax extension} or \emph{static term rewriting}. We describe these next, in Secs. \ref{sec:direct-syntax-extension} and \ref{sec:term-rewriting} respectively.% We summarize the most relevant work below.
+
+
+\subsection{Direct Syntax Extension}\label{sec:direct-syntax-extension}
+One tempting alternative to dynamic string parsing is to use a system that gives the users of a language the power to directly extend its concrete syntax with new derived forms. %for regular expression patterns.% for patterns.
+
+The simplest such systems are those where the elaboration of each new syntactic form is defined by a single rewrite rule. For example, Gallina, the ``external language'' of the Coq proof assistant, supports such extensions \cite{Coq:manual}. A formal account of such a system has been developed by Griffin \cite{5134}. Unfortunately, a single equation is not enough to allow us to express pattern syntax following the usual conventions. For example, a system like Coq's cannot handle escape characters, because there is no way to programmatically examine a form when generating its expansion.
+
+Other syntax extension systems are more flexible. For example, many are based on context-free grammars, e.g.  Sugar* \cite{erdweg2013framework} and Camlp4 \cite{ocaml-manual} (amongst many others). Other systems give library providers direct programmatic access to the parse stream, like Common Lisp's \emph{reader macros} \cite{steele1990common} (which are distinct from its term-rewriting macros, described in Sec. \ref{sec:term-rewriting} below) and Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}. All of these would allow us to add pattern syntax into our language's grammar, perhaps following Unix conventions and supporting splicing syntax as described above:
+\begin{lstlisting}[numbers=none]
+let val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+fun example_shorter(name : string) => /SURL@EURLnameSURL: %EURLssn/
+\end{lstlisting}
+%The body of this function elaborates to the body of \lstinline{example_fixed} as shown above. 
+%Had we mistakenly written \lstinline{%name}, we would encounter only a static type error, rather than the  silent injection  vulnerability discussed above. 
+
+We sidestep the problems of dynamic string parsing described above  when we directly extend the syntax of our language using any of these systems. Unfortunately, direct syntax extension introduces serious new problems. First, the systems mentioned thus far cannot guarantee that {syntactic conflicts} between such extensions will not arise. As stated directly in the  Coq manual: ``mixing different symbolic notations in [the] same text may cause serious parsing ambiguity''. If another library provider used similar syntax for a different implementation or variant of regular expressions, or for some other unrelated construct, then a client could not simultaneously use both libraries at the same time. So properly considered, every combination of extensions introduced using these mechanisms creates a \emph{de facto} syntactic dialect of our language. The benefit of these systems is only that they lower the implementation cost of constructing syntactic dialects. % Resolving such parsing amibiguities is left to each client of the library. 
+
+In response to this problem, Schwerdfeger and Van Wyk developed a modular analysis that accepts only context-free grammar extensions that begin with an identifying starting token and obey certain constraints on  the follow sets of base language's non-terminals \cite{conf/pldi/SchwerdfegerW09}. Extensions that specify distinct starting tokens and that satisfy these constraints can be used together in any combination without the possibility of syntactic conflict. However, the most natural starting tokens like \lstinline{rx} cannot be guaranteed to be unique. To address this problem, programmers must agree on a convention for defining ``globally unique identifiers'', e.g. the common URI convention used on the web and by the Java packaging system. However, this forces us to use a more verbose token like \lstinline{edu_cmu_verse_rx}. There is no simple way for clients of our extension to define scoped abbreviations for starting tokens because this mechanism operates purely at the level of the context-free grammar.
+
+Putting this aside, we must also consider another modularity-related question: which particular module should the expansion use? Clearly, simply assuming that some module identified as \lstinline{R} matching \lstinline{RX} is in scope is a brittle solution. In fact, we should expect that the system actively prevents such capture of specific variable names to ensure that variables (here, module variables) can be freely renamed. Such a \emph{hygiene discipline} is well-understood only when performing term-to-term rewriting (discussed below) or in simple language-integrated rewrite systems like those found in Coq. For mechanisms that operate strictly at the level of context-free grammars or the parse stream, it is not clear how one could address this issue. The onus is then on the library provider to make no assumptions about variable names and instead require that the client explicitly identify the module they intend to use as an ``argument'' within the newly introduced form:
+\begin{lstlisting}[numbers=none]
+let val ssn = edu_cmu_verse_rx R /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+\end{lstlisting}
+
+Another problem with the approach of direct syntax extension is that, given an unfamiliar piece of syntax, there is no straightforward method for determining what type it will have, causing difficulties for both humans (related to code comprehension) and tools. 
+
+\todo{Related work I haven't mentioned yet:}
+\begin{itemize}
+\item Fan: http://zhanghongbo.me/fan/start.html
+\item Well-Typed Islands Parse Faster: \\\url{http://www.ccs.neu.edu/home/ejs/papers/tfp12-island.pdf}
+\item User-defined infix operators
+\item SML quote/unquote 
+\item That Modularity paper
+\item Template Haskell and similar
+\end{itemize}
+\subsection{Term Rewriting}\label{sec:term-rewriting}
+An alternative approach is to leave the concrete syntax of the language fixed, but repurpose it for novel ends using a \emph{local term-rewriting system}. The LISP macro system \cite{Hart63a} is perhaps the most prominent example of such a system. Early variants of this system suffered from the problem of unhygienic variable capture just described, but  later variants, notably in the Scheme dialect of LISP, brought support for enforcing hygiene \cite{Kohlbecker86a}. In languages with a richer static type discipline, variants of macros that restrict rewriting to a particular type and perform the rewriting statically have also been studied \cite{Herman10:Theory,ganz2001macros} and integrated into languages, e.g. MacroML \cite{ganz2001macros} and Scala \cite{ScalaMacros2013}. 
+
+The most immediate problem with using these for our example is that we are not aware of any such statically-typed macro system that integrates cleanly with an ML-style module system. In other words, macros cannot be parameterized by modules. However, let us imagine such a macro system. We could use it to repurpose string syntax  as follows:
+\begin{lstlisting}[numbers=none]
+let val ssn = rx R {rx|SSTR\d\d\d-\d\d-\d\d\d\dESTR|rx}
+\end{lstlisting}
+
+The definition of the macro \lstinline{rx} might look like this:
+\begin{lstlisting}
+macro rx[Q : RX](e) at Q.t {
+  static fun f(e : Exp) : Exp => case(e) {
+      StrLit(s) => (* regex parser here *)
+    | BinOp(Caret, e1, e2) => `SQTQ.Seq(Q.Str(%EQTe1SQT), %(EQTf e2SQT))EQT`
+    | BinOp(Plus, e1, e2) => `SQTQ.Seq(%(EQTf e1SQT), %(EQTf e2SQT))EQT`
+    | _ => raise Error
+  }
+}
+\end{lstlisting}
+
+Here, \lstinline{rx} is a macro parameterized by a module matching \lstinline{rx} (we identify it as \lstinline{Q} to emphasize that there is nothing special about the identifier \lstinline{R}) and taking a single argument, identified as \lstinline{e}. The macro specifies a type annotation, \lstinline{at Q.t}, which imposes the constraint that the expansion the macro statically generates must be of type \lstinline{Q.t} for the provided parameter \lstinline{Q}. This expansion is generated by a \emph{static function} that examines the syntax tree of the provided argument (syntax trees are of a type \lstinline{Exp} defined in the standard library; cf. SML/NJ's visible compiler \cite{SML/VisibleCompiler}). If it is a string literal, as in the example above, it statically parses the literal body to generate an expansion (the details of the parser, elided on line 3, would be entirely standard). 
+By parsing the string statically, we avoid the problems of dynamic string parsing for statically-known patterns. 
+
+For patterns that are constructed compositionally, we need to get more creative. For example, we might repurpose the infix operators that are normally used for other purposes to support string and pattern splicing, e.g. as follows:
+
+\begin{lstlisting}[numbers=none,escapechar=|]
+fun example_using_macro(name : string) => 
+  rx R (name ^ "SSTR: ESTR" + ssn)
+\end{lstlisting}
+
+The binary operator \lstinline{^} is repurposed to indicate a spliced string and \lstinline{+} is repurposed to indicate a spliced pattern. The logic for handling these forms can be seen above on lines 4 and 5, respectively. We assume that there is derived syntax available at the type \lstinline{Exp}, i.e. \emph{quasiquotation} syntax as in Lisp \cite{Bawd99a} and Scala \cite{shabalin2013quasiquotes}, here delimited by backticks and using the prefix \lstinline{%} to indicate a spliced value (i.e. unquote). 
+
+Having to creatively repurpose existing forms in this way limits the effect a library provider can have on syntactic cost (particularly when it would be desirable to express conventions that are quite different from the conventions adopted by the language). It also can create confusion for readers expecting parenthesized expressions to behave in a consistent manner. However,  this approach is preferable to direct syntax extension because it avoids many of the problems discussed above: there cannot be syntactic conflicts (because the syntax is not extended at all), we can define macro abbreviations because macros are integrated into the language, there is a hygiene discipline that guarantees that the expansion will not capture variables inadvertently, and by using a typed macro system, programmers need not examine the expansion to know what type the expansion produced by a macro must have. 

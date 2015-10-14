@@ -1,0 +1,203 @@
+\PassOptionsToPackage{svgnames,dvipsnames,svgnames}{xcolor}
+
+%for a more compact document, add the option openany to avoid
+%starting all chapters on odd numbered pages
+\documentclass[12pt]{cmuthesis}
+%\usepackage[usenames,dvipsnames,svgnames]{xcolor}
+
+% This is a template for a CMU thesis.  It is 18 pages without any content :-)
+% The source for this is pulled from a variety of sources and people.
+% Here's a partial list of people who may or may have not contributed:
+%
+%        bnoble   = Brian Noble
+%        caruana  = Rich Caruana
+%        colohan  = Chris Colohan
+%        jab      = Justin Boyan
+%        josullvn = Joseph O'Sullivan
+%        jrs      = Jonathan Shewchuk
+%        kosak    = Corey Kosak
+%        mjz      = Matt Zekauskas (mattz@cs)
+%        pdinda   = Peter Dinda
+%        pfr      = Patrick Riley
+%        dkoes = David Koes (me)
+
+% My main contribution is putting everything into a single class files and small
+% template since I prefer this to some complicated sprawling directory tree with
+% makefiles.
+\newcommand{\todolater}[1]{{\color{magenta} TODO (Later): #1}}
+\newcommand{\todo}[1]{{\color{red} TODO: #1}}
+
+% some useful packages
+\usepackage{times}     % use times font for document
+\renewcommand{\ttdefault}{txtt} % use txtt for typewriter font
+\usepackage{mathpartir} % use package for inference rules
+\usepackage{upgreek} % package for alternative greek letters (\uppi)
+\usepackage{fullpage}
+%\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage[numbers,sort]{natbib}
+\usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+pdfborder={0 0 0},  %removes outlines around hyper links in online display
+]{hyperref}
+\usepackage{subfigure}
+
+% Approximately 1" margins, more space on binding side
+%\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar]{geometry}
+%for general printing (not binding)
+\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
+
+\usepackage{listings}
+\lstset{tabsize=2, 
+basicstyle=\ttfamily\fontsize{10pt}{1em}\selectfont, 
+commentstyle=\itshape\ttfamily\color{gray}, 
+stringstyle=\ttfamily\color{red},
+numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},mathescape=true,showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern},deletekeywords={double,in},classoffset=0,belowskip=\smallskipamount,
+moredelim=**[is][\color{red}]{SSTR}{ESTR},
+moredelim=**[is][\color{OliveGreen}]{SHTML}{EHTML},
+moredelim=**[is][\color{purple}]{SCSS}{ECSS},
+moredelim=**[is][\color{brown}]{SSQL}{ESQL},
+moredelim=**[is][\color{orange}]{SCOLOR}{ECOLOR},
+moredelim=**[is][\color{magenta}]{SPCT}{EPCT}, 
+moredelim=**[is][\color{gray}]{SNAT}{ENAT}, 
+moredelim=**[is][\color{blue}]{SURL}{EURL},
+moredelim=**[is][\color{SeaGreen}]{SQT}{EQT},
+moredelim=**[is][\color{Periwinkle}]{SGRM}{EGRM},
+moredelim=**[is][\color{YellowGreen}]{SID}{EID},
+moredelim=**[is][\color{Sepia}]{SUS}{EUS},
+deletestring=[d]{"}
+}
+\lstloadlanguages{Java,VBScript,XML,HTML}
+\let\li\lstinline
+
+% Provides a draft mark at the top of the document. 
+\draftstamp{\today}{DRAFT}
+
+
+% I hate hyphenation.
+\lefthyphenmin=7
+
+\input{macros}
+
+\begin{document} 
+\frontmatter
+
+%initialize page style, so contents come out right (see bot) -mjz
+\pagestyle{empty}
+
+\title{ %% {\it \huge Thesis Proposal}\\
+{\bf Modularly Programmable Syntax}}
+\author{Cyrus Omar}
+\date{\today}
+\Year{2015}
+\trnumber{}
+
+\committee{Jonathan Aldrich, Chair\\\todo{confirm rest of committee}}
+
+\support{
+%Funded by DOE CSGF, NSF GRFP, NSF, NSA, ...?
+}
+\disclaimer{}
+\permission{}
+
+% copyright notice generated automatically from Year and author.
+% permission added if \permission{} given.
+
+\keywords{\todo{keywords}}
+
+\maketitle
+
+\begin{dedication}\todo{dedication}
+\end{dedication}
+
+\pagestyle{plain} % for toc, was empty
+
+\begin{abstract}
+\noindent
+Full-scale functional programming languages often make \emph{ad hoc} choices in the design of their concrete syntax. For example, while nearly all major functional languages build in derived forms for lists, introducing derived forms  for other library constructs, e.g. for HTML trees or regular expressions, requires forming new syntactic dialects of these languages. Unfortunately, programmers have no way to modularly combine such syntactic dialects in general, limiting the choices ultimately available to them. In this work, we introduce and formally specify language primitives that mitigate the need for syntactic dialects by giving library providers the ability to programmatically control  syntactic expansion in a safe, hygienic and modular manner.
+\end{abstract}
+
+\begin{acknowledgments}
+\todo{Acknowledgments}
+\end{acknowledgments}
+
+
+\tableofcontents
+\listoffigures
+\todo{concise alternate captions for this listing}
+%\listoftables
+
+\mainmatter
+
+% \section*{Global TODO}
+% Current:
+% \begin{itemize}
+% \item \todo{Rename OCaml to O'Caml (?)}
+% \end{itemize}
+
+% \noindent
+% Before finalizing:
+% \begin{itemize}
+% \item \todolater{Add acknowledgements}
+% \item \todolater{Add dedication}
+% \item \todolater{Add keywords}
+% \item \todolater{Add TR number}
+% \item \todolater{Add CC license}
+% \item \todolater{Add funding acknowledgement.}
+% \end{itemize}
+%% Double space document for easy review:
+%\renewcommand{\baselinestretch}{1.66}\normalsize
+
+% The other requirements Catherine has:
+%
+%  - avoid large margins.  She wants the thesis to use fewer pages, 
+%    especially if it requires colour printing.
+%
+%  - The thesis should be formatted for double-sided printing.  This
+%    means that all chapters, acknowledgements, table of contents, etc.
+%    should start on odd numbered (right facing) pages.
+%
+%  - You need to use the department standard tech report title page.  I
+%    have tried to ensure that the title page here conforms to this
+%    standard.
+%
+%  - Use a nice serif font, such as Times Roman.  Sans serif looks bad.
+%
+% Other than that, just make it look good...
+
+
+\input{intro}
+
+\chapter{Background}
+Most contemporary full-scale programming languages specify a textual concrete syntax (we will consider the topic of non-textual display forms in Sec. \ref{sec:non-textual-display-forms}).
+%\footnote{Although Wyvern specified a layout-sensitive concrete syntax, to avoid unnecessary distractions, we will describe a more conventional layout-insensitive concrete syntax for Verse.} %We have chosen to specify a layout-sensitive textual concrete syntax (i.e. newlines and indentation are not ignored). This design choice is not  fundamental to our proposed contributions, but it will be useful for cleanly expressing a class of examples that we plan to discuss later. We plan to specify some novel aspects of Verse's concrete syntax with an \emph{Adams grammar} \cite{Adams:2013:PPI:2429069.2429129} (such a specification for Wyvern, which has a very similar syntax, can be found in \cite{TSLs}), but for the purposes of this proposal, we will simply introduce Verse's concrete syntax by example as we go on. %For constructs that have an obvious analog in ML, we will omit a detailed explanation.
+Because the purpose of concrete syntax is to serve as the programmer-facing user interface to the language, it is common practice to build in  derived syntactic forms (colloquially, \emph{syntactic sugar}) that capture common idioms more concisely (i.e. at lower \emph{syntactic cost}) or ``naturally'' (i.e. at lower \emph{cognitive cost}, which is usually measured qualitatively \cite{green1996usability}). % (i.e. considering cognitive dimensions \cite{green1996usability}). 
+For example, derived list syntax is built in to many functional languages, so that instead of having to write out \lstinline{Cons(1, Cons(2, Cons(3, Nil)))}, the programmer can equivalently write \lstinline{[1, 2, 3]}. Many languages and dialects thereof go beyond this, building in derived syntax associated with various other types of data, like vectors (the SML/NJ dialect of SML), arrays (OCaml), monadic commands (Haskell), syntax trees (Scala, F\#), XML trees (Scala, Ur/Web) and SQL queries (F\#, Ur/Web). We will begin by describing these and several other examples in more detail in Sec. \ref{sec:motivating-examples}. %This is a rather \emph{ad hoc} process.% discussed previously, the usual approach is to require that the language designer build in new derived syntactic forms. %The desugaring from the latter to the former is specified by the language itself. %Typically, the language designer controls what forms of derived syntax are built in to the language.
+
+Verse will take a less \emph{ad hoc} approach -- rather than privileging particular library constructs with primitive syntactic support, Verse exposes primitives that allow library providers to introduce new expansion logic on their own, in a modular manner. Before describing these primitives in Chapters \ref{chap:tsms} and \ref{chap:tsls}, we will survey existing approaches to the problem of reducing syntactic cost (and in so doing, highlight some of the problems that we aim to resolve in our work) in Sec. \ref{sec:existing-approaches}. %Lists need no special consideration from the language specification.
+%The purpose of this section is to  a and then introduce Verse's syntax extension mechanisms. %For forms with a clear analogy to a form in Standard ML, we will assume the  semantics are analagous without providing details.
+
+%We will begin in Sec. \ref{sec:examples} by detailing another example for which such a mechanism would be useful: regular expression (regex) patterns expressed using abstract data types. We will refer to this example throughout the proposal. In Sec. \ref{sec:syntax-existing}, we discuss how the usual approach of using dynamic string parsing to introduce regex patterns is not ideal. We also survey existing alternatives to dynamic string parsing, finding that they involve an unacceptable loss of modularity and other undesirable trade-offs. In Secs. \ref{sec:tsms} and \ref{sec:tsls}, we introduce our proposed alternatives -- \emph{typed syntax macros} (TSMs) and the related \emph{type-specific languages} (TSLs) -- and discuss how they resolve these issues (as well as some limitations that they have). We  also give an overview of how TSMs are formally specified. We give a concrete timeline for the remaining work in Sec. \ref{sec:syntax-timeline}, and conclude in Sec. \ref{sec:conclusion}.
+
+\input{motivating-examples}
+\input{existing-approaches}
+
+\input{tsms}
+
+\input{tsls}
+
+\input{conclusion}
+
+\input{appendix}
+
+\backmatter
+
+%\renewcommand{\baselinestretch}{1.0}\normalsize
+% By default \bibsection is \chapter*, but we really want this to show
+% up in the table of contents and pdf bookmarks.
+\renewcommand{\bibsection}{\chapter{\bibname}}
+\renewcommand{\bibpreamble}{\todolater{List conference abbreviations.}\\
+\todolater{Remove extraneous nonsense from entries.}}
+\bibliographystyle{plainnat}
+\bibliography{../research} %your bib file
+
+\end{document}
