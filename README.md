@@ -1,2 +1,3 @@
-# thesis
-My CMU CS PhD Thesis: Modularly Programmable Syntax
+# Modularly Programmable Syntax
+This repository contains my PhD thesis (in progress).
+
