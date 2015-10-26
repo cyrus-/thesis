@@ -51,6 +51,7 @@ pdfborder={0 0 0},  %removes outlines around hyper links in online display
 basicstyle=\ttfamily\fontsize{10pt}{1em}\selectfont, 
 commentstyle=\itshape\ttfamily\color{gray}, 
 stringstyle=\ttfamily\color{red},
+mathescape=#,
 numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},mathescape=true,showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern},deletekeywords={double,in},classoffset=0,belowskip=\smallskipamount,
 moredelim=**[is][\color{red}]{SSTR}{ESTR},
 moredelim=**[is][\color{OliveGreen}]{SHTML}{EHTML},
@@ -64,7 +65,8 @@ moredelim=**[is][\color{SeaGreen}]{SQT}{EQT},
 moredelim=**[is][\color{Periwinkle}]{SGRM}{EGRM},
 moredelim=**[is][\color{YellowGreen}]{SID}{EID},
 moredelim=**[is][\color{Sepia}]{SUS}{EUS},
-deletestring=[d]{"}
+deletestring=[d]{"},
+escapeinside={(~}{~)}
 }
 \lstloadlanguages{Java,VBScript,XML,HTML}
 \let\li\lstinline
@@ -84,8 +86,7 @@ deletestring=[d]{"}
 %initialize page style, so contents come out right (see bot) -mjz
 \pagestyle{empty}
 
-\title{ %% {\it \huge Thesis Proposal}\\
-{\bf Modularly Programmable Syntax}}
+\title{{Modularly Programmable Syntax}}
 \author{Cyrus Omar}
 \date{\today}
 \Year{2015}
@@ -97,7 +98,7 @@ deletestring=[d]{"}
 %Funded by DOE CSGF, NSF GRFP, NSF, NSA, ...?
 }
 \disclaimer{}
-\permission{}
+\permission{\todo{CC0 license.}}
 
 % copyright notice generated automatically from Year and author.
 % permission added if \permission{} given.
@@ -123,7 +124,6 @@ Full-scale functional programming languages often make \emph{ad hoc} choices in 
 
 \tableofcontents
 \listoffigures
-\todo{concise alternate captions for this listing}
 %\listoftables
 
 \mainmatter
@@ -168,13 +168,17 @@ Full-scale functional programming languages often make \emph{ad hoc} choices in 
 \input{intro}
 
 \chapter{Background}
-Most contemporary full-scale programming languages specify a textual concrete syntax (we will consider the topic of non-textual display forms in Sec. \ref{sec:non-textual-display-forms}).
-%\footnote{Although Wyvern specified a layout-sensitive concrete syntax, to avoid unnecessary distractions, we will describe a more conventional layout-insensitive concrete syntax for Verse.} %We have chosen to specify a layout-sensitive textual concrete syntax (i.e. newlines and indentation are not ignored). This design choice is not  fundamental to our proposed contributions, but it will be useful for cleanly expressing a class of examples that we plan to discuss later. We plan to specify some novel aspects of Verse's concrete syntax with an \emph{Adams grammar} \cite{Adams:2013:PPI:2429069.2429129} (such a specification for Wyvern, which has a very similar syntax, can be found in \cite{TSLs}), but for the purposes of this proposal, we will simply introduce Verse's concrete syntax by example as we go on. %For constructs that have an obvious analog in ML, we will omit a detailed explanation.
-Because the purpose of concrete syntax is to serve as the programmer-facing user interface to the language, it is common practice to build in  derived syntactic forms (colloquially, \emph{syntactic sugar}) that capture common idioms more concisely (i.e. at lower \emph{syntactic cost}) or ``naturally'' (i.e. at lower \emph{cognitive cost}, which is usually measured qualitatively \cite{green1996usability}). % (i.e. considering cognitive dimensions \cite{green1996usability}). 
-For example, derived list syntax is built in to many functional languages, so that instead of having to write out \lstinline{Cons(1, Cons(2, Cons(3, Nil)))}, the programmer can equivalently write \lstinline{[1, 2, 3]}. Many languages and dialects thereof go beyond this, building in derived syntax associated with various other types of data, like vectors (the SML/NJ dialect of SML), arrays (OCaml), monadic commands (Haskell), syntax trees (Scala, F\#), XML trees (Scala, Ur/Web) and SQL queries (F\#, Ur/Web). We will begin by describing these and several other examples in more detail in Sec. \ref{sec:motivating-examples}. %This is a rather \emph{ad hoc} process.% discussed previously, the usual approach is to require that the language designer build in new derived syntactic forms. %The desugaring from the latter to the former is specified by the language itself. %Typically, the language designer controls what forms of derived syntax are built in to the language.
+%VerseML, like most contemporary full-scale programming languages, has a textual concrete syntax (we will consider the topic of non-textual display forms as future work in Sec. \ref{sec:non-textual-display-forms}).
+%\footnote{Although Wyvern specified a layout-sensitive concrete syntax, to avoid unnecessary distractions, we will describe a more conventional layout-insensitive concrete syntax for VerseML.} %We have chosen to specify a layout-sensitive textual concrete syntax (i.e. newlines and indentation are not ignored). This design choice is not  fundamental to our proposed contributions, but it will be useful for cleanly expressing a class of examples that we plan to discuss later. We plan to specify some novel aspects of VerseML's concrete syntax with an \emph{Adams grammar} \cite{Adams:2013:PPI:2429069.2429129} (such a specification for Wyvern, which has a very similar syntax, can be found in \cite{TSLs}), but for the purposes of this proposal, we will simply introduce VerseML's concrete syntax by example as we go on. %For constructs that have an obvious analog in ML, we will omit a detailed explanation.
+%Because the purpose of concrete syntax is to serve as the programmer-facing user interface to the language, it is common practice to build in  derived syntactic forms (colloquially, \emph{syntactic sugar}) that capture common idioms more concisely (i.e. at lower \emph{syntactic cost}) or ``naturally'' (i.e. at lower \emph{cognitive cost}, which is usually considered qualitatively \cite{green1996usability}). % (i.e. considering cognitive dimensions \cite{green1996usability}). 
+%For example, derived list syntax is built in to many functional languages, so that instead of having to write out 
+%\begin{lstlisting}[numbers=none]
+%Cons(1, Cons(2, Cons(3, Nil)))
+%\end{lstlisting}
+%the programmer can equivalently write \lstinline{[1, 2, 3]}. Many languages and dialects thereof go beyond this, building in derived syntax associated with various other types of data, like vectors (the SML/NJ dialect of SML), arrays (OCaml), monadic commands (Haskell), syntax trees (Scala, F\#), XML trees (Scala, Ur/Web) and SQL queries (F\#, Ur/Web). We will begin by describing these and several other examples in more detail in Sec. \ref{sec:motivating-examples}. %This is a rather \emph{ad hoc} process.% discussed previously, the usual approach is to require that the language designer build in new derived syntactic forms. %The desugaring from the latter to the former is specified by the language itself. %Typically, the language designer controls what forms of derived syntax are built in to the language.
 
-Verse will take a less \emph{ad hoc} approach -- rather than privileging particular library constructs with primitive syntactic support, Verse exposes primitives that allow library providers to introduce new expansion logic on their own, in a modular manner. Before describing these primitives in Chapters \ref{chap:tsms} and \ref{chap:tsls}, we will survey existing approaches to the problem of reducing syntactic cost (and in so doing, highlight some of the problems that we aim to resolve in our work) in Sec. \ref{sec:existing-approaches}. %Lists need no special consideration from the language specification.
-%The purpose of this section is to  a and then introduce Verse's syntax extension mechanisms. %For forms with a clear analogy to a form in Standard ML, we will assume the  semantics are analagous without providing details.
+%VerseML will take a less \emph{ad hoc} approach -- rather than privileging particular library constructs with primitive syntactic support, VerseML exposes primitives that allow library providers to introduce new expansion logic on their own, in a modular manner. Before describing these primitives in the remaining chapters, we will survey existing approaches to the problem of reducing syntactic cost (and in so doing, highlight some of the problems that we aim to resolve in our work) in Sec. \ref{sec:existing-approaches}. %Lists need no special consideration from the language specification.
+%The purpose of this section is to  a and then introduce VerseML's syntax extension mechanisms. %For forms with a clear analogy to a form in Standard ML, we will assume the  semantics are analagous without providing details.
 
 %We will begin in Sec. \ref{sec:examples} by detailing another example for which such a mechanism would be useful: regular expression (regex) patterns expressed using abstract data types. We will refer to this example throughout the proposal. In Sec. \ref{sec:syntax-existing}, we discuss how the usual approach of using dynamic string parsing to introduce regex patterns is not ideal. We also survey existing alternatives to dynamic string parsing, finding that they involve an unacceptable loss of modularity and other undesirable trade-offs. In Secs. \ref{sec:tsms} and \ref{sec:tsls}, we introduce our proposed alternatives -- \emph{typed syntax macros} (TSMs) and the related \emph{type-specific languages} (TSLs) -- and discuss how they resolve these issues (as well as some limitations that they have). We  also give an overview of how TSMs are formally specified. We give a concrete timeline for the remaining work in Sec. \ref{sec:syntax-timeline}, and conclude in Sec. \ref{sec:conclusion}.
 
@@ -198,6 +202,6 @@ Verse will take a less \emph{ad hoc} approach -- rather than privileging particu
 \renewcommand{\bibpreamble}{\todolater{List conference abbreviations.}\\
 \todolater{Remove extraneous nonsense from entries.}}
 \bibliographystyle{plainnat}
-\bibliography{../research} %your bib file
+\bibliography{../papers/research} %your bib file
 
 \end{document}

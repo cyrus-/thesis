@@ -1,14 +1,20 @@
 % !TEX root = omar-thesis.tex
 \chapter{Typed Syntax Macros (TSMs)}\label{chap:tsms}
-We will now introduce a new external primitive -- the \textbf{typed syntax macro} (TSM) -- that combines the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
+We will now introduce a new primitive -- the \textbf{typed syntax macro} (TSM) -- that combines the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
 
-\section{TSMs by Example}\label{sec:tsms-by-example}
+%Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
+
+\section{TSMs By Example}\label{sec:tsms-by-example}
 %A typed syntax macro is invoked by applying it to a \emph{delimited form}, which can contain  arbitrary syntax in its \emph{body}.  
-To introduce TSMs, consider the following concrete external expression:
-\begin{lstlisting}[numbers=none]
-rx P /SURLA|T|G|CEURL/
+Let us begin by defining a TSM for introducing values of the datatype \li{Rx} defined in Figure \ref{fig:datatype-rx}. We will return to the signature \li{RX} defined in Figure \ref{fig:signature-RX} when we consider the issue of how TSMs interact with the module system in Sec. \ref{sec:tsms-parameterized}.
+
+Consider the following concrete expression:
+\begin{lstlisting}[numbers=none,mathescape=|]
+$rx /SURLA|T|G|CEURL/
 \end{lstlisting}
-Here, we apply a \emph{parameterized TSM}, \lstinline{rx}, first to a module parameter, \lstinline{R}, then to a \emph{delimited form}, \lstinline{/SURLA|T|G|CEURL/}. A number of alternative delimiters are also available in Verse's concrete syntax and could equivalently have been used, e.g. \lstinline{<SURLA|T|G|CEURL>}. The TSM statically parses the \emph{body} of the provided delimited form, i.e. the characters between the delimiters (indicated here in blue), and computes an \emph{expansion}, i.e. another expression. In this case, \lstinline{pattern} generates the following expansion (written concretely):
+
+Here, we apply a {TSM}, identified as \lstinline{$\dolla$rx}, 
+to a \emph{literal form}, \lstinline{/SURLA|T|G|CEURL/}. A number of alternative delimiters are also available in VerseML's concrete syntax and could equivalently have been used, e.g. \lstinline{<SURLA|T|G|CEURL>}. The TSM statically parses the \emph{body} of the provided delimited form, i.e. the characters between the delimiters (indicated here in blue), and computes an \emph{expansion}, i.e. another expression. In this case, \lstinline{pattern} generates the following expansion (written concretely):
 
 % import cs.cmu.edu/~wyvern/regex as R
 % let syntax pattern = R.pattern
@@ -27,7 +33,7 @@ syntax rx[Q : RX] at Q.t {
 \end{lstlisting}
 This \emph{TSM definition} first identifies the TSM as \lstinline{rx}, then specifies a module parameter, \lstinline{Q}, which quantifies over modules that match the signature \lstinline{RX} (again, we use \lstinline{Q} to emphasize that the library provider does not make any assumptions about identifiers in scope; the client must pass in a particular module, e.g. \lstinline{R} above). The \emph{type annotation} \lstinline{at Q.t} specifies that all expansions that arise from the application of this TSM to a module, \lstinline{Q}, and a delimited form must necessarily be of type \lstinline{Q.t}. 
 
-When a client applies the TSM to the necessary parameters and a delimited form, e.g. the parameter \lstinline{P} and the delimited form \lstinline{/SURLA|T|G|CEURL/} in the example above, the expansion is computed by calling the \emph{parse function} defined within braces. The parse function is a static function of type \lstinline{Body -> Exp}. Both of these types are defined in the Verse \emph{prelude}, which is a set of definitions available ambiently. The type \lstinline{Body} gives the static function access to the {body} of the delimited form (e.g. the characters in blue above) and the type \lstinline{Exp}, mentioned also in the discussion of macros above,  encodes the abstract syntax of expressions (there are also encodings of other syntactic classes, e.g. types and variables, that can appear in expressions). %The parse function must treat the TSM parameters parametrically, i.e. it does not have access to any values in the supplied module parameter. Only the expansion the parse function generates can refer to module parameters. 
+When a client applies the TSM to the necessary parameters and a delimited form, e.g. the parameter \lstinline{P} and the delimited form \lstinline{/SURLA|T|G|CEURL/} in the example above, the expansion is computed by calling the \emph{parse function} defined within braces. The parse function is a static function of type \lstinline{Body -> Exp}. Both of these types are defined in the VerseML \emph{prelude}, which is a set of definitions available ambiently. The type \lstinline{Body} gives the static function access to the {body} of the delimited form (e.g. the characters in blue above) and the type \lstinline{Exp}, mentioned also in the discussion of macros above,  encodes the abstract syntax of expressions (there are also encodings of other syntactic classes, e.g. types and variables, that can appear in expressions). %The parse function must treat the TSM parameters parametrically, i.e. it does not have access to any values in the supplied module parameter. Only the expansion the parse function generates can refer to module parameters. 
 %For example, the following definition is ill-sorted:
 %\begin{lstlisting}[numbers=none]
 %syntax pattern_bad[Q : PATTERN] at Q.t {
@@ -73,7 +79,7 @@ SURL<tag>body ends on first closing tag</tag>EURL
 \todo{mention additional form in Wyvern}\\
 \todo{reference this figure}\\
 \todo{call them literal forms rather than delimited forms in text}
-\caption{Literal forms available for use with TSMs in Verse's concrete syntax. The characters in blue are the bodies of each form. In this figure, they describe the constraints placed on the body when using the corresponding form. On line 4, \texttt{tag} can be any character sequence that does not contain a right angle bracket (\texttt{>}). The starting and closing tag must match.}
+\caption[Available Literal Forms]{Literal forms available for use with TSMs in VerseML's concrete syntax. The characters in blue are the bodies of each form. In this figure, they describe the constraints placed on the body when using the corresponding form. On line 4, \texttt{tag} can be any character sequence that does not contain a right angle bracket (\texttt{>}). The starting and closing tag must match.}
 \label{fig:Body-defn}
 \end{figure}
 
@@ -105,7 +111,9 @@ $\begin{array}{ll}
 \textbf{type formation contexts} & \textbf{typing contexts}\\
 \Delta ::= \emptyset ~\vert~ \Delta, t & \Gamma ::= \emptyset ~\vert~ \Gamma, x : \tau
 \end{array}$
-\todo{add sum and product types}
+
+\todo{add sum and product types}\\
+\todo{add nat}
 \caption{Syntax of $\LTSM$}
 \label{fig:lambda-tsm-syntax}
 \end{figure}
@@ -113,7 +121,7 @@ $\begin{array}{ll}
 
 To give a formal account of TSMs, we will now introduce a typed lambda calculus, $\LTSM$. To simplify matters, this calculus supports only unparameterized TSMs (i.e. TSMs defined at a single type, e.g. the datatype \lstinline{Pattern}, rather than a parameterized family of types). In the dissertation, we will introduce a second calculus, $\mathcal{L}^\text{PTSM}$, that extends $\LTSM$ with support for parameterized families of types as described above (see Sec. \ref{sec:syntax-timeline}). The syntax of $\LTSM$ is shown in Figure \ref{fig:lambda-tsm-syntax}.
 
-\subsubsection{Types and Expanded Expressions}
+\subsection{Types and Expanded Expressions}
 \begin{figure}
 \todo{write this down}
 \caption{Static semantics of expanded expressions in $\LTSM$}
@@ -144,7 +152,7 @@ e~\mathtt{val} & \text{$e$ is a value}
 \\\noindent
 We will write $e \mapsto^* e'$ for the reflexive, transitive closure of the transition relation and $e \Downarrow e'$ iff $e \mapsto^* e'$ and $e'~\mathtt{val}$.
 
-\subsubsection{Macro Expansion}
+\subsection{Macro Expansion and Validation}
 \begin{figure}
 \todo{write this down}
 \caption{Typed Expansion}
@@ -169,7 +177,7 @@ type Exp = Var of var | Abs of var * Ty * Exp | App of Exp * Exp
 \todo{use math font}
 \todo{reference tihs figure}\\
 \todo{ack. that there are other possible encodings that might be useful in practice, e.g. ABTs}
-\caption{Definition of types for expansion encodings in $\LTSM$. For clarity, we use OCaml-style type definitions with explicit constructor labels here and in the remainder of this section. The mapping from these definitions to the unlabeled recursive sum types found in $\LTSM$ is straightforward (e.g. \texttt{Nat} corresponds to $\rect{t}{\sumt{\unitt}{t}}$) and thus omitted for concision.}
+\caption[Expansion Encodings]{Definition of types for expansion encodings in $\LTSM$. For clarity, we use OCaml-style type definitions with explicit constructor labels here and in the remainder of this section. The mapping from these definitions to the unlabeled recursive sum types found in $\LTSM$ is straightforward (e.g. \texttt{Nat} corresponds to $\rect{t}{\sumt{\unitt}{t}}$) and thus omitted for concision.}
 \label{fig:visible-compiler}
 \end{figure}
 \begin{figure}
@@ -299,9 +307,11 @@ The current contexts are initially empty when checking the marked expansion gene
 %The translation of the elaboration becomes the translation in the conclusion of the rule.
 \end{enumerate}
 
-\section{The Static Subset}\label{sec:static-subset}
-\section{Typed Pattern Syntax Macros (TPSMs)}\label{sec:pattern-tsms}
-TSMs as we have described them so far decrease the syntactic cost of introducing a value at a specified type. In full-scale functional languages like ML, one typically deconstructs a value using \emph{nested pattern matching}. For example, let us return to the definition of the datatype \lstinline{Rx} shown at the beginning of Sec. \ref{sec:examples}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using Verse's \lstinline{match} construct like this:
+\subsection{Metatheory}
+\subsection{Static Language}\label{sec:static-subset}
+\subsection{Limitations}
+\chapter{Typed Pattern Syntax Macros (TPSMs)}\label{sec:pattern-tsms}
+TSMs as we have described them so far decrease the syntactic cost of introducing a value at a specified type. In full-scale functional languages like ML, one typically deconstructs a value using \emph{nested pattern matching}. For example, let us return to the definition of the datatype \lstinline{Rx} shown at the beginning of Sec. \ref{sec:examples}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct like this:
 \begin{lstlisting}[numbers=none]
 match r with 
     Seq(Str(name), Seq(Str ": ", ssn)) => display name ssn
@@ -332,5 +342,5 @@ To ensure that the client of the TPSM need not ``guess at'' what variables are b
 
 ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, shown in Sec. \ref{sec:examples}. We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
 
-\section{Parameterized TSMs}\label{sec:tsms-parameterized}
+\chapter{Parameterized TSMs}\label{sec:tsms-parameterized}
 

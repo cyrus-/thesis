@@ -1,25 +1,67 @@
 % !TEX root = omar-thesis.tex
 
 \section{Motivating Examples}\label{sec:motivating-examples}
-\subsection{Lists and Other Containers}\label{sec:syntax-examples-lists}
-\subsection{HTML and Other Web Languages}\label{sec:syntax-examples-html}
-\subsection{Dates, URLs and Other Standardized Formats}\label{sec:syntax-examples-dates}
-\subsection{Regular Expressions and Other Query Languages}\label{sec:syntax-examples-regexps}
-Let us now take the perspective of a regular expression library provider. We assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}. We will discuss a standard variant of regular expressions that supports marking \emph{captured groups} (with parentheses in the concrete syntax) to make certain examples more interesting.
+In this section, we will describe a number of examples of data structures that could benefit from the introduction of  derived syntactic forms. We describe the first two examples -- regular expressions and lists -- in substantial detail, and we will refer back to these examples throughout this work. We then more concisely survey a number of other examples, grouped into  categories, to establish the broad applicability of our techniques. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
 
-\paragraph{Abstract Syntax} The abstract syntax of {patterns}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r) ~|~ \textbf{group}(r)\]
-One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. Verse supports these as datatypes:
+\subsection{Regular Expressions}\label{sec:syntax-examples-regexps}
+Let us begin by taking the perspective of a regular expression library provider. We assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}. We will discuss a standard variant of regular expressions that supports marking \emph{captured groups} to make certain examples more interesting. The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r) ~|~ \textbf{group}(r)\]
 
+\paragraph{Recursive Sums}
+One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a recursive sum type can be defined like this:
+
+\begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
-datatype Rx {
-    Empty | Str of string | Seq of Rx * Rx 
-    | Or of Rx * Rx | Star of Rx | Group of Rx
-}
+type Rx = Empty | Str of string | Seq of Rx * Rx | 
+          Or of Rx * Rx | Star of Rx | Group of Rx
+\end{lstlisting}
+\caption{Definition of the recursive sum type \li{Rx}}
+\label{fig:datatype-rx}
+\end{figure}
+
+The abstract syntax of regexes is too verbose to be practical  in all but the most trivial examples, so programmers conventionally write patterns using a more concise concrete syntax based on the POSIX standard \cite{STD95954}. A number of programming languages support derived syntax for regular expressions based on this standard, e.g. Perl \todo{cite}. Let us consider a hypothetical dialect of ML called ML+Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes based on this standard (we will compare VerseML to ML+Rx in later chapters). ML+Rx supports \emph{regex literals}, e.g.
+\begin{lstlisting}[numbers=none]
+/SURLA|T|G|CEURL/
+\end{lstlisting}
+This desugars to:
+\begin{lstlisting}[numbers=none]
+Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 
-However, there are some reasons not to expose this representation of patterns directly to clients. First, regular expression patterns are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It might be useful for patterns with the same normal form to be  indistinguishable from the perspective of client code. Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automata) without exposing this ``implementation detail'' to clients. Indeed, there may be many ways to represent regular expression patterns, each with different performance trade-offs. For these reasons, a better approach in Verse, as in ML, is to abstract over the choice of representation using  the module system's support for type abstraction. In particular, we can define the following \emph{module signature}, where the type of patterns, \lstinline{t}, is held abstract:
+Some regexes are constructed from other values, so ML+Rx also supports \emph{spliced values} in regex literals. For example, the function \li{example_rx} shown below constructs a regex by splicing in a string and another regex:
+\begin{lstlisting}[numbers=none]
+let ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+fun example_rx(name : string) => /SURL@EURLnameSURL: %EURLssn/
+\end{lstlisting}
+The prefix \li{@} indicates that the value of \lstinline{name} should be spliced in as a string, and the prefix \li{%}
+indicates that the value of \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
+\begin{lstlisting}[numbers=none]
+Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+\end{lstlisting}
+Notice that \li{name} appears wrapped in the constructor \li{Str} because it was prefixed by \li{@}, whereas \li{ssn} appears unadorned because it was prefixed by \li{%}. 
+
+If we want to splice in an expression of more complex form, e.g. a function call, we can delimit it with parentheses:
+\begin{lstlisting}[numbers=none]
+/SURL@(EURLcapitalize nameSURL): %EURLssn/
+\end{lstlisting}
+
+Finally, ML+Rx allows us to pattern match on a value of type \li{Rx} using derived pattern syntax as well. For example:
+\begin{lstlisting}[numbers=none]
+fun read_example_rx(r : Rx) => 
+  match r with 
+    /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
+  | _ => None
+\end{lstlisting}
+desugars to:
+\begin{lstlisting}[numbers=none]
+fun read_example_rx(r : Rx) => 
+  match r with
+    Seq(Str(name), Seq(Str "SSTR: ESTR", ssn)) => Some (name, ssn)
+  | _ => None
+\end{lstlisting}
+\paragraph{Abstract Types} Encoding regexes as values of type \li{Rx} is straightforward, but there are reasons why one might not wish to expose this encoding to clients directly. First, regexes are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), but one would not want to expose this ``implementation detail'' to clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs, so we would like to provide clients with a choice of implementations. For these reasons, another approach in VerseML, as in ML, is to abstract over the choice of representation using  the module system's support for abstract types. In particular, we can define the \emph{module signature} \li{RX} where the type of patterns, \lstinline{t}, is held abstract:
 %Notice that it exposes an interface otherwise  to the one available using a case type:
 
+\begin{figure}[ht]
 \begin{lstlisting}[deletekeywords={case},numbers=none]
 signature RX = sig {
   type t
@@ -40,18 +82,32 @@ signature RX = sig {
     } -> 'a
 }
 \end{lstlisting}
+\caption{Definition of the \lstinline{RX} signature.}
+\label{fig:signature-RX}
+\end{figure}
+
  Clients of any module \lstinline{R} that has been sealed against \lstinline{RX}, written \lstinline{R :> RX}, manipulate patterns as values of the type \li{R.t} using the interface described by this signature. The identity of the type \lstinline{R.t} is held abstract outside the module during typechecking (i.e. it acts as a newly generated type). As a result, the burden of proving that there is no way to use the case analysis function to distinguish patterns with the same normal form is local to the module, and implementation details do not escape (and can thus evolve freely). %The details are standard and not particularly relevant for our purposes, so we omit them here.
 
-\paragraph{Concrete Syntax} The abstract syntax of patterns is too verbose to be practical  in all but the most trivial examples, so programmers conventionally write patterns using a more concise concrete syntax. For example, the concrete syntax \lstinline{A|T|G|C} corresponds to the following much more verbose pattern expression (assuming some module \lstinline{R : RX} is in scope here and in the remainder of the document):
-\begin{lstlisting}[numbers=none,mathescape=|]
-R.Or(R.Str "SSTRAESTR", R.Or(R.Str "SSTRTESTR", R.Or(R.Str "SSTRGESTR", R.Str "SSTRCESTR")))
-\end{lstlisting} 
+ \todo{talk about module-parameterized derived syntactic forms for this}
 
+ \todo{talk about pattern matching over values of abstract type}
+
+\subsection{Lists}\label{sec:syntax-examples-lists}
+\todo{write this}
+\subsection{Other Containers}\label{sec:syntax-examples-containers}
+\todo{write this}
+\subsection{HTML and Other Web Languages}\label{sec:syntax-examples-html}
+\todo{write this; cite Ur/Web}
+\subsection{Dates, URLs and Other Standardized Formats}\label{sec:syntax-examples-dates}
+\todo{write this}
+\subsection{Query Languages} The language of regular expressions can be considered a query language over strings. There are many other query languages that focus on different types of data, e.g. XQuery for XML trees, or that are associated with different database technologies, e.g. SQL for relational databases. \todo{finish this} 
 \subsection{Monadic Commands}\label{sec:syntax-examples-monads}
+\todo{write this; cite Bob's blog}
 \subsection{Quasiquotation}\label{sec:syntax-examples-quasiquotation}
+\todo{write this}
 \subsection{Grammars}\label{sec:syntax-examples-grammars}
+\todo{write this}
 \subsection{Mathematical and Scientific Notations}\label{sec:syntax-examples-math-science}
-\begin{itemize}
-\item Chemistry: SMILES \url{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}
-\item Math: LaTeX formula syntax
-\end{itemize}
+\subsubsection{SMILES: Chemical Notation}
+\todo{write this; cite SMILES \url{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}}
+\subsubsection{\TeX~Mathematical Formula Notation}
