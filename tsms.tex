@@ -1,39 +1,85 @@
 % !TEX root = omar-thesis.tex
-\chapter{Typed Syntax Macros (TSMs)}\label{chap:tsms}
-We will now introduce a new primitive -- the \textbf{typed syntax macro} (TSM) -- that combines the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
+\chapter{Unparameterized Expression TSMs}\label{chap:tsms}
+We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM) -- that combines much of the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. This chapter focuses on TSMs that generate expressions of a single specified type (\emph{unparameterized expression TSMs}). We will add pattern matching in Chapter \ref{sec:pattern-tsms} and parameterized families of types in Chapter \ref{sec:tsms-parameterized}.
+
+We begin in Sec. \ref{sec:tsms-by-example} by describing expression TSMs in VerseML by example.  In particular, we will show a TSM for introducing values of the type \li{Rx} defined in Figure \ref{fig:datatype-rx}. We will then discuss examples of TSMs that are useful for defining other TSMs in Sec. \ref{sec:tsms-for-tsms}. Finally, we will formally specify unparameterized expression TSMs with a lambda calculus, $\LTSM$, in Sec. \ref{sec:tsms-minimal-formalism}.% As we will discuss in the remainder of this section, this addresses the problems , at moderate syntactic cost.
+
 
 %Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
 
-\section{TSMs By Example}\label{sec:tsms-by-example}
+\section{Expression TSMs By Example}\label{sec:tsms-by-example}
 %A typed syntax macro is invoked by applying it to a \emph{delimited form}, which can contain  arbitrary syntax in its \emph{body}.  
-Let us begin by defining a TSM for introducing values of the datatype \li{Rx} defined in Figure \ref{fig:datatype-rx}. We will return to the signature \li{RX} defined in Figure \ref{fig:signature-RX} when we consider the issue of how TSMs interact with the module system in Sec. \ref{sec:tsms-parameterized}.
 
-Consider the following concrete expression:
+\subsection{Usage}\label{sec:uetsms-usage}
+Consider the following VerseML expression:
 \begin{lstlisting}[numbers=none,mathescape=|]
 $rx /SURLA|T|G|CEURL/
 \end{lstlisting}
 
-Here, we apply a {TSM}, identified as \lstinline{$\dolla$rx}, 
-to a \emph{literal form}, \lstinline{/SURLA|T|G|CEURL/}. A number of alternative delimiters are also available in VerseML's concrete syntax and could equivalently have been used, e.g. \lstinline{<SURLA|T|G|CEURL>}. The TSM statically parses the \emph{body} of the provided delimited form, i.e. the characters between the delimiters (indicated here in blue), and computes an \emph{expansion}, i.e. another expression. In this case, \lstinline{pattern} generates the following expansion (written concretely):
-
-% import cs.cmu.edu/~wyvern/regex as R
-% let syntax pattern = R.pattern
-% let module P = R.P
-% The first line imports our top-level regular expression module (identified uniquely by a URI) and binds a shorter name, \lstinline{R}, to it. The second line binds a local name to the  TSM named \lstinline{pattern} that \lstinline{R} exports. The third line gives a shorter name, \lstinline{P}, to the module \lstinline{R.P : R.PATTERN}, as defined previously. The fourth line then applies \lstinline{pattern} to this module parameter and a form delimited by forward slashes. This causes it to elaborate \emph{statically} to the following base form:
+Here, we apply a {TSM}, identified as \lstinline{#\dolla#rx}, 
+to a \emph{literal form}, \lstinline{/SURLA|T|G|CEURL/}. 
+The TSM statically parses the \emph{body} of the provided literal form, i.e. the characters in blue, to generate a \emph{candidate expansion}. The language then \emph{validates} the candidate expansion to maintain a type and hygiene discipline, in a manner that we will describe in Sec. \ref{sec:uetsms-validation}, before producing the \emph{final expansion}. The final expansion of the expression above, written concretely, is:
 \begin{lstlisting}[numbers=none]
-R.Or(R.Str "SSTRAESTR", R.Or(R.Str "SSTRTESTR", R.Or(R.Str "SSTRGESTR", R.Str "SSTRCESTR")))
+Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
+The constructors in the expansion above are those of the type \li{Rx} defined in Fig. \ref{fig:datatype-rx}.
 
+A number of literal forms, shown in Figure \ref{fig:literal-forms},  are available in VerseML's concrete syntax. Though certain TSMs may by convention call for the use of particular literal forms, any literal form can be used with any TSM, e.g. we could have written \lstinline{#\dolla#rx `SURLA|T|G|CEURL`} above (this would actually be convenient if we wanted to write a regex containing forward slashes but not backticks). %The form does not directly determine the expansion. 
+
+\begin{figure}
+\begin{lstlisting}
+'SURLbody cannot contain an apostropheEURL'
+`SURLbody cannot contain a backtickEURL`
+[SURLbody cannot contain unmatched square bracketsEURL]
+{SURLbody cannot contain an unmatched curly braceEURL}
+/SURLbody cannot contain a forward slashEURL/
+\SURLbody cannot contain a backslashEURL\
+SURL42EURL (* numeric forms *)
+SURL42pxEURL (* numeric forms with suffixes *)
+\end{lstlisting}
+%SURL<tag>body includes enclosing tags</tag>EURL
+\caption[Available Literal Forms]{Literal forms available for use with TSMs in VerseML's concrete syntax. The characters in blue are the bodies of each form. In this figure, each line describes how the body is constrained by the form shown on that line. The Wyvern language specifies additional forms, including whitespace-delimited forms \cite{TSLs} and multipart forms \cite{sac15}, but for simplicity we leave these out of VerseML.}
+\label{fig:literal-forms}
+\end{figure}
+\subsection{Definition}\label{sec:uetsms-definition}
 %The original expression, above, is statically rewritten to this expression.
-The definition of \lstinline{rx} looks like this:
-\begin{lstlisting}[numbers=none]
-syntax rx[Q : RX] at Q.t {
-  static fn (body : Body) : Exp => (* regex expression parser here *)
+The definition of the TSM \lstinline{#\dolla#rx} shown in use above has the following form:
+\begin{lstlisting}[numbers=none,mathescape=|]
+syntax $rx at Rx {
+  static fn(body : Body) : ParseResult => (* regex literal parser here *)
 }
 \end{lstlisting}
-This \emph{TSM definition} first identifies the TSM as \lstinline{rx}, then specifies a module parameter, \lstinline{Q}, which quantifies over modules that match the signature \lstinline{RX} (again, we use \lstinline{Q} to emphasize that the library provider does not make any assumptions about identifiers in scope; the client must pass in a particular module, e.g. \lstinline{R} above). The \emph{type annotation} \lstinline{at Q.t} specifies that all expansions that arise from the application of this TSM to a module, \lstinline{Q}, and a delimited form must necessarily be of type \lstinline{Q.t}. 
+This {TSM definition} first identifies the TSM as \lstinline{#\dolla#rx}, then specifies a \emph{type annotation}, \lstinline{at Rx}, and a \emph{parse function}, within curly braces. 
 
-When a client applies the TSM to the necessary parameters and a delimited form, e.g. the parameter \lstinline{P} and the delimited form \lstinline{/SURLA|T|G|CEURL/} in the example above, the expansion is computed by calling the \emph{parse function} defined within braces. The parse function is a static function of type \lstinline{Body -> Exp}. Both of these types are defined in the VerseML \emph{prelude}, which is a set of definitions available ambiently. The type \lstinline{Body} gives the static function access to the {body} of the delimited form (e.g. the characters in blue above) and the type \lstinline{Exp}, mentioned also in the discussion of macros above,  encodes the abstract syntax of expressions (there are also encodings of other syntactic classes, e.g. types and variables, that can appear in expressions). %The parse function must treat the TSM parameters parametrically, i.e. it does not have access to any values in the supplied module parameter. Only the expansion the parse function generates can refer to module parameters. 
+VerseML enforces the convention that all TSM identifiers must be prefixed with a dollar sign (though other language designs could choose not to do so). 
+
+The {parse function} is a \emph{static function} that generates an encoding of the candidate expansion, or indicates an error if a candidate expansion can't be generated (i.e. there is a parse error).  Static functions are functions written in a static subset of the language, called the \emph{static language} (SL). We will return to the design space around the static language in Sec. \ref{sec:static-subset}. The parse function has type \li{Body -> ParseResult}. These types are defined in the VerseML \emph{prelude}, which is a set of definitions available ambiently. The input type, \lstinline{Body}, gives the parse function access to the {body} of the provided literal form, which can be represented as a string:
+\begin{lstlisting}[numbers=none]
+type Body = string
+\end{lstlisting} 
+
+The output type, \li{ParseResult}, distinguishes between successful parses and parse errors:
+\begin{lstlisting}[numbers=none]
+type ParseResult = Success of CandidateExp 
+                 | ParseError of {errorMsg : string, errorLoc : IndexRange}
+\end{lstlisting}
+
+Successful parses, constructed by \li{Success}, generate candidate expansions, which are encoded as values of type \lstinline{CandidateExp}:
+\begin{lstlisting}[numbers=none]
+type CandidateExp = Var of var_t | ... | Spliced of IndexRange
+\end{lstlisting}
+The elided constructors above simply encode the abstract syntax of the VerseML expression language (as in the SML visible compiler \cite{SML/VisibleCompiler}). We will discuss the final constructor, \li{Spliced}, in Sec. \ref{sec:splicing-and-hygiene}. We will show a complete encoding when we describe our reduced formal system $\LTSM$ in Sec. \ref{sec:tsms-minimal-formalism}. We define \li{CandidateExp} as  a recursive labeled sum type for simplicity here, but alternative encodings of abstract syntax, e.g. based on abstract binding trees \cite{pfpl}, could also have been chosen with only minor modification to the semantics. % It is extended with one additional form used to handled spliced subexpressions, 
+
+If a parse error is detected, the parse function returns a value constructed by \li{ParseError}. The TSM provider must provide an error message (as a \li{string}) and indicate the location of the error relative to the body of the literal form as an index range, of type \li{IndexRange}:
+\begin{lstlisting}[numbers=none]
+type IndexRange = {startIndex : nat, endIndex : nat} (* inclusive *)
+\end{lstlisting}
+The error message and error location can be used by VerseML compilers when reporting errors to the programmer.
+
+%Notice that the types just described are those that one would expect to find in a typical parser.
+
+%One would find types analagous to those just described in any parser, so for concision, we elide the details of \li{#\dolla#rx}'s parse function.
+%The parse function must treat the TSM parameters parametrically, i.e. it does not have access to any values in the supplied module parameter. Only the expansion the parse function generates can refer to module parameters. 
 %For example, the following definition is ill-sorted:
 %\begin{lstlisting}[numbers=none]
 %syntax pattern_bad[Q : PATTERN] at Q.t {
@@ -42,46 +88,96 @@ When a client applies the TSM to the necessary parameters and a delimited form, 
 %}
 %\end{lstlisting}%So the parse function parses the body of the delimited form to generate an encoding of the elaboration.
 
-To support splicing syntax as described in Sec. \ref{sec:syntax-extension}, the parse function must be able to extract subexpressions directly from the supplied body. For example, consider the client code below:
+\subsection{Splicing}\label{sec:splicing-and-hygiene}
+To support spliced subexpressions, like we described in Sec. \ref{sec:syntax-examples-regexps}, the parse function must be able to parse subexpressions out of the supplied literal body. For example, consider the code snippet in Figure \ref{fig:derived-spliced-subexpressions}, rewritten using the \li{#\dolla#rx} TSM:
 \begin{lstlisting}[numbers=none]
-(* TSMs can be partially applied and abbreviated *)
-let syntax rx = rx R
-let val ssn = rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
-fun example_using_tsm(name: string) => 
-  rx /SURL@EURLnameSURL: %EURLssn/
+val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+fun example_rx_tsm(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
-The subexpressions \lstinline{name} and \lstinline{ssn} on the last line appear directly in the body of the delimited form, so we call them \emph{spliced subexpressions}. When the parse function determines that a subsequence of the body should be treated as a spliced subexpression (here, by recognizing the characters \lstinline{@} and \lstinline{%} followed by an  identifier), 
-it can mark this subsequence as such. Such marked subsequence can appear as subexpressions directly within the expansion being generated (i.e. marked subsequences of the body are of type \lstinline{Exp}). For example, the expansion generated for the body of \lstinline{example_using_tsm} would, if written concretely with spliced expressions marked, be:
+The subexpressions \lstinline{name} and \lstinline{ssn} on the second line appear directly in the body of the literal form, so we call them \emph{spliced subexpressions}. When the parse function determines that a subsequence of the body should be treated as a spliced subexpression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), 
+it can mark this subsequence as such and use it within the expansion it generates using the \li{Spliced} constructor of the \li{CandidateExp} type shown above. Notice that spliced subexpressions are referred to indirectly by their position within the literal body (i.e. with a value of type \li{IndexRange}, shown above) to prevent TSMs from forging a spliced subexpression (i.e. claiming that an expression is a spliced subexpression, even though it does not appear in the body of the literal form). %In particular, the parse function must provide the index range of spliced subexpressions to the \li{Spliced} constructor of the type \li{MarkedExp}. %Only subexpressions that actually appear in the body of the literal form can be marked as spliced subexpressions.
+
+The candidate expansion generated by \li{#\dolla#rx} for the body of \lstinline{example_rx_tsm}, if written in a hypothetical concrete syntax for candidate expansions where spliced subexpressions are written \li{spliced<startIdx, endIndex>}, is:
 \begin{lstlisting}[numbers=none]
-Q.Seq(Q.Str(spliced<name>), Q.Seq(Q.Str ": ", spliced<ssn>))
+Seq(Str(spliced<1, 4>), Seq(Str "SSTR: ESTR", spliced<8, 10>))
 \end{lstlisting}
-Hygiene is achieved by checking that only these marked portions of the generated expansion refer to the variables at the use site, preventing inadvertent variable capture by the expansion. In other words, the TSM cannot make any assumptions about variable names at the use site.%For example, had the  would not be a valid expansion, because the  that are not inside spliced subexpressions:
+Here, \li{spliced<1, 4>} refers to the subexpression \li{name} by position and \li{spliced<8, 10>} refers to the subexpression \li{ssn} by position. 
+
+%For example, had the  would not be a valid expansion, because the  that are not inside spliced subexpressions:
 %\begin{lstlisting}[numbers=none]
 %Q.Seq(Q.Str(name), Q.Seq(Q.Str ": ", ssn))
 %\end{lstlisting}
 
-After checking that the expansion is valid, i.e. that it is hygienic as just described and that the expansion is of the type specified by the TSM, the semantics removes the splicing markers just mentioned and removes the abstraction barrier by substituting  the actual module parameter \lstinline{R} for \lstinline{Q}, producing the final expansion, as expected:
-\begin{lstlisting}[numbers=none]
-R.Seq(R.Str(name), R.Seq(R.Str ": ", ssn))\end{lstlisting}
-%Put another way, the  elaboration logic must be valid in any context. 
-\begin{figure}
-\begin{lstlisting}
-SURL42EURL (* numeric forms *)
-'SURLbody cannot contain an apostropheEURL'
-`SURLbody cannot contain a backtickEURL`
-SURL<tag>body ends on first closing tag</tag>EURL
-[SURLbody cannot contain unmatched square bracketsEURL]
-{SURLbody cannot contain an unmatched curly braceEURL}
-/SURLbody cannot contain a forward slashEURL/
-\SURLbody cannot contain a backslashEURL\
+\subsection{Validation}\label{sec:uetsms-validation}
+The language \emph{validates} candidate expansions to ensure that they are \emph{well-typed} and \emph{hygienic}. 
 
+\subsubsection{Typing}
+The type annotation specified by the TSM, i.e. the type \li{Rx} in the example above, determines the type that the candidate expansion is checked against. This maintains a type discipline: if a programmer encounters a TSM application when reading a well-typed program, they need only look up the TSM's type annotation to determine the type of that expression. They do not need to examine the expansion directly. 
+
+\subsubsection{Hygiene}
+Hygiene, a.k.a. a binding discipline, is achieved by maintaining the following properties:
+
+\begin{itemize}
+\item \textbf{Context Independence}: A TSM cannot make any assumptions about the typing context at the use site. This is achieved by giving access to the use site typing context only to spliced subexpressions (which the client of the TSM writes, rather than the TSM provider). 
+
+An example of a ``bad'' TSM that assumes that a particular variable is available at the use site is the following:
+\begin{lstlisting}[numbers=none]
+syntax $bad1 at Rx {
+	static fn(body : Body) => Success (Var 'SSTRxESTR')
+}
 \end{lstlisting}
-\todo{mention additional form in Wyvern}\\
-\todo{reference this figure}\\
-\todo{call them literal forms rather than delimited forms in text}
-\caption[Available Literal Forms]{Literal forms available for use with TSMs in VerseML's concrete syntax. The characters in blue are the bodies of each form. In this figure, they describe the constraints placed on the body when using the corresponding form. On line 4, \texttt{tag} can be any character sequence that does not contain a right angle bracket (\texttt{>}). The starting and closing tag must match.}
-\label{fig:Body-defn}
-\end{figure}
+The candidate expansion this TSM generates is well-typed only when there is a binding \li{x : Rx} at the use site. Therefore, it is deemed invalid.
+
+In the example in Sec. \ref{sec:uetsms-usage}, the expansion used constructors associated with the \li{Rx} type, e.g. \li{Seq} and \li{Str}. This might appear to violate context independence. However, this is not the case because in VerseML, constructor labels are distinguished from variables. Syntactically, they must begin with a capital letter (as in Haskell). Different type definitions can use the same constructor label without conflict because the type the term is being checked against -- here \li{Rx}, due to the type ascription on \li{#\dolla#rx} -- determines which type of value is to be constructed.
+
+\item \textbf{Context Invariance}: Spliced subexpressions have access to only those variables that were bound at the use site. The TSM cannot introduce new bindings into spliced subexpressions. For example, consider the following candidate expansion (written concretely as above):
+\begin{lstlisting}[numbers=none]
+fn(x : Rx) => spliced<0, 4>
+\end{lstlisting}
+The variable \li{x} would not be available to the indicated spliced subexpression (nor would it shadow any bindings of \li{x} at the use site).
+
+This does limit the ability of library providers to define derived forms for abstractions that involve novel syntax for binding. For example, Haskell's derived forms for monadic commands involve binding the result of a command to a variable. In VerseML, programmers must use the built-in function form to pass data through variables. We will return to this example when we discuss parameterized TSMs in Chapter \ref{sec:tsms-parameterized}.
+\end{itemize}
+
+These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the location of spliced subexpressions within all the literal forms in scope of the variable; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, just as we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
+
+\todo{does above paragraph need to expanded?}
+
+\subsubsection{Final Expansion}
+After checking that the candidate expansion is {valid}, the semantics replaces the references to spliced subexpressions with the subexpressions themselves, producing the final expansion. For example, the final expansion of the body of \li{example_rx_tsm} is:
+\begin{lstlisting}[numbers=none]
+Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+\end{lstlisting}
+%Put another way, the  elaboration logic must be valid in any context. 
+
+
+\section{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
+\subsection{Quasiquotation}
+TSMs can be used when defining parse functions. For example, rather than construct values of type \li{MarkedExp} explicitly, the prelude includes a TSM that provides quasiquotation syntax like that described in Sec. \ref{sec:syntax-examples-quasiquotation}:
+\begin{lstlisting}[numbers=none]
+syntax $qq at MarkedExp {
+	static fn(body) => (* quasiquotation parser here *)
+}
+\end{lstlisting}
+For example, the following TSM application:
+\begin{lstlisting}[numbers=none]
+let gx = $qq `SQTg(x)EQT`
+\end{lstlisting}
+is more concise than its expansion:
+\begin{lstlisting}[numbers=none]
+let gx = App(Var 'SSTRgESTR', Var 'SSTRxESTR')
+\end{lstlisting}
+Anti-quotation is simply splicing in another value of type \li{MarkedExp}, here indicated by prefix \li{%}:
+\begin{lstlisting}[numbers=none]
+let fgx = $qq `SQTf(%EQTgxSQT)EQT`
+\end{lstlisting}
+The expansion of this term is:
+\begin{lstlisting}[numbers=none]
+let fgx = App(Var 'SSTRfESTR', gx)
+\end{lstlisting}
+
+\subsection{Parser Generators}
+\todo{grammars, compile function, TSM for grammar, example of IP address}
 
 \section{Minimal Formalization}\label{sec:tsms-minimal-formalism}
 
@@ -119,7 +215,7 @@ $\begin{array}{ll}
 \end{figure}
 
 
-To give a formal account of TSMs, we will now introduce a typed lambda calculus, $\LTSM$. To simplify matters, this calculus supports only unparameterized TSMs (i.e. TSMs defined at a single type, e.g. the datatype \lstinline{Pattern}, rather than a parameterized family of types). In the dissertation, we will introduce a second calculus, $\mathcal{L}^\text{PTSM}$, that extends $\LTSM$ with support for parameterized families of types as described above (see Sec. \ref{sec:syntax-timeline}). The syntax of $\LTSM$ is shown in Figure \ref{fig:lambda-tsm-syntax}.
+To give a formal account of unparameterized expression TSMs, we will now introduce a typed lambda calculus, $\LTSM$. The syntax of $\LTSM$ is shown in Figure \ref{fig:lambda-tsm-syntax}.
 
 \subsection{Types and Expanded Expressions}
 \begin{figure}
@@ -309,8 +405,9 @@ The current contexts are initially empty when checking the marked expansion gene
 
 \subsection{Metatheory}
 \subsection{Static Language}\label{sec:static-subset}
-\subsection{Limitations}
-\chapter{Typed Pattern Syntax Macros (TPSMs)}\label{sec:pattern-tsms}
+\section{Additional Conveniences}
+\section{Limitations}
+\chapter{Pattern TSMs}\label{sec:pattern-tsms}
 TSMs as we have described them so far decrease the syntactic cost of introducing a value at a specified type. In full-scale functional languages like ML, one typically deconstructs a value using \emph{nested pattern matching}. For example, let us return to the definition of the datatype \lstinline{Rx} shown at the beginning of Sec. \ref{sec:examples}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct like this:
 \begin{lstlisting}[numbers=none]
 match r with 

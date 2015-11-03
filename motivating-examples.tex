@@ -1,13 +1,13 @@
 % !TEX root = omar-thesis.tex
 
 \section{Motivating Examples}\label{sec:motivating-examples}
-In this section, we will describe a number of examples of data structures that could benefit from the introduction of  derived syntactic forms. We describe the first two examples -- regular expressions and lists -- in substantial detail, and we will refer back to these examples throughout this work. We then more concisely survey a number of other examples, grouped into  categories, to establish the broad applicability of our techniques. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
+To further motivate our work, we will now provide a number of examples of derived syntactic forms that decrease the syntactic cost of working with various data structures. We cover the first two examples -- regular expressions and lists -- in substantial detail. We will refer back to these examples throughout this work. We then more concisely survey a number of other examples, grouped into  categories, to establish the broad applicability of our contributions. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
 
 \subsection{Regular Expressions}\label{sec:syntax-examples-regexps}
-Let us begin by taking the perspective of a regular expression library provider. We assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}. We will discuss a standard variant of regular expressions that supports marking \emph{captured groups} to make certain examples more interesting. The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r) ~|~ \textbf{group}(r)\]
+Let us take the perspective of a regular expression library provider (we assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}). The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r)\]
 
 \paragraph{Recursive Sums}
-One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a recursive sum type can be defined like this:
+One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a labeled recursive sum type can be defined like this:
 
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
@@ -18,40 +18,49 @@ type Rx = Empty | Str of string | Seq of Rx * Rx |
 \label{fig:datatype-rx}
 \end{figure}
 
-The abstract syntax of regexes is too verbose to be practical  in all but the most trivial examples, so programmers conventionally write patterns using a more concise concrete syntax based on the POSIX standard \cite{STD95954}. A number of programming languages support derived syntax for regular expressions based on this standard, e.g. Perl \todo{cite}. Let us consider a hypothetical dialect of ML called ML+Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes based on this standard (we will compare VerseML to ML+Rx in later chapters). ML+Rx supports \emph{regex literals}, e.g.
+The abstract syntax of regexes is too verbose to be practical  in all but the most trivial examples, so the POSIX standard specifies a more concise concrete syntax \cite{STD95954}. A number of programming languages support derived syntax for regular expressions based on this standard, e.g. Perl \cite{books/daglib/0028711}. Let us consider a hypothetical dialect of ML called ML+Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes (we will compare VerseML to ML+Rx in later chapters). ML+Rx supports \emph{regex literals}, e.g.
 \begin{lstlisting}[numbers=none]
 /SURLA|T|G|CEURL/
 \end{lstlisting}
-This desugars to:
+desugars to:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 
-Some regexes are constructed from other values, so ML+Rx also supports \emph{spliced values} in regex literals. For example, the function \li{example_rx} shown below constructs a regex by splicing in a string and another regex:
+ML+Rx also supports \emph{spliced subexpressions} in regex literals. For example, the function \li{example_rx} shown below constructs a regex by splicing in a string, \li{name}, and another regex, \li{ssn}:
+
+\begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 let ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun example_rx(name : string) => /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
-The prefix \li{@} indicates that the value of \lstinline{name} should be spliced in as a string, and the prefix \li{%}
-indicates that the value of \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
+\caption{An example of syntax that supports spliced subexpressions.}
+\label{fig:derived-spliced-subexpressions}
+\end{figure}
+The prefix \li{@} indicates that \lstinline{name} should be spliced in as a string, and the prefix \li{%}
+indicates that \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 Notice that \li{name} appears wrapped in the constructor \li{Str} because it was prefixed by \li{@}, whereas \li{ssn} appears unadorned because it was prefixed by \li{%}. 
 
-If we want to splice in an expression of more complex form, e.g. a function call, we can delimit it with parentheses:
+To splice in an expression that does not take the form of a variable, e.g. a function call, we can delimit it with parentheses:
 \begin{lstlisting}[numbers=none]
 /SURL@(EURLcapitalize nameSURL): %EURLssn/
 \end{lstlisting}
 
-Finally, ML+Rx allows us to pattern match on a value of type \li{Rx} using derived pattern syntax as well. For example:
+Finally, ML+Rx allows us to pattern match on a value of type \li{Rx} using derived pattern syntax. For example:
+\begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 fun read_example_rx(r : Rx) => 
   match r with 
     /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
-  | _ => None
-\end{lstlisting}
-desugars to:
+  | _ => None\end{lstlisting}
+\caption{An example of derived pattern syntax.}
+\label{fig:derived-pattern-syntax}
+\end{figure}
+
+This expression desugars to:
 \begin{lstlisting}[numbers=none]
 fun read_example_rx(r : Rx) => 
   match r with
@@ -93,21 +102,22 @@ signature RX = sig {
  \todo{talk about pattern matching over values of abstract type}
 
 \subsection{Lists}\label{sec:syntax-examples-lists}
-\todo{write this}
-\subsection{Other Containers}\label{sec:syntax-examples-containers}
-\todo{write this}
+\todo{write this (Spring 2016)}
+\subsection{Sets, Maps, Vectors and Other Containers}\label{sec:syntax-examples-containers}
+\todo{write this (Spring 2016)}
 \subsection{HTML and Other Web Languages}\label{sec:syntax-examples-html}
-\todo{write this; cite Ur/Web}
+\todo{write this; cite Ur/Web (Spring 2016)}
 \subsection{Dates, URLs and Other Standardized Formats}\label{sec:syntax-examples-dates}
-\todo{write this}
-\subsection{Query Languages} The language of regular expressions can be considered a query language over strings. There are many other query languages that focus on different types of data, e.g. XQuery for XML trees, or that are associated with different database technologies, e.g. SQL for relational databases. \todo{finish this} 
+\todo{write this (Spring 2016)}
+\subsection{Query Languages} The language of regular expressions can be considered a query language over strings. There are many other query languages that focus on different types of data, e.g. XQuery for XML trees, or that are associated with different database technologies, e.g. SQL for relational databases. \todo{finish this (Spring 2016)} 
 \subsection{Monadic Commands}\label{sec:syntax-examples-monads}
-\todo{write this; cite Bob's blog}
+\todo{write this; cite Bob's blog (Spring 2016)}
 \subsection{Quasiquotation}\label{sec:syntax-examples-quasiquotation}
-\todo{write this}
+\todo{write this (Spring 2016)}
 \subsection{Grammars}\label{sec:syntax-examples-grammars}
-\todo{write this}
+\todo{write this (Spring 2016)}
 \subsection{Mathematical and Scientific Notations}\label{sec:syntax-examples-math-science}
 \subsubsection{SMILES: Chemical Notation}
-\todo{write this; cite SMILES \url{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}}
+\todo{write this; cite SMILES \url{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system} (Spring 2016)}
 \subsubsection{\TeX~Mathematical Formula Notation}
+\todo{write this (Spring 2016)}
