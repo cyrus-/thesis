@@ -1,42 +1,158 @@
 % !TEX root = omar-thesis.tex
-\newcommand{\dolla}{\texttt{\$}}
+\newcommand{\dolla}{\texttt{\$}}  % used so I don't screw up syntax highlighting when using $ in an identifier inline
 
-% Calculi
-\newcommand{\LTSM}{\mathcal{L}^\text{TSM}}
+% \newcommand{\gheading}[1]{\multicolumn{3}{l}{\textbf{#1}}}
 
-% Expanded types
+% Calculi Names
+\newcommand{\miniVerseU}{\mathsf{miniVerse}_\textbf{U}}
+\newcommand{\miniVersePat}{\mathsf{miniVerse}_\text{UP}}
+\newcommand{\miniVerseParam}{\mathsf{miniVerse}_{\forall}}
+\newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\text{TSL}}
+
+% General abstract syntax
+\newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
+\newcommand{\abop}[2]{\texttt{#1}\texttt{(}#2\texttt{)}}
+\newcommand{\abopp}[3]{\texttt{#1}\texttt{[}#2\texttt{](}#3\texttt{)}}
+
+% Types
 \newcommand{\parr}[2]{#1 \rightharpoonup #2}
+\newcommand{\aparr}[2]{\abop{parr}{#1; #2}}
+
 \newcommand{\forallt}[2]{\forall #1.#2}
+\newcommand{\aall}[2]{\abop{all}{#1.#2}}
+
 \newcommand{\rect}[2]{\mu #1.#2}
-\newcommand{\unitt}{\mathsf{1}}
-\newcommand{\prodt}[2]{#1 \times #2}
-\newcommand{\sumt}[2]{#1 + #2}
+\newcommand{\arec}[2]{\abop{rec}{#1.#2}}
+
+\newcommand{\prodt}[1]{\langle #1 \rangle}
+\newcommand{\aprod}[1]{\abop{prod}{#1}}
+
+\newcommand{\sumt}[1]{[#1]}
+\newcommand{\asum}[1]{\abop{sum}{#1}}
+
+% Labels and maps
+\newcommand{\labelset}{L}
+\newcommand{\mapschema}[3]{\{#2 \hookrightarrow #1_{#2}\}_{#2 \in #3}}
+\newcommand{\mapschemab}[4]{\{#3 \hookrightarrow #1_{#3}.#2_{#3}\}_{#3 \in #4}}
+\newcommand{\finmap}[1]{#1}
+\newcommand{\mapitem}[2]{#1 \hookrightarrow #2}
+\newcommand{\lbltxt}[1]{\mathtt{#1}}
+
+% Expanded/Unexpanded/Candidate expressions
+\newcommand{\lam}[3]{\lambda #1{:}#2.#3}
+\newcommand{\aelam}[3]{\abop{elam}{#1; #2.#3}}
+\newcommand{\aulam}[3]{\abop{ulam}{#1; #2.#3}}
+\newcommand{\aclam}[3]{\abop{clam}{#1; #2.#3}}
+
+\newcommand{\ap}[2]{#1(#2)}
+\newcommand{\aeap}[2]{\abop{eap}{#1; #2}}
+\newcommand{\auap}[2]{\abop{uap}{#1; #2}}
+\newcommand{\acap}[2]{\abop{cap}{#1; #2}}
+
+\newcommand{\Lam}[2]{\Lambda #1.#2}
+\newcommand{\aetlam}[2]{\abop{etlam}{#1.#2}}
+\newcommand{\autlam}[2]{\abop{utlam}{#1.#2}}
+\newcommand{\actlam}[2]{\abop{ctlam}{#1.#2}}
+
+\newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
+\newcommand{\aetap}[2]{\abop{etap}{#1; #2}}
+\newcommand{\autap}[2]{\abop{utap}{#1; #2}}
+\newcommand{\actap}[2]{\abop{ctap}{#1; #2}}
+
+\newcommand{\fold}[1]{\texttt{fold}(#1)}
+\newcommand{\aefold}[3]{\abop{efold}{#1.#2; #3}}
+\newcommand{\aufold}[3]{\abop{ufold}{#1.#2; #3}}
+\newcommand{\acfold}[3]{\abop{cfold}{#1.#2; #3}}
+
+\newcommand{\unfold}[1]{\texttt{unfold}(#1)}
+\newcommand{\aeunfold}[1]{\abop{eunfold}{#1}}
+\newcommand{\auunfold}[1]{\abop{uunfold}{#1}}
+\newcommand{\acunfold}[1]{\abop{cunfold}{#1}}
+
+\newcommand{\tpl}[1]{\langle #1\rangle}
+\newcommand{\aetpl}[1]{\abop{etpl}{#1}}
+\newcommand{\autpl}[1]{\abop{utpl}{#1}}
+\newcommand{\actpl}[1]{\abop{ctpl}{#1}}
+
+\newcommand{\prj}[2]{#1 \cdot #2}
+\newcommand{\aepr}[2]{\abopp{epr}{#1}{#2}}
+\newcommand{\aupr}[2]{\abopp{upr}{#1}{#2}}
+\newcommand{\acpr}[2]{\abopp{cpr}{#1}{#2}}
+
+\newcommand{\inj}[2]{#1 \cdot #2}
+\newcommand{\aein}[3]{\abopp{ein}{#1}{#2; #3}}
+\newcommand{\auin}[3]{\abopp{uin}{#1}{#2; #3}}
+\newcommand{\acin}[3]{\abopp{cin}{#1}{#2; #3}}
+
+\newcommand{\caseof}[2]{\texttt{case}~#1~#2}
+\newcommand{\aecase}[2]{\abop{ecase}{#1; #2}}
+\newcommand{\aucase}[2]{\abop{ucase}{#1; #2}}
+\newcommand{\accase}[2]{\abop{ccase}{#1; #2}}
 
 % Expanded expressions
-\newcommand{\lam}[3]{\lambda #1{:}#2.#3}
-\newcommand{\app}[2]{#1(#2)}
-\newcommand{\Lam}[2]{\Lambda #1.#2}
-\newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
-\newcommand{\fold}[3]{\mathsf{fold}[#1.#2](#3)}
-\newcommand{\unfold}[1]{\mathsf{unfold}(#1)}
-\newcommand{\triv}{()}
+\newcommand{\etxt}[1]{e_\text{#1}}
 
-% Marked types
-\newcommand{\mtau}{\dot{\tau}}
-\newcommand{\mtspliced}[1]{\mathsf{spliced}(#1)}
+% Statics of miniVerseU expanded expressions
+\newcommand{\istypeU}[2]{#1 \vdash #2~\mathsf{type}}
+\newcommand{\isctxU}[2]{#1 \vdash #2~\mathsf{ctx}}
+\newcommand{\hastypeU}[4]{#1~#2 \vdash #3 : #4}
+\newcommand{\hastypeUC}[2]{\vdash #1 : #2}
+\newcommand{\hastypeUCO}[3]{#1 \vdash #2 : #3}
 
-% TSM expressions
-\newcommand{\tsme}{\eta}
-\newcommand{\tsmv}{m}
-\newcommand{\utsmdef}[2]{\mathsf{syntax}~@~#1~\{#2\}}
+\newcommand{\Dhyp}[1]{#1~\mathsf{type}}
+\newcommand{\Ghyp}[2]{#1 : #2}
+
+% Dynamics of miniVerseU
+\newcommand{\isvalU}[1]{#1~\mathsf{val}}
+\newcommand{\stepsU}[2]{#1 \mapsto #2}
+\newcommand{\multistepU}[2]{#1 \mapsto^{*} #2}
+\newcommand{\evalU}[2]{#1 \Downarrow #2}
 
 % Unexpanded expressions
 \newcommand{\ue}{\hat{e}}
-\newcommand{\uletsyntax}[3]{\mathsf{let}~\mathsf{syntax}~#1=#2~\mathsf{in}~#3}
-\newcommand{\utsmapp}[2]{#1~\texttt{/}#2\texttt{/}}
+\newcommand{\uletsyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
+\newcommand{\auletsyntax}[4]{\abop{usyntax}{#1; #2; #3.#4}}
+\newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
+\newcommand{\autsmap}[2]{\texttt{utsmap}[#1]\texttt{[}#2\texttt{]}}
+\newcommand{\uet}[1]{\ue_\text{#1}}
+\newcommand{\ueparse}{\uet{parse}}
+
+% TSM expressions
+\newcommand{\tsme}{\psi}
+\newcommand{\tsmv}{a}
+\newcommand{\utsmdef}[2]{\texttt{syntax}~@~#1~\texttt{\{}#2\texttt{\}}}
+\newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
+
+\newcommand{\tBody}{\mathtt{Body}}
+\newcommand{\tParseResultExp}{\mathtt{ParseResultExp}}
+\newcommand{\tCEExp}{\mathtt{CEExp}}
+
+% Typed expansion
+\newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6}
+\newcommand{\expandsUX}[3]{\expandsU{\Delta}{\Gamma}{\Sigma}{#1}{#2}{#3}}
+\newcommand{\expandsUC}[3]{\vdash #1 \leadsto #2 : #3}
+\newcommand{\domof}[1]{\text{dom}(#1)}
+\newcommand{\xtsmdef}[2]{\abop{syntax}{#1;\,#2}}
+\newcommand{\tsmenvbnd}[3]{#1 \hookrightarrow \xtsmdef{#2}{#3}}
+\newcommand{\macenvOK}[2]{#1 \vdash #2~\mathsf{menv}}
+\newcommand{\encodeBody}[2]{#1 \downarrow #2}
+\newcommand{\decodeBody}[2]{#1 \uparrow #2}
+\newcommand{\ebody}{\etxt{body}}
+\newcommand{\eparse}{\etxt{parse}}
+\newcommand{\ecand}{\etxt{cand}}
+\newcommand{\decodeCondE}[2]{#1 \uparrow_\mathsf{CEExp} #2}
+\newcommand{\encodeCondE}[2]{#1 \downarrow_\mathsf{CEExp} #2}
+
+% Candidate Expansions
+\newcommand{\ce}{\grave{e}}
+\newcommand{\ctau}{\grave{\tau}}
+
+\newcommand{\mtau}{\dot{\tau}}
+\newcommand{\mtspliced}[1]{\texttt{spliced}(#1)}
 
 % Marked expressions
 \newcommand{\me}{\dot{e}}
-\newcommand{\mspliced}[1]{\mathsf{spliced}(#1)}
+\newcommand{\mspliced}[1]{\texttt{spliced}(#1)}
 
-% Contexts
+% Candidate expansion validation
+\newcommand{\cvalidE}[9]{#1~#2\vdash^{#3; #4; #5; #6} #7 \leadsto #8 : #9}

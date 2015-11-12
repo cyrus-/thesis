@@ -30,13 +30,24 @@
 % some useful packages
 \usepackage{times}     % use times font for document
 \renewcommand{\ttdefault}{txtt} % use txtt for typewriter font
+\usepackage{mathpazo}
 \usepackage{mathpartir} % use package for inference rules
 \usepackage{upgreek} % package for alternative greek letters (\uppi)
 \usepackage{fullpage}
 %\usepackage{graphicx}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath,amssymb, amsthm}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{condition}[theorem]{Condition}
+
+\newenvironment{proof-sketch}{\noindent{\emph{Proof Sketch.}}}{\qed}
+
+\usepackage{ stmaryrd }
 \usepackage[numbers,sort]{natbib}
-\usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+\usepackage[colorlinks=true,allcolors=Green,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
 pdfborder={0 0 0},  %removes outlines around hyper links in online display
 ]{hyperref}
 \usepackage{subfigure}
@@ -48,7 +59,7 @@ pdfborder={0 0 0},  %removes outlines around hyper links in online display
 
 \usepackage{listings}
 \lstset{tabsize=2, 
-basicstyle=\ttfamily\fontsize{10pt}{1em}\selectfont, 
+basicstyle=\ttfamily\fontsize{11pt}{1em}\selectfont, 
 commentstyle=\itshape\ttfamily\color{gray}, 
 stringstyle=\ttfamily\color{red},
 mathescape=false,escapechar=\#,
@@ -83,9 +94,62 @@ deletestring=[d]{"},
 
 
 % I hate hyphenation.
-\lefthyphenmin=7
+\lefthyphenmin=5
 
 \input{macros}
+
+% allow interrupted equation numbering
+% taken from http://tex.stackexchange.com/questions/101002/interrupting-and-resuming-subequations
+\makeatletter
+\def\user@resume{resume}
+\def\user@intermezzo{intermezzo}
+%
+\newcounter{previousequation}
+\newcounter{lastsubequation}
+\newcounter{savedparentequation}
+\setcounter{savedparentequation}{1}
+% 
+\renewenvironment{subequations}[1][]{%
+      \def\user@decides{#1}%
+      \setcounter{previousequation}{\value{equation}}%
+      \ifx\user@decides\user@resume 
+           \setcounter{equation}{\value{savedparentequation}}%
+      \else  
+      \ifx\user@decides\user@intermezzo
+           \refstepcounter{equation}%
+      \else
+           \setcounter{lastsubequation}{0}%
+           \refstepcounter{equation}%
+      \fi\fi
+      \protected@edef\theHparentequation{%
+          \@ifundefined {theHequation}\theequation \theHequation}%
+      \protected@edef\theparentequation{\theequation}%
+      \setcounter{parentequation}{\value{equation}}%
+      \ifx\user@decides\user@resume 
+           \setcounter{equation}{\value{lastsubequation}}%
+         \else
+           \setcounter{equation}{0}%
+      \fi
+      \def\theequation  {\theparentequation  \alph{equation}}%
+      \def\theHequation {\theHparentequation \alph{equation}}%
+      \ignorespaces
+}{%
+%  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+  \ifx\user@decides\user@resume
+       \setcounter{lastsubequation}{\value{equation}}%
+       \setcounter{equation}{\value{previousequation}}%
+  \else
+  \ifx\user@decides\user@intermezzo
+       \setcounter{equation}{\value{parentequation}}%
+  \else
+       \setcounter{lastsubequation}{\value{equation}}%
+       \setcounter{savedparentequation}{\value{parentequation}}%
+       \setcounter{equation}{\value{parentequation}}%
+  \fi\fi
+%  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+  \ignorespacesafterend
+}
+\makeatother
 
 \begin{document} 
 \frontmatter

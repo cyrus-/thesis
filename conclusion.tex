@@ -1,5 +1,42 @@
 % !TEX root = omar-thesis.tex
-\chapter{Conclusion \& Future Directions}\label{chap:conclusion}
+\chapter{Discussion \& Future Directions}\label{chap:conclusion}
+\section{Interesting Applications}
+\subsection{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
+Static functions can also make use of TSMs. In this section, we will show how quasiquotation syntax and grammar-based parser generators can be expressed using TSMs. These TSMs are quite useful for writing other TSMs.
+\subsubsection{Quasiquotation}
+TSMs must generate values of type \li{CEExp}. Doing so explicitly can have high syntactic cost. To decrease the syntactic cost of constructing values of this type, the prelude includes a TSM that provides quasiquotation syntax (cf. Sec. \ref{sec:syntax-examples-quasiquotation}):
+\begin{lstlisting}[numbers=none]
+syntax $qqexp at CEExp {
+	static fn(body : Body) : ParseResult => (* expression parser here *)
+}
+
+syntax $qqtype at CETyp {
+	static fn(body : Body) : ParseResult => (* type parser here *)
+}
+\end{lstlisting}
+For example, the following expression:
+\begin{lstlisting}[numbers=none]
+let gx = $qqexp `SQTg(x)EQT`
+\end{lstlisting}
+is more concise than its expansion:
+\begin{lstlisting}[numbers=none]
+let gx = App(Var 'SSTRgESTR', Var 'SSTRxESTR')
+\end{lstlisting}
+The full concrete syntax of the language can be used. Anti-quotation, i.e. splicing in an expression of type \li{MarkedExp}, is indicated by the prefix \li{%}:
+\begin{lstlisting}[numbers=none]
+let fgx = $qqexp `SQTf(%EQTgxSQT)EQT`
+\end{lstlisting}
+The expansion of this expression is:
+\begin{lstlisting}[numbers=none]
+let fgx = App(Var 'SSTRfESTR', gx)
+\end{lstlisting}
+
+
+\subsubsection{Parser Generators}
+\todo{grammars, compile function, TSM for grammar, example of IP address}
+
+\subsection{Monadic Commands}\label{sec:application-monadic-commands}
+
 \section{Summary}
 \todo{Write summary}
 
@@ -9,6 +46,7 @@ Finally, VerseML is not designed for advanced theorem proving tasks where langua
 
 In such a setting, you could verify TSM definitions \todo{finish writing this}
 \subsection{Improved Error Reporting}\label{sec:error-handling}
+\subsection{Controlled Binding}\label{sec:controlled-binding}
 \subsection{Type-Aware Splicing}\label{sec:type-aware-splicing}
 \subsection{Integration With Code Editors}\label{sec:interaction-with-tools}
 \subsection{Resugaring}\label{sec:resugaring}

@@ -1,8 +1,8 @@
 % !TEX root = omar-thesis.tex
 \chapter{Unparameterized Expression TSMs}\label{chap:tsms}
-We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM) -- that combines much of the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. This chapter focuses on TSMs that generate expressions of a single specified type (\emph{unparameterized expression TSMs}). We will add pattern matching in Chapter \ref{sec:pattern-tsms} and parameterized families of types in Chapter \ref{sec:tsms-parameterized}.
+We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM) -- that combines much of the syntactic flexibility of syntax extensions with the reasoning guarantees of typed macros. This chapter focuses on the simplest case: TSMs that generate expressions of a single specified type (\emph{unparameterized expression TSMs}). We will consider pattern matching in Chapter \ref{sec:pattern-tsms} and parameterized families of types in Chapter \ref{sec:tsms-parameterized}.
 
-We begin in Sec. \ref{sec:tsms-by-example} by describing expression TSMs in VerseML by example.  In particular, we will show a TSM for introducing values of the type \li{Rx} defined in Figure \ref{fig:datatype-rx}. We will then discuss examples of TSMs that are useful for defining other TSMs in Sec. \ref{sec:tsms-for-tsms}. Finally, we will formally specify unparameterized expression TSMs with a lambda calculus, $\LTSM$, in Sec. \ref{sec:tsms-minimal-formalism}.% As we will discuss in the remainder of this section, this addresses the problems , at moderate syntactic cost.
+We begin in Sec. \ref{sec:tsms-by-example} by describing expression TSMs in VerseML by example.  In particular, we will show a TSM for introducing values of the type \li{Rx} defined in Figure \ref{fig:datatype-rx}. We then formally specify unparameterized expression TSMs with a lambda calculus, $\miniVerseU$, in Sec. \ref{sec:tsms-minimal-formalism}. 
 
 
 %Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
@@ -11,20 +11,20 @@ We begin in Sec. \ref{sec:tsms-by-example} by describing expression TSMs in Vers
 %A typed syntax macro is invoked by applying it to a \emph{delimited form}, which can contain  arbitrary syntax in its \emph{body}.  
 
 \subsection{Usage}\label{sec:uetsms-usage}
-Consider the following VerseML expression:
+Consider the following concrete VerseML expression:
 \begin{lstlisting}[numbers=none,mathescape=|]
 $rx /SURLA|T|G|CEURL/
 \end{lstlisting}
+We apply a {TSM}, identified as \lstinline{#\dolla#rx}, 
+to a \emph{literal form}, \lstinline{/SURLA|T|G|CEURL/}. Literal forms are left unparsed when concrete expressions are first parsed by a VerseML compiler. A number of literal forms, shown in Figure \ref{fig:literal-forms},  are available in VerseML's concrete syntax. Though certain TSMs may by convention call for the use of particular literal forms, any literal form can be used with any TSM, e.g. we could have written \lstinline{#\dolla#rx `SURLA|T|G|CEURL`} above (this would actually be convenient if we wanted to write a regex containing forward slashes but not backticks). Because the set of literal forms is fixed by VerseML, TSMs cannot introduce syntactic conflicts by construction.
 
-Here, we apply a {TSM}, identified as \lstinline{#\dolla#rx}, 
-to a \emph{literal form}, \lstinline{/SURLA|T|G|CEURL/}. 
-The TSM statically parses the \emph{body} of the provided literal form, i.e. the characters in blue, to generate a \emph{candidate expansion}. The language then \emph{validates} the candidate expansion to maintain a type and hygiene discipline, in a manner that we will describe in Sec. \ref{sec:uetsms-validation}, before producing the \emph{final expansion}. The final expansion of the expression above, written concretely, is:
+During the typechecking process, the TSM parses the \emph{body} of the provided literal form, i.e. the characters in blue, to generate a \emph{candidate expansion}. The language then \emph{validates} the candidate expansion, according to criteria that we will establish in Sec. \ref{sec:uetsms-validation}. If validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the expression. The expansion of the expression above, written concretely, is:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
-The constructors in the expansion above are those of the type \li{Rx} defined in Fig. \ref{fig:datatype-rx}.
+The constructors in the expansion above are those of the type \li{Rx} that was defined in Figure \ref{fig:datatype-rx}.
 
-A number of literal forms, shown in Figure \ref{fig:literal-forms},  are available in VerseML's concrete syntax. Though certain TSMs may by convention call for the use of particular literal forms, any literal form can be used with any TSM, e.g. we could have written \lstinline{#\dolla#rx `SURLA|T|G|CEURL`} above (this would actually be convenient if we wanted to write a regex containing forward slashes but not backticks). %The form does not directly determine the expansion. 
+ %The form does not directly determine the expansion. 
 
 \begin{figure}
 \begin{lstlisting}
@@ -38,7 +38,7 @@ SURL42EURL (* numeric forms *)
 SURL42pxEURL (* numeric forms with suffixes *)
 \end{lstlisting}
 %SURL<tag>body includes enclosing tags</tag>EURL
-\caption[Available Literal Forms]{Literal forms available for use with TSMs in VerseML's concrete syntax. The characters in blue are the bodies of each form. In this figure, each line describes how the body is constrained by the form shown on that line. The Wyvern language specifies additional forms, including whitespace-delimited forms \cite{TSLs} and multipart forms \cite{sac15}, but for simplicity we leave these out of VerseML.}
+\caption[Available Literal Forms]{Literal forms available for use with TSMs (and TSLs, cf. Chapter \ref{chap:tsls}) in VerseML's concrete syntax. The characters in blue are the literal bodies. In this figure, each line describes how the body is constrained by the form shown on that line. The Wyvern language specifies additional forms, including whitespace-delimited forms \cite{TSLs} and multipart forms \cite{sac15}, but for simplicity we leave these out of VerseML.}
 \label{fig:literal-forms}
 \end{figure}
 \subsection{Definition}\label{sec:uetsms-definition}
@@ -46,31 +46,46 @@ SURL42pxEURL (* numeric forms with suffixes *)
 The definition of the TSM \lstinline{#\dolla#rx} shown in use above has the following form:
 \begin{lstlisting}[numbers=none,mathescape=|]
 syntax $rx at Rx {
-  static fn(body : Body) : ParseResult => (* regex literal parser here *)
+  static fn(body : Body) : ParseResultExp => (* regex parser here *)
 }
 \end{lstlisting}
-This {TSM definition} first identifies the TSM as \lstinline{#\dolla#rx}, then specifies a \emph{type annotation}, \lstinline{at Rx}, and a \emph{parse function}, within curly braces. 
+This {TSM definition} first identifies the TSM as \lstinline{#\dolla#rx}. 
+VerseML requires that all TSM variable identifiers begin with a dollar sign (to clearly distinguish TSMs from functions). A similar convention is also enforced by the Rust macro system \cite{Rust/Macros}.
 
-VerseML enforces the convention that all TSM identifiers must be prefixed with a dollar sign (though other language designs could choose not to do so). 
-
-The {parse function} is a \emph{static function} that generates an encoding of the candidate expansion, or indicates an error if a candidate expansion can't be generated (i.e. there is a parse error).  Static functions are functions written in a static subset of the language, called the \emph{static language} (SL). We will return to the design space around the static language in Sec. \ref{sec:static-subset}. The parse function has type \li{Body -> ParseResult}. These types are defined in the VerseML \emph{prelude}, which is a set of definitions available ambiently. The input type, \lstinline{Body}, gives the parse function access to the {body} of the provided literal form, which can be represented as a string:
+The TSM definition then specifies a \emph{type annotation}, \lstinline{at Rx}, and a \emph{parse function}, within curly braces. 
+The {parse function} is a \emph{static function} that parses the literal body to generate an encoding of the candidate expansion, or an error if one cannot be generated (e.g. when the body is ill-formed according to the syntactic specification that the TSM implements).  Static functions are functions written in a subset of the language called the \emph{static language} (SL). We will return to the design space around the static language in Sec. \ref{sec:static-subset}. The parse function has type \li{Body -> ParseResult}. These types are defined in the VerseML \emph{prelude}, which is a set of definitions available ambiently. The input type, \lstinline{Body}, gives the parse function access to the {body} of the provided literal form, which can be represented as a string:
 \begin{lstlisting}[numbers=none]
 type Body = string
 \end{lstlisting} 
 
-The output type, \li{ParseResult}, distinguishes between successful parses and parse errors:
+The output type, \li{ParseResultExp}, is a labeled sum type that distinguishes between successful parses and parse errors:
 \begin{lstlisting}[numbers=none]
-type ParseResult = Success of CandidateExp 
-                 | ParseError of {errorMsg : string, errorLoc : IndexRange}
+type ParseResultExp = Success of CEExp 
+                    | ParseError of {msg : string, loc : IndexRange}
 \end{lstlisting}
 
-Successful parses, constructed by \li{Success}, generate candidate expansions, which are encoded as values of type \lstinline{CandidateExp}:
+Successful parses, constructed by \li{Success}, generate candidate expansions, which are encoded as values of type \lstinline{CEExp}, shown in Figure \ref{fig:candidate-exp-verseml}. 
+\begin{figure}
 \begin{lstlisting}[numbers=none]
-type CandidateExp = Var of var_t | ... | Spliced of IndexRange
-\end{lstlisting}
-The elided constructors above simply encode the abstract syntax of the VerseML expression language (as in the SML visible compiler \cite{SML/VisibleCompiler}). We will discuss the final constructor, \li{Spliced}, in Sec. \ref{sec:splicing-and-hygiene}. We will show a complete encoding when we describe our reduced formal system $\LTSM$ in Sec. \ref{sec:tsms-minimal-formalism}. We define \li{CandidateExp} as  a recursive labeled sum type for simplicity here, but alternative encodings of abstract syntax, e.g. based on abstract binding trees \cite{pfpl}, could also have been chosen with only minor modification to the semantics. % It is extended with one additional form used to handled spliced subexpressions, 
+type CETyp = TyVar of var_t 
+                   | Arrow of CETyp * CETyp 
+                   | ... 
+                   | Spliced of IndexRange
 
-If a parse error is detected, the parse function returns a value constructed by \li{ParseError}. The TSM provider must provide an error message (as a \li{string}) and indicate the location of the error relative to the body of the literal form as an index range, of type \li{IndexRange}:
+type CEExp = Var of var_t 
+                   | Fn of var_t * CETyp * CEExp
+                   | App of CEExp * CEExp
+                   | ... 
+                   | Spliced of IndexRange
+\end{lstlisting}
+\caption[Abbreviated definitions of \li{CETyp} and \li{CEExp} in VerseML.]{Abbreviated definitions of \li{CETyp} and \li{CEExp} in VerseML. We assume some suitable type \li{var_t} exists, not shown.}
+\label{fig:candidate-exp-verseml}
+\end{figure}
+The elided constructors in Figure \ref{fig:candidate-exp-verseml} encode the abstract syntax of VerseML expressions and types (as in the SML visible compiler \cite{SML/VisibleCompiler}).
+% We will show a complete encoding when we describe our reduced formal system $\miniVerseU$ in Sec. \ref{sec:tsms-minimal-formalism}. 
+We discuss the constructors labeled \li{Spliced} in Sec. \ref{sec:splicing-and-hygiene}. To decrease the syntactic cost of working with the types defined in Figure \ref{fig:candidate-exp-verseml}, the prelude implements \emph{quasiquotation syntax} using TSMs. We will discuss these TSMs in more detail in Sec. \ref{sec:tsms-for-tsms}. The definitions in Figure \ref{fig:candidate-exp-verseml} are recursive labeled sum types for simplicity, but alternative encodings of abstract syntax, e.g. based on abstract binding trees \cite{pfpl}, could also have been chosen with only minor modification to the semantics. % It is extended with one additional form used to handled spliced subexpressions, 
+
+If the parse function determines that a candidate expansion cannot be generated, i.e. there is a parse error in the literal body, it returns a value constructed by \li{ParseError}. It must provide an error message and indicate the location of the error within the body of the literal form as a value of type \li{IndexRange}:
 \begin{lstlisting}[numbers=none]
 type IndexRange = {startIndex : nat, endIndex : nat} (* inclusive *)
 \end{lstlisting}
@@ -89,13 +104,13 @@ The error message and error location can be used by VerseML compilers when repor
 %\end{lstlisting}%So the parse function parses the body of the delimited form to generate an encoding of the elaboration.
 
 \subsection{Splicing}\label{sec:splicing-and-hygiene}
-To support spliced subexpressions, like we described in Sec. \ref{sec:syntax-examples-regexps}, the parse function must be able to parse subexpressions out of the supplied literal body. For example, consider the code snippet in Figure \ref{fig:derived-spliced-subexpressions}, rewritten using the \li{#\dolla#rx} TSM:
+To support spliced subexpressions, like we described in Sec. \ref{sec:syntax-examples-regexps}, the parse function must be able to parse subexpressions out of the supplied literal body. For example, consider the code snippet from Figure \ref{fig:derived-spliced-subexpressions}, rewritten using the \li{#\dolla#rx} TSM:
 \begin{lstlisting}[numbers=none]
 val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun example_rx_tsm(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
 The subexpressions \lstinline{name} and \lstinline{ssn} on the second line appear directly in the body of the literal form, so we call them \emph{spliced subexpressions}. When the parse function determines that a subsequence of the body should be treated as a spliced subexpression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), 
-it can mark this subsequence as such and use it within the expansion it generates using the \li{Spliced} constructor of the \li{CandidateExp} type shown above. Notice that spliced subexpressions are referred to indirectly by their position within the literal body (i.e. with a value of type \li{IndexRange}, shown above) to prevent TSMs from forging a spliced subexpression (i.e. claiming that an expression is a spliced subexpression, even though it does not appear in the body of the literal form). %In particular, the parse function must provide the index range of spliced subexpressions to the \li{Spliced} constructor of the type \li{MarkedExp}. %Only subexpressions that actually appear in the body of the literal form can be marked as spliced subexpressions.
+it can refer to it within the candidate expansion it generates using the \li{Spliced} constructor of the \li{CEExp} type shown in Figure \ref{fig:candidate-exp-verseml}. Spliced subexpressions are referred to indirectly by their position within the literal body (i.e. with a value of type \li{IndexRange}, defined above) to prevent TSMs from forging a spliced subexpression (i.e. claiming that an expression is a spliced subexpression, even though it does not appear in the body of the literal form). Expressions can contain type expressions, so one can also mark spliced type expressions in an analagous manner. %In particular, the parse function must provide the index range of spliced subexpressions to the \li{Spliced} constructor of the type \li{MarkedExp}. %Only subexpressions that actually appear in the body of the literal form can be marked as spliced subexpressions.
 
 The candidate expansion generated by \li{#\dolla#rx} for the body of \lstinline{example_rx_tsm}, if written in a hypothetical concrete syntax for candidate expansions where spliced subexpressions are written \li{spliced<startIdx, endIndex>}, is:
 \begin{lstlisting}[numbers=none]
@@ -108,259 +123,563 @@ Here, \li{spliced<1, 4>} refers to the subexpression \li{name} by position and \
 %Q.Seq(Q.Str(name), Q.Seq(Q.Str ": ", ssn))
 %\end{lstlisting}
 
-\subsection{Validation}\label{sec:uetsms-validation}
-The language \emph{validates} candidate expansions to ensure that they are \emph{well-typed} and \emph{hygienic}. 
+\subsection{Typing}\label{sec:uetsms-validation}
+The language \emph{validates} candidate expansions. The first check involves checking the candidate expansion against the type annotation specified by the TSM, i.e. the type \li{Rx} in the example above. This maintains a type discipline: if a programmer encounters a TSM being applied when reading a well-typed program, they need only look up the TSM's type annotation to determine the type of that expression. They do not need to examine the expansion directly. 
 
-\subsubsection{Typing}
-The type annotation specified by the TSM, i.e. the type \li{Rx} in the example above, determines the type that the candidate expansion is checked against. This maintains a type discipline: if a programmer encounters a TSM application when reading a well-typed program, they need only look up the TSM's type annotation to determine the type of that expression. They do not need to examine the expansion directly. 
+The spliced subexpressions that the candidate expansion refers to (by their position within the literal body, cf. above) are recursively parsed, typed and expanded during this process.
 
-\subsubsection{Hygiene}
-Hygiene, a.k.a. a binding discipline, is achieved by maintaining the following properties:
+\subsection{Hygiene}
+To maintain a useful binding discipline, the validation process checks two additional properties: \textbf{context independent expansion} and \textbf{expansion independent splicing}. These are collectively referred to as the \emph{hygiene properties}.
 
-\begin{itemize}
-\item \textbf{Context Independence}: A TSM cannot make any assumptions about the typing context at the use site. This is achieved by giving access to the use site typing context only to spliced subexpressions (which the client of the TSM writes, rather than the TSM provider). 
-
-An example of a ``bad'' TSM that assumes that a particular variable is available at the use site is the following:
+\paragraph{Context Independent Expansion} Programmers expect to be able to choose variable identifiers freely, i.e. without ``hidden constraints'' imposed by the TSMs they are using. For this reason, context-dependent candidate expansions, i.e. those with free variables, are deemed invalid (even at application sites where those variables happen to be bound). An example of a ``bad'' TSM that generates context-dependent expansions is shown below:
 \begin{lstlisting}[numbers=none]
 syntax $bad1 at Rx {
-	static fn(body : Body) => Success (Var 'SSTRxESTR')
+	static fn(body : Body) : ParseResultExp => Success (Var 'SSTRxESTR')
 }
 \end{lstlisting}
-The candidate expansion this TSM generates is well-typed only when there is a binding \li{x : Rx} at the use site. Therefore, it is deemed invalid.
+The candidate expansion this TSM generates would be well-typed only when there is a binding \li{x : Rx} in the application site typing context, so it is deemed invalid (even in such a context). 
 
-In the example in Sec. \ref{sec:uetsms-usage}, the expansion used constructors associated with the \li{Rx} type, e.g. \li{Seq} and \li{Str}. This might appear to violate context independence. However, this is not the case because in VerseML, constructor labels are distinguished from variables. Syntactically, they must begin with a capital letter (as in Haskell). Different type definitions can use the same constructor label without conflict because the type the term is being checked against -- here \li{Rx}, due to the type ascription on \li{#\dolla#rx} -- determines which type of value is to be constructed.
+Application site bindings are, however, available when recursively typing and expanding the spliced subexpressions referred to in the candidate expansion because spliced subexpressions are authored by the TSM client and appear at the application site. We saw examples of spliced subexpressions that referred to variables bound at the application site in Sec. \ref{sec:splicing-and-hygiene}.% The TSM provider can only refer to them opaquely.
 
-\item \textbf{Context Invariance}: Spliced subexpressions have access to only those variables that were bound at the use site. The TSM cannot introduce new bindings into spliced subexpressions. For example, consider the following candidate expansion (written concretely as above):
+In the examples in Sec. \ref{sec:uetsms-usage} and Sec. \ref{sec:splicing-and-hygiene}, the expansion used constructors associated with the \li{Rx} type, e.g. \li{Seq} and \li{Str}. This might appear to violate context independence. However, this is not the case because in VerseML, constructor labels are not variables. Syntactically, they must begin with a capital letter (as in Haskell). Different labeled sum types can use common constructor labels without conflict because the type the term is being checked against -- e.g. \li{Rx}, due to the type ascription on \li{#\dolla#rx} -- determines which type of value will be constructed.% Indeed, we used the label \li{Spliced} for two different recursive labeled sum types in Figure \ref{fig:candidate-exp-verseml}.
+
+\paragraph{Expansion Independent Splicing} Spliced subexpressions have access to only those variables that were bound at the application site, i.e. a TSM cannot introduce new bindings into spliced subexpressions. For example, consider the following hypothetical candidate expansion (written concretely as above):
 \begin{lstlisting}[numbers=none]
 fn(x : Rx) => spliced<0, 4>
 \end{lstlisting}
-The variable \li{x} would not be available to the indicated spliced subexpression (nor would it shadow any bindings of \li{x} at the use site).
+The variable \li{x} would not be available when typing the indicated spliced subexpression, nor would it shadow any bindings of \li{x} at the application site.
 
-This does limit the ability of library providers to define derived forms for abstractions that involve novel syntax for binding. For example, Haskell's derived forms for monadic commands involve binding the result of a command to a variable. In VerseML, programmers must use the built-in function form to pass data through variables. We will return to this example when we discuss parameterized TSMs in Chapter \ref{sec:tsms-parameterized}.
-\end{itemize}
+The benefit of maintaining this property is that the TSM client can determine which bindings are available in a spliced subexpression without examining the expansion it appears within. There are no ``hidden variables''. The trade-off is that this prevents library providers from defining  alternative binding idioms. For example, Haskell's derived form for monadic commands (i.e. \li{do}-notation) supports binding the result of executing a command to a variable that is then available in the subsequent commands in a command sequence. We will show an alternative formulation of Haskell's syntax for monadic commands that uses VerseML's anonymous function syntax to bind variables in Sec. \ref{sec:application-monadic-commands}. We will discuss mechanisms that might allow us to relax this restriction while retaining client control over variable naming as future work in Sec. \ref{sec:controlled-binding}.
 
-These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the location of spliced subexpressions within all the literal forms in scope of the variable; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, just as we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
-
-\todo{does above paragraph need to expanded?}
+%These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the locations of spliced subexpressions within all the literal forms for which the variable being renamed is in scope; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, like we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
 
 \subsubsection{Final Expansion}
-After checking that the candidate expansion is {valid}, the semantics replaces the references to spliced subexpressions with the subexpressions themselves, producing the final expansion. For example, the final expansion of the body of \li{example_rx_tsm} is:
+After checking that the candidate expansion is {valid}, the semantics generates the \emph{final expansion} by replacing the references to spliced subexpressions with their final expansions. For example, the final expansion of the body of \li{example_rx_tsm} is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 %Put another way, the  elaboration logic must be valid in any context. 
 
 
-\section{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
-\subsection{Quasiquotation}
-TSMs can be used when defining parse functions. For example, rather than construct values of type \li{MarkedExp} explicitly, the prelude includes a TSM that provides quasiquotation syntax like that described in Sec. \ref{sec:syntax-examples-quasiquotation}:
-\begin{lstlisting}[numbers=none]
-syntax $qq at MarkedExp {
-	static fn(body) => (* quasiquotation parser here *)
-}
-\end{lstlisting}
-For example, the following TSM application:
-\begin{lstlisting}[numbers=none]
-let gx = $qq `SQTg(x)EQT`
-\end{lstlisting}
-is more concise than its expansion:
-\begin{lstlisting}[numbers=none]
-let gx = App(Var 'SSTRgESTR', Var 'SSTRxESTR')
-\end{lstlisting}
-Anti-quotation is simply splicing in another value of type \li{MarkedExp}, here indicated by prefix \li{%}:
-\begin{lstlisting}[numbers=none]
-let fgx = $qq `SQTf(%EQTgxSQT)EQT`
-\end{lstlisting}
-The expansion of this term is:
-\begin{lstlisting}[numbers=none]
-let fgx = App(Var 'SSTRfESTR', gx)
-\end{lstlisting}
 
-\subsection{Parser Generators}
-\todo{grammars, compile function, TSM for grammar, example of IP address}
+\section{$\miniVerseU$}\label{sec:tsms-minimal-formalism}
 
-\section{Minimal Formalization}\label{sec:tsms-minimal-formalism}
-
-\begin{figure}$\begin{array}{llllll}
-\textbf{variables} & \textbf{type variables} & \textbf{TSM variables} & \textbf{bodies}\\
-x & t & m & b\\~\end{array}$\\
-$\begin{array}{l}
-\textbf{types}\\
-\tau ::= t ~\vert~ \parr{\tau}{\tau} ~\vert~ \forallt{t}{\tau} ~\vert~ \rect{t}{\tau} ~\vert~ \unitt\\
-~\\
-\textbf{marked types}\\
-\mtau ::= t ~\vert~ \parr{\mtau}{\mtau} ~\vert~ \forallt{t}{\mtau} ~\vert~ \rect{t}{\mtau} ~\vert~ \unitt ~\vert~ \mtspliced{\tau}\\
-~\\
-\textbf{TSM expressions}\\
-\tsme ::= \tsmv ~\vert~ \utsmdef{\tau}{\ue}
-\\~\\
-\textbf{unexpanded expressions}\\
-\ue ::= {x} ~\vert~ \lam{x}{\tau}{\ue} ~\vert~ \ue(\ue) ~\vert~ \Lam{t}{\ue} ~\vert~ \App{\ue}{\tau} ~\vert~ \fold{t}{\tau}{\ue} ~\vert~ \unfold{\ue} ~\vert~ \triv ~\vert~ \uletsyntax{\tsmv}{\tsme}{\ue} ~\vert~ \utsmapp{\eta}{b}
-\\~\\
-\textbf{marked expressions}\\
-\me ::= x ~\vert~ \lam{x}{\mtau}{\me} ~\vert~ \app{\me}{\me} ~\vert~ \Lam{t}{\me} ~|~ \App{\me}{\mtau} ~\vert~ \fold{t}{\mtau}{\me} ~\vert~ \unfold{\me} ~\vert~ \triv ~\vert~ \mspliced{e}
-\\~\\
-\textbf{expanded expressions}\\
-e ::= x ~\vert~ \lam{x}{\tau}{e} ~\vert~ \app{e}{e} ~\vert~ \Lam{t}{e} ~\vert~ \App{e}{\tau} ~\vert~ \fold{t}{\tau}{e} ~\vert~ \unfold{e} ~\vert~ \triv\end{array}\\\vspace{8px}$
-~\\
-$\begin{array}{ll}
-\textbf{type formation contexts} & \textbf{typing contexts}\\
-\Delta ::= \emptyset ~\vert~ \Delta, t & \Gamma ::= \emptyset ~\vert~ \Gamma, x : \tau
-\end{array}$
-
-\todo{add sum and product types}\\
-\todo{add nat}
-\caption{Syntax of $\LTSM$}
-\label{fig:lambda-tsm-syntax}
-\end{figure}
+% \begin{figure}[p!]
+% $\begin{array}{lllllll}
+% \textbf{variables} & \textbf{type variables} & \textbf{labels} & \textbf{label sets} & \textbf{TSM variables} & \textbf{literal bodies} & \textbf{nats}\\
+% x & t & \ell & \labelset & \tsmv & b & n\\~\end{array}$\\
+% $\begin{array}{ll}
+% \textbf{type formation contexts} & \textbf{typing contexts}\\
+% \Delta ::= \emptyset ~\vert~ \Delta, t & \Gamma ::= \emptyset ~\vert~ \Gamma, x : \tau\\
+% ~
+% \end{array}$\\
+% ~\\
+% $\begin{array}{lcl}
+% \gheading{types}\\
+% \tau & ::= & t ~\vert~ \parr{\tau}{\tau} ~\vert~ \forallt{t}{\tau} ~\vert~ \rect{t}{\tau} ~\vert~  \prodt{\mapschema{\tau}{i}{\labelset}} ~\vert~ \sumt{\mapschema{\tau}{i}{\labelset}}\\
+% ~\\
+% \gheading{expanded expressions}\\
+% e & ::= & x ~\vert~ \lam{x}{\tau}{e} ~\vert~ \app{e}{e} ~\vert~ \Lam{t}{e} ~\vert~ \App{e}{\tau} ~\vert~ \fold{t}{\tau}{e} ~\vert~ \unfold{e} ~\vert~ \tpl{\mapschema{e}{i}{\labelset}} ~\vert~ \prj{e}{\ell} \\
+% & \vert & \inj{\ell}{e} ~\vert~ \caseof{e}{\mapschemab{x}{e}{i}{\labelset}}\\
+% ~\\
+% \gheading{TSM expressions}\\
+% \tsme & ::= & \tsmv ~\vert~ \utsmdef{\tau}{\ue}\\
+% ~\\
+% \gheading{unexpanded expressions}\\
+% \ue & ::= & {x} ~\vert~ \lam{x}{\tau}{\ue} ~\vert~ \ue(\ue) ~\vert~ \Lam{t}{\ue} ~\vert~ \App{\ue}{\tau} ~\vert~ \fold{t}{\tau}{\ue} ~\vert~ \unfold{\ue} ~\vert~ \tpl{\mapschema{\ue}{i}{\labelset}} ~\vert~ \prj{\ue}{\ell} \\
+% & \vert & \inj{\ell}{\ue} ~\vert~ \caseof{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}\\
+% & \vert & \uletsyntax{\tsmv}{\tsme}{\ue} ~\vert~ \utsmapp{\eta}{b}\\
+% ~\\
+% \gheading{candidate expansion types}\\
+% \mtau & ::= & t ~\vert~ \parr{\mtau}{\mtau} ~\vert~ \forallt{t}{\mtau} ~\vert~ \rect{t}{\mtau} ~\vert~ \prodt{\mapschema{\tau}{i}{\labelset}} ~\vert~ \sumt{\mapschema{\mtau}{i}{\labelset}} \\
+% & \vert & \mtspliced{\tau}\\
+% ~\\
+% \gheading{candidate expansion expressions}\\
+% \me & ::= & x ~\vert~ \lam{x}{\mtau}{\me} ~\vert~ \app{\me}{\me} ~\vert~ \Lam{t}{\me} ~|~ \App{\me}{\mtau} ~\vert~ \fold{t}{\mtau}{\me} ~\vert~ \unfold{\me} ~\vert~ \tpl{\mapschema{\me}{i}{\labelset}} ~\vert~ \prj{\me}{\ell} \\
+% & \vert & \inj{\ell}{\me} ~\vert~ \caseof{\me}{\mapschemab{x}{\me}{i}{\labelset}}\\
+% & \vert & \mspliced{e}
+% % \\~
+% \end{array}$
+% \todo{finish breaking this up into syntax tables}
+% \caption[Syntax of $\miniVerseU$]{Syntax of $\miniVerseU$. The forms $\mapschema{V}{i}{\labelset}$ and $\mapschemab{x}{V}{i}{\labelset}$ where $V$ is a metavariable indicate finite mappings from each label $i \in \labelset$ to a term, $V_i$, or binder, $x_i.V_i$, respectively.}
+% \label{fig:lambda-tsm-syntax}
+% \end{figure}
 
 
-To give a formal account of unparameterized expression TSMs, we will now introduce a typed lambda calculus, $\LTSM$. The syntax of $\LTSM$ is shown in Figure \ref{fig:lambda-tsm-syntax}.
+To make the intuitions developed in the previous section precise, we will now introduce a reduced calculus with support for unparameterized expression TSMs called $\miniVerseU$. 
+%For reference, the syntax of $\miniVerseU$ is specified in Figure \ref{fig:lambda-tsm-syntax}. We will reproduce relevant portions of this specification inline (in tabular form) as we continue. 
+We specify all formal systems in this document within the metatheoretic framework detailed in \emph{PFPL} \cite{pfpl}, and assume familiarity of fundamental background concepts (e.g. abstract binding trees, substitution, implicit identification of terms up to $\alpha$-equivalence and rule induction) covered therein. %Familiarity with other accounts of typed lambda calculi should also suffice to understand the formal systems in this document. 
 
 \subsection{Types and Expanded Expressions}
-\begin{figure}
-\todo{write this down}
-\caption{Static semantics of expanded expressions in $\LTSM$}
-\label{fig:expanded-statics}
-\end{figure}
-\begin{figure}
-\todo{write this down}
-\caption{Dynamic semantics of $\LTSM$}
-\label{fig:expanded-dynamics}
-\end{figure}
-\emph{Types}, $\tau$, and \emph{expanded expressions}, $e$, form a standard typed lambda calculus supporting partial functions, quantification over types, recursive types and for simplicity, a single base type, $\mathsf{1}$. The reader can consult any standard text covering typed programming languages for the necessary background (e.g. \emph{TAPL} \cite{tapl} or \emph{PFPL} \cite{pfpl}). We will reproduce a more detailed account of the semantics of the language in the dissertation, but for our present purposes, it suffices to recall the relevant judgement forms. The static  semantics of expanded expressions can be specified by judgements of the following form:
+At the ``semantic core'' of $\miniVerseU$ are \emph{types}, $\tau$, and \emph{expanded expressions}, $e$. Their syntax is specified by the table in Figure \ref{fig:U-expanded-terms}. 
 
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\Delta \vdash \tau~\mathtt{type} & \text{$\tau$ is a valid type under type formation context $\Delta$}\\
-\Delta \vdash \Gamma~\mathtt{ctx} & \text{$\Gamma$ is a valid typing context under $\Delta$}\\
-\Delta~\Gamma \vdash e : \tau & \text{$e$ has type $\tau$ under $\Delta$ and $\Gamma$}
+\begin{figure}
+$\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Abstract Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\
+&&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
+&&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
+&&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
+&&& \aprod{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{EExp} & e & ::= & x & x & \text{variable}\\
+&&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+&&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
+&&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+&&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+&&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+&&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
+&&& \aetpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+&&& \aein{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aecase{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}
 \end{array}$
+\caption[Syntax of types and expanded expressions in $\miniVerseU$.]{Syntax of types and expanded expressions in $\miniVerseU$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over sets of labels. The forms $\mapschema{e}{i}{\labelset}$, $\mapschema{\tau}{i}{\labelset}$ and $\mapschemab{x}{e}{i}{\labelset}$ indicate finite mappings from each label $i \in \labelset$ to an expression, type or binder over an expression, respectively. The label set is omitted for concision when writing particular finite mappings, e.g. $\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}$. When we use the stylized forms $\fold{e}$ and $\inj{\ell}{e}$, we assume that the missing type information can be inferred from context.}
+\label{fig:U-expanded-terms}
+\end{figure}
 
-\noindent
-The dynamic semantics can be specified by judgements of the following form:
+Types and expanded expressions form a language with support for partial functions, quantification over types, recursive types, and labeled product and sum types. The reader can consult \emph{PFPL} \cite{pfpl} (or another text on typed programming languages, e.g. \emph{TAPL} \cite{tapl}) for a detailed account of these constructs (or closely related variants thereof). For our purposes, it suffices to recall the following facts and definitions.
 
-$\begin{array}{ll}
+\subsubsection{Statics of Expanded Expressions}
+The \emph{statics of expanded expressions} is specified by judgements of the following form:
+
+\[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-e \mapsto e' & \text{$e$ transitions to $e'$}\\
-e~\mathtt{val} & \text{$e$ is a value}
-\end{array}$
-\\\noindent
-We will write $e \mapsto^* e'$ for the reflexive, transitive closure of the transition relation and $e \Downarrow e'$ iff $e \mapsto^* e'$ and $e'~\mathtt{val}$.
+\istypeU{\Delta}{\tau} & \text{$\tau$ is a well-formed type under $\Delta$}\\
+\isctxU{\Delta}{\Gamma} & \text{$\Gamma$ is a well-formed typing context under $\Delta$}\\
+\hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ has type $\tau$ under $\Delta$ and $\Gamma$}
+\end{array}\]
 
-\subsection{Macro Expansion and Validation}
-\begin{figure}
-\todo{write this down}
-\caption{Typed Expansion}
-\label{fig:u-typed-expansion}
-\end{figure}
-\begin{figure}
-\begin{lstlisting}
-(* we leave var and tvar abstract in the metatheory; see text *)
-type var
-type tvar
-type Nat = Z | S of Nat
-type Ty = TVar of tvar | Parr of Ty * Ty | Forall of tvar * Ty 
-	| Rec of tvar * Ty | Unit | Prod of Ty * Ty | Sum of Ty * Ty
-	| SplicedTy of Nat * Nat
-type Exp = Var of var | Abs of var * Ty * Exp | App of Exp * Exp
-	| TyAbs of tvar * Exp | TyApp of Exp * Ty
-	| Fold of tvar * Ty * Exp | Unfold of Exp
-	| Triv | Pair of Exp * Exp | Fst of Exp | Snd of Exp
-	| InL of Ty * Exp | InR of Ty * Exp | Case of Exp * var*Exp * var*Exp
-	| SplicedExp of Nat * Nat
-\end{lstlisting}
-\todo{use math font}
-\todo{reference tihs figure}\\
-\todo{ack. that there are other possible encodings that might be useful in practice, e.g. ABTs}
-\caption[Expansion Encodings]{Definition of types for expansion encodings in $\LTSM$. For clarity, we use OCaml-style type definitions with explicit constructor labels here and in the remainder of this section. The mapping from these definitions to the unlabeled recursive sum types found in $\LTSM$ is straightforward (e.g. \texttt{Nat} corresponds to $\rect{t}{\sumt{\unitt}{t}}$) and thus omitted for concision.}
-\label{fig:visible-compiler}
-\end{figure}
-\begin{figure}
-\todo{write this down}
-\caption{Expansion Decoding}
-\label{fig:u-expansion-decoding}
-\end{figure}
-\begin{figure}
-\todo{write this down}
-\caption{Expansion Validation}
-\label{fig:u-expansion-validation}
-\end{figure}
-Programs ultimately evaluate as expanded expressions, but programmers write programs as \emph{unexpanded expressions}, $\ue$. Unexpanded expressions are typechecked and expanded simultaneously according to the rules defining the \emph{typed expansion judgement}:
+\emph{Type formation contexts}, $\Delta$, are finite sets of type variables and \emph{typing contexts}, $\Gamma$, are finite mappings from variables to types. Syntactically, we write contexts as comma-separated sequences of {hypotheses} identified up to exchange and contraction. We write hypotheses in $\Delta$ as $\Dhyp{t}$ and hypothesis in $\Gamma$ as $\Ghyp{x}{\tau}$. We write empty contexts as $\emptyset$ (or omit them entirely). 
 
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\Delta~\Gamma \vdash \ue \leadsto e : \tau & \text{$\ue$ expands to $e$ at type $\tau$ under $\Delta$ and $\Gamma$}
-\end{array}$
+The type formation judgement, $\istypeU{\Delta}{\tau}$, ensures that all free type variables in $\tau$ are in $\Delta$. It is inductively defined by the following rules:
+\begin{subequations}\label{rules:istypeU}
+\begin{equation}
+\inferrule{ }{\istypeU{\Delta, \Dhyp{t}}{t}}
+\end{equation}
+\begin{equation}
+\inferrule{
+  \istypeU{\Delta}{\tau_1}\\
+  \istypeU{\Delta}{\tau_2}
+}{\istypeU{\Delta}{\aparr{\tau_1}{\tau_2}}}
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \istypeU{\Delta, \Dhyp{t}}{\tau}
+  }{
+    \istypeU{\Delta}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \istypeU{\Delta, \Dhyp{t}}{\tau}
+  }{
+    \istypeU{\Delta}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
+  }{
+    \istypeU{\Delta}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
+  }{
+    \istypeU{\Delta}{\asum{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\end{subequations}
+Premises of the form $\{\mathcal{J}_i\}_{i \in \labelset}$ mean that for each $i \in \labelset$, the judgement $\mathcal{J}_i$ must hold. 
 
-Every form in the syntax of $e$ has a corresponding form in the syntax of $\ue$ (cf. Figure \ref{fig:lambda-tsm-syntax}). For each rule in the static semantics of $e$, there is a corresponding typed expansion rule where the unexpanded and expanded forms correspond. For example, the rules for variables, functions and function application are shown below (the remaining such rules are analagous, but we omit them here for concision):
-\begin{mathpar}
-\inferrule[T-U-var]{ }{\Delta~\Gamma, x : \tau \vdash x \leadsto x : \tau}
+The typing context formation judgement, $\isctxU{\Delta}{\Gamma}$, ensures that all types in the co-domain of the typing context are well-formed according to Rules (\ref{rules:istypeU}). It is inductively defined by the following rules:
+\begin{subequations}\label{rules:isctxU}
+\begin{equation}
+  \inferrule{ }{
+    \isctxU{\Delta}{\emptyset}
+  }
+\end{equation}
+\begin{equation}\label{rule:isctxU-ext}
+  \inferrule{
+    \isctxU{\Delta}{\Gamma}\\
+    \istypeU{\Delta}{\tau}
+  }{
+    \isctxU{\Delta}{\Gamma, \Ghyp{x}{\tau}}
+  }
+\end{equation}
+\end{subequations}
 
-\inferrule[T-U-abs]{
-	\Delta \vdash \tau_1~\mathtt{type}\\
-	\Delta~\Gamma, x:\tau \vdash \ue \leadsto e : \tau'
-}{
-	\Delta~\Gamma \vdash \lambda x{:}\tau.\ue \leadsto \lambda x{:}\tau.e : \tau \rightharpoonup \tau'
-}
+The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions. It is inductively defined by the following rules:
+\begin{subequations}\label{rules:hastypeU}
+\begin{equation}
+  \inferrule{ }{
+    \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \istypeU{\Delta}{\tau}\\
+    \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{e}{\tau'}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau}{\tau'}}\\
+    \hastypeU{\Delta}{\Gamma}{e_2}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetlam{t}{e}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\aall{t}{\tau}}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{\
+    \istypeU{\Delta, \Dhyp{t}}{\tau}\\
+    \hastypeU{\Delta}{\Gamma}{e}{[\arec{t}{\tau}/t]\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\arec{t}{\tau}}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:etpl}
+  \inferrule{
+    \{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetpl{\mapschema{e}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\aprod{\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau}}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aepr{\ell}{e}}{\tau}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \istypeU{\Delta}{\asum{\mapschema{\tau}{i}{\labelset}\otimes\ell \hookrightarrow \tau}}\\
+    \hastypeU{\Delta}{\Gamma}{e}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aein{\ell}{\mapschema{\tau}{i}{\labelset}\otimes \ell \hookrightarrow \tau}{e}}{\asum{\mapschema{\tau}{i}{\labelset}\otimes\ell \hookrightarrow \tau}}
+  }
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\asum{\mapschema{\tau}{i}{\labelset}}}\\
+    \{\hastypeU{\Delta}{\Gamma, x_i : \tau_i}{e_i}{\tau}\}_{i \in \labelset}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aecase{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+  }
+\end{equation}
+\end{subequations}
+We write $\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau$ when $\ell \notin \labelset$ for the extension of $\mapschema{\tau}{i}{\labelset}$ with a mapping from $\ell$ to $\tau$.
 
-\inferrule[T-U-ap]{
-	\Delta~\Gamma \vdash \ue_1 \leadsto e_1 : \tau \rightharpoonup \tau' \\
-	\Delta~\Gamma \vdash \ue_2 \leadsto e_2 : \tau
-}{
-	\Delta~\Gamma \vdash \ue_1(\ue_2) \leadsto e_1(e_2) : \tau'
-}
-\end{mathpar}
-There are two forms in the syntax of $\ue$ that have no corresponding form in the syntax of $e$. The first allows the programmer to bind a \emph{TSM variable}, $m$, to a \emph{TSM expression}, $\eta$. TSM expressions are either TSM variables or \emph{TSM definitions}. Substitution for TSM variables is performed statically, so we only need a rule for the case where the TSM variable is being bound to a TSM definition:
-\begin{mathpar}
-\inferrule[T-U-TSM-let]{
-	\Delta \vdash \mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}~\mathtt{tsm}\\
-	\Delta~\Gamma \vdash [\mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}/m]\ue \leadsto e : \tau'
-}{
-	\Delta~\Gamma \vdash \mathsf{let}~\mathsf{syntax}~m=\mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}~\mathsf{in}~\ue \leadsto e : \tau'
-}
-\end{mathpar}
-The first premise checks that the TSM definition is valid. It is defined by the following rule:
-\begin{mathpar}
-\inferrule[TSM-OK]{
-	\Delta \vdash \tau~\mathtt{type}\\
-	\emptyset~\emptyset \vdash \ue_\text{parse} \leadsto e_\text{parse} : \mathsf{Body} \rightharpoonup \mathsf{Exp}
-}{
-	\Delta \vdash \mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}~\mathtt{tsm}
-}
-\end{mathpar}
-The first premise of (TSM-OK) checks that the type is valid. The second premise typechecks and expands the parse function, which must be closed. We discuss the abbreviated types $\mathsf{Body}$ and $\mathsf{Exp}$ below.
+The rules given above validate the following standard lemmas. 
 
-The second form in the syntax of $\ue$ that has no corresponding form in the syntax of $e$ is the form for TSM application to a delimited body, $\eta\,\texttt{/}b\texttt{/}$. Again because substitution for TSM variables is performed statically, we only need a rule for the case where $\eta$ is a TSM definition:
-\begin{mathpar}
-\inferrule[T-U-TSM-ap]{
-	\Delta \vdash \tau~\mathtt{type}\\
-	\emptyset~\emptyset \vdash \ue_\text{parse} \leadsto e_\text{parse} : \mathsf{Body} \rightharpoonup \mathsf{Exp}\\\\
-	b \downarrow e_\text{body} : \mathsf{Body}\\
-	e_\text{parse}(e_\text{body}) \Downarrow e_\text{exp}\\
-	e_\text{exp} : \mathsf{Exp} \uparrow \dot{e}_\text{exp}\\\\
-	\Delta~\Gamma; \emptyset~\emptyset \vdash \dot{e}_\text{exp} \leadsto e : \tau
-}{
-	\Delta~\Gamma \vdash \mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}~\texttt{/}b\texttt{/} \leadsto e : \tau
-}
-\end{mathpar}
-The premises can be understood as follows, in order:
+The Weakening Lemma expresses the intuition that extending a context with unused variables preserves well-formedness and typing.
+\begin{lemma}[Weakening] All of the following hold: 
+\begin{enumerate} 
+\item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
+\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch}
 \begin{enumerate}
-\item The first premise checks that the type specified by the TSM is valid.
-\item The second premise typechecks and expands the parse function.
-\item The third premise encodes the body, $b$, as a term, $e_\text{body}$ of type $\mathsf{Body}$ (we will give more details on how bodies are encoded in the dissertation, but omit the definition of $\mathsf{Body}$ here for concision).
-\item The fourth premise applies the expanded parse function to the encoding of the body to produce an encoding of the expansion, $e_\text{exp}$, of  type $\mathsf{Exp}$. 
-\item Values of type $\mathsf{Exp}$ map onto \emph{marked expressions}, $\dot{e}$. Per Figure \ref{fig:lambda-tsm-syntax}, marked expressions can contain variables, type variables and marked types, $\dot{\tau}$, so there is also a mapping from values of types abbreviated $\mathsf{Var}$, $\mathsf{TVar}$ and $\mathsf{Type}$ onto variables, type variables, and {marked types}, respectively. We also omit the full definitions of these types for concision (cf. the SML/NJ Visible Compiler library \cite{SML/VisibleCompiler} for an example of such an encoding of the abstract syntax of a language). These mappings are specified by the \emph{expansion decoding judgements}:
+\item By rule induction on Rules (\ref{rules:istypeU}).
+\item By rule induction on Rules (\ref{rules:isctxU}).
+\item By rule induction on Rules (\ref{rules:hastypeU}).
+\item By rule induction on Rules (\ref{rules:hastypeU}).
+\end{enumerate}
+\end{proof-sketch}
 
-$\begin{array}{ll}
+The Substitution Lemma expresses the intuition that substitution of a type for a type variable, or an expression for a variable of the appropriate type, preserves well-formedness and typing. 
+\begin{lemma}[Substitution] All of the following hold:
+\begin{enumerate}
+\item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
+\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
+\item If $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
+\end{enumerate}\end{lemma}
+\begin{proof-sketch}
+In each case, by rule induction on the derivation of the first assumption.
+\end{proof-sketch}
+The Decomposition Lemma is the converse of the Substitution Lemma.
+\begin{lemma}[Decomposition] All of the following hold:
+\todo{write this down}
+\end{lemma}
+The Regularity Lemma expresses the intuition that the type assigned to an expression under a well-formed typing context is well-formed. 
+\begin{lemma}[Regularity] If $\isctxU{\Delta}{\Gamma}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begin{proof-sketch}
+By rule induction on Rules (\ref{rules:hastypeU}) and inversion of Rule (\ref{rule:isctxU-ext}). 
+\end{proof-sketch}
+\subsubsection{Dynamics of Expanded Expressions}
+The \emph{dynamics} of expanded expressions is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
+\[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-e : \mathsf{Var} \uparrow x & \text{$e$ decodes to variable $x$.}\\
-e : \mathsf{TVar} \uparrow t & \text{$e$ decodes to type variable $t$.}\\
-e : \mathsf{Type} \uparrow \dot{\tau} & \text{$e$ decodes to marked type $\dot{\tau}$.}\\
-e : \mathsf{Exp} \uparrow \dot{e} & \text{$e$ decodes to marked expression $\dot{e}$.}\\
-\end{array}$
+\stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
+\isvalU{e} & \text{$e$ is a value}
+\end{array}\]
+We also define auxiliary judgements for \emph{iterated transitions}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
 
-The fifth premise decodes $e_\text{exp}$ to produce the \emph{marked expansion}, $\dot{e}_\text{exp}$. 
+\begin{definition}[Iterated Transition] Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement.\end{definition}
+
+\begin{definition}[Evaluation] Evaluation, $\evalU{e}{e'}$, is derivable iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+
+Our subsequent developments do not require making reference to particular rules in the dynamics (because TSMs operate statically), so for concision, we do not produce the rules here. Instead, it suffices to state certain necessary conditions.
+
+The Canonical Forms condition characterizes well-typed values. We assume an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. 
+\begin{condition}[Canonical Forms]\label{condition:canonical-forms-U} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
+\begin{enumerate}
+\item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
+\item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
+\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$. 
+\item If $\tau=\aprod{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$.
+\item If $\tau=\asum{\mapschema{\tau}{i}{\labelset}}$ then $e=\aein{\ell}{\mapschema{\tau}{i}{\labelset\setminus \ell} \otimes \ell \hookrightarrow \tau'}{e'}$ and $\ell \in \labelset$ and $\hastypeUC{e'}{\tau'}$.
+\end{enumerate}\end{condition}
+
+We also require that the statics and dynamics be coherent. This is expressed in the standard way by Preservation and Progress conditions (together, these constitute the \emph{type safety} condition). 
+\begin{condition}[Preservation]\label{condition:preservation-U} If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
+\begin{condition}[Progress]\label{condition:progress-U} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+
+
+\subsection{Macro Expansion}
+Programs evaluate as expanded expressions, but programmers author \emph{unexpanded expressions}, $\ue$. Unexpanded expressions are typed and expanded simultaneously according to the \emph{typed expansion judgement}:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\expandsUX{\ue}{e}{\tau} & \text{$\ue$ expands to $e$ at type $\tau$ under $\Delta$ and $\Gamma$ with macro environment $\Sigma$}
+\end{array}\]
+
+\begin{figure}
+$\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Abstract Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{UExp} & \ue & ::= & x & x & \text{variable}\\
+&&& \aulam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+&&& \auap{e}{e} & \ap{e}{e} & \text{application}\\
+&&& \autlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+&&& \autap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+&&& \aufold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+&&& \auunfold{e} & \unfold{e} & \text{unfold}\\
+&&& \autpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aupr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+&&& \auin{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aucase{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}\\
+&&& \auletsyntax{\tau}{\ue}{\tsmv}{\ue} & \uletsyntax{\tsmv}{\tau}{\ue}{\ue} & \text{macro definition}\\
+&&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{macro application}
+\end{array}$
+\caption[Syntax of unexpanded expressions in $\miniVerseU$.]{Syntax of unexpanded expressions in $\miniVerseU$. Metavariable $\tsmv$ ranges over macro identifiers and $b$ ranges over literal bodies.}
+\label{fig:U-unexpanded-terms}
+\end{figure}
+
+
+
+
+The syntax of unexpanded expressions is specified in Figure \ref{fig:U-unexpanded-terms}.  Notice that each form of expanded expression (Figure \ref{fig:U-expanded-terms}) corresponds to a form of unexpanded expression. For each typing rule in Rules (\ref{rules:hastypeU}), there is a corresponding typed expansion rule where the unexpanded and expanded forms correspond. The premises also correspond, i.e. if a typing judgement appears as a premise of a typing rule, then the corresponding premise in the corresponding typed expansion rule is the corresponding typed expansion judgement. For example, the rules for typed expansion of variables, functions and function application are shown below: 
+
+\begin{subequations}
+\begin{equation}
+  \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{x}{x}{\tau}}
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \istypeU{\Delta}{\tau}\\
+    \expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{\ue}{e}{\tau'}
+  }{\expandsUX{\aulam{\tau}{x}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
+\end{equation}
+\begin{equation}
+  \inferrule{
+    \expandsUX{\ue_1}{e_1}{\aparr{\tau}{\tau'}}\\
+    \expandsUX{\ue_2}{e_2}{\tau}
+  }{
+    \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+The remaining rules for corresponding forms follow the same pattern, so we omit them here for concision. \todo{should I write down all of them (appendix?)} %\todo{hidden equation numbers?}
+
+There are two forms of unexpanded expressions that do not correspond to forms of expanded expressions. 
+
+The macro definition form $$\uletsyntax{a}{\tau}{\ueparse}{\ue}$$ allows the programmer to introduce a new {macro} identified as $a$ at type $\tau$ with \emph{unexpanded parse function} $\ueparse$ into the macro environment of $\ue$. The rule for typed expansion of this form is:
+\begin{equation}\label{rule:usyntax}
+\inferrule{
+  \istypeU{\Delta}{\tau}\\
+  \expandsU{\emptyset}{\emptyset}{\Sigma}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
+  a \notin \domof{\Sigma}\\
+  \expandsU{\Delta}{\Gamma}{\Sigma, \tsmenvbnd{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+}{
+  \expandsUX{\auletsyntax{\tau}{\ueparse}{a}{\ue}}{e}{\tau'}
+}
+\end{equation}
+\end{subequations}
+The premises of Rule (\ref{rule:usyntax}) can be understood as follows, in order:
+\begin{enumerate}
+\item The first premise ensures that the type annotation specifies a well-formed type, $\tau$.
+\item The second premise types and expands the \emph{unexpanded parse function}, $\ueparse$, to produce the \emph{expanded parse function}, $\eparse$. Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding variable bindings. This is because parse functions are evaluated during the typed expansion process (as we will discuss momentarily), not during evaluation of the program they appear within. Parse functions must be of type \[\aparr{\tBody}{\tParseResultExp}\]
+
+$\tParseResultExp$ abbreviates the following labeled sum type\footnote{In VerseML, the \li{ParseError} constructor required an error message and an error location, but we omit these in our formalization for simplicity}:
+\[
+\tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]
+\]
+
+ $\tBody$ and $\tCEExp$ abbreviate types that we will characterize below. 
+\item The third premise checks that there is not already a macro identified as $a$ in the macro environment, $\Sigma$. 
+
+Macro environments are finite mappings from macro identifiers to \emph{expanded macro definitions}, $\xtsmdef{\tau}{\eparse}$, where $\tau$ is the macro's type annotation and $\eparse$ is the macro's expanded parse function. The \emph{macro environment formation} judgement, $\macenvOK{\Delta}{\Sigma}$, ensures that the type annotations are well-formed under $\Delta$ and the parse functions are of the necessary type (i.e. the checks made by the first two premises hold).
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\macenvOK{\Delta}{\Sigma} & \text{Macro environment $\Sigma$ is well-formed under $\Delta$.}\end{array}\]
+This judgement is inductively defined by the following rules:
+\begin{subequations}[intermezzo]
+\begin{equation}
+\inferrule{ }{\macenvOK{\Delta}{\emptyset}}
+\end{equation}
+\begin{equation}
+\inferrule{
+  \istypeU{\Delta}{\tau}\\
+  \expandsU{\emptyset}{\emptyset}{\Sigma}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}
+}{
+  \macenvOK{\Delta}{\Sigma, \tsmenvbnd{a}{\tau}{\eparse}}
+}
+\end{equation}
+\end{subequations}
+\item 
+The fourth premise of Rule (\ref{rule:usyntax}) extends the macro environment with the newly determined expanded macro definition and proceeds to produce a type, $\tau'$, and expansion, $e$, for $\ue$.
+\end{enumerate}
+The conclusion of the rule gives $\tau'$ and $e$ as the type and expansion of the expression as a whole.
+
+\begin{subequations}[resume]
+The second form of unexpanded expression that does not correspond to a form of expanded expression is the form for applying a macro identified as $a$ to a literal form with literal body $b$:
+\[
+\utsmap{a}{b}
+\] 
+The abstract form corresponding to this stylized form is $\autsmap{b}{a}$, i.e. for each literal body, $b$, there is an operator $\texttt{utsmap}[b]$, indexed by the macro identifier $a$ and taking no arguments. The typed expansion rule governing this form is:
+\begin{equation}\label{rule:utsmap-U}
+\inferrule{
+  \encodeBody{b}{\ebody}\\
+  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+  \decodeCondE{\ecand}{\ce}\\\\
+  \cvalidE{\emptyset}{\emptyset}{\Delta}{\Gamma}{\Sigma, \tsmenvbnd{a}{\tau}{\eparse}}{b}{\ce}{e}{\tau}
+}{
+  \expandsU{\Delta}{\Gamma}{\Sigma, \tsmenvbnd{a}{\tau}{\eparse}}{\autsmap{b}{a}}{e}{\tau}
+}
+\end{equation}
+\end{subequations}
+% \begin{mathpar}
+% \inferrule[T-U-TSM-ap]{
+% 	\Delta \vdash \tau~\mathtt{type}\\
+% 	\emptyset~\emptyset \vdash \ue_\text{parse} \leadsto e_\text{parse} : \mathsf{Body} \rightharpoonup \mathsf{Exp}\\\\
+% 	b \downarrow e_\text{body} : \mathsf{Body}\\
+% 	e_\text{parse}(e_\text{body}) \Downarrow e_\text{exp}\\
+% 	e_\text{exp} : \mathsf{Exp} \uparrow \dot{e}_\text{exp}\\\\
+% 	\Delta~\Gamma; \emptyset~\emptyset \vdash \dot{e}_\text{exp} \leadsto e : \tau
+% }{
+% 	\Delta~\Gamma \vdash \mathsf{syntax}~@~\tau~\{\ue_\text{parse}\}~\texttt{/}b\texttt{/} \leadsto e : \tau
+% }
+% \end{mathpar}
+% \end{subequations}
+
+% \begin{figure}
+% \begin{lstlisting}
+% (* we leave var and tvar abstract in the metatheory; see text *)
+% type var
+% type tvar
+% type Nat = Z | S of Nat
+% type Ty = TVar of tvar | Parr of Ty * Ty | Forall of tvar * Ty 
+%   | Rec of tvar * Ty | Unit | Prod of Ty * Ty | Sum of Ty * Ty
+%   | SplicedTy of Nat * Nat
+% type Exp = Var of var | Abs of var * Ty * Exp | App of Exp * Exp
+%   | TyAbs of tvar * Exp | TyApp of Exp * Ty
+%   | Fold of tvar * Ty * Exp | Unfold of Exp
+%   | Triv | Pair of Exp * Exp | Fst of Exp | Snd of Exp
+%   | InL of Ty * Exp | InR of Ty * Exp | Case of Exp * var*Exp * var*Exp
+%   | SplicedExp of Nat * Nat
+% \end{lstlisting}
+% \todo{use math font}
+% \caption[Expansion Encodings]{Definition of types for expansion encodings in $\miniVerseU$. For clarity, we use OCaml-style type definitions with explicit constructor labels here and in the remainder of this section. The mapping from these definitions to the unlabeled recursive sum types found in $\miniVerseU$ is straightforward (e.g. \texttt{Nat} corresponds to %$\rect{t}{\sumt{\unitt}{t}}$) 
+% and thus omitted for concision.}
+% \label{fig:visible-compiler}
+% \end{figure}
+\noindent
+The premises of Rule (\ref{rule:utsmap-U}) can be understood as follows, in order:
+\begin{enumerate}
+\item The \emph{body encoding judgement} $\encodeBody{b}{\ebody}$ specifies a mapping from the literal body, $b$, to an expanded value, $\ebody$, of type $\tBody$. An inverse mapping is specified by the \emph{body decoding judgement} $\decodeBody{\ebody}{b}$. 
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\encodeBody{b}{e} & \text{$b$ encodes to $e$}\\
+\decodeBody{e}{b} & \text{$e$ decodes to $b$}
+\end{array}\]
+Rather than pick a particular definition of $\tBody$ and define these judgements against it, we simply state the following sufficient conditions. 
+\begin{condition}[Body Encoding] For every literal body $b$, we have that $\encodeBody{b}{\ebody}$ and $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$. \end{condition}
+\begin{condition}[Body Encoding Inverse] If $\encodeBody{b}{\ebody}$ then $\decodeBody{\ebody}{b}$. \end{condition}
+\begin{condition}[Body Decoding Uniqueness] If $\decodeBody{\ebody}{b}$ and $\decodeBody{\ebody}{b'}$ then $b=b'$. \end{condition}
+
+\item The second premise applies the expanded parse function $\eparse$ associated with $a$ in the macro environment to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed macro environment and by the definition of evaluation, transitive application of the Preservation Assumption \ref{condition:preservation-U} and the Canonical Forms Assumption \ref{condition:canonical-forms-U}). We call $\ecand$ the \emph{encoding of the candidate expansion}.
+
+If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
+
+\item The judgement $\decodeCondE{\ecand}{\ce}$ decodes the encoding of the candidate expansion, i.e. it maps a value of type $\tCEExp$ onto a \emph{candidate expansion expression}, $\ce$. The inverse mapping is specified by the judgement $\encodeCondE{\ce}{\ecand}$. 
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\decodeCondE{e}{\ce} & \text{$e$ decodes to $\ce$}\\
+\encodeCondE{\ce}{e} & \text{$\ce$ encodes to $e$}
+\end{array}\]
+
+As with type $\tBody$, we do not define $\tCEExp$ and these judgements explicitly. Instead, we give  the following sufficient conditions.
+
+\begin{condition}[Candidate Expansion Decoding] If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$. \end{condition}
+\begin{condition}[Candidate Expansion Encoding] For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$. \end{condition}
+\begin{condition}[Candidate Expansion Decoding Inverse] If $\decodeCondE{\ecand}{\ce}$ then $\encodeCondE{\ce}{\ecand}$. \end{condition}
+\begin{condition}[Candidate Expansion Encoding Inverse] If $\encodeCondE{\ce}{\ecand}$ then $\decodeCondE{\ce}{\ecand}$. \end{condition}
+\begin{condition}[Candidate Expansion Encoding Uniqueness] If $\encodeCondE{\ce}{\ecand}$ and $\encodeCondE{\ce}{\ecand'}$ then $\ecand=\ecand'$. \end{condition}
+
+The syntax of candidate expansion expressions as well as candidate expansion types, $\ctau$, which can occur within candidate expansion expressions, is specified in Figure \ref{fig:U-candidate-terms}.
+
+
+\begin{figure}
+$\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Abstract Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{UExp} & \ue & ::= & x & x & \text{variable}\\
+&&& \aulam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+&&& \auap{e}{e} & \ap{e}{e} & \text{application}\\
+&&& \autlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+&&& \autap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+&&& \aufold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+&&& \auunfold{e} & \unfold{e} & \text{unfold}\\
+&&& \autpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aupr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+&&& \auin{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aucase{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}\\
+&&& \auletsyntax{\tau}{\ue}{\tsmv}{\ue} & \uletsyntax{\tsmv}{\tau}{\ue}{\ue} & \text{macro definition}\\
+&&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{macro application}
+\end{array}$
+\caption[Syntax of unexpanded expressions in $\miniVerseU$.]{Syntax of unexpanded expressions in $\miniVerseU$. Metavariable $\tsmv$ ranges over macro identifiers and $b$ ranges over literal bodies.}
+\label{fig:U-candidate-terms}
+\end{figure}
+
+
+
 \item The final premise valides the expansion by checking the marked expansion against the type specified by the TSM, and generates the final expansion, $e$, according to the rules defining the \emph{expansion validation judgements}:
 
 $\begin{array}{ll}
@@ -402,12 +721,12 @@ The purpose of the outer contexts is to ``remember'' the context that the macro 
 The current contexts are initially empty when checking the marked expansion generated by the parse function, so we achieve hygiene: the expansion cannot make any assumptions about the variables available in the outer context. 
 %The translation of the elaboration becomes the translation in the conclusion of the rule.
 \end{enumerate}
-
+\subsection{Candidate Expansion Validation}
 \subsection{Metatheory}
+\subsection{Renaming and Substitution}
 \subsection{Static Language}\label{sec:static-subset}
-\section{Additional Conveniences}
-\section{Limitations}
-\chapter{Pattern TSMs}\label{sec:pattern-tsms}
+\chapter{Unparameterized Pattern TSMs}\label{sec:pattern-tsms}
+\section{Pattern TSMs By Example}
 TSMs as we have described them so far decrease the syntactic cost of introducing a value at a specified type. In full-scale functional languages like ML, one typically deconstructs a value using \emph{nested pattern matching}. For example, let us return to the definition of the datatype \lstinline{Rx} shown at the beginning of Sec. \ref{sec:examples}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct like this:
 \begin{lstlisting}[numbers=none]
 match r with 
@@ -439,5 +758,24 @@ To ensure that the client of the TPSM need not ``guess at'' what variables are b
 
 ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, shown in Sec. \ref{sec:examples}. We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
 
+\subsection{Usage}
+\subsection{Definition}
+\subsection{Splicing and Binding}
+\subsection{Validation}
+
+\section{$\miniVersePat$}
+\subsection{Types, Expanded Patterns and Expanded Expressions}
+\subsection{Macro Expansion and Validation}
+\subsection{Metatheory}
+
 \chapter{Parameterized TSMs}\label{sec:tsms-parameterized}
+\section{Parameterized TSMs By Example}
+\subsection{Value Parameters By Example}
+\subsection{Type Parameters By Example}
+\subsection{Module Parameters By Example}
+\section{$\miniVerseParam$}
+\subsection{Signatures, Types and Expanded Expressions}
+\subsection{Parameter Application and Deferred Substitution}
+\subsection{Macro Expansion and Validation}
+\subsection{Metatheory}
 
