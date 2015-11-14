@@ -14,21 +14,26 @@
 \newcommand{\abop}[2]{\texttt{#1}\texttt{(}#2\texttt{)}}
 \newcommand{\abopp}[3]{\texttt{#1}\texttt{[}#2\texttt{](}#3\texttt{)}}
 
-% Types
+% Types / candidate expansion types
 \newcommand{\parr}[2]{#1 \rightharpoonup #2}
 \newcommand{\aparr}[2]{\abop{parr}{#1; #2}}
+\newcommand{\aceparr}[2]{\abop{ceparr}{#1; #2}}
 
 \newcommand{\forallt}[2]{\forall #1.#2}
 \newcommand{\aall}[2]{\abop{all}{#1.#2}}
+\newcommand{\aceall}[2]{\abop{ceall}{#1.#2}}
 
 \newcommand{\rect}[2]{\mu #1.#2}
 \newcommand{\arec}[2]{\abop{rec}{#1.#2}}
+\newcommand{\acerec}[2]{\abop{cerec}{#1.#2}}
 
 \newcommand{\prodt}[1]{\langle #1 \rangle}
 \newcommand{\aprod}[1]{\abop{prod}{#1}}
+\newcommand{\aceprod}[1]{\abop{ceprod}{#1}}
 
 \newcommand{\sumt}[1]{[#1]}
 \newcommand{\asum}[1]{\abop{sum}{#1}}
+\newcommand{\acesum}[1]{\abop{cesum}{#1}}
 
 % Labels and maps
 \newcommand{\labelset}{L}
@@ -42,52 +47,52 @@
 \newcommand{\lam}[3]{\lambda #1{:}#2.#3}
 \newcommand{\aelam}[3]{\abop{elam}{#1; #2.#3}}
 \newcommand{\aulam}[3]{\abop{ulam}{#1; #2.#3}}
-\newcommand{\aclam}[3]{\abop{clam}{#1; #2.#3}}
+\newcommand{\acelam}[3]{\abop{celam}{#1; #2.#3}}
 
 \newcommand{\ap}[2]{#1(#2)}
 \newcommand{\aeap}[2]{\abop{eap}{#1; #2}}
 \newcommand{\auap}[2]{\abop{uap}{#1; #2}}
-\newcommand{\acap}[2]{\abop{cap}{#1; #2}}
+\newcommand{\aceap}[2]{\abop{ceap}{#1; #2}}
 
 \newcommand{\Lam}[2]{\Lambda #1.#2}
 \newcommand{\aetlam}[2]{\abop{etlam}{#1.#2}}
 \newcommand{\autlam}[2]{\abop{utlam}{#1.#2}}
-\newcommand{\actlam}[2]{\abop{ctlam}{#1.#2}}
+\newcommand{\acetlam}[2]{\abop{cetlam}{#1.#2}}
 
 \newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
 \newcommand{\aetap}[2]{\abop{etap}{#1; #2}}
 \newcommand{\autap}[2]{\abop{utap}{#1; #2}}
-\newcommand{\actap}[2]{\abop{ctap}{#1; #2}}
+\newcommand{\acetap}[2]{\abop{cetap}{#1; #2}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abop{efold}{#1.#2; #3}}
 \newcommand{\aufold}[3]{\abop{ufold}{#1.#2; #3}}
-\newcommand{\acfold}[3]{\abop{cfold}{#1.#2; #3}}
+\newcommand{\acefold}[3]{\abop{cefold}{#1.#2; #3}}
 
 \newcommand{\unfold}[1]{\texttt{unfold}(#1)}
 \newcommand{\aeunfold}[1]{\abop{eunfold}{#1}}
 \newcommand{\auunfold}[1]{\abop{uunfold}{#1}}
-\newcommand{\acunfold}[1]{\abop{cunfold}{#1}}
+\newcommand{\aceunfold}[1]{\abop{ceunfold}{#1}}
 
 \newcommand{\tpl}[1]{\langle #1\rangle}
 \newcommand{\aetpl}[1]{\abop{etpl}{#1}}
 \newcommand{\autpl}[1]{\abop{utpl}{#1}}
-\newcommand{\actpl}[1]{\abop{ctpl}{#1}}
+\newcommand{\acetpl}[1]{\abop{cetpl}{#1}}
 
 \newcommand{\prj}[2]{#1 \cdot #2}
 \newcommand{\aepr}[2]{\abopp{epr}{#1}{#2}}
 \newcommand{\aupr}[2]{\abopp{upr}{#1}{#2}}
-\newcommand{\acpr}[2]{\abopp{cpr}{#1}{#2}}
+\newcommand{\acepr}[2]{\abopp{cepr}{#1}{#2}}
 
 \newcommand{\inj}[2]{#1 \cdot #2}
 \newcommand{\aein}[3]{\abopp{ein}{#1}{#2; #3}}
 \newcommand{\auin}[3]{\abopp{uin}{#1}{#2; #3}}
-\newcommand{\acin}[3]{\abopp{cin}{#1}{#2; #3}}
+\newcommand{\acein}[3]{\abopp{cein}{#1}{#2; #3}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
 \newcommand{\aecase}[2]{\abop{ecase}{#1; #2}}
 \newcommand{\aucase}[2]{\abop{ucase}{#1; #2}}
-\newcommand{\accase}[2]{\abop{ccase}{#1; #2}}
+\newcommand{\acecase}[2]{\abop{cecase}{#1; #2}}
 
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
@@ -100,7 +105,9 @@
 \newcommand{\hastypeUCO}[3]{#1 \vdash #2 : #3}
 
 \newcommand{\Dhyp}[1]{#1~\mathsf{type}}
+\newcommand{\Dcons}[2]{#1 \cup #2}
 \newcommand{\Ghyp}[2]{#1 : #2}
+\newcommand{\Gcons}[2]{#1 \cup #2}
 
 % Dynamics of miniVerseU
 \newcommand{\isvalU}[1]{#1~\mathsf{val}}
@@ -124,11 +131,8 @@
 \newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
 
 \newcommand{\tBody}{\mathtt{Body}}
-\newcommand{\tParseResultExp}{\mathtt{ParseResultExp}}
-\newcommand{\tCEExp}{\mathtt{CEExp}}
-
-% Typed expansion
-\newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6}
+\newcommand{\tParseResultExp}{\mathtt{ParseResultExp}} \newcommand{\tCEExp}{\mathtt{CEExp}} % Typed expansion
+\newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6} % there's a multiline one in the document done manually
 \newcommand{\expandsUX}[3]{\expandsU{\Delta}{\Gamma}{\Sigma}{#1}{#2}{#3}}
 \newcommand{\expandsUC}[3]{\vdash #1 \leadsto #2 : #3}
 \newcommand{\domof}[1]{\text{dom}(#1)}
@@ -147,12 +151,20 @@
 \newcommand{\ce}{\grave{e}}
 \newcommand{\ctau}{\grave{\tau}}
 
+\newcommand{\splicedt}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\acesplicedt}[2]{\texttt{cesplicedt}[#1; #2]}
+\newcommand{\splicede}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\acesplicede}[2]{\texttt{cesplicede}[#1; #2]}
+
 \newcommand{\mtau}{\dot{\tau}}
 \newcommand{\mtspliced}[1]{\texttt{spliced}(#1)}
 
-% Marked expressions
-\newcommand{\me}{\dot{e}}
-\newcommand{\mspliced}[1]{\texttt{spliced}(#1)}
-
 % Candidate expansion validation
-\newcommand{\cvalidE}[9]{#1~#2\vdash^{#3; #4; #5; #6} #7 \leadsto #8 : #9}
+\newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
+\newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
+\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\spctxv}{#1}{#2}{#3}}
+\newcommand{\spctxv}{\mathcal{S}}
+\newcommand{\spctx}[4]{#1; #2; #3; #4}
+\newcommand{\parseTyp}[2]{\mathsf{parseTyp}(#1)=#2}
+\newcommand{\parseUExp}[2]{\mathsf{parseUExp}(#1)=#2}
+\newcommand{\bsubseq}[3]{\mathsf{subseq}(#1; #2; #3)}

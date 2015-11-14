@@ -7,7 +7,7 @@ To further motivate our work, we will now provide a number of examples of derive
 Let us take the perspective of a regular expression library provider (we assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}). The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r)\]
 
 \paragraph{Recursive Sums}
-One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a labeled recursive sum type can be defined like this:
+One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a recursive labeled sum type can be defined like this:
 
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
