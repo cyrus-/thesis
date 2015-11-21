@@ -1,6 +1,8 @@
 % !TEX root = omar-thesis.tex
 \chapter{Discussion \& Future Directions}\label{chap:conclusion}
 \section{Interesting Applications}
+Most of the examples in Sec. \ref{sec:motivating-examples} can be expressed straightforwardly using the constructs introduced in the previous chapters. Here, let us highlight certain interesting examples and exceptions.
+
 \subsection{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
 Static functions can also make use of TSMs. In this section, we will show how quasiquotation syntax and grammar-based parser generators can be expressed using TSMs. These TSMs are quite useful for writing other TSMs.
 \subsubsection{Quasiquotation}
@@ -41,6 +43,88 @@ let fgx = App(Var 'SSTRfESTR', gx)
 \todo{Write summary}
 
 \section{Future Directions}
+\subsection{Static Language}\label{sec:uetsms-static-language}
+We have assumed throughout this work that parse functions are fully self-contained, i.e. they are closed. This simplifies our exposition and metatheory, but it is not a realistic constraint -- in practice, one would want to be able to share helper code between parse functions. To allow this, VerseML allows programmers to introduce \emph{static blocks}, which introduce bindings available only in other static blocks and static functions. For example, the following static block defines a helper function for use in the subsequent parse function.
+\begin{lstlisting}
+static
+  val parseInt : Body -> Exp option = (* ... *)
+end
+syntax $rx at Rx {
+  static fn(body : Body) : ParseResultExp => 
+    (* ... parseInt is available here ... *)
+}
+val x = parseInt("34") (* error: parseInt is not bound here *)
+\end{lstlisting}
+
+\subsection{TSM Packaging}\label{sec:tsm-packaging}
+
+In the exposition thusfar, we have assumed that TSMs have delimited scope. However, ideally, we would like to be able to define TSMs within a module:
+\begin{lstlisting}[numbers=none]
+structure Rxlib = struct 
+  type Rx = (* ... *)
+  syntax $rx at Rx { (* ... *) }
+  (* ... *)
+end
+\end{lstlisting}
+However, this leads to an important question: how can we write down a signature for the module \li{Rxlib}? One approach would be to simply duplicate the full definition of the TSM in the signature, but this leads to inelegant code duplication and raises the difficult question of how the language should decide whether one TSM is a duplicate of another. For this reason, in VerseML, a signature can only refer to a previously defined TSM. So, for example, we can write down a signature for \li{Rxlib} after it has been defined:
+
+\begin{lstlisting}[numbers=none]
+signature RXLIB = sig 
+  type Rx = (* ... *)
+  syntax $rx = Rxlib.$rx
+  (* ... *)
+end
+Rxlib : RXLIB (* check Rxlib against RXLIB after the fact *)
+\end{lstlisting}
+
+Alternatively, we can define the type \li{Rx} and the TSM \li{#\dolla#rx} before defining \li{Rxlib}:
+\begin{lstlisting}[numbers=none]
+local 
+  type Rx = (* ... *)
+  syntax $rx at Rx { (* ... *) }
+in 
+  structure Rxlib : 
+  sig 
+    type Rx = Rx
+    syntax $rx = $rx
+    (* ... *)
+  end = struct 
+    type Rx = Rx 
+    syntax $rx = $rx
+    (* ... *)
+  end
+end 
+\end{lstlisting}
+
+Another important question is: how does a TSM defined within a module at a type that is held abstract outside of that module operate? For example, consider the following:
+\begin{lstlisting}[numbers=none]
+local 
+  type Rx = (* ... *)
+  syntax $rx at Rx { (* ... *) }
+in 
+  structure Rxlib : 
+  sig 
+    type Rx (* held abstract *)
+    syntax $rx = $rx
+    (* ... *)
+  end = struct 
+    type Rx = Rx
+    syntax $rx = $rx
+    (* ... *)
+  end
+end 
+\end{lstlisting}
+If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. In VerseML, expansion validation occurs assuming the type equalities that are known at the definition site, to avoid this problem.  
+
+\subsection{TSMs and TSLs In Candidate Expansions}\label{sec:tsms-in-expansions}
+\todo{write this}
+
+\subsection{Integration Into Other Languages}\label{sec:integration}
+We conjecture that the constructs we describe could be integrated into dependently typed functional languages, e.g. Coq, but leave the technical developments necessary for doing so as future work.
+
+Some of the constructs in Chapter \ref{chap:tsms}, Chapter \ref{sec:tsms-parameterized} and Chapter \ref{chap:tsls} could also be adapted for use in imperative languages with non-trivial type structure, like Java. Similarly, some of the constructs we discuss could also be adapted into ``{dynamic languages}'' like Racket or Python, though the constructs in Chapter \ref{chap:tsls} are not relevant to such languages. 
+
+
 \subsection{Mechanically Verifying TSM Definitions}\label{sec:verifying-tsms}
 Finally, VerseML is not designed for advanced theorem proving tasks where languages like Coq, Agda or Idris might be used today. That said, we conjecture that the primitives we describe could be integrated into languages like Gallina (the ``external language'' of the Coq proof assistant  \cite{Coq:manual}) with  modifications, but do not plan to pursue this line of research here.
 
@@ -53,3 +137,21 @@ In such a setting, you could verify TSM definitions \todo{finish writing this}
 \todo{Cite recent work at PLDI (?) and ICFP from Brown}
 \subsection{Non-Textual Display Forms}\label{sec:non-textual-display-forms}
 \todo{Talk about active code completion work and future ideas}
+
+\newpage
+\section*{\LaTeX~Source Code and Updates}
+\addcontentsline{toc}{chapter}{\LaTeX~Source Code and Updates}
+\noindent
+The \LaTeX~sources for this document can be found at the following URL:
+\begin{center}
+\url{https://github.com/cyrus-/thesis}
+\end{center}
+The latest version of this document can be downloaded from the following URL:
+\begin{center}
+\url{https://github.com/cyrus-/thesis/raw/master/omar-thesis.pdf}
+\end{center}
+Any errors or omissions can be reported to the author by email at the following address:
+\begin{center}
+\url{comar@cs.cmu.edu}
+\end{center}
+The author will also review and accept pull requests on GitHub.
