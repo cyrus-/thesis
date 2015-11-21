@@ -1,10 +1,10 @@
 % !TEX root = omar-thesis.tex
 
 \section{Motivating Examples}\label{sec:motivating-examples}
-To further motivate our work, we will now provide a number of examples of derived syntactic forms that decrease the syntactic cost of working with various data structures. We cover the first two examples -- regular expressions and lists -- in substantial detail. We will refer back to these examples throughout this work. We then more concisely survey a number of other examples, grouped into  categories, to establish the broad applicability of our contributions. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
+In Chapter \ref{chap:intro}, we gave the example of derived list syntax in languages like SML, OCaml and Haskell. To further motivate our contributions, we now provide more examples where defining new derived syntactic forms could  decrease the syntactic cost of working with certain data structures. We cover the first example -- regular expressions, expressed both using recursive sum types and abstract types -- in substantial detail. We will refer back to this example in subsequent chapters. We then more concisely survey a number of other examples, grouped into  categories, to establish the broad applicability of our contributions. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
 
 \subsection{Regular Expressions}\label{sec:syntax-examples-regexps}
-Let us take the perspective of a regular expression library provider (we assume the reader has some familiarity with regular expressions \cite{Thompson:1968:PTR:363347.363387}). The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r)\]
+Regular expressions, or \emph{regexes}, specify string patterns (of a certain class) \cite{Thompson:1968:PTR:363347.363387}. They are particularly common in domains like natural language processing and bioinformatics. The abstract syntax of {regexes}, $r$, over strings, $s$, is specified below:\[r ::= \textbf{empty} ~|~ \textbf{str}(s) ~|~ \textbf{seq}(r; r) ~|~ \textbf{or}(r; r) ~|~ \textbf{star}(r)\]
 
 \paragraph{Recursive Sums}
 One way to express this abstract syntax is by defining a recursive sum type \cite{pfpl}. In VerseML, a recursive labeled sum type can be defined like this:
@@ -12,33 +12,33 @@ One way to express this abstract syntax is by defining a recursive sum type \cit
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 type Rx = Empty | Str of string | Seq of Rx * Rx | 
-          Or of Rx * Rx | Star of Rx | Group of Rx
+          Or of Rx * Rx | Star of Rx
 \end{lstlisting}
 \caption{Definition of the recursive sum type \li{Rx}}
 \label{fig:datatype-rx}
 \end{figure}
 
-The abstract syntax of regexes is too verbose to be practical  in all but the most trivial examples, so the POSIX standard specifies a more concise concrete syntax \cite{STD95954}. A number of programming languages support derived syntax for regular expressions based on this standard, e.g. Perl \cite{books/daglib/0028711}. Let us consider a hypothetical dialect of ML called ML+Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes (we will compare VerseML to ML+Rx in later chapters). ML+Rx supports \emph{regex literals}, e.g.
-\begin{lstlisting}[numbers=none]
-/SURLA|T|G|CEURL/
-\end{lstlisting}
-desugars to:
+Values of type \li{Rx} are constructed by applying a label to a value of the type specified in the corresponding clause above (or simply using the label by itself if no corresponding type is specified). For example, we can define a regular expression that matches only the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} and \li{"SSTRCESTR"} as follows:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 
-ML+Rx also supports \emph{spliced subexpressions} in regex literals. For example, the function \li{example_rx} shown below constructs a regex by splicing in a string, \li{name}, and another regex, \li{ssn}:
+This is too verbose to be practical  in all but the simplest examples, so the POSIX standard specifies a more concise concrete syntax for regexes \cite{STD95954}. Several programming languages support derived syntax for regexes based on this standard, e.g. Perl \cite{books/daglib/0028711}. Let us consider a hypothetical dialect of ML called ML+Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes. We will compare VerseML to ML+Rx in later chapters. ML+Rx extends the concrete syntax of ML with support for \emph{regex expression literals} delimited by forward slashes. For example, the following regex literal desugars to the expression above:
+\begin{lstlisting}[numbers=none]
+/SURLA|T|G|CEURL/
+\end{lstlisting}
 
+ML+Rx also supports \emph{spliced subexpressions} in regex literals, so that regexes can be constructed from other values. For example, the function \li{example_rx} shown in Figure \ref{fig:derived-spliced-subexpressions} constructs a regex by splicing in a string, \li{name}, and another regex, \li{ssn}. 
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 let ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun example_rx(name : string) => /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
-\caption{An example of syntax that supports spliced subexpressions.}
+\caption{An example of ML+Rx's support for spliced subexpressions.}
 \label{fig:derived-spliced-subexpressions}
 \end{figure}
-The prefix \li{@} indicates that \lstinline{name} should be spliced in as a string, and the prefix \li{%}
-indicates that \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
+The prefix \li{@} followed by the variable \li{name} indicates that the expression \lstinline{name} should be spliced in as a string, and the prefix \li{%}
+followed by the variable \li{ssn} indicates that \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
@@ -49,7 +49,7 @@ To splice in an expression that does not take the form of a variable, e.g. a fun
 /SURL@(EURLcapitalize nameSURL): %EURLssn/
 \end{lstlisting}
 
-Finally, ML+Rx allows us to pattern match on a value of type \li{Rx} using derived pattern syntax. For example:
+Finally, ML+Rx allows us to pattern match over a value of type \li{Rx} using analagous derived pattern syntax. For example, the body of the following function reads the name and social security number back out of a regex generated by the function \li{example_rx}:
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 fun read_example_rx(r : Rx) => 
@@ -67,7 +67,8 @@ fun read_example_rx(r : Rx) =>
     Seq(Str(name), Seq(Str "SSTR: ESTR", ssn)) => Some (name, ssn)
   | _ => None
 \end{lstlisting}
-\paragraph{Abstract Types} Encoding regexes as values of type \li{Rx} is straightforward, but there are reasons why one might not wish to expose this encoding to clients directly. First, regexes are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), but one would not want to expose this ``implementation detail'' to clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs, so we would like to provide clients with a choice of implementations. For these reasons, another approach in VerseML, as in ML, is to abstract over the choice of representation using  the module system's support for abstract types. In particular, we can define the \emph{module signature} \li{RX} where the type of patterns, \lstinline{t}, is held abstract:
+
+\paragraph{Abstract Types} Encoding regexes as values of type \li{Rx} is straightforward, but there are reasons why one might not wish to expose this encoding to clients directly. First, regexes are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), but one would not want to expose this ``implementation detail'' to clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs, so we would like to provide clients with a choice of implementations. For these reasons, another approach in VerseML, as in ML, is to abstract over the choice of representation using  the module system's support for abstract types. In particular, we can define the \emph{module signature} \li{RX}, shown in Figure \ref{fig:signature-RX}, where the type of patterns, \lstinline{t}, is held abstract.
 %Notice that it exposes an interface otherwise  to the one available using a case type:
 
 \begin{figure}[ht]
@@ -101,15 +102,11 @@ signature RX = sig {
 
  \todo{talk about pattern matching over values of abstract type}
 
-\subsection{Lists}\label{sec:syntax-examples-lists}
-\todo{write this (Spring 2016)}
-\subsection{Sets, Maps, Vectors and Other Containers}\label{sec:syntax-examples-containers}
+\subsection{Lists, Sets, Maps, Vectors and Other Containers}\label{sec:syntax-examples-containers}
 \todo{write this (Spring 2016)}
 \subsection{HTML and Other Web Languages}\label{sec:syntax-examples-html}
-\todo{write this; cite Ur/Web (Spring 2016)}
 \subsection{Dates, URLs and Other Standardized Formats}\label{sec:syntax-examples-dates}
-\todo{write this (Spring 2016)}
-\subsection{Query Languages} The language of regular expressions can be considered a query language over strings. There are many other query languages that focus on different types of data, e.g. XQuery for XML trees, or that are associated with different database technologies, e.g. SQL for relational databases. \todo{finish this (Spring 2016)} 
+\subsection{Query Languages} The language of regular expressions can be considered a query language over strings. There are many other query languages that focus on different types of data, e.g. XQuery for XML trees, or that are associated with various database technologies, e.g. SQL for relational databases. \todo{finish this (Spring 2016)} 
 \subsection{Monadic Commands}\label{sec:syntax-examples-monads}
 \todo{write this; cite Bob's blog (Spring 2016)}
 \subsection{Quasiquotation and Object Language Syntax}\label{sec:syntax-examples-quasiquotation}

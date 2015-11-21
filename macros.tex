@@ -5,14 +5,17 @@
 
 % Calculi Names
 \newcommand{\miniVerseU}{\mathsf{miniVerse}_\textbf{U}}
-\newcommand{\miniVersePat}{\mathsf{miniVerse}_\text{UP}}
-\newcommand{\miniVerseParam}{\mathsf{miniVerse}_{\forall}}
-\newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\text{TSL}}
+\newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{UP}}
+\newcommand{\miniVerseParam}{\mathsf{miniVerse}_\mathbf{\forall}}
+\newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
 
 % General abstract syntax
 \newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
 \newcommand{\abop}[2]{\texttt{#1}\texttt{(}#2\texttt{)}}
 \newcommand{\abopp}[3]{\texttt{#1}\texttt{[}#2\texttt{](}#3\texttt{)}}
+\newcommand{\abopc}[3]{\texttt{#1}\texttt{\{}#2\texttt{\}(}#3\texttt{)}}
+\newcommand{\abopbc}[4]{\texttt{#1}\texttt{[}#2\texttt{]\{}#3\texttt{\}(}#4\texttt{)}}
+\newcommand{\abopcc}[4]{\texttt{#1}\texttt{\{}#2\texttt{\}\{}#3\texttt{\}(}#4\texttt{)}}
 
 % Types / candidate expansion types
 \newcommand{\parr}[2]{#1 \rightharpoonup #2}
@@ -43,11 +46,15 @@
 \newcommand{\mapitem}[2]{#1 \hookrightarrow #2}
 \newcommand{\lbltxt}[1]{\mathtt{#1}}
 
+% sequences
+\newcommand{\seqschema}[4]{\left(#1_{#2}\right)_{#3 \leq #2 < #4}}
+\newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
+
 % Expanded/Unexpanded/Candidate expressions
 \newcommand{\lam}[3]{\lambda #1{:}#2.#3}
-\newcommand{\aelam}[3]{\abop{elam}{#1; #2.#3}}
-\newcommand{\aulam}[3]{\abop{ulam}{#1; #2.#3}}
-\newcommand{\acelam}[3]{\abop{celam}{#1; #2.#3}}
+\newcommand{\aelam}[3]{\abopc{elam}{#1}{#2.#3}}
+\newcommand{\aulam}[3]{\abopc{ulam}{#1}{#2.#3}}
+\newcommand{\acelam}[3]{\abopc{celam}{#1}{#2.#3}}
 
 \newcommand{\ap}[2]{#1(#2)}
 \newcommand{\aeap}[2]{\abop{eap}{#1; #2}}
@@ -60,14 +67,14 @@
 \newcommand{\acetlam}[2]{\abop{cetlam}{#1.#2}}
 
 \newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
-\newcommand{\aetap}[2]{\abop{etap}{#1; #2}}
-\newcommand{\autap}[2]{\abop{utap}{#1; #2}}
-\newcommand{\acetap}[2]{\abop{cetap}{#1; #2}}
+\newcommand{\aetap}[2]{\abopc{etap}{#2}{#1}}
+\newcommand{\autap}[2]{\abopc{utap}{#2}{#1}}
+\newcommand{\acetap}[2]{\abopc{cetap}{#2}{#1}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
-\newcommand{\aefold}[3]{\abop{efold}{#1.#2; #3}}
-\newcommand{\aufold}[3]{\abop{ufold}{#1.#2; #3}}
-\newcommand{\acefold}[3]{\abop{cefold}{#1.#2; #3}}
+\newcommand{\aefold}[3]{\abopc{efold}{#1.#2}{#3}}
+\newcommand{\aufold}[3]{\abopc{ufold}{#1.#2}{#3}}
+\newcommand{\acefold}[3]{\abopc{cefold}{#1.#2}{#3}}
 
 \newcommand{\unfold}[1]{\texttt{unfold}(#1)}
 \newcommand{\aeunfold}[1]{\abop{eunfold}{#1}}
@@ -85,9 +92,9 @@
 \newcommand{\acepr}[2]{\abopp{cepr}{#1}{#2}}
 
 \newcommand{\inj}[2]{#1 \cdot #2}
-\newcommand{\aein}[3]{\abopp{ein}{#1}{#2; #3}}
-\newcommand{\auin}[3]{\abopp{uin}{#1}{#2; #3}}
-\newcommand{\acein}[3]{\abopp{cein}{#1}{#2; #3}}
+\newcommand{\aein}[3]{\abopbc{ein}{#1}{#2}{#3}}
+\newcommand{\auin}[3]{\abopbc{uin}{#1}{#2}{#3}}
+\newcommand{\acein}[3]{\abopbc{cein}{#1}{#2}{#3}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
 \newcommand{\aecase}[2]{\abop{ecase}{#1; #2}}
@@ -118,14 +125,13 @@
 % Unexpanded expressions
 \newcommand{\ue}{\hat{e}}
 \newcommand{\uletsyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
-\newcommand{\auletsyntax}[4]{\abop{usyntax}{#1; #2; #3.#4}}
+\newcommand{\auletsyntax}[4]{\abopcc{usyntax}{#2}{#1}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
 \newcommand{\autsmap}[2]{\texttt{utsmap}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
 \newcommand{\ueparse}{\uet{parse}}
 
 % TSM expressions
-\newcommand{\tsme}{\psi}
 \newcommand{\tsmv}{a}
 \newcommand{\utsmdef}[2]{\texttt{syntax}~@~#1~\texttt{\{}#2\texttt{\}}}
 \newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
@@ -170,3 +176,20 @@
 \newcommand{\bsubseq}[3]{\mathsf{subseq}(#1; #2; #3)}
 
 \newcommand{\sizeof}[1]{\Vert #1 \Vert}
+
+% Pattern matching
+\newcommand{\matchwith}[2]{\texttt{match}~#1~\texttt{with}~#2}
+\newcommand{\aematchwith}[2]{\abop{ematch}{#1; #2}}
+\newcommand{\aumatchwith}[2]{\abop{umatch}{#1; #2}}
+
+\newcommand{\eR}{R}
+\newcommand{\uR}{\hat{R}}
+\newcommand{\cR}{\grave{R}}
+
+\newcommand{\erv}{r}
+\newcommand{\urv}{\hat{r}}
+\newcommand{\crv}{\grave{r}}
+
+\newcommand{\epv}{p}
+\newcommand{\upv}{\hat{p}}
+\newcommand{\cpv}{\grave{p}}

@@ -65,7 +65,7 @@ basicstyle=\ttfamily\fontsize{11pt}{1em}\selectfont,
 commentstyle=\itshape\ttfamily\color{gray}, 
 stringstyle=\ttfamily\color{red},
 mathescape=false,escapechar=\#,
-numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern},deletekeywords={double,in},classoffset=0,belowskip=\smallskipamount,
+numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
 moredelim=**[is][\color{red}]{SSTR}{ESTR},
 moredelim=**[is][\color{OliveGreen}]{SHTML}{EHTML},
 moredelim=**[is][\color{purple}]{SCSS}{ECSS},
@@ -163,13 +163,16 @@ deletestring=[d]{"},
 \author{Cyrus Omar}
 \date{\today}
 \Year{2015}
-\trnumber{}
+\trnumber{\todo{get TR number}}
 
-\committee{Jonathan Aldrich, Chair\\\todo{confirm rest of committee}}
+\committee{Jonathan Aldrich, Chair\\
+Robert Harper\\
+Karl Crary\\
+Eric Van Wyk, University of Minnesota}
 
-\support{
+\support{\todo{Support}}
 %Funded by DOE CSGF, NSF GRFP, NSF, NSA, ...?
-}
+
 \disclaimer{}
 \permission{\todo{CC0 license.}}
 
@@ -187,9 +190,7 @@ deletestring=[d]{"},
 
 \begin{abstract}
 \noindent
-Full-scale functional programming languages often make \emph{ad hoc} choices in the design of their concrete syntax. For example, while nearly all major functional languages build in derived forms for lists, introducing derived forms  for other library constructs, e.g. for HTML trees or regular expressions, requires forming new syntactic dialects of these languages. Unfortunately, programmers have no way to modularly combine such syntactic dialects in general, limiting the choices ultimately available to them. In this work, we introduce and formally specify language primitives that mitigate the need for syntactic dialects by giving library providers the ability to programmatically control  syntactic expansion in a safe, hygienic and modular manner.
-
-\todo{expand on this}
+Full-scale functional programming languages often make \emph{ad hoc} choices in the design of their concrete syntax. For example, nearly all major functional languages build in derived forms for lists, but introducing derived forms  for other library constructs, e.g. for HTML elements or regular expressions, requires forming new syntactic dialects of these languages. Unfortunately, programmers cannot modularly combine  syntactic dialects in general, limiting the choices ultimately available to them. In this work, we introduce and formally specify language primitives that mitigate the need for \emph{ad hoc} derived forms and syntactic dialects by giving library providers the ability to programmatically control  syntactic expansion while maintaining a  type discipline, a hygienic binding discipline and modular reasoning principles.
 \end{abstract}
 
 \begin{acknowledgments}
@@ -237,7 +238,7 @@ Full-scale functional programming languages often make \emph{ad hoc} choices in 
 %The purpose of this section is to  a and then introduce VerseML's syntax extension mechanisms. %For forms with a clear analogy to a form in Standard ML, we will assume the  semantics are analagous without providing details.
 
 %We will begin in Sec. \ref{sec:examples} by detailing another example for which such a mechanism would be useful: regular expression (regex) patterns expressed using abstract data types. We will refer to this example throughout the proposal. In Sec. \ref{sec:syntax-existing}, we discuss how the usual approach of using dynamic string parsing to introduce regex patterns is not ideal. We also survey existing alternatives to dynamic string parsing, finding that they involve an unacceptable loss of modularity and other undesirable trade-offs. In Secs. \ref{sec:tsms} and \ref{sec:tsls}, we introduce our proposed alternatives -- \emph{typed syntax macros} (TSMs) and the related \emph{type-specific languages} (TSLs) -- and discuss how they resolve these issues (as well as some limitations that they have). We  also give an overview of how TSMs are formally specified. We give a concrete timeline for the remaining work in Sec. \ref{sec:syntax-timeline}, and conclude in Sec. \ref{sec:conclusion}.
-
+\input{preliminaries.tex}
 \input{motivating-examples}
 \input{existing-approaches}
 
