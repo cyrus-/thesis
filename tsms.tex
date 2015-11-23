@@ -10,17 +10,17 @@ We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM). TSMs,
 We begin in this section with a ``tutorial-style'' introduction to unparameterized expression TSMs in VerseML. In particular, we discuss a TSM for constructing values of the recursive labeled sum type \li{Rx} that was defined in Figure \ref{fig:datatype-rx}. We then formally specify unparameterized expression TSMs with a reduced calculus, $\miniVerseU$, in Sec. \ref{sec:tsms-minimal-formalism}. %We conclude in Sec. \ref{sec:uetsms-discussion} 
 
 \subsection{Usage}\label{sec:uetsms-usage}
-In the following  concrete VerseML expression, we apply a TSM, identified as \li{#\dolla#rx}, to a \emph{generalized literal form}, \li{/SURLA|T|G|CEURL/}:
+In the following  concrete VerseML expression, we apply a TSM named \li{#\dolla#rx} to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}:
 \begin{lstlisting}[numbers=none,mathescape=|]
 $rx /SURLA|T|G|CEURL/
 \end{lstlisting}
-Generalized literal forms are left unparsed when concrete expressions are first parsed. It is only during the subsequent \emph{typed expansion} process that the TSM parses the \emph{body} of the provided literal form, i.e. the characters in blue, to generate a \emph{candidate expansion}. The language then \emph{validates} the candidate expansion according to criteria that we will establish in Sec. \ref{sec:uetsms-validation}. If validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the expression. The program will behave as if the expression above had been replaced by its expansion. The expansion of the expression above, written concretely, is:
+Generalized literal forms are left unparsed when concrete expressions are first parsed. It is only during the subsequent \emph{typed expansion} process that the TSM parses the \emph{body} of the provided literal form, i.e. the characters between forward slashes in blue here, to generate a \emph{candidate expansion}. The language then \emph{validates} the candidate expansion according to criteria that we will establish in Sec. \ref{sec:uetsms-validation}. If candidate expansion validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the expression. The program will behave as if the expression above has been replaced by its expansion. The expansion of the expression above, written concretely, is:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 %The constructors above are those of the type \li{Rx} that was defined in Figure \ref{fig:datatype-rx}.
 
-A number of literal forms, shown in Figure \ref{fig:literal-forms},  are available in VerseML's concrete syntax. Any literal form can be used with any TSM, e.g. we could have equivalently written the example above as \li{#\dolla#rx `SURLA|T|G|CEURL`} (in fact, this would be convenient if we had wanted to express a regex containing forward slashes but not backticks). TSMs have access only to the literal bodies. The concrete syntax of VerseML specifies where the literal bodies begin and end. Because the concrete syntax of the language is never extended directly by library providers, there cannot be syntactic conflicts.
+A number of literal forms, shown in Figure \ref{fig:literal-forms},  are available in VerseML's concrete syntax. Any literal form can be used with any TSM, e.g. we could have equivalently written the example above as \li{#\dolla#rx `SURLA|T|G|CEURL`} (in fact, this would be convenient if we had wanted to express a regex containing forward slashes but not backticks). TSMs have access only to the literal bodies. Because TSMs do not extend the concrete syntax of the language directly, there cannot be syntactic conflicts between TSMs.
 
  %The form does not directly determine the expansion. 
 
@@ -32,8 +32,6 @@ A number of literal forms, shown in Figure \ref{fig:literal-forms},  are availab
 {SURLbody cannot contain an unmatched curly braceEURL}
 /SURLbody cannot contain a forward slashEURL/
 \SURLbody cannot contain a backslashEURL\
-SURL42EURL (* numeric forms *)
-SURL42pxEURL (* numeric forms with suffixes *)
 \end{lstlisting}
 %SURL<tag>body includes enclosing tags</tag>EURL
 \caption[Available Generalized Literal Forms]{Generalized literal forms available for use in VerseML's concrete syntax. The characters in blue indicate where the literal bodies are located within each form. In this figure, each line describes how the literal body is constrained by the form shown on that line. The Wyvern language specifies additional forms, including whitespace-delimited forms \cite{TSLs} and multipart forms \cite{sac15}, but for simplicity we leave these out of VerseML.}
@@ -44,53 +42,56 @@ SURL42pxEURL (* numeric forms with suffixes *)
 Let us now take the perspective of the library provider. The definition of the TSM \lstinline{#\dolla#rx} shown being applied above has the following form:
 \begin{lstlisting}[numbers=none,mathescape=|]
 syntax $rx at Rx {
-  static fn(body : Body) : ParseResultExp => 
+  static fn(body : Body) : CEExp ParseResult => 
     (* regex literal parser here *)
 }
 \end{lstlisting}
-This {TSM definition} first identifies the TSM as \lstinline{#\dolla#rx}. 
- TSM identifiers must begin with the dollar symbol (\li{#\dolla#}) to clearly distinguish them from variables (and thereby clearly distinguish macro application from function application). This is inspired by a similar convention enforced by the Rust macro system \cite{Rust/Macros}.
+This {TSM definition} first names the TSM. 
+ TSM names must begin with the dollar symbol (\li{#\dolla#}) to clearly distinguish them from variables (and thereby clearly distinguish macro application from function application). This is inspired by a similar convention enforced by the Rust macro system \cite{Rust/Macros}.
 
 The TSM definition then specifies a \emph{type annotation}, \lstinline{at Rx}, and a \emph{parse function} within curly braces. 
-The {parse function} is a \emph{static function} responsible for parsing the literal body when the macro is applied to generate an encoding of the candidate expansion, or indicating an error if one cannot be generated (e.g. when the body is ill-formed according to the syntactic specification that the TSM implements). Static functions are functions that are applied during the typed expansion process. For this reason, they do not have access to surrounding variable bindings (because those variables stand in for dynamic values). For now, let us simply assume that static functions are closed (we discuss introducing a distinct class of static bindings so that static values can be shared between TSM definitions in Sec. \ref{sec:uetsms-static-language}).
+The {parse function} is a \emph{static function} responsible for parsing the literal body when the macro is applied to generate an encoding of the candidate expansion, or an indication of an error if one cannot be generated (e.g. when the body is ill-formed according to the syntactic specification that the TSM implements). Static functions are functions that are applied during the typed expansion process. For this reason, they do not have access to surrounding variable bindings (because those variables stand in for dynamic values). For now, let us simply assume that static functions are closed (we discuss introducing a distinct class of static bindings so that static values can be shared between TSM definitions in Sec. \ref{sec:uetsms-static-language}).
 
-The parse function must have type \li{Body -> ParseResultExp}. These types are defined in the VerseML \emph{prelude}, which is a collection of definitions available ambiently. The input type, \lstinline{Body}, gives the parse function access to the {body} of the provided literal form. For our purposes, it suffices to define \li{Body} as an abbreviation for the \li{string} type:
+The parse function must have type \li{Body -> CEExp ParseResult}. These types are defined in the VerseML \emph{prelude}, which is a collection of definitions available ambiently. The input type, \lstinline{Body}, gives the parse function access to the {body} of the provided literal form. For our purposes, it suffices to define \li{Body} as an abbreviation for the \li{string} type:
 \begin{lstlisting}[numbers=none]
 type Body = string
 \end{lstlisting} 
 
-The output type, \li{ParseResultExp}, is a labeled sum type that distinguishes between successful parses and parse errors:
-\begin{lstlisting}[numbers=none]
-type ParseResultExp = Success of CEExp 
-                    | ParseError of {msg : string, loc : IndexRange}
-\end{lstlisting}
+The output type, \li{CEExp ParseResult}, is a labeled sum type that distinguishes between successful parses and parse errors. The parameterized type \li{'a ParseResult} is defined in Figure \ref{fig:indexrange-and-parseresult}.
 
-If parsing succeeds, the parse function returns a value of the form \li{Success(#$\ecand$#)}, where $\ecand$ is the \emph{encoding of the candidate expansion}. Encodings of candidate expansions are, for expression TSMs, values of the type \lstinline{CEExp} defined in Figure \ref{fig:candidate-exp-verseml}. 
+If parsing succeeds, the parse function returns a value of the form \li{Success(#$\ecand$#)}, where $\ecand$ is the \emph{encoding of the candidate expansion}. Encodings of candidate expansions are, for expression TSMs, values of the type \lstinline{CEExp} defined in Figure \ref{fig:candidate-exp-verseml} (in Chapter \ref{sec:pattern-tsms}, we will introduce pattern TSMs, which generate patterns rather than expressions; this is why \li{ParseResult} is defined as a parameterized type). Expressions can mention types, so we also need to define a type \li{CETyp} in Figure \ref{fig:candidate-exp-verseml}. 
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+type IndexRange = {startIndex : nat, endIndex : nat}
+
+type 'a ParseResult = Success of 'a 
+                    | ParseError of {
+                        msg : string, loc : IndexRange
+                      }
+\end{lstlisting}
+\caption[Definitions of \li{IndexRange} and \li{ParseResult} in the VerseML prelude.]{Definitions of \li{IndexRange} and \li{ParseResult} in the VerseML prelude.}
+\label{fig:indexrange-and-parseresult}
+\end{figure}
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 type CETyp = TyVar of var_t 
            | Arrow of CETyp * CETyp 
-           | ... 
+           | (* ... *) 
            | Spliced of IndexRange
 
 type CEExp = Var of var_t 
            | Fn of var_t * CETyp * CEExp
            | App of CEExp * CEExp
-           | ... 
+           | (* ... *) 
            | Spliced of IndexRange
 \end{lstlisting}
-\caption[Abbreviated definitions of \li{CETyp} and \li{CEExp} in VerseML.]{Abbreviated definitions of the types \li{CETyp} and \li{CEExp} in the VerseML prelude. We assume some suitable type \li{var_t} exists, not shown.}
+\caption[Abbreviated definitions of \li{CETyp} and \li{CEExp} in VerseML.]{Abbreviated definitions \li{CETyp} and \li{CEExp} in the VerseML prelude. We assume some suitable type \li{var_t} exists, not shown.}
 \label{fig:candidate-exp-verseml}
 \end{figure}
-The elided constructors in Figure \ref{fig:candidate-exp-verseml} encode the abstract syntax of VerseML expressions and types (as in the SML visible compiler \cite{SML/VisibleCompiler}).
 % We will show a complete encoding when we describe our reduced formal system $\miniVerseU$ in Sec. \ref{sec:tsms-minimal-formalism}. 
-We discuss the constructors labeled \li{Spliced} in Sec. \ref{sec:splicing-and-hygiene}. To decrease the syntactic cost of working with the types defined in Figure \ref{fig:candidate-exp-verseml}, the prelude provides \emph{quasiquotation syntax} at these types, which is itself implemented using TSMs. We will discuss these TSMs in more detail in Sec. \ref{sec:tsms-for-tsms}. The definitions in Figure \ref{fig:candidate-exp-verseml} are recursive labeled sum types to simplify our exposition, but we could have chosen alternative encodings of terms, e.g. based on abstract binding trees \cite{pfpl}, with only minor modification to the semantics. % It is extended with one additional form used to handled spliced subexpressions, 
+We discuss the constructors labeled \li{Spliced} in Sec. \ref{sec:splicing-and-hygiene}; the remaining constructors (some of which are elided for concision) encode the abstract syntax of VerseML expressions and types. To decrease the syntactic cost of working with the types defined in Figure \ref{fig:candidate-exp-verseml}, the prelude provides \emph{quasiquotation syntax} at these types, which is itself implemented using TSMs. We will discuss these TSMs in more detail in Sec. \ref{sec:tsms-for-tsms}. The definitions in Figure \ref{fig:candidate-exp-verseml} are recursive labeled sum types to simplify our exposition, but we could have chosen alternative encodings of terms, e.g. based on abstract binding trees \cite{pfpl}, with only minor modification to the semantics. % It is extended with one additional form used to handled spliced subexpressions, 
 
-If the parse function determines that a candidate expansion cannot be generated, i.e. there is a parse error in the literal body, it returns a value labeled by \li{ParseError}. It must provide an error message and indicate the location of the error within the body of the literal form as a value of type \li{IndexRange}:
-\begin{lstlisting}[numbers=none]
-type IndexRange = {startIndex : nat, endIndex : nat} (* inclusive *)
-\end{lstlisting}
-The error message and error location can be used by VerseML compilers when reporting errors to the programmer.
+If the parse function determines that a candidate expansion cannot be generated, i.e. there is a parse error in the literal body, it returns a value labeled by \li{ParseError}. It must provide an error message and indicate the location of the error within the body of the literal form as a value of type \li{IndexRange}, also defined in Figure \ref{fig:indexrange-and-parseresult}. This information can be used by VerseML compilers when reporting errors to the programmer.
 
 %Notice that the types just described are those that one would expect to find in a typical parser.
 
@@ -534,7 +535,7 @@ $\begin{array}{lllllll}
 &&& \auletsyntax{\tau}{\ue}{\tsmv}{\ue} & \uletsyntax{\tsmv}{\tau}{\ue}{\ue} & \text{macro definition}\\
 &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{macro application}
 \end{array}$
-\caption[Syntax of unexpanded expressions in $\miniVerseU$.]{Syntax of unexpanded expressions in $\miniVerseU$. Metavariable $\tsmv$ ranges over macro identifiers and $b$ ranges over literal bodies. Literal bodies might contain unparsed subexpressions, so variable renaming and substitution cannot be defined in the usual manner over unexpanded expressions (i.e. they should be thought of as partially parsed abstract syntax trees, not abstract binding trees.)}
+\caption[Syntax of unexpanded expressions in $\miniVerseU$.]{Syntax of unexpanded expressions in $\miniVerseU$. Metavariable $\tsmv$ ranges over macro names and $b$ ranges over literal bodies. Literal bodies might contain unparsed subexpressions, so variable renaming and substitution cannot be defined in the usual manner over unexpanded expressions (i.e. they should be thought of as partially parsed abstract syntax trees, not abstract binding trees.)}
 \label{fig:U-unexpanded-terms}
 \end{figure}
 \noindent
@@ -644,7 +645,7 @@ Notice that each form of expanded expression (Figure \ref{fig:U-expanded-terms})
 There are two unexpanded expression forms that do not correspond to an expanded expression form: the macro definition form, and the macro application form. The rules governing these two forms interact with the macro environment, and are the topics of the next two subsections, respectively.
 
 \subsection{Macro Definition}
-The \emph{macro definition form}: $$\uletsyntax{a}{\tau}{\ueparse}{\ue}$$ allows the programmer to introduce a {macro} identified as $a$ at type $\tau$ with \emph{unexpanded parse function} $\ueparse$ into the macro environment of $\ue$. The abstract form corresponding to this stylized form is $\auletsyntax{\tau}{\ueparse}{a}{\ue}$. 
+The \emph{macro definition form}: $$\uletsyntax{a}{\tau}{\ueparse}{\ue}$$ allows the programmer to introduce a {macro} named $a$ at type $\tau$ with \emph{unexpanded parse function} $\ueparse$ into the macro environment of $\ue$. The abstract form corresponding to this stylized form is $\auletsyntax{\tau}{\ueparse}{a}{\ue}$. 
 The premises of Rule (\ref{rule:expandsU-syntax}), which governs this form, can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise ensures that the type annotation specifies a well-formed type, $\tau$.
@@ -654,7 +655,7 @@ $\tParseResultExp$ abbreviates the following labeled sum type\footnote{In VerseM
 \tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]
 \] and 
  $\tBody$ and $\tCEExp$ abbreviate types that we will characterize below. 
-\item Macro environments are finite mappings from macro identifiers, $a$, to \emph{expanded macro definitions}, $\xtsmdef{\tau}{\eparse}$, where $\tau$ is the macro's {type annotation} and $\eparse$ is the macro's {expanded parse function}. The \emph{macro environment formation judgement}, $\macenvOK{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$ and the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
+\item Macro environments are finite mappings from macro names, $a$, to \emph{expanded macro definitions}, $\xtsmdef{\tau}{\eparse}$, where $\tau$ is the macro's {type annotation} and $\eparse$ is the macro's {expanded parse function}. The \emph{macro environment formation judgement}, $\macenvOK{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$ and the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \macenvOK{\Delta}{\Sigma} & \text{Macro environment $\Sigma$ is well-formed assuming $\Delta$.}\end{array}\]
@@ -674,20 +675,20 @@ This judgement is inductively defined by the following rules:
 \end{equation}
 \end{subequations}
 
-The third premise of Rule (\ref{rule:expandsU-syntax}) checks that there is not already a macro identified as $a$ in the macro environment, $\Sigma$. 
+The third premise of Rule (\ref{rule:expandsU-syntax}) checks that there is not already a macro named $a$ in the macro environment, $\Sigma$. 
 \item 
 The fourth premise of Rule (\ref{rule:expandsU-syntax}) extends the macro environment with the newly determined expanded macro definition and proceeds to produce a type, $\tau'$, and expansion, $e$, for $\ue$.
 \end{enumerate}
 The conclusion of Rule (\ref{rule:expandsU-syntax}) specifies $\tau'$ and $e$ as the type and expansion of the expression as a whole, i.e. macro definitions ``disappear'' when an unexpanded expression is expanded (because they specify behavior that is relevant only during typed expansion). 
 
 \subsection{Macro Application}
-The last form of unexpanded expression is the form for applying a macro identified as $a$ to a literal form with literal body $b$. 
+The last form of unexpanded expression is the form for applying a macro named $a$ to a literal form with literal body $b$. 
 \[
 \utsmap{a}{b}
 \] 
 The stylized form for macro application, shown above, uses forward slashes as delimiters, though stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} would be straightforward to add to the syntax table in Figure \ref{fig:U-unexpanded-terms} (we omit them for concision).
 
-The abstract form corresponding to this stylized form is $\autsmap{b}{a}$, i.e. for each literal body, $b$, there is an operator $\texttt{utsmap}[b]$, indexed by the macro identifier $a$ and taking no arguments. Macro identifiers are symbolic, i.e. one can compare them, but unlike variables, they do not stand in for terms. Instead, they are simply references into the macro environment. 
+The abstract form corresponding to this stylized form is $\autsmap{b}{a}$, i.e. for each literal body, $b$, there is an operator $\texttt{utsmap}[b]$, indexed by the macro name $a$ and taking no arguments. Macro names are symbolic, i.e. they can be compared to one another, but unlike variables, they do not stand in for terms. Instead, they are simply references into the macro environment. 
 
 The premises of Rule (\ref{rule:expandsU-tsmap}), which governs the macro application form, can be understood as follows, in order:
 \begin{enumerate}
@@ -752,7 +753,7 @@ $\begin{array}{lllllll}
 &&& \acecase{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
 &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}
 \end{array}$
-\caption[Syntax of candidate expansion types and expressions in $\miniVerseU$.]{Syntax of candidate expansion types, $\ctau$ (pronounced ``grave $\tau$''), and expressions, $\ce$ (pronounced ``grave $e$''), in $\miniVerseU$. Metavariables $m$ and $n$ range over natural numbers.}
+\caption[Syntax of candidate expansion types and candidate expansion expressions in $\miniVerseU$.]{Syntax of candidate expansion types, $\ctau$ (pronounced ``grave $\tau$''), and candidate expansion expressions, $\ce$ (pronounced ``grave $e$''), in $\miniVerseU$. Metavariables $m$ and $n$ range over natural numbers.}
 \label{fig:U-candidate-terms}
 \end{figure}
 
@@ -978,7 +979,7 @@ By rule induction over Rules (\ref{rules:expandsU}).
 \end{pfsteps}
 \resetpfcounter
 
-\item[\text{(\ref{rule:expandsU-tlam}) through (\ref{rule:expandsU-case})}] These cases follow analagously (i.e. we apply the IH to all typed expansion premises and then apply the corresponding typing rule.)
+\item[\text{(\ref{rule:expandsU-tlam}) through (\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply the IH to all typed expansion premises and then apply the corresponding typing rule.
 \\
 
 \item[\text{(\ref{rule:expandsU-syntax})}] We have 
@@ -1053,7 +1054,7 @@ If $\cvalidE{\Delta}{\Gamma}{\spctx{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\t
 \end{pfsteps*}
 \resetpfcounter
 
-\item[\text{(\ref{rule:cvalidE-U-tlam}) through (\ref{rule:cvalidE-U-case})}] These cases follow analagously (i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.)
+\item[\text{(\ref{rule:cvalidE-U-tlam}) through (\ref{rule:cvalidE-U-case})}] These cases follow analagously, i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
 \\
 
 \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
@@ -1182,13 +1183,13 @@ If $\cvalidT{\Delta}{\spctx{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ then
 \item $\ctau=\acesplicedt{m}{n}$ \BY{assumption}
 \item $\parseTyp{\bsubseq{b}{m}{n}}{\tau}$ \BY{assumption}
 \item $\istypeU{\Delta_S}{\tau}$ \BY{assumption}\pflabel{istype}
-\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over \pfref{istype} and exchange}
+\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Delta$ on \pfref{istype} and exchange}
 \end{pfsteps*}
 \end{byCases}
 \end{proof}
 
 \chapter{Unparameterized Pattern TSMs}\label{sec:pattern-tsms}
-In full-scale functional languages like ML and Haskell, one typically deconstructs a value using \emph{nested pattern matching}. For example, let us return to the definition of the recursive labeled sum type \lstinline{Rx} shown in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct like this:
+In the previous chapter, we considered situations where the programmer must \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we turn to situations where the programmer must \emph{deconstruct} (a.k.a. \emph{eliminate}) a value. In full-scale functional languages like ML and Haskell, this is done by \emph{pattern matching} on the structure of the value. For example, let us return to the definition of the recursive labeled sum type \lstinline{Rx} shown in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct like this:
 \begin{lstlisting}
 fun read_example_rx(r : Rx) : (string * Rx) option => 
   match r with 
@@ -1196,15 +1197,14 @@ fun read_example_rx(r : Rx) : (string * Rx) option =>
   | _ => None
 \end{lstlisting}
 
-Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules}, separated by a vertical bar, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the \emph{branch expression}, separated by a double arrow, \li{=>}, in the concrete syntax. When a {match} expression is evaluated, the value of the scrutinee is matched against each pattern sequentially. If the value matches, evaluation branches to the corresponding branch expression. A variable pattern matches any value of the appropriate type. The matching value is available through that variable in the corresponding expression. Each variable bound by a pattern must be distinct. 
- 
-For example, in the rule on Line 3, the pattern \li{Seq(Str(name), Seq(Str ": ", ssn))} matches values of the form \li{Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))}, where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{Rx}. The values of $e_1$ and $e_2$ are available for use in the expression \li{Some(name, ssn)} through the variables \li{name} and \li{ssn}, respectively. On Line 4, the pattern \li{_} is a \emph{wildcard} pattern -- it matches any value of type \li{Rx} and binds no variables.
+Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules}, separated by a vertical bar, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the \emph{branch expression}, separated by a double arrow, \li{=>}, in the concrete syntax. When the {match} expression is evaluated, the value of the scrutinee is matched against each pattern sequentially. If the value matches, evaluation branches to the corresponding branch expression. Variables that appear in patterns match against any value of the appropriate type. The matching value is available through that variable in the corresponding branch expression. Each variable bound by a pattern must be distinct.  
+For example, in the rule on Line 3, the pattern \li{Seq(Str(name), Seq(Str ": ", ssn))} matches values of the form \li{Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))}, where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{Rx}. The values of $e_1$ and $e_2$ are available for use in the expression \li{Some (name, ssn)} via the variables \li{name} and \li{ssn}, respectively. On Line 4, the pattern \li{_} is a \emph{wildcard pattern} -- it matches any value of type \li{Rx} and binds no variables.
 
-If no rule produces a match, an exception indicating match failure is raised. The language statically warns programmers when match failures are possible by checking whether every value of the scrutinee type will be matched by one of rules in the rule sequence. For example, here the use of the wildcard pattern ensures that there can never be a match failure. We say that such a rule sequence is \emph{exhaustive}. The language can also warn programmers when a rule is \emph{redundant} relative to the preceding rules, i.e. when there does not exist a value matched by the rule but not any of the previous rules. For example, had there been another rule at the end of the match expression above, it would be redundant because all values match the wildcard pattern. 
+If no pattern in the rule sequence matches the value, an exception indicating match failure arises. The language statically warns programmers when match failure is possible by checking whether there are possible values of the  scrutinee that are not matched by any of the patterns in the rule sequence. Here the use of the wildcard pattern ensures that there can never be a match failure. A rule sequence that cannot produce a match failure is said to be \emph{exhaustive}. 
 
-\todo{citations and pointer to more details in ML}
+The language can also warn programmers when a rule is \emph{redundant} relative to the preceding rules, i.e. when there cannot possibly be a value matched by that rule but not any of the preceding rules. For example, if we add  another rule at the end of the match expression above, it will be redundant because all values match the wildcard pattern. 
 
-Nested pattern matching is semantically very powerful. However, complex patterns can have high syntactic cost. In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of ML called ML+Rx that built in primitive syntax for patterns over the type \li{Rx}. In ML+Rx, we can express the example above at lower syntactic cost as follows:
+Nested pattern matching generalizes the projection and case analysis operators (i.e. the \emph{eliminators}) for products and sums (cf. $\miniVerseU$ from the previous section) and decreases syntactic cost in situations where eliminators would need to be nested. There is room for improvement, however, because complex patterns can still each individually have high syntactic cost. In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of ML called ML+Rx that built in primitive syntax for both constructing and pattern matching against values of the recursive labeled sum type \li{Rx}. In ML+Rx, we can express the example above at lower syntactic cost as follows:
 
 \begin{lstlisting}
 fun read_example_rx(r : Rx) : (string * Rx) option => 
@@ -1212,36 +1212,66 @@ fun read_example_rx(r : Rx) : (string * Rx) option =>
     /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
   | _ => None\end{lstlisting}
 
-Dialect formation is not a modular approach, for the reasons discussed in Chapter \ref{chap:intro}, so we seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns.
+Dialect formation is not a modular approach, for the reasons discussed in Chapter \ref{chap:intro}, so we seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns to a similar extent.
 
-Expression TSMs, introduced in Chapter \ref{chap:tsms}, decrease the syntactic cost of constructing a value of a specified type. However, expressions are distinct from patterns, so one cannot simply use an expression TSM to generate a pattern (the fact that certain concrete forms overlap is immaterial to this fundamental distinction). %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
-For this reason, we need to extend our language with a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we will consider only \textbf{unparameterized pattern TSMs}, i.e. pattern TSMs that generate patterns for values of a single type, like \li{Rx}. In Chapter \ref{sec:tsms-parameterized}, we will consider both expression and pattern TSMs defined over parameterized families of types. 
+Expression TSMs, introduced in Chapter \ref{chap:tsms}, decrease the syntactic cost of constructing a value of a specified type. However, expressions are syntactically distinct from patterns, so one cannot simply use an expression TSM to generate a pattern. The fact that certain concrete expression and pattern forms overlap is immaterial; there are many expression forms that the expansion generated an expression TSM might use that have no corresponding pattern form, e.g.  lambda abstraction. %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
+For this reason, we need a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{unparameterized pattern TSMs}, i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{Rx}. In Chapter \ref{sec:tsms-parameterized}, we will consider expression and pattern TSMs defined over parameterized families of types. 
 
-\section{Pattern TSMs By Example}
+\section{Pattern TSMs By Example}\label{sec:ptsms-by-example}
+The organization of the remainder of this chapter mirrors that of Chapter \ref{chap:tsms}. We begin in this section with a ``tutorial-style'' introduction to unparameterized pattern TSMs in VerseML. In particular, we  discuss a pattern TSM for patterns matching values of the recursive labeled sum type \li{Rx} just discussed. In the next section, we specify a reduced formal system based on $\miniVerseU$ called $\miniVersePat$ that makes the intuitions developed in this section mathematically precise.
+
+\subsection{Usage}\label{sec:ptsms-usage}
+The VerseML function \li{read_example_rx} defined above can be written at lower syntactic cost by applying a pattern TSM, \li{#\dolla#rx}, as follows:
+\begin{lstlisting}
+fun read_example_rx(r : Rx) : (string * Rx) option => 
+  match r with 
+    $rx /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
+  | _ => None
+\end{lstlisting}
+Like expression TSMs, pattern TSMs are applied to generalized literal forms (see Figure \ref{fig:literal-forms}). Generalized literal forms are left unparsed when patterns are first parsed. During the subsequent typed expansion process, the pattern TSM parses the body of the literal form to generate a candidate expansion. The language  validates the candidate expansion according to criteria that we will establish in Sec. \ref{sec:ptsms-validation}. If validation succeeds, the language generates the final expansion (or more concisely, simply the expansion) of the pattern. The final expansion of the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} from the example above is the following pattern:
+\begin{lstlisting}[numbers=none]
+Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+\end{lstlisting}
+
+The checks for exhaustiveness and redundancy can be performed post-expansion in the usual way, so we do not need to consider them further here. 
+\subsection{Definition}\label{sec:ptsms-definition}
+The definition of the pattern TSM \li{#\dolla#rx} shown being applied in the example above has the following form:
+\begin{lstlisting}[numbers=none]
+syntax $rx at Rx for patterns {
+  static fn(body : Body) : ParseResultPat => 
+    (* regex pattern parser here *)
+}
+\end{lstlisting}
+This definition first names the pattern TSM. Pattern TSM names, like expression TSM names, must begin with the dollar symbol (\li{#\dolla#}) to distinguish them from labels. Pattern TSM names and expression TSM names are tracked separately, i.e. an expression TSM and a pattern TSM can have the same name without conflict (as is the case here -- the expression TSM described in Sec. \ref{sec:uetsms-definition} is also named \li{#\dolla#rx}). The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM definition, rather than an expression TSM definition (the sort qualifier \li{for expressions} can be written for expression TSMs, though when the sort qualifier is omitted this is the default). Because defining an expression TSM and a pattern TSM with the same name at the same type is a common idiom, VerseML specifies a primitive derived form for combining their definitions:
+\begin{lstlisting}[numbers=none]
+syntax $rx at Rx for expressions {
+  static fn(body : Body) : ParseResultExp => 
+    (* regex expression parser here *)
+} for patterns {
+  static fn(body : Body) : ParseResultPat => 
+    (* regex pattern parser here *)
+}
+\end{lstlisting}
+Pattern TSMs, like expression TSMs, must specify a static \emph{parse function}, delimited by curly braces in the concrete syntax. For a pattern TSM, the parse function must be of type \li{Body -> ParseResultPat}. The input type, \li{Body}, gives the parse function access to the body of the provided literal form, and is defined as in Sec. \ref{sec:uetsms-definition} as a synonym for the type \li{string}.
+
 Pattern TSMs are quite similar to expression TSMs, differing mainly in that the expansions they generate are patterns, rather than expressions. Assuming the abstract syntax of patterns is encoded by the type \lstinline{Pat} (analagous to \lstinline{Exp}), we can define a TPSM at type \lstinline{Rx} as follows:
 \begin{lstlisting}[numbers=none]
-pattern syntax $rx at Rx {
-	static fn (body : Body) : ParseResultPat => 
-	  (* regex pattern parser here *)
+syntax $rx at Rx for patterns {
+  static fn (body : Body) : ParseResultPat => 
+    (* regex pattern parser here *)
+} for expressions {
+
 }
 \end{lstlisting}
 
-Using this TPSM, we can rewrite our example as follows:
-\begin{lstlisting}[numbers=none]
-match r with 
-    rx /SURL@EURLnameSURL: %EURLssn/ => display name ssn
-  | _ => raise Invalid
-\end{lstlisting}
-To ensure that the client of the TPSM need not ``guess at'' what variables are bound by the pattern, variables (e.g. \lstinline{name} and \lstinline{ssn} here) can only appear in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). We leave a formal account of TPSMs (in a reduced calculus that features simple pattern matching) as work that remains to be completed (see Sec. \ref{sec:syntax-timeline}).
 
-ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, shown in Sec. \ref{sec:examples}. We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
+\subsection{Splicing and Binding}\label{sec:ptsms-splicing}
+To ensure that the client of the TPSM need not ``guess at'' what variables are bound by the pattern, variables (e.g. \lstinline{name} and \lstinline{ssn} here) can only appear in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). 
 
-\subsection{Usage}
-\subsection{Definition}
-\subsection{Splicing and Binding}
-\subsection{Validation}
 
-\section{$\miniVersePat$}
+\subsection{Validation}\label{sec:ptsms-validation}
+
+\section{$\miniVersePat$}\label{sec:miniVerseUP}
 \subsection{Expanded Expressions and Patterns}
 \subsection{Unexpanded Expressions and Patterns}
 \subsection{Pattern Macro Definition}
