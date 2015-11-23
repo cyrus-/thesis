@@ -158,7 +158,7 @@ The trade-off is that this prevents library providers from defining  alternative
 
 %These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the locations of spliced subexpressions within all the literal forms for which the variable being renamed is in scope; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, like we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
 
-\subsubsection{Final Expansion}
+\subsection{Final Expansion}
 After checking that the candidate expansion is {valid}, the semantics generates the \emph{final expansion} by replacing the references to spliced subexpressions with their final expansions. For example, the final expansion of the body of \li{example_rx_tsm} is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
@@ -1255,12 +1255,11 @@ syntax $rx at Rx for expressions {
 
 Pattern TSMs, like expression TSMs, must specify a static \emph{parse function}, delimited by curly braces in the concrete syntax. For a pattern TSM, the parse function must be of type \li{Body -> CEPat ParseResult}. The input type, \li{Body}, gives the parse function access to the body of the provided literal form, and is defined as in Sec. \ref{sec:uetsms-definition} as a synonym for the type \li{string}. The output type, \li{CEPat ParseResult}, is the parameterized type constructor \li{ParseResult}, defined in Figure \ref{fig:indexrange-and-parseresult}, applied to the type \li{CEPat} defined in Figure \ref{fig:CEPat}.  So if parsing succeeds, the pattern TSM returns a value of the form \li{Success #$\ecand$#} where $\ecand$ is a value of type \li{CEPat} that we call the \emph{encoding of the candidate expansion}. If parsing fails, then the pattern TSM returns a value constructed by \li{ParseError} and equipped with an error message and error location. 
 
-The type \li{CEPat} is analagous to the types \li{CEExp} and \li{CETyp} defined in Figure \ref{fig:candidate-exp-verseml}. It encodes the abstract syntax of VerseML patterns (in Figure \ref{fig:CEPat}, some constructors are elided for concision), and includes an additional constructor, \li{Spliced}, for referring to spliced sub-patterns by their position within the parse stream.
+The type \li{CEPat} is analagous to the types \li{CEExp} and \li{CETyp} defined in Figure \ref{fig:candidate-exp-verseml}. It encodes the abstract syntax of VerseML patterns (in Figure \ref{fig:CEPat}, some constructors are elided for concision), with the exception of variable patterns (for reasons explained in Sec. \ref{sec:ptsms-hygiene} below), and includes an additional constructor, \li{Spliced}, for referring to spliced subpatterns by their position within the parse stream, discussed next.
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
-type CEPat = Var of var_t
-           | Wild
+type CEPat = Wild
            | (* ... *)
            | Spliced of IndexRange
 \end{lstlisting}
@@ -1269,9 +1268,9 @@ type CEPat = Var of var_t
 \end{figure}
 
 \subsection{Splicing}\label{sec:ptsms-splicing}
-Two subpatterns, \li{name} and \li{ssn}, appear directly within the literal body of the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/}. 
-We call these \emph{spliced subpatterns}. Spliced subpatterns are the pattern TSM analog of spliced subexpressions, which were described in Sec. \ref{sec:splicing-and-hygiene}. When the parse function determines that a subsequence of the literal body should be treated as a spliced subpatern (here, by recognizing the characters \li{@} or \li{%} followed by a variable or parenthesized pattern), 
-it can refer to it within the candidate expansion that it generates using the \li{Spliced} constructor of the \li{CEPat} type shown in Figure \ref{fig:CEPat}. The \li{Spliced} constructor requires a value of type \li{IndexRange} because spliced subpatterns are referred to indirectly by their position within the literal body. This prevents pattern TSMs from ``forging'' a spliced subpattern (i.e. claiming that some pattern is a spliced subpattern, even though it does not appear in the literal body).
+Patterns that appear directly within the literal body of an unexpanded pattern are called \emph{spliced subpatterns}. For example, the patterns \li{name} and \li{ssn} appear within the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/}. 
+When the parse function determines that a subsequence of the literal body should be treated as a spliced subpatern (here, by recognizing the characters \li{@} or \li{%} followed by a variable or parenthesized pattern), 
+it can refer to it within the candidate expansion that it construct a reference to it for use within the candidate expansion it generates using the \li{Spliced} constructor of the \li{CEPat} type shown in Figure \ref{fig:CEPat}. The \li{Spliced} constructor requires a value of type \li{IndexRange} because spliced subpatterns are referred to indirectly by their position within the literal body. This prevents pattern TSMs from ``forging'' a spliced subpattern (i.e. claiming that some pattern is a spliced subpattern, even though it does not appear in the literal body).
 
 The candidate expansion generated by the pattern TSM \li{#\dolla#rx} for the example above, if written in a hypothetical concrete syntax where references to spliced subpatterns are written \li{spliced<startIdx, endIdx>}, is:
 \begin{lstlisting}[numbers=none]
@@ -1279,8 +1278,17 @@ Seq(Str(spliced<1, 4>), Seq(Str "SSTR: ESTR", spliced<8, 10>))
 \end{lstlisting}
 Here, \li{spliced<1, 4>} refers to the subpattern \li{name} by position, and \li{spliced<8, 10>} refers to the subpattern \li{ssn} by position.
 
-\subsection{Validation}\label{sec:ptsms-validation}
-To ensure that the client of the pattern TSM need not ``guess at'' what variables are bound by the pattern, variables (e.g. \lstinline{name} and \lstinline{ssn} here) can only appear in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). 
+\subsection{Typing}\label{sec:ptsms-validation}
+The language validates candidate expansion before a final expansion is generated. One aspect of candidate expansion validation is checking the candidate expansion against the type annotation specified by the pattern TSM, e.g. the type \li{Rx} in the example above.
+
+\subsection{Hygiene}\label{sec:ptsms-hygiene}
+In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining expansions directly, the validation process allows variables (e.g. \lstinline{name} and \lstinline{ssn} above) to occur only in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). Indeed, there is no constructor for the type \li{CEPat} corresponding to a variable pattern. This protection against ``hidden bindings'' is beneficial because it leaves variable naming entirely up to the client of the pattern TSM. 
+
+\subsection{Final Expansion}\label{sec:ptsms-final-expansion}
+If validation succeeds, the semantics generates the \emph{final expansion} of the pattern from the candidate expansion by replacing the references to spliced subpatterns with their final expansions. For example, the final expansion of \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} is:
+\begin{lstlisting}[numbers=none]
+Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+\end{lstlisting}
 
 \section{$\miniVersePat$}\label{sec:miniVerseUP}
 \subsection{Expanded Expressions and Patterns}
