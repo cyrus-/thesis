@@ -159,11 +159,10 @@ The trade-off is that this prevents library providers from defining  alternative
 %These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the locations of spliced subexpressions within all the literal forms for which the variable being renamed is in scope; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, like we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
 
 \subsection{Final Expansion}
-After checking that the candidate expansion is {valid}, the semantics generates the \emph{final expansion} by replacing the references to spliced subexpressions with their final expansions. For example, the final expansion of the body of \li{example_rx_tsm} is:
+If validation succeeds, the language generates the \emph{final expansion} from the candidate expansion by replacing references to spliced subexpressions with their final expansions. The final expansion of the body of \li{example_rx_tsm} is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
-%Put another way, the  elaboration logic must be valid in any context. 
 
 \subsection{Scoping}
 A benefit of specifying TSMs as a language primitive, rather than relying on extralinguistic mechanisms to manipulate the concrete syntax of our language directly, is that TSMs follow standard scoping rules. 
@@ -186,7 +185,7 @@ Both ML+Rx and \li{#\dolla#rx} give programmers the ability to use the same stan
 The benefit of this approach is that we can easily define other TSMs to use alongside the \li{#\dolla#rx} TSM without needing to consider the possibility of syntactic conflict. Furthermore, programmers can rely on the typing discipline and the hygienic binding discipline described above to reason about programs, including those that contain unfamiliar forms. Put pithily, VerseML helps programmers avoid ``conflict and confusion''. 
 
 
-\section{$\miniVerseU$}\label{sec:tsms-minimal-formalism}
+\section{$\miniVerseU$}\label{sec:tsms-minimal-formalism}\label{sec:miniVerseU}
 
 % \begin{figure}[p!]
 % $\begin{array}{lllllll}
@@ -236,7 +235,7 @@ To make the intuitions developed in the previous section mathematically precise,
 
 
 
-\subsection{Types and Expanded Expressions}
+\subsection{Types and Expanded Expressions}\label{sec:U-expanded-terms}
 
 \begin{figure}
 $\begin{array}{lllllll}
@@ -259,15 +258,15 @@ $\begin{array}{lllllll}
 &&& \aein{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
 &&& \aecase{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}
 \end{array}$
-\caption[Syntax of types and expanded expressions in $\miniVerseU$.]{Syntax of types and expanded expressions in $\miniVerseU$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over sets of labels. The forms $\mapschema{e}{i}{\labelset}$, $\mapschema{\tau}{i}{\labelset}$ and $\mapschemab{x}{e}{i}{\labelset}$ indicate finite mappings from each label $i \in \labelset$ to an expression, type or binder over an expression, respectively. The label set is omitted for concision when writing particular finite mappings, e.g. $\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}$. We write $\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau$ when $\ell \notin \labelset$ for the extension of $\mapschema{\tau}{i}{\labelset}$ that maps $\ell$ to $\tau$. When we use the stylized forms $\fold{e}$ and $\inj{\ell}{e}$, we assume that the reader can infer the type information from context. }
+\caption[Syntax of types and expanded expressions in $\miniVerseU$.]{Syntax of types and expanded expressions, which form the inner core of $\miniVerseU$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over label sets. We write $\mapschema{\tau}{i}{\labelset}$ for finite mappings from the labels in the label set $\labelset$ to, in this case, types. We write $\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau$ when $\ell \notin \labelset$ for the extension of $\mapschema{\tau}{i}{\labelset}$ that maps $\ell$ to $\tau$. For concision, the label set is omitted when it can be inferred for a particular mapping, e.g. $\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}$ has label set $\{\ell_1, \ell_2\}$. Similarly, when we use the stylized forms $\fold{e}$ and $\inj{\ell}{e}$, we assume that the reader can infer the type information made explicit only in the corresponding abstract form from context.}
 \label{fig:U-expanded-terms}
 \end{figure}
 
-At the ``semantic core'' of $\miniVerseU$ are \emph{types}, $\tau$, and \emph{expanded expressions}, $e$. Their syntax is specified by the syntax chart in Figure \ref{fig:U-expanded-terms}. 
-Types and expanded expressions form a language with support for partial functions, quantification over types, recursive types, and labeled product and sum types. The reader can consult \emph{PFPL} \cite{pfpl} (or another text on typed programming languages, e.g. \emph{TAPL} \cite{tapl}) for a detailed account of these constructs (or closely related variants thereof). For our purposes, it suffices to recall the following facts and definitions.
+The \emph{inner core} of $\miniVerseU$ consists of \emph{types}, $\tau$, and \emph{expanded expressions}, $e$. The syntax of the inner core is specified by the syntax chart in Figure \ref{fig:U-expanded-terms}. 
+The {inner core} forms a standard purely functional language with support for partial functions, quantification over types, recursive types, labeled product types and labeled sum types. The reader can consult \emph{PFPL} \cite{pfpl} (or another text on type systems, e.g. \emph{TAPL} \cite{tapl}) for a detailed account of these constructs, or closely related variants thereof. For our purposes, it suffices to recall the following facts and definitions.
 
-\subsubsection{Statics of Expanded Expressions}
-The \emph{statics of expanded expressions} is specified by judgements of the following form:
+\subsubsection{Statics of the Inner Core}
+The \emph{statics of the inner core} is specified by judgements of the following form:
 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
@@ -477,7 +476,7 @@ The Regularity Lemma expresses the intuition that the type assigned to an expres
 By rule induction on Rules (\ref{rules:hastypeU}) and inversion of Rule (\ref{rule:isctxU-ext}). 
 \end{proof-sketch}
 \subsubsection{Dynamics of Expanded Expressions}
-The \emph{dynamics} of expanded expressions is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
+The \emph{dynamics of expanded expressions} is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
@@ -1291,7 +1290,48 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 \section{$\miniVersePat$}\label{sec:miniVerseUP}
-\subsection{Expanded Expressions and Patterns}
+To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce a reduced calculus with support for both unparameterized expression TSMs and unparameterized pattern TSMs called $\miniVersePat$.
+\subsection{Types, Expanded Expressions, Rules and Patterns}\label{sec:UP-expanded-terms}
+At the ``semantic core'' of $\miniVersePat$ are \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The semantic core of $\miniVersePat$ differs from that of $\miniVerseU$  only in that the case analysis operator has been replaced by the pattern matching operator, so we will omit some definitions that are identical to those in Sec. \ref{fig:U-expanded-terms}. Our formulation of the semantics of pattern matching is adapted from the Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
+
+\begin{figure}
+$\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Abstract Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\
+&&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
+&&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
+&&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
+&&& \aprod{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{EExp} & e & ::= & x & x & \text{variable}\\
+&&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+&&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
+&&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+&&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+&&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+&&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
+&&& \aetpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+&&& \aein{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aematchwith{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
+\mathsf{ERule} & r & ::= & \aematchrule{n}{p}{\seqschemaX{x}}{e} & \matchrule{p}{e} & \text{rule}\\
+\mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
+&&& \aewildp & \wildp & \text{wildcard pattern}\\
+%&&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
+&&& \aetplp{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
+&&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}
+\end{array}$
+\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$.]{Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseU$ in Sec. \ref{sec:miniVerseU} without restating them. We write $\seqschemaX{r}$ for sequences of $n > 0$ rules and $\seqschemaX{x}.e$ for expressions binding the sequence of $n > 0$ variables $\seqschemaX{x}$.}
+\label{fig:UP-expanded-terms}
+\end{figure}
+
+\subsubsection{Statics of Expanded Expressions and Patterns}
+The \emph{statics of expanded expressions and patterns} is specified by judgements of the following form:
+
+$\hastypeU{\Delta}{\Gamma}{e}{\tau}$, $\istypeU{\tau}$, $\isctxU{\Gamma}$, 
+type formation, context formation, typing, rule typing, pattern typing
+
+
 \subsection{Unexpanded Expressions and Patterns}
 \subsection{Pattern Macro Definition}
 \subsection{Pattern Macro Application}

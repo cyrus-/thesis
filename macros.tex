@@ -3,6 +3,8 @@
 
 % \newcommand{\gheading}[1]{\multicolumn{3}{l}{\textbf{#1}}}
 
+\newcommand{\elided}{{\color{gray}\cdots}}
+
 % Calculi Names
 \newcommand{\miniVerseU}{\mathsf{miniVerse}_\textbf{U}}
 \newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{UP}}
@@ -12,6 +14,8 @@
 % General abstract syntax
 \newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
 \newcommand{\abop}[2]{\texttt{#1}\texttt{(}#2\texttt{)}}
+\newcommand{\abopi}[3]{\texttt{#1}[#2]\texttt{(}#3\texttt{)}}
+\newcommand{\abopic}[4]{\texttt{#1}[#2]\texttt{\{}#3\texttt{\}(}#4\texttt{)}}
 \newcommand{\abopp}[3]{\texttt{#1}\texttt{[}#2\texttt{](}#3\texttt{)}}
 \newcommand{\abopc}[3]{\texttt{#1}\texttt{\{}#2\texttt{\}(}#3\texttt{)}}
 \newcommand{\abopbc}[4]{\texttt{#1}\texttt{[}#2\texttt{]\{}#3\texttt{\}(}#4\texttt{)}}
@@ -47,7 +51,7 @@
 \newcommand{\lbltxt}[1]{\mathtt{#1}}
 
 % sequences
-\newcommand{\seqschema}[4]{\left(#1_{#2}\right)_{#3 \leq #2 < #4}}
+\newcommand{\seqschema}[4]{\{#1_{#2}\}_{#3 \leq #2 < #4}}
 \newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
 
 % Expanded/Unexpanded/Candidate expressions
@@ -178,9 +182,12 @@
 \newcommand{\sizeof}[1]{\Vert #1 \Vert}
 
 % Pattern matching
-\newcommand{\matchwith}[2]{\texttt{match}~#1~\texttt{with}~#2}
+\newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
 \newcommand{\aematchwith}[2]{\abop{ematch}{#1; #2}}
 \newcommand{\aumatchwith}[2]{\abop{umatch}{#1; #2}}
+
+\newcommand{\matchrule}[2]{#1 \Rightarrow #2}
+\newcommand{\aematchrule}[4]{\abopic{rule}{#1}{#2}{#3.#4}}
 
 \newcommand{\eR}{R}
 \newcommand{\uR}{\hat{R}}
@@ -193,3 +200,15 @@
 \newcommand{\epv}{p}
 \newcommand{\upv}{\hat{p}}
 \newcommand{\cpv}{\grave{p}}
+
+\newcommand{\wildp}{\_}
+\newcommand{\aewildp}{\texttt{ewildp}}
+
+\newcommand{\foldp}[1]{\abop{fold}{#1}}
+\newcommand{\aefoldp}[1]{\abop{efoldp}{#1}}
+
+\newcommand{\tplp}[1]{\langle #1 \rangle}
+\newcommand{\aetplp}[1]{\abop{etplp}{#1}}
+
+\newcommand{\injp}[2]{#1 \cdot #2}
+\newcommand{\aeinjp}[2]{\abopp{einp}{#1}{#2}}
