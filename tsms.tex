@@ -1275,7 +1275,7 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \section{$\miniVersePat$}\label{sec:miniVerseUP}
 To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce a reduced calculus with support for both unparameterized expression TSMs and unparameterized pattern TSMs called $\miniVersePat$.
 \subsection{Types, Expanded Expressions, Rules and Patterns}\label{sec:UP-expanded-terms}
-At the ``semantic core'' of $\miniVersePat$ are \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The semantic core of $\miniVersePat$ differs from that of $\miniVerseU$  only in that the case analysis operator has been replaced by the pattern matching operator, so we will omit some definitions that are identical to those in Sec. \ref{fig:U-expanded-terms}. Our formulation of the semantics of pattern matching is adapted from the Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
+The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ differs from that of $\miniVerseU$  only in that the case analysis operator has been replaced by the pattern matching operator, so we will omit some definitions that are identical to those in Sec. \ref{fig:U-expanded-terms}. Our formulation of the semantics of pattern matching is adapted from the Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
 
 \begin{figure}
 $\begin{array}{lllllll}
@@ -1308,11 +1308,101 @@ $\begin{array}{lllllll}
 \label{fig:UP-expanded-terms}
 \end{figure}
 
-\subsubsection{Statics of Expanded Expressions and Patterns}
-The \emph{statics of expanded expressions and patterns} is specified by judgements of the following form:
+\subsubsection{Statics of the Inner Core}
+The \emph{statics of the inner core} is specified by judgements of the following form:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\istypeU{\Delta}{\tau} & \text{$\tau$ is a well-formed type assuming $\Delta$}\\
+%\isctxU{\Delta}{\Gamma} & \text{$\Gamma$ is a well-formed typing context assuming $\Delta$}\\
+\hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ has type $\tau$ assuming $\Delta$ and $\Gamma$}\\
+\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'} & \text{$r$ takes values of type $\tau$ to values of type $\tau'$ assuming $\Delta$ and $\Gamma$}\\
+\patType{\pctx}{p}{\tau} & \text{$p$ matches values of type $\tau$ and generates hypotheses $\pctx$} 
+\end{array}\]
 
-$\hastypeU{\Delta}{\Gamma}{e}{\tau}$, $\istypeU{\tau}$, $\isctxU{\Gamma}$, 
-type formation, context formation, typing, rule typing, pattern typing
+The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by Rules (\ref{rules:istypeU}). The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions and is inductively defined by Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-in}) extended with the following rule for match expressions: 
+\begin{equation}\label{rule:hastypeUP-match}
+\inferrule{
+  \hastypeU{\Delta}{\Gamma}{e}{\tau}\\
+  \{\ruleType{\Delta}{\Gamma}{r_i}{\tau}{\tau'}\}_{1 \leq i < n}
+}{\hastypeU{\Delta}{\Gamma}{\aematchwith{e}{\seqschemaX{r}}}{\tau'}}
+\end{equation}  
+The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise then ensures that each rule $r_i$ takes values of type $\tau$ to values of the type assigned to the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with the typing rules by the following rule:
+\begin{equation}\label{rule:ruleType}
+\inferrule{
+  \patType{\pctx}{p}{\tau}\\
+  \domof{\pctx} = \seqschemaX{x}\\
+  \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}
+}{\ruleType{\Delta}{\Gamma}{\aematchrule{n}{p}{\seqschemaX{x}}{e}}{\tau}{\tau'}}
+\end{equation}
+The premises of Rule (\ref{rule:ruleType}) can be understood as follows, in order:
+\begin{enumerate}
+\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$, and gather the typing hypotheses that the pattern generates in a \emph{pattern typing context}, $\Omega$. Pattern typing contexts, like typing contexts, $\Gamma$, consist of hypotheses $x : \tau$. We specify a distinct metavariable because the {pattern typing judgement} is a \emph{linear hypothetical judgement}, i.e. it does not obey weakening. This is to ensure that the pattern typing context captures exactly those variables bound by a pattern. Algorithmically, one can think of the pattern typing context as an ``output'' of pattern typing.
+
+The pattern typing judgement is inductively defined by the following rules:
+\begin{subequations}\label{rules:patType}
+\begin{equation}\label{rule:patType-var}
+\inferrule{ }{\patType{\Ghyp{x}{\tau}}{x}{\tau}}
+\end{equation}
+\begin{equation}\label{rule:patType-wild}
+\inferrule{ }{\patType{\emptyset}{\aewildp}{\tau}}
+\end{equation}
+\begin{equation}\label{rule:patType-tpl}
+\inferrule{
+  \{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
+  \cap_{i \in \labelset} \domof{\pctx_i} = \emptyset
+}{
+  \patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\mapschema{p}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+}
+\end{equation}
+\begin{equation}\label{rule:patType-inj}
+\inferrule{
+  \patType{\pctx}{p}{\tau}
+}{
+  \patType{\pctx}{\aeinjp{\ell}{p}}{\asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}}
+}
+\end{equation}
+\end{subequations}
+
+Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, can match values of any type, $\tau$, and generates the hypothesis assigning $x$ the type $\tau$. 
+
+Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern can also match values of any type, $\tau$, but it generates no hypotheses. 
+
+Labeled tuple patterns, $\aetplp{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern of this form matches values of the labeled product type $\aprod{\mapschema{\tau}{i}{\labelset}}$. Each subpattern $p_i$ is checked against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The rule then ensures that the subpatterns bind distinct variables by checking that the domains of the pattern typing contexts $\pctx_i$ are disjoint. The hypotheses generated in the conclusion of the rule is then the union of the hypotheses $\pctx_i$.
+
+Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the form $\asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}$, i.e. labeled sum types that specify a case for $\ell$. Rule (\ref{rule:patType-inj}) checks the subpattern $p$ against the corresponding type $\tau$, and passes along exactly those assumptions that $p$ generates.
+
+\item The second premise of Rule (\ref{rule:ruleType}) ensures that the pattern has generated hypotheses for all of the the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for a rule, $\matchrule{p}{e}$, the bound variables are, implicitly, exactly those found in the pattern.% The bindings for $e$ would be extracted from the pattern implicitly. 
+\item The final premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.
+\end{enumerate}
+\subsubsection{Dynamics of $\miniVersePat$}
+The \emph{dynamics of }$\miniVersePat$ is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
+\isvalU{e} & \text{$e$ is a value}
+\end{array}\]
+We also define auxiliary judgements for \emph{iterated transitions}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
+
+\begin{definition}[Iterated Transition]\label{defn:iterated-transition-U} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement.\end{definition}
+
+\begin{definition}[Evaluation]\label{defn:evaluation-U}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+
+Our subsequent developments do not require making reference to particular rules in the dynamics (because TSMs operate statically), so for concision, we do not reproduce the rules here. Instead, it suffices to state the following conditions.
+
+The Canonical Forms condition characterizes well-typed values. We assume an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. 
+\begin{condition}[Canonical Forms]\label{condition:canonical-forms-U} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
+\begin{enumerate}
+\item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
+\item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
+\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$. 
+\item If $\tau=\aprod{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$.
+\item If $\tau=\asum{\mapschema{\tau}{i}{\labelset}}$ then $e=\aein{\ell}{\mapschema{\tau}{i}{\labelset\setminus \ell} \otimes \ell \hookrightarrow \tau'}{e'}$ and $\ell \in \labelset$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
+\end{enumerate}\end{condition}
+
+We also require that the statics and dynamics be coherent. This is expressed in the standard way by Preservation and Progress conditions (together, these constitute the {Type Safety} Condition). 
+\begin{condition}[Preservation]\label{condition:preservation-U} If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
+\begin{condition}[Progress]\label{condition:progress-U} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+
 
 
 \subsection{Unexpanded Expressions and Patterns}

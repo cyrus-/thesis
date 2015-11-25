@@ -116,9 +116,10 @@
 \newcommand{\hastypeUCO}[3]{#1 \vdash #2 : #3}
 
 \newcommand{\Dhyp}[1]{#1~\mathsf{type}}
-\newcommand{\Dcons}[2]{#1 \cup #2}
+\newcommand{\Dcons}[2]{{#1}\cup{#2}}
 \newcommand{\Ghyp}[2]{#1 : #2}
-\newcommand{\Gcons}[2]{#1 \cup #2}
+\newcommand{\Gcons}[2]{{#1}\cup{#2}}
+\newcommand{\Gconsi}[2]{\cup_{#1} #2}
 
 % Dynamics of miniVerseU
 \newcommand{\isvalU}[1]{#1~\mathsf{val}}
@@ -187,7 +188,11 @@
 \newcommand{\aumatchwith}[2]{\abop{umatch}{#1; #2}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
-\newcommand{\aematchrule}[4]{\abopic{rule}{#1}{#2}{#3.#4}}
+\newcommand{\aematchrule}[4]{\abopic{erule}{#1}{#2}{#3.#4}}
+
+\newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
+\newcommand{\patType}[3]{#1 \Vdash #2 : #3}
+\newcommand{\pctx}{\Omega}
 
 \newcommand{\eR}{R}
 \newcommand{\uR}{\hat{R}}
