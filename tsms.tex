@@ -263,19 +263,19 @@ $\begin{array}{lllllll}
 \end{figure}
 
 The \emph{inner core} of $\miniVerseU$ consists of \emph{types}, $\tau$, and \emph{expanded expressions}, $e$. The syntax of the inner core is specified by the syntax chart in Figure \ref{fig:U-expanded-terms}. 
-The {inner core} forms a standard purely functional language with support for partial functions, quantification over types, recursive types, labeled product types and labeled sum types. The reader can consult \emph{PFPL} \cite{pfpl} (or another text on type systems, e.g. \emph{TAPL} \cite{tapl}) for a detailed account of these constructs, or closely related variants thereof. For our purposes, it suffices to recall the following facts and definitions.
+The {inner core} forms a purely functional language with support for partial functions, quantification over types, recursive types, labeled product types and labeled sum types. The reader can consult \emph{PFPL} \cite{pfpl} (or another text on type systems, e.g. \emph{TAPL} \cite{tapl}) for a detailed account of these constructs, or closely related variants thereof. For our purposes, it suffices to recall the following facts and definitions.
 
 \subsubsection{Statics of the Inner Core}
-The \emph{statics of the inner core} is specified by judgements of the following form:
+The \emph{statics of the inner core} is specified by hypothetical judgements of the following form:
 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \istypeU{\Delta}{\tau} & \text{$\tau$ is a well-formed type assuming $\Delta$}\\
-\isctxU{\Delta}{\Gamma} & \text{$\Gamma$ is a well-formed typing context assuming $\Delta$}\\
+%\isctxU{\Delta}{\Gamma} & \text{$\Gamma$ is a well-formed typing context assuming $\Delta$}\\
 \hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ has type $\tau$ assuming $\Delta$ and $\Gamma$}
 \end{array}\]
-
-\emph{Type formation contexts}, $\Delta$, consist of hypotheses of the form $\Dhyp{t}$ and can be understood as finite sets of type variables. \emph{Typing contexts}, $\Gamma$, consist of hypotheses of the form $\Ghyp{x}{\tau}$ and can be understood as finite mappings from variables to types. Syntactically, we write contexts as comma-separated sequences of {hypotheses} identified up to exchange and contraction. We write empty contexts using the symbol $\emptyset$ (or omit their mention). 
+\noindent
+\emph{Type formation contexts}, $\Delta$, consist of hypotheses of the form $\Dhyp{t}$ and \emph{typing contexts}, $\Gamma$, consist of hypotheses of the form $\Ghyp{x}{\tau}$. Syntactically, we write contexts as comma-separated sequences of {hypotheses} identified up to exchange and contraction.
 
 The type formation judgement, $\istypeU{\Delta}{\tau}$, ensures that all free type variables in $\tau$ are tracked by $\Delta$. It is inductively defined by the following rules:
 \begin{subequations}\label{rules:istypeU}
@@ -319,24 +319,8 @@ The type formation judgement, $\istypeU{\Delta}{\tau}$, ensures that all free ty
 \end{subequations}
 Premises written $\{\mathcal{J}_i\}_{i \in \labelset}$ mean that for each $i \in \labelset$, the judgement $\mathcal{J}_i$ must be derived. 
 
-The typing context formation judgement, $\isctxU{\Delta}{\Gamma}$, ensures that all types in the typing context are well-formed according to Rules (\ref{rules:istypeU}). It is inductively defined by the following rules:
-\begin{subequations}\label{rules:isctxU}
-\begin{equation}\label{rule:isctxU-empty}
-  \inferrule{ }{
-    \isctxU{\Delta}{\emptyset}
-  }
-\end{equation}
-\begin{equation}\label{rule:isctxU-ext}
-  \inferrule{
-    \isctxU{\Delta}{\Gamma}\\
-    \istypeU{\Delta}{\tau}
-  }{
-    \isctxU{\Delta}{\Gamma, \Ghyp{x}{\tau}}
-  }
-\end{equation}
-\end{subequations}
-
 The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions. It is inductively defined by the following rules:
+
 \begin{subequations}\label{rules:hastypeU}
 \begin{equation}\label{rule:hastypeU-var}
   \inferrule{ }{
@@ -421,14 +405,13 @@ The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to exp
   }
 \end{equation}
 \end{subequations}
-
 The rules given above validate the following standard lemmas. 
 
 The Weakening Lemma expresses the intuition that extending a context with unused variables preserves well-formedness and typing.
 \begin{lemma}[Weakening]\label{lemma:weakening-U} All of the following hold: 
 \begin{enumerate} 
 \item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
-\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+%\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
 \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
 \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
 \end{enumerate}
@@ -436,7 +419,7 @@ The Weakening Lemma expresses the intuition that extending a context with unused
 \begin{proof-sketch}
 \begin{enumerate}
 \item By rule induction on Rules (\ref{rules:istypeU}).
-\item By rule induction on Rules (\ref{rules:isctxU}).
+%\item By rule induction on Rules (\ref{rules:isctxU}).
 \item By rule induction on Rules (\ref{rules:hastypeU}).
 \item By rule induction on Rules (\ref{rules:hastypeU}).
 \end{enumerate}
@@ -446,7 +429,7 @@ The Substitution Lemma expresses the intuition that substitution of a type for a
 \begin{lemma}[Substitution]\label{lemma:substitution-U} All of the following hold:
 \begin{enumerate}
 \item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
-\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
+%\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
 \item If $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$.
 \item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
 \end{enumerate}\end{lemma}
@@ -457,26 +440,26 @@ The Decomposition Lemma is the converse of the Substitution Lemma.
 \begin{lemma}[Decomposition]\label{lemma:decomposition-U} All of the following hold:
 \begin{enumerate}
 \item If $\istypeU{\Delta}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
-\item If $\isctxU{\Delta}{[\tau'/t]\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+%\item If $\isctxU{\Delta}{[\tau'/t]\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
 \item If $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
 \item If $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
 \end{enumerate}\end{lemma}
 \begin{proof-sketch}
 \begin{enumerate}
 \item Type formation of $[\tau'/t]\tau$ does not depend on the structure of $\tau'$.
-\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
+%\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
 \item The derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ does not depend on the structure of $\tau'$.
 \item Typing of $[e'/x]e$ depends only on the type of $e'$ wherever it occurs, if at all.
 \end{enumerate}
 \end{proof-sketch}
 
 The Regularity Lemma expresses the intuition that the type assigned to an expression under a well-formed typing context is well-formed. 
-\begin{lemma}[Regularity]\label{lemma:regularity-U} If $\isctxU{\Delta}{\Gamma}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begin{lemma}[Regularity]\label{lemma:regularity-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
 \begin{proof-sketch}
-By rule induction on Rules (\ref{rules:hastypeU}) and inversion of Rule (\ref{rule:isctxU-ext}). 
+By rule induction on Rules (\ref{rules:hastypeU}) and Lemma \ref{lemma:substitution-U}.
 \end{proof-sketch}
-\subsubsection{Dynamics of Expanded Expressions}
-The \emph{dynamics of expanded expressions} is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
+\subsubsection{Dynamics of $\miniVerseU$}
+The \emph{dynamics of }$\miniVerseU$ is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
@@ -511,7 +494,7 @@ Programs evaluate as expanded expressions, but programmers author \emph{unexpand
 Unexpanded expressions are typed and expanded simultaneously according to the \emph{typed expansion judgement}:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\expandsUX{\ue}{e}{\tau} & \text{$\ue$ expands to $e$ at type $\tau$ assuming $\Delta$ and $\Gamma$ and macro}\\
+\expandsUX{\ue}{e}{\tau} & \text{$\ue$ expands to $e$ at type $\tau$ assuming $\Delta$ and $\Gamma$ under macro}\\
 & \text{environment $\Sigma$}
 \end{array}\]
 
