@@ -15,10 +15,12 @@
 \newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
 \newcommand{\abop}[2]{\texttt{#1}\texttt{(}#2\texttt{)}}
 \newcommand{\abopi}[3]{\texttt{#1}[#2]\texttt{(}#3\texttt{)}}
+\newcommand{\abopii}[4]{\texttt{#1}[#2][#3]\texttt{(}#4\texttt{)}}
 \newcommand{\abopic}[4]{\texttt{#1}[#2]\texttt{\{}#3\texttt{\}(}#4\texttt{)}}
 \newcommand{\abopp}[3]{\texttt{#1}\texttt{[}#2\texttt{](}#3\texttt{)}}
 \newcommand{\abopc}[3]{\texttt{#1}\texttt{\{}#2\texttt{\}(}#3\texttt{)}}
 \newcommand{\abopbc}[4]{\texttt{#1}\texttt{[}#2\texttt{]\{}#3\texttt{\}(}#4\texttt{)}}
+\newcommand{\abopibc}[5]{\texttt{#1}[#2]\texttt{[}#3\texttt{]\{}#4\texttt{\}(}#5\texttt{)}}
 \newcommand{\abopcc}[4]{\texttt{#1}\texttt{\{}#2\texttt{\}\{}#3\texttt{\}(}#4\texttt{)}}
 
 % Types / candidate expansion types
@@ -35,12 +37,12 @@
 \newcommand{\acerec}[2]{\abop{cerec}{#1.#2}}
 
 \newcommand{\prodt}[1]{\langle #1 \rangle}
-\newcommand{\aprod}[1]{\abop{prod}{#1}}
-\newcommand{\aceprod}[1]{\abop{ceprod}{#1}}
+\newcommand{\aprod}[2]{\abopi{prod}{#1}{#2}}
+\newcommand{\aceprod}[2]{\abopi{ceprod}{#1}{#2}}
 
 \newcommand{\sumt}[1]{[#1]}
-\newcommand{\asum}[1]{\abop{sum}{#1}}
-\newcommand{\acesum}[1]{\abop{cesum}{#1}}
+\newcommand{\asum}[2]{\abopi{sum}{#1}{#2}}
+\newcommand{\acesum}[2]{\abopi{cesum}{#1}{#2}}
 
 % Labels and maps
 \newcommand{\labelset}{L}
@@ -51,7 +53,7 @@
 \newcommand{\lbltxt}[1]{\mathtt{#1}}
 
 % sequences
-\newcommand{\seqschema}[4]{\{#1_{#2}\}_{#3 \leq #2 < #4}}
+\newcommand{\seqschema}[4]{\{#1_{#2}\}_{#3 \leq #2 \leq #4}}
 \newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
 
 % Expanded/Unexpanded/Candidate expressions
@@ -86,9 +88,9 @@
 \newcommand{\aceunfold}[1]{\abop{ceunfold}{#1}}
 
 \newcommand{\tpl}[1]{\langle #1\rangle}
-\newcommand{\aetpl}[1]{\abop{etpl}{#1}}
-\newcommand{\autpl}[1]{\abop{utpl}{#1}}
-\newcommand{\acetpl}[1]{\abop{cetpl}{#1}}
+\newcommand{\aetpl}[2]{\abopi{etpl}{#1}{#2}}
+\newcommand{\autpl}[2]{\abopi{utpl}{#1}{#2}}
+\newcommand{\acetpl}[2]{\abopi{cetpl}{#1}{#2}}
 
 \newcommand{\prj}[2]{#1 \cdot #2}
 \newcommand{\aepr}[2]{\abopp{epr}{#1}{#2}}
@@ -96,14 +98,14 @@
 \newcommand{\acepr}[2]{\abopp{cepr}{#1}{#2}}
 
 \newcommand{\inj}[2]{#1 \cdot #2}
-\newcommand{\aein}[3]{\abopbc{ein}{#1}{#2}{#3}}
-\newcommand{\auin}[3]{\abopbc{uin}{#1}{#2}{#3}}
-\newcommand{\acein}[3]{\abopbc{cein}{#1}{#2}{#3}}
+\newcommand{\aein}[4]{\abopibc{ein}{#1}{#2}{#3}{#4}}
+\newcommand{\auin}[4]{\abopibc{uin}{#1}{#2}{#3}{#4}}
+\newcommand{\acein}[4]{\abopibc{cein}{#1}{#2}{#3}{#4}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
-\newcommand{\aecase}[2]{\abop{ecase}{#1; #2}}
-\newcommand{\aucase}[2]{\abop{ucase}{#1; #2}}
-\newcommand{\acecase}[2]{\abop{cecase}{#1; #2}}
+\newcommand{\aecase}[3]{\abopi{ecase}{#1}{#2; #3}}
+\newcommand{\aucase}[3]{\abopi{ucase}{#1}{#2; #3}}
+\newcommand{\acecase}[3]{\abopi{cecase}{#1}{#2; #3}}
 
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
@@ -130,7 +132,7 @@
 % Unexpanded expressions
 \newcommand{\ue}{\hat{e}}
 \newcommand{\uletsyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
-\newcommand{\auletsyntax}[4]{\abopcc{usyntax}{#2}{#1}{#3.#4}}
+\newcommand{\auletsyntax}[4]{\abopcc{usyntax}{#1}{#2}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
 \newcommand{\autsmap}[2]{\texttt{utsmap}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
@@ -184,11 +186,11 @@
 
 % Pattern matching
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
-\newcommand{\aematchwith}[2]{\abop{ematch}{#1; #2}}
-\newcommand{\aumatchwith}[2]{\abop{umatch}{#1; #2}}
+\newcommand{\aematchwith}[3]{\abopi{ematch}{#1}{#2; #3}}
+\newcommand{\aumatchwith}[3]{\abopi{umatch}{#1}{#2; #3}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
-\newcommand{\aematchrule}[4]{\abopic{erule}{#1}{#2}{#3.#4}}
+\newcommand{\aematchrule}[4]{\abopii{erule}{#1}{#2}{#3.#4}}
 
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
@@ -213,7 +215,7 @@
 \newcommand{\aefoldp}[1]{\abop{efoldp}{#1}}
 
 \newcommand{\tplp}[1]{\langle #1 \rangle}
-\newcommand{\aetplp}[1]{\abop{etplp}{#1}}
+\newcommand{\aetplp}[2]{\abopi{etplp}{#1}{#2}}
 
 \newcommand{\injp}[2]{#1 \cdot #2}
 \newcommand{\aeinjp}[2]{\abopp{einp}{#1}{#2}}

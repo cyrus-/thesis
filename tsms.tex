@@ -244,8 +244,8 @@ $\begin{array}{lllllll}
 &&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
 &&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
 &&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
-&&& \aprod{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
+&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
 \mathsf{EExp} & e & ::= & x & x & \text{variable}\\
 &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
 &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
@@ -253,12 +253,12 @@ $\begin{array}{lllllll}
 &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
 &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
 &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
-&&& \aetpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-&&& \aein{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
-&&& \aecase{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}
+&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}
 \end{array}$
-\caption[Syntax of types and expanded expressions in $\miniVerseU$.]{Syntax of types and expanded expressions, which form the inner core of $\miniVerseU$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over label sets. We write $\mapschema{\tau}{i}{\labelset}$ for finite mappings from the labels in the label set $\labelset$ to, in this case, types. We write $\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau$ when $\ell \notin \labelset$ for the extension of $\mapschema{\tau}{i}{\labelset}$ that maps $\ell$ to $\tau$. For concision, the label set is omitted when it can be inferred for a particular mapping, e.g. $\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}$ has label set $\{\ell_1, \ell_2\}$. Similarly, when we use the stylized forms $\fold{e}$ and $\inj{\ell}{e}$, we assume that the reader can infer the type information made explicit only in the corresponding abstract form from context.}
+\caption[Syntax of types and expanded expressions in $\miniVerseU$.]{Syntax of types and expanded expressions, which form the inner core of $\miniVerseU$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over label sets. We write $\mapschema{\tau}{i}{\labelset}$ for a sequence of operator arguments $\tau_i$, one for each $i\in \labelset$ (and similarly for other sorts). Terms indexed by label sets are identified up to mutual reordering of the label set and the argument sequences indexed by that label set. In the stylized syntax, the label set is omitted when it can be inferred, e.g. the labeled product type $\prodt{\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}}$ is implicitly indexed by label set $\{\ell_1, \ell_2\}$. When we use the stylized forms $\fold{e}$ and $\inj{\ell}{e}$, we assume that the reader can infer the type information made explicit only in the corresponding abstract form from the surrounding context.}
 \label{fig:U-expanded-terms}
 \end{figure}
 
@@ -306,14 +306,14 @@ The type formation judgement, $\istypeU{\Delta}{\tau}$, ensures that all free ty
   \inferrule{
     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
   }{
-    \istypeU{\Delta}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+    \istypeU{\Delta}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:istypeU-sum}
   \inferrule{
     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
   }{
-    \istypeU{\Delta}{\asum{\mapschema{\tau}{i}{\labelset}}}
+    \istypeU{\Delta}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \end{subequations}
@@ -377,12 +377,12 @@ The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to exp
   \inferrule{
     \{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aetpl{\mapschema{e}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+    \hastypeU{\Delta}{\Gamma}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeU-pr}
   \inferrule{
-    \hastypeU{\Delta}{\Gamma}{e}{\aprod{\mapschema{\tau}{i}{\labelset} \otimes \ell \hookrightarrow \tau}}
+    \hastypeU{\Delta}{\Gamma}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
   }{
     \hastypeU{\Delta}{\Gamma}{\aepr{\ell}{e}}{\tau}
   }
@@ -393,15 +393,15 @@ The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to exp
     \istypeU{\Delta}{\tau}\\
     \hastypeU{\Delta}{\Gamma}{e}{\tau}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aein{\ell}{\mapschema{\tau}{i}{\labelset}\otimes \ell \hookrightarrow \tau}{e}}{\asum{\mapschema{\tau}{i}{\labelset}\otimes\ell \hookrightarrow \tau}}
+    \hastypeU{\Delta}{\Gamma}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeU-case}
   \inferrule{
-    \hastypeU{\Delta}{\Gamma}{e}{\asum{\mapschema{\tau}{i}{\labelset}}}\\
+    \hastypeU{\Delta}{\Gamma}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
     \{\hastypeU{\Delta}{\Gamma, x_i : \tau_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aecase{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \end{subequations}
@@ -479,8 +479,8 @@ The Canonical Forms condition characterizes well-typed values. We assume an \emp
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
 \item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
 \item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$. 
-\item If $\tau=\aprod{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$.
-\item If $\tau=\asum{\mapschema{\tau}{i}{\labelset}}$ then $e=\aein{\ell}{\mapschema{\tau}{i}{\labelset\setminus \ell} \otimes \ell \hookrightarrow \tau'}{e'}$ and $\ell \in \labelset$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
+\item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$.
+\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau'}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
 \end{enumerate}\end{condition}
 
 We also require that the statics and dynamics be coherent. This is expressed in the standard way by Preservation and Progress conditions (together, these constitute the {Type Safety} Condition). 
@@ -508,10 +508,10 @@ $\begin{array}{lllllll}
 &&& \autap{\ue}{\tau} & \App{\ue}{\tau} & \text{type application}\\
 &&& \aufold{t}{\tau}{\ue} & \fold{\ue} & \text{fold}\\
 &&& \auunfold{\ue} & \unfold{\ue} & \text{unfold}\\
-&&& \autpl{\mapschema{\ue}{i}{\labelset}} & \tpl{\mapschema{\ue}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \autpl{\labelset}{\mapschema{\ue}{i}{\labelset}} & \tpl{\mapschema{\ue}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
-&&& \auin{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
-&&& \aucase{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \caseof{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \text{case analysis}\\
+&&& \auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
+&&& \aucase{\labelset}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \caseof{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \text{case analysis}\\
 &&& \auletsyntax{\tau}{\ue}{\tsmv}{\ue} & \uletsyntax{\tsmv}{\tau}{\ue}{\ue} & \text{macro definition}\\
 &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{macro application}
 \end{array}$
@@ -572,12 +572,12 @@ The typed expansion judgement is inductively defined by the following rules:
   \inferrule{
     \{\expandsUX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \expandsUX{\autpl{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\mapschema{e}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+    \expandsUX{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-pr}
   \inferrule{
-    \expandsUX{\ue}{e}{\aprod{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}}
+    \expandsUX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }{
     \expandsUX{\aupr{\ell}{\ue}}{\aepr{\ell}{e}}{\tau}
   }
@@ -588,15 +588,15 @@ The typed expansion judgement is inductively defined by the following rules:
     \istypeU{\Delta}{\tau}\\
     \expandsUX{\ue}{e}{\tau}
   }{
-    \left\{\shortstack{$\Delta~\Gamma \vdash_\Sigma \auin{\ell}{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\ell}{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}{e} : \asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
+    \left\{\shortstack{$\Delta~\Gamma \vdash_\Sigma \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-case}
   \inferrule{
-    \expandsUX{\ue}{e}{\asum{\mapschema{\tau}{i}{\labelset}}}\\
+    \expandsUX{\ue}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
     \{\expandsU{\Delta}{\Gamma, \Ghyp{x_i}{\tau_i}}{\Sigma}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \expandsUX{\aucase{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}}{\aecase{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \expandsUX{\aucase{\labelset}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-syntax}
@@ -717,8 +717,8 @@ $\begin{array}{lllllll}
 &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
 &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
 &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
-&&& \aceprod{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
-&&& \acesum{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
+&&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
+&&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
 &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\
 \mathsf{CEExp} & \ce & ::= & x & x & \text{variable}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
@@ -727,10 +727,10 @@ $\begin{array}{lllllll}
 &&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
 &&& \acefold{t}{\ctau}{\ce} & \fold{\ce} & \text{fold}\\
 &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
-&&& \acetpl{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
-&&& \acein{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
-&&& \acecase{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
+&&& \acein{\labelset}{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
+&&& \acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
 &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}
 \end{array}$
 \caption[Syntax of candidate expansion types and expressions in $\miniVerseU$.]{Syntax of candidate expansion types, $\ctau$ (pronounced ``grave $\tau$''), and candidate expansion expressions, $\ce$ (pronounced ``grave $e$''), in $\miniVerseU$. Metavariables $m$ and $n$ range over natural numbers.}
@@ -782,14 +782,14 @@ The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\spc
   \inferrule{
     \{\cvalidT{\Delta}{\spctxv}{\ctau_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \cvalidT{\Delta}{\spctxv}{\aceprod{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+    \cvalidT{\Delta}{\spctxv}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-sum}
   \inferrule{
     \{\cvalidT{\Delta}{\spctxv}{\ctau_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \cvalidT{\Delta}{\spctxv}{\acesum{\mapschema{\ctau}{i}{\labelset}}}{\asum{\mapschema{\tau}{i}{\labelset}}}
+    \cvalidT{\Delta}{\spctxv}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-splicedt}
@@ -867,12 +867,12 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
   \inferrule{
     \{\cvalidEX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \cvalidEX{\acetpl{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\mapschema{e}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+    \cvalidEX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-pr}
   \inferrule{
-    \cvalidEX{\ce}{e}{\aprod{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}}
+    \cvalidEX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }{
     \cvalidEX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
   }
@@ -883,15 +883,15 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
     \cvalidT{\Delta}{\spctxv}{\ctau}{\tau}\\
     \cvalidEX{\ce}{e}{\tau}
   }{
-    \left\{\shortstack{$\Delta~\Gamma \vdash_\Sigma \acein{\ell}{\mapschema{\ctau}{i}{\labelset}\otimes\mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\ell}{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}{e} : \asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
+    \left\{\shortstack{$\Delta~\Gamma \vdash_\Sigma \acein{\labelset, \ell}{\ell}{\mapschema{\ctau}{i}{\labelset}; \mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-case}
   \inferrule{
-    \cvalidEX{\ce}{e}{\asum{\mapschema{\tau}{i}{\labelset}}}\\
+    \cvalidEX{\ce}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
     \{\cvalidE{\Delta}{\Gamma, \Ghyp{x_i}{\tau_i}}{\spctxv}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \cvalidEX{\acecase{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \cvalidEX{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-splicede}
@@ -1066,10 +1066,10 @@ Here, $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the len
 \sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
 \end{align*}
 \begin{align*}
-\sizeof{\autpl{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
+\sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
 \sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auin{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\aucase{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
+\sizeof{\auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
+\sizeof{\aucase{\labelset}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
 \sizeof{\auletsyntax{\tau}{\ueparse}{a}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\autsmap{b}{a}} & = \sizeof{b}
 \end{align*}
@@ -1142,21 +1142,21 @@ If $\cvalidT{\Delta}{\spctx{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ then
 
 \item[\text{(\ref{rule:cvalidT-U-prod})}] We have
 \begin{pfsteps*}
-\item $\ctau=\aceprod{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
-\item $\tau=\aprod{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+\item $\ctau=\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
+\item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
 \item $\{\cvalidT{\Delta}{\spctx{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
 \item $\{\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
-\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\aprod{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-prod}) on \pfref{istype}}
+\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-prod}) on \pfref{istype}}
 \end{pfsteps*}
 \resetpfcounter 
 
 \item[\text{(\ref{rule:cvalidT-U-sum})}] We have
 \begin{pfsteps*}
-\item $\ctau=\acesum{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
-\item $\tau=\asum{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+\item $\ctau=\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
+\item $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
 \item $\{\cvalidT{\Delta}{\spctx{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
 \item $\{\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
-\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\asum{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-sum}) on \pfref{istype}}
+\item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-sum}) on \pfref{istype}}
 \end{pfsteps*}
 \resetpfcounter
 
@@ -1284,8 +1284,8 @@ $\begin{array}{lllllll}
 &&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
 &&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
 &&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
-&&& \aprod{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
+&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
 \mathsf{EExp} & e & ::= & x & x & \text{variable}\\
 &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
 &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
@@ -1293,20 +1293,21 @@ $\begin{array}{lllllll}
 &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
 &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
 &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
-&&& \aetpl{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-&&& \aein{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
-&&& \aematchwith{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
+&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aematchwith{n}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
 \mathsf{ERule} & r & ::= & \aematchrule{n}{p}{\seqschemaX{x}}{e} & \matchrule{p}{e} & \text{rule}\\
 \mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
 &&& \aewildp & \wildp & \text{wildcard pattern}\\
 %&&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
-&&& \aetplp{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
+&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
 &&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}
 \end{array}$
-\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$.]{Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseU$ in Sec. \ref{sec:miniVerseU} without restating them. We write $\seqschemaX{r}$ for sequences of $n > 0$ rules and $\seqschemaX{x}.e$ for expressions binding the sequence of $n > 0$ variables $\seqschemaX{x}$.}
+\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$.]{Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseU$ in Sec. \ref{sec:miniVerseU} without restating them, and assume that all metavariables not redefined here range over the same metatheoretic objects. We write $\seqschemaX{r}$ for sequences of $n \geq 0$ rule arguments and $\seqschemaX{x}.e$ for expressions binding the sequence of $n \geq 0$ variables $\seqschemaX{x}$. There is no notion of substitution within patterns, i.e. variables in patterns do not stand for terms, but rather serve as references to the bindings in the rule that the pattern appears within. The semantics below makes this clear.}
 \label{fig:UP-expanded-terms}
 \end{figure}
+
 
 \subsubsection{Statics of the Inner Core}
 The \emph{statics of the inner core} is specified by judgements of the following form:
@@ -1319,14 +1320,16 @@ The \emph{statics of the inner core} is specified by judgements of the following
 \patType{\pctx}{p}{\tau} & \text{$p$ matches values of type $\tau$ and generates hypotheses $\pctx$} 
 \end{array}\]
 
-The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by Rules (\ref{rules:istypeU}). The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions and is inductively defined by Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-in}) extended with the following rule for match expressions: 
+The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by Rules (\ref{rules:istypeU}). The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions and is inductively defined by Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-in}) extended with the following rule for match expressions (collectively, we will refer to these as Rules (\ref{rules:hastypeUP})): 
+\begin{subequations}\label{rules:hastypeUP}
 \begin{equation}\label{rule:hastypeUP-match}
 \inferrule{
   \hastypeU{\Delta}{\Gamma}{e}{\tau}\\
   \{\ruleType{\Delta}{\Gamma}{r_i}{\tau}{\tau'}\}_{1 \leq i < n}
-}{\hastypeU{\Delta}{\Gamma}{\aematchwith{e}{\seqschemaX{r}}}{\tau'}}
+}{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation}  
-The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise then ensures that each rule $r_i$ takes values of type $\tau$ to values of the type assigned to the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with the typing rules by the following rule:
+\end{subequations}
+The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise then ensures that each rule $r_i$ takes values of type $\tau$ to values of the type assigned to the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
 \begin{equation}\label{rule:ruleType}
 \inferrule{
   \patType{\pctx}{p}{\tau}\\
@@ -1351,29 +1354,109 @@ The pattern typing judgement is inductively defined by the following rules:
   \{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
   \cap_{i \in \labelset} \domof{\pctx_i} = \emptyset
 }{
-  \patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\mapschema{p}{i}{\labelset}}}{\aprod{\mapschema{\tau}{i}{\labelset}}}
+  \patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 }
 \end{equation}
 \begin{equation}\label{rule:patType-inj}
 \inferrule{
   \patType{\pctx}{p}{\tau}
 }{
-  \patType{\pctx}{\aeinjp{\ell}{p}}{\asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}}
+  \patType{\pctx}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 }
 \end{equation}
 \end{subequations}
 
-Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, can match values of any type, $\tau$, and generates the hypothesis assigning $x$ the type $\tau$. 
+Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, can match values of any type, $\tau$, and generates the hypothesis that $x$ has the type $\tau$. 
 
-Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern can also match values of any type, $\tau$, but it generates no hypotheses. 
+Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern can also match values of any type, $\tau$, but wildcard patterns generate no hypotheses. 
 
-Labeled tuple patterns, $\aetplp{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern of this form matches values of the labeled product type $\aprod{\mapschema{\tau}{i}{\labelset}}$. Each subpattern $p_i$ is checked against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The rule then ensures that the subpatterns bind distinct variables by checking that the domains of the pattern typing contexts $\pctx_i$ are disjoint. The hypotheses generated in the conclusion of the rule is then the union of the hypotheses $\pctx_i$.
+Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern of this form matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. Each subpattern $p_i$ is checked against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The rule then ensures that the subpatterns bind distinct variables by checking that the domains of the generated pattern typing contexts $\pctx_i$ are disjoint. The hypotheses generated in the conclusion of the rule are the union of the hypotheses $\pctx_i$.
 
-Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the form $\asum{\mapschema{\tau}{i}{\labelset}\otimes\mapitem{\ell}{\tau}}$, i.e. labeled sum types that specify a case for $\ell$. Rule (\ref{rule:patType-inj}) checks the subpattern $p$ against the corresponding type $\tau$, and passes along exactly those assumptions that $p$ generates.
+Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that specify a case for $\ell$. Rule (\ref{rule:patType-inj}) checks the subpattern $p$ against the corresponding type $\tau$, and passes through the assumptions that $p$ generates.
 
-\item The second premise of Rule (\ref{rule:ruleType}) ensures that the pattern has generated hypotheses for all of the the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for a rule, $\matchrule{p}{e}$, the bound variables are, implicitly, exactly those found in the pattern.% The bindings for $e$ would be extracted from the pattern implicitly. 
+\item The second premise of Rule (\ref{rule:ruleType}) ensures that the pattern has generated hypotheses for all of the the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for rules, $\matchrule{p}{e}$, the variables bound in $e$ are, implicitly, exactly those mentioned in the pattern.% The bindings for $e$ would be extracted from the pattern implicitly. 
 \item The final premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.
 \end{enumerate}
+
+The rules above validate the following standard lemmas.
+
+The Weakening Lemma expresses the intuition that extending a typing or type formation contxt with unused variables preserves well-formedness, typing and rule typing.
+\begin{lemma}[Weakening]\label{lemma:weakening-UP} All of the following hold: 
+\begin{enumerate} 
+\item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
+%\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
+\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau'}$.
+\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau''}$ then $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau''}}{r}{\tau}{\tau'}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch}
+\begin{enumerate}
+\item By rule induction on Rules (\ref{rules:istypeU}).
+%\item By rule induction on Rules (\ref{rules:isctxU}).
+\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction on Rule (\ref{rule:ruleType}) and Rules (\ref{rules:hastypeUP}).
+\item By mutual rule induction on Rule (\ref{rule:ruleType}) and Rules (\ref{rules:hastypeUP}).
+\end{enumerate}
+\end{proof-sketch}
+
+The Substitution Lemma expresses the intuition that substitution of a type for a type variable, or an expression of the appropriate type for an expression variable, preserves well-formedness, typing and rule typing.
+\begin{lemma}[Substitution]\label{lemma:substitution-UP} All of the following hold:
+\begin{enumerate}
+\item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
+%\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
+\item If $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
+\item If $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau''}$ then $\ruleType{\Delta}{[\tau''/t]\Gamma}{[\tau''/t]r}{[\tau''/t]\tau}{[\tau''/t]\tau'}$.
+\item If $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau''}}{r}{\tau}{\tau'}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau''}$ then $\ruleType{\Delta}{\Gamma}{[e/x]r}{\tau}{\tau'}$.
+\end{enumerate}\end{lemma}
+\begin{proof-sketch}
+\begin{enumerate}
+\item By rule induction on Rules (\ref{rules:istypeU}).
+\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction on Rule (\ref{rule:ruleType}) and Rules (\ref{rules:hastypeUP}).
+\item By mutual rule induction on Rule (\ref{rule:ruleType}) and Rules (\ref{rules:hastypeUP}).
+\end{enumerate}
+\end{proof-sketch}
+
+The Decomposition Lemma is the converse of the Substitution Lemma.
+\begin{lemma}[Decomposition]\label{lemma:decomposition-UP} All of the following hold:
+\begin{enumerate}
+\item If $\istypeU{\Delta}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
+%\item If $\isctxU{\Delta}{[\tau'/t]\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+\item If $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
+\item If $\ruleType{\Delta}{[\tau''/t]\Gamma}{[\tau''/t]r}{[\tau''/t]\tau}{[\tau''/t]\tau'}$ and $\istypeU{\Delta}{\tau''}$ then $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau'}$.
+\item If $\ruleType{\Delta}{\Gamma}{[e/x]r}{\tau}{\tau'}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau''}$ then $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau''}}{r}{\tau}{\tau'}$.
+\end{enumerate}\end{lemma}
+\begin{proof-sketch}
+\begin{enumerate}
+\item Type formation of $[\tau'/t]\tau$ does not depend on the structure of $\tau'$.
+%\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
+\item The derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ does not depend on the structure of $\tau'$.
+\item Typing of $[e'/x]e$ depends only on the type of $e'$ wherever it occurs, if at all.
+\item The derivation of $\ruleType{\Delta}{[\tau''/t]\Gamma}{[\tau''/t]r}{[\tau''/t]\tau}{[\tau''/t]\tau'}$ does not depend on the structure of $\tau'$.
+\item Typing of $[e/x]r$ depends only on the type of $e$ wherever it occurs, if at all.
+\end{enumerate}
+\end{proof-sketch}
+
+The Regularity Lemma expresses the intuition that the type assigned to an expression under a well-formed typing context is well-formed. 
+\begin{lemma}[Regularity]\label{lemma:regularity-UP} All of the following hold:
+\begin{enumerate}
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau}$.
+\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau'}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch}
+\begin{enumerate}
+\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+ and Lemma \ref{lemma:substitution-UP}.
+\item By mutual rule induction on Rule (\ref{rule:ruleType}) and Rules (\ref{rules:hastypeUP}).
+\end{enumerate}
+\end{proof-sketch}
 \subsubsection{Dynamics of $\miniVersePat$}
 The \emph{dynamics of }$\miniVersePat$ is specified as a structural dynamics (a.k.a. structural operational semantics) by judgements of the following form:
 \[\begin{array}{ll}
@@ -1395,8 +1478,8 @@ The Canonical Forms condition characterizes well-typed values. We assume an \emp
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
 \item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
 \item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$. 
-\item If $\tau=\aprod{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$.
-\item If $\tau=\asum{\mapschema{\tau}{i}{\labelset}}$ then $e=\aein{\ell}{\mapschema{\tau}{i}{\labelset\setminus \ell} \otimes \ell \hookrightarrow \tau'}{e'}$ and $\ell \in \labelset$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
+\item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and for each $i \in \labelset$ we have that $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$.
+\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset\setminus \ell} \otimes \ell \hookrightarrow \tau'}{e'}$ and $\ell \in \labelset$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
 \end{enumerate}\end{condition}
 
 We also require that the statics and dynamics be coherent. This is expressed in the standard way by Preservation and Progress conditions (together, these constitute the {Type Safety} Condition). 
