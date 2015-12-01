@@ -615,7 +615,7 @@ The typed expansion judgement is inductively defined by the following rules:
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
   \decodeCondE{\ecand}{\ce}\\\\
-  \cvalidE{\emptyset}{\emptyset}{\sceneU{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
+  \cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
 }{
   \expandsU{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\autsmap{b}{a}}{e}{\tau}
 }
@@ -750,56 +750,57 @@ $\begin{array}{lllllll}
 The \emph{candidate expansion validation judgements} validate candidate expansion types, $\ctau$, and candidate expansion expressions, $\ce$, and simultaneously generate their final expansions.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\escenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ expands to $\tau$ under $\Delta$ and }\\
-& \text{splicing scene $\escenev$.}\\
+\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ expands to $\tau$ assuming $\Delta$ and }\\
+& \text{type splicing scene $\tscenev$.}\\
 \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{Candidate expansion expression $\ce$ expands to $e$ at type $\tau$}\\
-& \text{under $\Delta$, $\Gamma$ and splicing scene $\escenev$.}
+& \text{assuming $\Delta$ and $\Gamma$ and with expression splicing scene $\escenev$.}
 \end{array}\]
-\emph{Splicing scenes}, $\escenev$, are of the form $\Delta; \Gamma; \Sigma; b$. They consist of the type formation context, $\Delta$, the typing context, $\Gamma$, the ueTSM environment, $\Sigma$, and the literal body, $b$, from the ueTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})).
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneU{\Delta}{\Gamma}{\Sigma}{b}$. They consist of the type formation context, $\Delta$, the typing context, $\Gamma$, the ueTSM environment, $\Sigma$, and the literal body, $b$, from the ueTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})). \emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneU{\Delta}{b}$. We write $\tsfrom{\escenev}$ for the type splicing scene constructed from $\escenev$:
+\[\tsfrom{\esceneU{\Delta}{\Gamma}{\Sigma}{b}} = \tsceneU{\Delta}{b}\]
 
 \subsubsection{Candidate Expansion Type Validation}
 
-The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\escenev}{\ctau}{\tau}$, is inductively defined by the following rules:
+The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by the following rules:
 \begin{subequations}\label{rules:cvalidT-U}
 \begin{equation}\label{rule:cvalidT-U-tvar}
 \inferrule{ }{
-  \cvalidT{\Delta, \Dhyp{t}}{\escenev}{t}{t}
+  \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{t}{t}
 }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-parr}
   \inferrule{
-    \cvalidT{\Delta}{\escenev}{\ctau_1}{\tau_1}\\
-    \cvalidT{\Delta}{\escenev}{\ctau_2}{\tau_2}
+    \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau_1}\\
+    \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau_2}
   }{
-    \cvalidT{\Delta}{\escenev}{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}
+    \cvalidT{\Delta}{\tscenev}{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-all}
   \inferrule {
-    \cvalidT{\Delta, \Dhyp{t}}{\escenev}{\ctau}{\tau}
+    \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
   }{
-    \cvalidT{\Delta}{\escenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
+    \cvalidT{\Delta}{\tscenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-rec}
   \inferrule{
-    \cvalidT{\Delta, \Dhyp{t}}{\escenev}{\ctau}{\tau}
+    \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
   }{
-    \cvalidT{\Delta}{\escenev}{\acerec{t}{\ctau}}{\arec{t}{\tau}}
+    \cvalidT{\Delta}{\tscenev}{\acerec{t}{\ctau}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-prod}
   \inferrule{
-    \{\cvalidT{\Delta}{\escenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
+    \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \cvalidT{\Delta}{\escenev}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+    \cvalidT{\Delta}{\tscenev}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-sum}
   \inferrule{
-    \{\cvalidT{\Delta}{\escenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
+    \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
   }{
-    \cvalidT{\Delta}{\escenev}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+    \cvalidT{\Delta}{\tscenev}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidT-U-splicedt}
@@ -808,7 +809,7 @@ The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\esc
     \Delta \cap \Delta_S = \emptyset\\
     \istypeU{\Delta_S}{\tau}
   }{
-    \cvalidT{\Delta}{\sceneU{\Gamma_S}{\Delta_S}{\Sigma_S}{b}}{\acesplicedt{m}{n}}{\tau}
+    \cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\acesplicedt{m}{n}}{\tau}
   }
 \end{equation}
 \end{subequations}
@@ -817,7 +818,7 @@ Each form of type, $\tau$, corresponds to a form of candidate expansion type, $\
 
 The only form of candidate expansion type that does not correspond to a form of type is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced type}, i.e. it indicates that a type should be parsed out from the literal body, $b$, beginning at position $m$ and ending at position $n$. Rule (\ref{rule:cvalidT-U-splicedt}) governs this form. The first premise extracts the indicated subsequence of $b$ (using the metafunction $\bsubseq{b}{m}{n}$) and parses it (using the metafunction $\mathsf{parseTyp}(b)$) to produce the spliced type, $\tau$. We assume sensible definitions of these metafunctions.
 
- The third premise of Rule (\ref{rule:cvalidT-U-splicedt}) checks that $\tau$ is well-formed under the application site type formation context, $\Delta_S$. The second premise requires that the expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_S$. This can always be achieved by alpha-varying the candidate expansion type that the reference to the spliced type appears within. Such a change in bound variable names cannot ``leak into'' spliced types because the hypotheses in $\Delta$ are not made available to the spliced type $\tau$. This is necessary to achieve the \emph{expansion independent splicing} property described in Sec. \ref{sec:splicing-and-hygiene} for type variables. Rule (\ref{rule:cvalidT-U-splicedt}) is the only rule where $\Delta_S$ appears. This is necessary to achieve the \emph{context independent expansion} property described in Sec. \ref{sec:splicing-and-hygiene} for type variables.
+ The third premise of Rule (\ref{rule:cvalidT-U-splicedt}) checks that $\tau$ is well-formed under the application site type formation context, $\Delta_S$. The second premise requires that the expansion's type formation context, $\Delta$, be disjoint from the application site type formation context. This can always be achieved by alpha-varying the candidate expansion type that the reference to the spliced type appears within. Such a change in bound variable names cannot ``leak into'' spliced types because the hypotheses in $\Delta$ are not made available to the spliced type $\tau$. This is necessary to achieve the \emph{expansion independent splicing} property described in Sec. \ref{sec:splicing-and-hygiene} for type variables. Rule (\ref{rule:cvalidT-U-splicedt}) is the only rule where $\Delta_S$ appears. This is necessary to achieve the \emph{context independent expansion} property described in Sec. \ref{sec:splicing-and-hygiene} for type variables.
 
 \subsubsection{Candidate Expansion Expression Validation}
 The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, is defined mutually inductively with Rules (\ref{rules:expandsU}) by the following rules. This is necessary because a typed expansion judgement appears as a premise in Rule (\ref{rule:cvalidE-U-splicede}) below, and a candidate expansion expression validation judgement appears as a premise in Rule (\ref{rule:expandsU-tsmap}) above.
@@ -829,7 +830,7 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-lam}
 \inferrule{
-  \cvalidT{\Delta}{\escenev}{\ctau}{\tau}\\
+  \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce}{e}{\tau'}
 }{
   \cvalidE{\Delta}{\Gamma}{\escenev}{\acelam{\ctau}{x}{\ce}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
@@ -853,7 +854,7 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
 \begin{equation}\label{rule:cvalidE-U-tap}
   \inferrule{
     \cvalidEX{\ce}{e}{\aall{t}{\tau}}\\
-    \cvalidT{\Delta}{\escenev}{\ctau'}{\tau'}
+    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}
   }{
     \cvalidEX{\acetap{\ce}{\ctau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
   }
@@ -889,8 +890,8 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-in}
   \inferrule{
-    \{\cvalidT{\Delta}{\escenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}\\
-    \cvalidT{\Delta}{\escenev}{\ctau}{\tau}\\
+    \{\cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau_i}{\tau_i}\}_{i \in \labelset}\\
+    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
     \cvalidEX{\ce}{e}{\tau}
   }{
     \left\{\shortstack{$\Delta~\Gamma \vdash_\Sigma \acein{\labelset, \ell}{\ell}{\mapschema{\ctau}{i}{\labelset}; \mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
@@ -911,7 +912,7 @@ The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta
   \domof{\Gamma} \cap \domof{\Gamma_S} = \emptyset\\
   \expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}
 }{
-  \cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}
+  \cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}
 }
 \end{equation}
 \end{subequations}
@@ -993,7 +994,7 @@ By rule induction over Rules (\ref{rules:expandsU}).
   \item \encodeBody{b}{\ebody} \BY{assumption}
   \item \evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}} \BY{assumption}
   \item \decodeCondE{\ecand}{\ce} \BY{assumption}
-  \item \cvalidE{\emptyset}{\emptyset}{\sceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
+  \item \cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
   \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
   \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{Theorem \ref{thm:candidate-expansion-validation-U} on \pfref{cvalidE} and \pfref{uetsmenv}}
 \end{pfsteps}
@@ -1002,7 +1003,7 @@ By rule induction over Rules (\ref{rules:expandsU}).
 \end{proof}
 We need to define the following theorem about candidate expansion expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
 \begin{theorem}[Candidate Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
-If $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_S}{\Sigma_S}$ then $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$.
+If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_S}{\Sigma_S}$ then $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$.
 \end{theorem}
 \begin{proof} By rule induction over Rules (\ref{rules:cvalidE-U}).
 \begin{byCases}
@@ -1021,8 +1022,8 @@ If $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\
   \item $\ce=\acelam{\ctau_1}{x}{\ce'}$ \BY{assumption}
   \item $e=\aelam{\tau_1}{x}{e'}$ \BY{assumption}
   \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
-  \item $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
-  \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
+  \item $\cvalidT{\Delta}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
+  \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_1}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_S}}{e'}{\tau_2}$ \BY{IH on \pfref{cvalidE} and \pfref{uetsmenv}} \pflabel{hastype1}
@@ -1035,8 +1036,8 @@ If $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\
 \begin{pfsteps*}
   \item $\ce=\aceap{\ce_1}{\ce_2}$ \BY{assumption}
   \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
-  \item $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_1}{e_1}{\aparr{\tau_1}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
-  \item $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_2}{e_2}{\tau_1}$ \BY{assumption} \pflabel{cvalidE2}
+  \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_1}{e_1}{\aparr{\tau_1}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
+  \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_2}{e_2}{\tau_1}$ \BY{assumption} \pflabel{cvalidE2}
   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e_1}{\aparr{\tau_1}{\tau}}$ \BY{IH on \pfref{cvalidE1} and \pfref{uetsmenv}} \pflabel{hastypeU1}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e_2}{\tau_1}$ \BY{IH on \pfref{cvalidE2} and \pfref{uetsmenv}} \pflabel{hastypeU2}
@@ -1063,7 +1064,7 @@ If $\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\
 The mutual induction used to prove Theorems \ref{thm:typed-expansion-U} and \ref{thm:candidate-expansion-validation-U} can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
 \begin{align*}
 \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
+\sizeof{\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 \end{align*}
 Here, $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the literal bodies in $\ue$, i.e. 
 \begin{align*}
@@ -1084,10 +1085,10 @@ Here, $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the len
 \sizeof{\autsmap{b}{a}} & = \sizeof{b}
 \end{align*}
 
-The only case in the proof of Theorem \ref{thm:typed-expansion-U} that invokes Theorem \ref{thm:candidate-expansion-validation-U} is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \[\sizeof{\cvalidE{\emptyset}{\emptyset}{\sceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau}} = \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\autsmap{b}{a}}{e}{\tau}}=\sizeof{b}\]
+The only case in the proof of Theorem \ref{thm:typed-expansion-U} that invokes Theorem \ref{thm:candidate-expansion-validation-U} is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \[\sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau}} = \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\autsmap{b}{a}}{e}{\tau}}=\sizeof{b}\]
 
 The only case in the proof of Theorem \ref{thm:candidate-expansion-validation-U} that invokes Theorem \ref{thm:typed-expansion-U} is Case (\ref{rule:cvalidE-U-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and Theorem \ref{thm:typed-expansion-U} is invoked on the judgement $\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}$. Because the metric is stable when passing from Theorem \ref{thm:typed-expansion-U} to Theorem \ref{thm:candidate-expansion-validation-U}, we must have that it is strictly decreasing in the other direction:
-\[\sizeof{\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
+\[\sizeof{\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
 
@@ -1102,7 +1103,7 @@ Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-p
 
 Finally, the proof of Theorem \ref{thm:candidate-expansion-validation-U} invokes the following lemma about candidate expansion type validation.
 \begin{lemma}[Candidate Expansion Type Validation]\label{lemma:candidate-expansion-type-validation}
-If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ then $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau}$.
+If $\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau}{\tau}$ then $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau}$.
 \end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:cvalidT-U}).
 \begin{byCases}
@@ -1120,8 +1121,8 @@ If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ the
 \begin{pfsteps*}
   \item $\ctau=\aceparr{\ctau_1}{\ctau_2}$ \BY{assumption}
   \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
-  \item $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalid-ctau1}
-  \item $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_2}{\tau_2}$ \BY{assumption} \pflabel{cvalid-ctau2}
+  \item $\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalid-ctau1}
+  \item $\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau_2}{\tau_2}$ \BY{assumption} \pflabel{cvalid-ctau2}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_1}$ \BY{IH on \pfref{cvalid-ctau1}} \pflabel{istype1}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_2}$ \BY{IH on \pfref{cvalid-ctau2}} \pflabel{istype2}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:istypeU-parr}) on \pfref{istype1} and \pfref{istype2}}
@@ -1132,7 +1133,7 @@ If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ the
 \begin{pfsteps*}
   \item $\ctau=\aceall{t}{\ctau'}$ \BY{assumption}
   \item $\tau=\aall{t}{\tau'}$ \BY{assumption}
-  \item $\cvalidT{\Delta, \Dhyp{t}}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
+  \item $\cvalidT{\Delta, \Dhyp{t}}{\tsceneU{\Delta_S}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
   \item $\istypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_S}}{\tau'}$ \BY{IH on \pfref{cvalidT}} \pflabel{istypeU1}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}, \Dhyp{t}}{\tau'}$ \BY{exchange over $\Delta_S$ on \pfref{istypeU1}} \pflabel{istypeU2}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\aall{t}{\tau'}}$ \BY{Rule (\ref{rule:istypeU-all}) on \pfref{istypeU2}}
@@ -1143,7 +1144,7 @@ If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ the
 \begin{pfsteps*}
   \item $\ctau=\acerec{t}{\ctau'}$ \BY{assumption}
   \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
-  \item $\cvalidT{\Delta, \Dhyp{t}}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
+  \item $\cvalidT{\Delta, \Dhyp{t}}{\tsceneU{\Delta_S}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
   \item $\istypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_S}}{\tau'}$ \BY{IH on \pfref{cvalidT}} \pflabel{istypeU1}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}, \Dhyp{t}}{\tau'}$ \BY{exchange over $\Delta_S$ on \pfref{istypeU1}} \pflabel{istypeU2}
   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:istypeU-rec}) on \pfref{istypeU2}}
@@ -1154,7 +1155,7 @@ If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ the
 \begin{pfsteps*}
 \item $\ctau=\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
 \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-\item $\{\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
+\item $\{\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
 \item $\{\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
 \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-prod}) on \pfref{istype}}
 \end{pfsteps*}
@@ -1164,7 +1165,7 @@ If $\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau}{\tau}$ the
 \begin{pfsteps*}
 \item $\ctau=\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
 \item $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-\item $\{\cvalidT{\Delta}{\sceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
+\item $\{\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
 \item $\{\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
 \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-sum}) on \pfref{istype}}
 \end{pfsteps*}
@@ -1583,7 +1584,6 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Si
 \caption[Syntax of unexpanded expressions, rules and patterns in $\miniVersePat$.]{Abstract syntax of unexpanded expressions, rules and patterns in $\miniVersePat$. Metavariable $\tsmv$ ranges over TSM names and $b$ ranges over literal bodies. Literal bodies might contain unparsed terms, so variable renaming and substitution cannot be defined in the usual manner over unexpanded terms (i.e. they should be thought of as partially parsed abstract syntax trees, not abstract binding trees.)}
 \label{fig:UP-unexpanded-terms}
 \end{figure}
-
 \begin{subequations}\label{rules:expandsUP}
 \begin{equation}\label{rule:expandsUP-var}
   \inferrule{ }{\expandsUP{\Delta}{\Gamma, x : \tau}{\Sigma}{\Phi}{x}{x}{\tau}}
@@ -1676,7 +1676,7 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Si
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
   \decodeCondE{\ecand}{\ce}\\\\
-  \cvalidE{\emptyset}{\emptyset}{\sceneUP{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\Phi}{b}}{\ce}{e}{\tau}
+  \cvalidE{\emptyset}{\emptyset}{\esceneUP{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\Phi}{b}}{\ce}{e}{\tau}
 }{
   \expandsUP{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\Phi}{\autsmap{b}{a}}{e}{\tau}
 }
@@ -1887,10 +1887,15 @@ The syntax of candidate expansion types, expressions, rules and patterns is spec
 The \emph{candidate expansion validation judgements} validate candidate expansion types, $\ctau$, and candidate expansion expressions, $\ce$, and simultaneously generate their final expansions.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\escenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ expands to $\tau$ under $\Delta$ and }\\
-& \text{splicing scene $\escenev$.}\\
+\cvalidT{\Delta}{\escenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ expands to $\tau$ assuming $\Delta$ and }\\
+& \text{with expression splicing scene $\escenev$.}\\
 \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{Candidate expansion expression $\ce$ expands to $e$ at type $\tau$}\\
-& \text{under $\Delta$, $\Gamma$ and splicing scene $\escenev$.}
+& \text{assuming $\Delta$ and $\Gamma$ and with expression splicing scene $\escenev$.}\\
+\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{Candidate expansion rule $\crv$ expands to $r$ taking values of}\\
+& \text{type $\tau$ to values of type $\tau'$ assuming $\Delta$ and $\Gamma$ and with}\\
+& \text{expression splicing scene $\escenev$.}\\
+\cvalidP{\pscenev}{\cpv}{p}{\tau} & \text{Candidate expansion pattern $\cpv$ expands to $p$ at type $\tau$}\\
+& \text{with pattern splicing scene $\pscenev$.}
 \end{array}\]
 \emph{Splicing scenes}, $\escenev$, are of the form $\Delta; \Gamma; \Sigma; b$. They consist of the type formation context, $\Delta$, the typing context, $\Gamma$, the ueTSM environment, $\Sigma$, and the literal body, $b$, from the ueTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})).
 

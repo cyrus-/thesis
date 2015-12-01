@@ -179,9 +179,13 @@
 \newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 \newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
 \newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
-\newcommand{\escenev}{\mathcal{S}}
-\newcommand{\sceneU}[4]{#1;\,#2;\,#3;\,#4}
-\newcommand{\sceneUP}[5]{#1;\,#2;\,#3;\,#4;\,#5}
+\newcommand{\escenev}{\mathbbmss{E}}
+\newcommand{\tscenev}{\mathbbmss{T}}
+\newcommand{\esceneU}[4]{#1;\,#2;\,#3;\,#4}
+\newcommand{\esceneUP}[5]{#1;\,#2;\,#3;\,#4;\,#5}
+\newcommand{\tsceneU}[2]{#1;\,#2}
+\newcommand{\tsceneUP}[2]{\tsceneU{#1}{#2}}
+\newcommand{\tsfrom}[1]{\mathsf{ts}(#1)}
 \newcommand{\parseTyp}[2]{\mathsf{parseTyp}(#1)=#2}
 \newcommand{\parseUExp}[2]{\mathsf{parseUExp}(#1)=#2}
 \newcommand{\bsubseq}[3]{\mathsf{subseq}(#1; #2; #3)}
@@ -256,5 +260,6 @@
 \newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{CEPat} #2}
 
 \newcommand{\cvalidP}[4]{\vdash^{#1} #2 \leadsto #3 : #4}
-\newcommand{\pscenev}{\mathcal{P}}
+\newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Rightarrow #7}
+\newcommand{\pscenev}{\mathbbmss{P}}
 \newcommand{\pscene}[3]{#1;\,#2;\,#3}
