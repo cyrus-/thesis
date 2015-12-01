@@ -6,8 +6,8 @@
 \newcommand{\elided}{{\color{gray}\cdots}}
 
 % Calculi Names
-\newcommand{\miniVerseU}{\mathsf{miniVerse}_\textbf{U}}
-\newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{UP}}
+\newcommand{\miniVerseUE}{\mathsf{miniVerse}_\textbf{UE}}
+\newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{U}}
 \newcommand{\miniVerseParam}{\mathsf{miniVerse}_\mathbf{\forall}}
 \newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
 
@@ -131,10 +131,10 @@
 
 % Unexpanded expressions
 \newcommand{\ue}{\hat{e}}
-\newcommand{\uletsyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
-\newcommand{\auletsyntax}[4]{\abopcc{usyntax}{#1}{#2}{#3.#4}}
+\newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
+\newcommand{\audefuetsm}[4]{\abopcc{udefuetsm}{#1}{#2}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
-\newcommand{\autsmap}[2]{\texttt{utsmap}[#1]\texttt{[}#2\texttt{]}}
+\newcommand{\autsmap}[2]{\texttt{uapuetsm}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
 \newcommand{\ueparse}{\uet{parse}}
 
@@ -144,14 +144,15 @@
 \newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
 
 \newcommand{\tBody}{\mathtt{Body}}
-\newcommand{\tParseResultExp}{\mathtt{ParseResultExp}} \newcommand{\tCEExp}{\mathtt{CEExp}} % Typed expansion
+\newcommand{\tParseResultExp}{\mathtt{ParseResultExp}} 
+\newcommand{\tCEExp}{\mathtt{CEExp}} % Typed expansion
 \newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6} % there's a multiline one in the document done manually
 \newcommand{\expandsUX}[3]{\expandsU{\Delta}{\Gamma}{\Sigma}{#1}{#2}{#3}}
 \newcommand{\expandsUC}[3]{\vdash #1 \leadsto #2 : #3}
 \newcommand{\domof}[1]{\text{dom}(#1)}
-\newcommand{\xtsmdef}[2]{\abop{syntax}{#1;\,#2}}
-\newcommand{\tsmenvbnd}[3]{#1 \hookrightarrow \xtsmdef{#2}{#3}}
-\newcommand{\macenvOK}[2]{#1 \vdash #2~\mathsf{menv}}
+\newcommand{\xuetsmdef}[2]{\abop{uetsm}{#1;\,#2}}
+\newcommand{\xuetsmbnd}[3]{#1 \hookrightarrow \xuetsmdef{#2}{#3}}
+\newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{ok}}
 \newcommand{\encodeBody}[2]{#1 \downarrow #2}
 \newcommand{\decodeBody}[2]{#1 \uparrow #2}
 \newcommand{\ebody}{\etxt{body}}
@@ -175,9 +176,10 @@
 % Candidate expansion validation
 \newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 \newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
-\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\spctxv}{#1}{#2}{#3}}
-\newcommand{\spctxv}{\mathcal{S}}
-\newcommand{\spctx}[4]{#1; #2; #3; #4}
+\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
+\newcommand{\escenev}{\mathcal{S}}
+\newcommand{\sceneU}[4]{#1;\,#2;\,#3;\,#4}
+\newcommand{\sceneUP}[5]{#1;\,#2;\,#3;\,#4;\,#5}
 \newcommand{\parseTyp}[2]{\mathsf{parseTyp}(#1)=#2}
 \newcommand{\parseUExp}[2]{\mathsf{parseUExp}(#1)=#2}
 \newcommand{\bsubseq}[3]{\mathsf{subseq}(#1; #2; #3)}
@@ -191,10 +193,13 @@
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
 \newcommand{\aematchrule}[4]{\abopii{erule}{#1}{#2}{#3.#4}}
+\newcommand{\aumatchrule}[4]{\abopii{urule}{#1}{#2}{#3.#4}}
 
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
 \newcommand{\pctx}{\Omega}
+
+\newcommand{\matchfail}[1]{#1~\mathsf{matchfail}}
 
 \newcommand{\eR}{R}
 \newcommand{\uR}{\hat{R}}
@@ -210,12 +215,38 @@
 
 \newcommand{\wildp}{\_}
 \newcommand{\aewildp}{\texttt{ewildp}}
+\newcommand{\auwildp}{\texttt{uwildp}}
 
 \newcommand{\foldp}[1]{\abop{fold}{#1}}
 \newcommand{\aefoldp}[1]{\abop{efoldp}{#1}}
+\newcommand{\aufoldp}[1]{\abop{ufoldp}{#1}}
 
 \newcommand{\tplp}[1]{\langle #1 \rangle}
 \newcommand{\aetplp}[2]{\abopi{etplp}{#1}{#2}}
+\newcommand{\autplp}[2]{\abopi{utplp}{#1}{#2}}
 
 \newcommand{\injp}[2]{#1 \cdot #2}
 \newcommand{\aeinjp}[2]{\abopp{einp}{#1}{#2}}
+\newcommand{\auinjp}[2]{\abopp{uinp}{#1}{#2}}
+
+\newcommand{\audefuptsm}[4]{\abopcc{udefuptsm}{#1}{#2}{#3.#4}}
+\newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
+
+\newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
+\newcommand{\expandsUPX}[3]{\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{#1}{#2}{#3}}
+
+\newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Rightarrow #8}
+\newcommand{\patExpands}[5]{#1 \vdash_{#2} #3 \leadsto #4 : #5}
+\newcommand{\xuptsmdef}[2]{\abop{uptsm}{#1;\,#2}}
+\newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
+\newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{ok}}
+
+\newcommand{\tParseResultPat}{\mathtt{ParseResultPat}} 
+\newcommand{\tCEPat}{\mathtt{CEPat}} % Typed expansion
+
+\newcommand{\decodeCEPat}[2]{#1 \uparrow_\mathsf{CEPat} #2}
+\newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{CEPat} #2}
+
+\newcommand{\cvalidP}[4]{\vdash^{#1} #2 \leadsto #3 : #4}
+\newcommand{\pscenev}{\mathcal{P}}
+\newcommand{\pscene}[3]{#1;\,#2;\,#3}
