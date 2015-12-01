@@ -169,6 +169,8 @@
 \newcommand{\acesplicedt}[2]{\texttt{cesplicedt}[#1; #2]}
 \newcommand{\splicede}[2]{\texttt{spliced}\langle#1, #2\rangle}
 \newcommand{\acesplicede}[2]{\texttt{cesplicede}[#1; #2]}
+\newcommand{\splicedp}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\acesplicedp}[2]{\texttt{cesplicedp}[#1; #2]}
 
 \newcommand{\mtau}{\dot{\tau}}
 \newcommand{\mtspliced}[1]{\texttt{spliced}(#1)}
@@ -190,10 +192,12 @@
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
 \newcommand{\aematchwith}[3]{\abopi{ematch}{#1}{#2; #3}}
 \newcommand{\aumatchwith}[3]{\abopi{umatch}{#1}{#2; #3}}
+\newcommand{\acematchwith}[3]{\abopi{cematch}{#1}{#2; #3}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
 \newcommand{\aematchrule}[4]{\abopii{erule}{#1}{#2}{#3.#4}}
 \newcommand{\aumatchrule}[4]{\abopii{urule}{#1}{#2}{#3.#4}}
+\newcommand{\acematchrule}[4]{\abopii{cerule}{#1}{#2}{#3.#4}}
 
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
@@ -216,18 +220,22 @@
 \newcommand{\wildp}{\_}
 \newcommand{\aewildp}{\texttt{ewildp}}
 \newcommand{\auwildp}{\texttt{uwildp}}
+\newcommand{\acewildp}{\texttt{cewildp}}
 
 \newcommand{\foldp}[1]{\abop{fold}{#1}}
 \newcommand{\aefoldp}[1]{\abop{efoldp}{#1}}
 \newcommand{\aufoldp}[1]{\abop{ufoldp}{#1}}
+\newcommand{\acefoldp}[1]{\abop{cefoldp}{#1}}
 
 \newcommand{\tplp}[1]{\langle #1 \rangle}
 \newcommand{\aetplp}[2]{\abopi{etplp}{#1}{#2}}
 \newcommand{\autplp}[2]{\abopi{utplp}{#1}{#2}}
+\newcommand{\acetplp}[2]{\abopi{cetplp}{#1}{#2}}
 
 \newcommand{\injp}[2]{#1 \cdot #2}
 \newcommand{\aeinjp}[2]{\abopp{einp}{#1}{#2}}
 \newcommand{\auinjp}[2]{\abopp{uinp}{#1}{#2}}
+\newcommand{\aceinjp}[2]{\abopp{ceinp}{#1}{#2}}
 
 \newcommand{\audefuptsm}[4]{\abopcc{udefuptsm}{#1}{#2}{#3.#4}}
 \newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
