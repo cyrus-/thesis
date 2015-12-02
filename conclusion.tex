@@ -117,7 +117,9 @@ end
 If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. In VerseML, expansion validation occurs assuming the type equalities that are known at the definition site, to avoid this problem.  
 
 \subsection{TSMs and TSLs In Candidate Expansions}\label{sec:tsms-in-expansions}
-\todo{write this}
+
+
+Candidate expansions cannot themselves define or apply TSMs. This simplifies our metatheory, though it can be inconvenient at times for TSM providers. We discuss adding the ability to use TSMs within candidate expansions here.\todo{write this}
 
 \subsection{Pattern Matching Over Values of Abstract Type}\label{sec:patterns-for-abstract-types}
 ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, %shown in Sec. \ref{sec:examples}. %We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 

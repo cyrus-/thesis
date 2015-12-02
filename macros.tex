@@ -110,6 +110,11 @@
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
 
+\newcommand{\Uof}[1]{\mathcal{U}(#1)}
+\newcommand{\VTypof}[1]{\mathcal{V}_\mathsf{Typ}(#1)}
+\newcommand{\VExpof}[1]{\mathcal{V}_\mathsf{Exp}(#1)}
+\newcommand{\rulemv}{R}
+
 % Statics of miniVerseU expanded expressions
 \newcommand{\istypeU}[2]{#1 \vdash #2~\mathsf{type}}
 \newcommand{\isctxU}[2]{#1 \vdash #2~\mathsf{ctx}}
@@ -259,7 +264,8 @@
 \newcommand{\decodeCEPat}[2]{#1 \uparrow_\mathsf{CEPat} #2}
 \newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{CEPat} #2}
 
-\newcommand{\cvalidP}[4]{\vdash^{#1} #2 \leadsto #3 : #4}
+\newcommand{\cvalidP}[5]{\vdash^{#1;\,#2} #3 \leadsto #4 : #5}
 \newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Rightarrow #7}
 \newcommand{\pscenev}{\mathbbmss{P}}
-\newcommand{\pscene}[3]{#1;\,#2;\,#3}
+\newcommand{\pscene}[2]{#1;\,#2}
+
