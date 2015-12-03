@@ -34,7 +34,7 @@ ML+Rx also supports \emph{spliced subexpressions} in regex literals, so that reg
 let ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun example_rx(name : string) => /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
-\caption{An example of ML+Rx's support for spliced subexpressions.}
+\caption{Spliced subexpressions in ML+Rx}
 \label{fig:derived-spliced-subexpressions}
 \end{figure}
 The prefix \li{@} followed by the variable \li{name} indicates that the expression \lstinline{name} should be spliced in as a string, and the prefix \li{%}
@@ -56,7 +56,7 @@ fun read_example_rx(r : Rx) : (string * Rx) option =>
   match r with 
     /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
   | _ => None\end{lstlisting}
-\caption{An example of derived pattern syntax.}
+\caption{Derived pattern syntax in ML+Rx}
 \label{fig:derived-pattern-syntax}
 \end{figure}
 
@@ -92,7 +92,7 @@ signature RX = sig {
     } -> 'a
 }
 \end{lstlisting}
-\caption{Definition of the \lstinline{RX} signature.}
+\caption{Definition of the \lstinline{RX} signature}
 \label{fig:signature-RX}
 \end{figure}
 
