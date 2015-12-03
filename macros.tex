@@ -103,9 +103,9 @@
 \newcommand{\acein}[4]{\abopibc{cein}{#1}{#2}{#3}{#4}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
-\newcommand{\aecase}[3]{\abopi{ecase}{#1}{#2; #3}}
-\newcommand{\aucase}[3]{\abopi{ucase}{#1}{#2; #3}}
-\newcommand{\acecase}[3]{\abopi{cecase}{#1}{#2; #3}}
+\newcommand{\aecase}[4]{\abopic{ecase}{#1}{#2}{#3; #4}}
+\newcommand{\aucase}[4]{\abopic{ucase}{#1}{#2}{#3; #4}}
+\newcommand{\acecase}[4]{\abopic{cecase}{#1}{#2}{#3; #4}}
 
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
@@ -199,14 +199,14 @@
 
 % Pattern matching
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
-\newcommand{\aematchwith}[3]{\abopi{ematch}{#1}{#2; #3}}
-\newcommand{\aumatchwith}[3]{\abopi{umatch}{#1}{#2; #3}}
-\newcommand{\acematchwith}[3]{\abopi{cematch}{#1}{#2; #3}}
+\newcommand{\aematchwith}[4]{\abopic{ematch}{#1}{#2}{#3; #4}}
+\newcommand{\aumatchwith}[4]{\abopic{umatch}{#1}{#2}{#3; #4}}
+\newcommand{\acematchwith}[4]{\abopic{cematch}{#1}{#2}{#3; #4}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
-\newcommand{\aematchrule}[4]{\abopii{erule}{#1}{#2}{#3.#4}}
-\newcommand{\aumatchrule}[4]{\abopii{urule}{#1}{#2}{#3.#4}}
-\newcommand{\acematchrule}[4]{\abopii{cerule}{#1}{#2}{#3.#4}}
+\newcommand{\aematchrule}[4]{\abopic{erule}{#1}{#2}{#3.#4}}
+\newcommand{\aumatchrule}[4]{\abopic{urule}{#1}{#2}{#3.#4}}
+\newcommand{\acematchrule}[4]{\abopic{cerule}{#1}{#2}{#3.#4}}
 
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
