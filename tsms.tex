@@ -504,7 +504,7 @@ Programs ultimately evaluate as expanded expressions, but programmers do not wri
 Unexpanded expressions are typed and expanded simultaneously according to the \emph{typed expansion judgement}:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\expandsUX{\ue}{e}{\tau} & \text{$\ue$ expands to $e$ at type $\tau$ under ueTSM environment $\Sigma$}\\
+\expandsUX{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM environment $\Sigma$}\\
 & \text{assuming $\Delta$ and $\Gamma$}
 \end{array}\]
 
@@ -530,9 +530,10 @@ Unexpanded expressions are typed and expanded simultaneously according to the \e
 \end{figure}
 \begin{subequations}\label{rules:expandsU}
 \noindent
-The typed expansion judgement is inductively defined by Rules (\ref*{rules:expandsU}), which are defined as follows.
+The typed expansion judgement is inductively defined by Rules (\ref*{rules:expandsU}) as follows.
 
-\paragraph{Shared Forms} Rules (\ref*{rule:expandsU-var}) through (\ref*{rule:expandsU-case}) define typed expansion of unexpanded expressions of shared form. These rules are each based on the corresponding typing rule, Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
+\paragraph{Shared Forms} Rules (\ref*{rule:expandsU-var}) through (\ref*{rule:expandsU-case}) handle unexpanded expressions of shared form. The first three of these rules are defined below:
+%Each of these rules is based on the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
 \begin{equation}\label{rule:expandsU-var}
   \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{x}{x}{\tau}}
 \end{equation}
@@ -550,7 +551,7 @@ The typed expansion judgement is inductively defined by Rules (\ref*{rules:expan
     \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation}
-Observe that, for each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the corresponding typing rule. In particular, type formation premises correspond directly, and typed expansion premises correspond to the typing premises from the corresponding typing rule. The ueTSM environment, $\Sigma$, passes opaquely through these rules.
+Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively. In particular, the type formation premises correspond directly, and the typed expansion premises correspond to the typing premises. The ueTSM environment, $\Sigma$, need not yet be discussed because it passes opaquely through these rules.
 
 We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeU}),
 \begin{mathpar}
@@ -588,16 +589,16 @@ where
 \Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsU{\Gamma}{\Delta}{\Sigma}{\Uof{e}}{e}{\tau}\\
 \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\Uof{e}$, when $e$ is a metatheoretic pattern of sort $\mathsf{EExp}$, is a metatheoretic pattern of sort $\mathsf{UExp}$ defined as follows.
+and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows.
 \begin{itemize}
-\item When $e$ is of definite form,
+\item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
 \[\begin{split}
 \Uof{x} & = x\\
 \Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
 \Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}
 \end{split}\]
 and so on for the remaining expanded expression forms.
-\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metatheoretic pattern also of indefinite form. For example, in Rule (\ref{rule:hastypeU-ap}), $e_1$ and $e_2$ are of indefinite form, i.e. they match arbitrary expanded expressions. The rule transformation simply ``hats'' them, i.e. $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metapattern also of indefinite form. For example, in Rule (\ref{rule:hastypeU-ap}), $e_1$ and $e_2$ are of indefinite form, i.e. they match arbitrary expanded expressions. The rule transformation simply ``hats'' them, i.e. $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
 \end{itemize}
 
 It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-tlam}) through (\ref*{rule:expandsU-case}). By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this approach makes our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
@@ -681,7 +682,7 @@ It is instructive to use this rule transformation to generate Rules (\ref{rule:e
 %   }
 % \end{equation}
 \end{subequations}
-\paragraph{ueTSM Definition and Application} The rules governing the two ``interesting'' forms, Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), are defined in the next two subsections, respectively. 
+\paragraph{ueTSM Definition and Application} Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), which govern the ueTSM definition and application forms, are defined in the next two subsections, respectively. 
 
 % \begin{equation}\label{rule:expandsU-syntax}
 % \inferrule{
@@ -710,13 +711,12 @@ It is instructive to use this rule transformation to generate Rules (\ref{rule:e
 %There are two unexpanded expression forms that do not correspond to an expanded expression form: the ueTSM definition form, and the ueTSM application form. The rules governing these two forms interact with the ueTSM environment, and are the topics of the next two subsections, respectively.
 
 \subsection{ueTSM Definitions}\label{sec:U-uetsm-definition}
-The \emph{ueTSM definition}: \[\uesyntax{a}{\tau}{\ueparse}{\ue}\] introduces a {ueTSM} named $a$ at type $\tau$ with \emph{unexpanded parse function} $\ueparse$ into the ueTSM environment of $\ue$. The operational form corresponding to this stylized form is $\audefuetsm{\tau}{\ueparse}{a}{\ue}$. The typed expansion rule governing ueTSM definitions is:
+The ueTSM definition form: \[\uesyntax{a}{\tau}{\ueparse}{\ue}\] introduces a {ueTSM} named $a$ at type $\tau$ with \emph{unexpanded parse function} $\ueparse$ into the ueTSM environment of $\ue$. The operational form corresponding to this stylized form is $\audefuetsm{\tau}{\ueparse}{a}{\ue}$. The typed expansion rule governing ueTSM definitions is:
 \begin{subequations}[resume]
 \begin{equation}\label{rule:expandsU-syntax}
 \inferrule{
   \istypeU{\Delta}{\tau}\\
   \expandsU{\emptyset}{\emptyset}{\emptyset}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  a \notin \domof{\Sigma}\\
   \expandsU{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
 }{
   \expandsUX{\audefuetsm{\tau}{\ueparse}{a}{\ue}}{e}{\tau'}
@@ -726,18 +726,20 @@ The \emph{ueTSM definition}: \[\uesyntax{a}{\tau}{\ueparse}{\ue}\] introduces a 
 The premises of Rule (\ref{rule:expandsU-syntax}) can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise ensures that the type annotation is well-formed.
-\item The second premise types and expands the {unexpanded parse function} to generate the \emph{expanded parse function}, $\eparse$. Expanded parse functions are applied statically (i.e. during typed expansion) to encodings of literal bodies and either generate encodings of candidate expansions or indicate a parse error (as we will discuss when describing ueTSM application in the next subsection), so %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
-they must be of type $\aparr{\tBody}{\tParseResultExp}$ where 
+
+\item The second premise types and expands the unexpanded parse function, $\ueparse$, to generate the \emph{expanded parse function}, $\eparse$. 
+Expanded parse functions are applied statically (i.e. during typed expansion), as we will discuss when describing ueTSM application in the next subsection.  %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
+They must be of type \[\aparr{\tBody}{\tParseResultExp}\] where 
 $\tParseResultExp$ abbreviates a labeled sum type that distinguishes successful parses from parse errors\footnote{In VerseML, the \li{ParseError} constructor of \li{ParseResult} required an error message and an error location, but we omit these in our formalization for simplicity}:
 \[\tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]\] and 
- $\tBody$ and $\tCEExp$ abbreviate types that classify encodings of literal bodies and candidate expansions. We will further characterize these types below.
+ $\tBody$ and $\tCEExp$ abbreviate types that classify encodings of literal bodies and candidate expansion expressions, respectively. We will further characterize these types below.
 
- Evaluation is defined only for closed terms, so parse functions are not given access to surrounding bindings. 
+ Evaluation is defined only for closed expanded expressions, so the parse function is not given access to surrounding bindings. 
 
-\item ueTSM environments are finite mappings from TSM names, $a$, to \emph{expanded ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {expanded parse function}. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
+\item ueTSM environments, $\Sigma$, are finite mappings from TSM names, $a$, to \emph{expanded ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {expanded parse function}. TSM names are symbolic, i.e. they can be compared for equality and disequality. TSM names are not variables, i.e. they are not given meaning by substitution. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\uetsmenv{\Delta}{\Sigma} & \text{ueTSM environment $\Sigma$ is well-formed assuming $\Delta$}\end{array}\]
+\uetsmenv{\Delta}{\Sigma} & \text{$\Sigma$ is well-formed assuming $\Delta$}\end{array}\]
 This judgement is inductively defined by the following rules:
 \begin{subequations}[intermezzo]\label{rules:uetsmenv-U}
 \begin{equation}\label{rule:uetsmenv-empty}
@@ -759,16 +761,14 @@ The final premise of Rule (\ref{rule:expandsU-syntax}) extends the ueTSM environ
 \end{enumerate}
 
 \subsection{ueTSM Application}\label{sec:U-uetsm-application}
-The last unexpanded expression form is the form for applying the ueTSM named $a$ to a literal form with literal body $b$:
+The final unexpanded expression form is the form for applying a ueTSM named $a$ to a literal form with literal body $b$:
 \[
 \utsmap{a}{b}
 \] 
-The stylized form for ueTSM application, above, uses forward slashes to delimit the literal body, though stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} would be straightforward to add to Figure \ref{fig:U-unexpanded-terms} (we omit them for simplicity).
-
+This stylized form uses forward slashes to delimit the literal body, but stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} could also be added to Figure \ref{fig:U-unexpanded-terms}. % (we omit them for simplicity).
 The corresponding operational form is $\autsmap{b}{a}$. %i.e. for each literal body $b$, the operator $\texttt{uapuetsm}[b]$ is indexed by the TSM name $a$ and takes no arguments. %\footnote{This is in following the conventions in \emph{PFPL} \cite{pfpl}, where operators parameters allow for the use of metatheoretic objects that are not syntax trees or binding trees, e.g. $\mathsf{str}[s]$ and $\mathsf{num}[n]$.} This operator is indexed by the TSM name $a$ and takes no arguments. 
-TSM names are symbolic, i.e. they can be compared for equality and disequality, but unlike variables, they do not stand for terms. Instead, they operate as references into the ueTSM environment. 
 
-The typed expansion rule governing unexpanded expressions of this form is below:
+The typed expansion rule governing ueTSM application is below:
 \begin{subequations}[resume]
 \begin{equation}\label{rule:expandsU-tsmap}
 \inferrule{
@@ -786,11 +786,11 @@ The premises of Rule (\ref{rule:expandsU-tsmap}) can be understood as follows, i
 \item The \emph{body encoding judgement} $\encodeBody{b}{\ebody}$ specifies a mapping from the literal body, $b$, to an expanded value, $\ebody$, of type $\tBody$. An inverse mapping is specified by the \emph{body decoding judgement} $\decodeBody{\ebody}{b}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\encodeBody{b}{e} & \text{$b$ encodes to $e$}\\
-\decodeBody{e}{b} & \text{$e$ decodes to $b$}
+\encodeBody{b}{e} & \text{$b$ has encoding $e$}\\
+\decodeBody{e}{b} & \text{$e$ has decoding $b$}
 \end{array}\]
-Picking a particular definition of $\tBody$ and inductively defining these judgements against it would be tedious and uninteresting. Moreover, there are many possible definitions of $\tBody$. For these reasons, we instead state  the following conditions, which ensure an isomorphism between literal bodies and values of type $\tBody$.
-\begin{condition}[Body Encoding and Decoding] All of the following hold:
+Picking a particular definition of $\tBody$ and inductively defining these judgements against it would be tedious and uninteresting. Moreover, there are many possible definitions of $\tBody$. For these reasons, we only state  the following condition, which establishes an isomorphism between literal bodies and values of type $\tBody$.
+\begin{condition}[Body Isomorphism] All of the following hold:
 \begin{enumerate}
 \item For every literal body $b$, we have that $\encodeBody{b}{\ebody}$ and $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$.
 \item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ then $\decodeBody{\ebody}{b}$ for some $b$.
@@ -800,22 +800,25 @@ Picking a particular definition of $\tBody$ and inductively defining these judge
 \item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ and $\decodeBody{\ebody}{b}$ and $\decodeBody{\ebody}{b'}$ then $b=b'$.
 \end{enumerate}
 \end{condition}
-\item The second premise applies the expanded parse function $\eparse$ associated with $a$ in the ueTSM environment to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed ueTSM environment, by transitive application of Assumption \ref{condition:preservation-U}). We call $\ecand$ the \emph{encoding of the candidate expansion}.
+\item The second premise applies the expanded parse function $\eparse$ to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed ueTSM environment, by transitive application of Assumption \ref{condition:preservation-U}). We call $\ecand$ the \emph{encoding of the candidate expansion}.
 
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
-\item The third premise of Rule (\ref{rule:expandsU-tsmap}), $\decodeCondE{\ecand}{\ce}$, decodes the encoding of the candidate expansion, i.e. it maps $\ecand$ onto a \emph{candidate expansion expression}, $\ce$. The syntax of candidate expansion expressions and \emph{candidate expansion types}, $\ctau$, which can occur within candidate expansion expressions, is specified in Figure \ref{fig:U-candidate-terms}. The inverse mapping is specified by the judgement $\encodeCondE{\ce}{\ecand}$. 
+\item The \emph{candidate expansion expression decoding judgement}, $\decodeCondE{\ecand}{\ce}$, which appears as the third premise of Rule (\ref{rule:expandsU-tsmap}), decodes $\ecand$ to produce a \emph{candidate expansion expression}, $\ce$  (pronounced ``grave $e$''), which we call the \emph{candidate expansion}. 
+The inverse mapping is specified by the judgement $\encodeCondE{\ce}{\ecand}$. 
+
+%The \emph{candidate expansion decoding judgement}, $\decodeCondE{e}{\ce}$, 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\decodeCondE{e}{\ce} & \text{$e$ decodes to $\ce$}\\
-\encodeCondE{\ce}{e} & \text{$\ce$ encodes to $e$}
+\decodeCondE{e}{\ce} & \text{$e$ has decoding $\ce$}\\
+\encodeCondE{\ce}{e} & \text{$\ce$ has encoding $e$}
 \end{array}\]
 
-Again, defining the type $\tCEExp$ (and other associated types) explicitly, and these judgements inductively against these definitions, would be tedious, uninteresting, and overly specific. Instead, we state the following conditions, which ensure an isomorphism between values of type $\tCEExp$ and candidate expansion expressions.
+The syntax of candidate expansion expressions and \emph{candidate expansion types}, $\ctau$, which can occur within candidate expansion expressions, is defined in Figure \ref{fig:U-candidate-terms}, and described in the next subsection. Rather than picking a particular definition of $\tCEExp$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEExp$ and candidate expansion expressions.
 
 
 \begin{figure}[p]
-\hspace{-5px}$\begin{array}{lllllll}
+\hspace{-5px}$\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{CETyp} & \ctau & ::= & t & t & \text{variable}\\
 &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
@@ -837,13 +840,13 @@ Again, defining the type $\tCEExp$ (and other associated types) explicitly, and 
 &&& \acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
 &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}
 \end{array}$
-\caption[Syntax of candidate expansion types and expressions in $\miniVerseUE$]{Abstract syntax of candidate expansion types, $\ctau$ (pro\-nounced ``grave $\tau$''), and expressions, $\ce$, in $\miniVerseUE$. Metavariables $m$ and $n$ range over natural numbers.}
+\caption[Syntax of candidate expansion types and expressions in $\miniVerseUE$]{Abstract syntax of candidate expansion types and expressions in $\miniVerseUE$. Metavariables $m$ and $n$ range over natural numbers. Candidate expansion types and expressions are identified up to $\alpha$-equivalence.}
 \label{fig:U-candidate-terms}
 \end{figure}
 
 
 
-\begin{condition}[Candidate Expansion Expression Encoding and Decoding] All of the following hold:
+\begin{condition}[Candidate Expansion Isomorphism] All of the following hold:
 \begin{enumerate}
 \item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
 \item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
@@ -854,24 +857,28 @@ Again, defining the type $\tCEExp$ (and other associated types) explicitly, and 
 \end{enumerate}
 \end{condition}
 
-\item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the candidate expansion and simultaneously generates the \emph{final expansion}, $e$. This is the topic of the next subsection.
+\item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the candidate expansion and simultaneously generates the \emph{final expansion}, $e$. This is the topic of Sec. \ref{sec:ce-validation-U}.
 \end{enumerate}
-\subsection{Candidate Expansion Validation and Final Expansion}\label{sec:ce-validation-U}
-The \emph{candidate expansion validation judgements} validate candidate expansion types, $\ctau$, and candidate expansion expressions, $\ce$, and simultaneously generate their final expansions.
+\subsection{Syntax of Candidate Expansions}\label{sec:ce-syntax-U}
+Figure \ref{fig:U-candidate-terms} defines the syntax of candidate expansion types (or \emph{ce-types}), $\ctau$, and candidate expansion expressions  (or \emph{ce-expressions}), $\ce$. Observe that, for each type form, there is a corresponding ce-type form, and for each expanded expression form, there is a corresponding ce-expression form. We call these the \emph{shared forms}. There are two other forms: a ce-type form for \emph{references to spliced types}, $\acesplicedt{m}{n}$, and a ce-expression form for \emph{references to spliced unexpanded expressions}, $\acesplicede{m}{n}$. %TSM utilize these to splice types and unexpanded expressions out of literal bodies.
+
+\subsection{Candidate Expansion Validation}\label{sec:ce-validation-U}
+The \emph{candidate expansion validation judgements} validate ce-types and ce-expressions and simultaneously generate their final expansions.% are types and expanded expressions, respectively.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ expands to $\tau$ assuming $\Delta$ and }\\
-& \text{type splicing scene $\tscenev$.}\\
-\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{Candidate expansion expression $\ce$ expands to $e$ at type $\tau$}\\
-& \text{assuming $\Delta$ and $\Gamma$ and with expression splicing scene $\escenev$.}
+\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ is well-formed and has expansion $\tau$}\\
+& \text{assuming $\Delta$ and type splicing scene $\tscenev$.}\\
+\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{Candidate expansion expression $\ce$ has expansion $e$ and type $\tau$}\\
+& \text{assuming $\Delta$ and $\Gamma$ and expression splicing scene $\escenev$.}
 \end{array}\]
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneU{\Delta}{\Gamma}{\Sigma}{b}$. They consist of the type formation context, $\Delta$, the typing context, $\Gamma$, the ueTSM environment, $\Sigma$, and the literal body, $b$, from the ueTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})). \emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneU{\Delta}{b}$. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the typing context and ueTSM environment from $\escenev$:
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneU{\Delta}{\Gamma}{\Sigma}{b}$, and \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneU{\Delta}{b}$. Their purpose is to ``remember'', during candidate expansion validation, the type formation context, $\Delta$, typing context, $\Gamma$, ueTSM environment, $\Sigma$, and the literal body, $b$, from the ueTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the typing context and ueTSM environment from $\escenev$:
 \[\tsfrom{\esceneU{\Delta}{\Gamma}{\Sigma}{b}} = \tsceneU{\Delta}{b}\]
 
 \subsubsection{Candidate Expansion Type Validation}
-The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined as follows:
-\begin{itemize}
-\item For each type form specified in Figure \ref{fig:U-expanded-terms}, there is a corresponding candidate expansion type form in Figure \ref{fig:U-candidate-terms}. The corresponding candidate expansion type validation rules are derived from Rules (\ref{rules:istypeU}). For example, the validation rules for candidate expansion types of variable, partial function and polymorphic form are derived from Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-all}):
+The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref*{rules:cvalidT-U}) as follows:
+
+\paragraph{Shared Forms} Rules (\ref*{rule:cvalidT-U-tvar}) through (\ref*{rule:cvalidT-U-sum}) validate ce-types of shared form. The first three of these rules are defined below:
+%Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
 \begin{subequations}\label{rules:cvalidT-U}
 \begin{equation}\label{rule:cvalidT-U-tvar}
 \inferrule{ }{
@@ -893,11 +900,19 @@ The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tsc
     \cvalidT{\Delta}{\tscenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
   }
 \end{equation}
-Generically, for each rule $\rulemv$ in Rules (\ref{rules:istypeU}), 
+Observe that, in each of these rules, the ce-type form and the type form in the conclusion correspond, and the premises correspond to those of the corresponding type formation rule, i.e. rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-all}), respectively. The type splicing scene, $\tscenev$, passes opaquely through these rules.
+
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:istypeU}), 
 \begin{mathpar}
+\refstepcounter{equation}
+\label{rule:cvalidT-U-rec}
+\refstepcounter{equation}
+\label{rule:cvalidT-U-prod}
+\refstepcounter{equation}
+\label{rule:cvalidT-U-sum}
 \inferrule{J_1\\\cdots\\J_k}{J}
 \end{mathpar}
-we derive the candidate expansion type validation rule $\VTypof{\rulemv}$ as follows:
+the corresponding candidate expansion type validation rule is
 \begin{mathpar}
 \inferrule{
   \VTypof{J_1}\\
@@ -912,9 +927,8 @@ where
 \VTypof{\istypeU{\Delta}{\tau}} & = \cvalidT{\Delta}{\tscenev}{\VTypof{\tau}}{\tau}\\
 \VTypof{\{J_i\}_{i \in \labelset}} & = \{\VTypof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\VTypof{\tau}$ is defined as follows:
+and where $\VTypof{\tau}$, when $\tau$ is a metapattern of sort $\mathsf{Typ}$, is a metapattern of sort $\mathsf{CETyp}$ defined as follows:
 \begin{itemize}
-\item When $\tau$ is of indefinite form, $\VTypof{\tau}$ is a uniquely corresponding metavariable of indefinite form ranging over candidate expansion types.
 \item When $\tau$ is of definite form, $\VTypof{\tau}$ is defined as follows:
 \[\begin{split}
 \VTypof{t} & = t\\
@@ -922,12 +936,14 @@ and where $\VTypof{\tau}$ is defined as follows:
 \VTypof{\aall{t}{\tau}} & = \aceall{t}{\VTypof{\tau}} 
 \end{split}\]
 and so on for the remaining type forms.
+\item When $\tau$ is of indefinite form, $\VTypof{\tau}$ is a uniquely corresponding metapattern also of indefinite form. For example, $\VTypof{\tau_1}=\ctau_1$ and $\VTypof{\tau_2}=\ctau_2$.
 \end{itemize}
 
-Notice that in Rule (\ref{rule:cvalidT-U-tvar}), only hypotheses in the candidate expansion's type formation context are available to the candidate expansion. In particular, the hypotheses in the application site type formation context, tracked by the type splicing scene $\tscenev$, are not available to the candidate expansion. Indeed, $\tscenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} for type expansions -- ueTSMs cannot impose ``hidden constraints'' on the application site type formation context.
+It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidT-U-tvar}) through (\ref{rule:cvalidT-U-all}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:cvalidT-U-rec}) through (\ref*{rule:cvalidT-U-sum}). 
 
-\item The only form of candidate expansion type that does not correspond to a form of type is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced type}, i.e. it indicates that a type should be parsed out from the literal body, $b$, beginning at position $m$ and ending at position $n$. Rule (\ref{rule:cvalidT-U-splicedt}) governs this form.
-\setcounter{equation}{6}
+Notice that in Rule (\ref{rule:cvalidT-U-tvar}), only type variables tracked by the candidate expansion type formation context, $\Delta$, are validated. Type variables in the application site typing context, which appears within the type splicing scene, $\tscenev$, are not validated. Indeed, $\tscenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- ueTSMs cannot impose ``hidden constraints'' on the application site type formation context, because the type variables bound at the application site are not directly available to ce-types.
+
+\paragraph{References to Spliced Types} The only ce-type form that does not correspond to a type form is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced type}, i.e. it indicates that a type should be parsed out from the literal body, $b$, beginning at position $m$ and ending at position $n$. Rule (\ref*{rule:cvalidT-U-splicedt}) governs this form:
 \begin{equation}\label{rule:cvalidT-U-splicedt}
   \inferrule{
     \parseTyp{\bsubseq{b}{m}{n}}{\tau}\\
@@ -937,15 +953,14 @@ Notice that in Rule (\ref{rule:cvalidT-U-tvar}), only hypotheses in the candidat
     \cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\acesplicedt{m}{n}}{\tau}
   }
 \end{equation}
-The first premise extracts the indicated subsequence of $b$ (using the metafunction $\bsubseq{b}{m}{n}$) and parses it (using the metafunction $\mathsf{parseTyp}(b)$) to produce the spliced type, $\tau$. Again, it would be tedious and uninteresting to specify these metafunctions explicitly, so instead, we only specify certain necessary conditions in the next subsection. %We assume sensible definitions of these metafunctions.
+The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseTyp}(b)$ to produce the spliced type itself, $\tau$. It would be tedious and uninteresting to specify these metafunctions explicitly, so instead, we only specify certain necessary conditions in the next subsection. %We assume sensible definitions of these metafunctions.
 
-The second premise of Rule (\ref{rule:cvalidT-U-splicedt}) checks that $\tau$ is well-formed under the application site type formation context, $\Delta_S$. Notice that the hypotheses in the candidate expansion's type formation context, $\Delta$, are not made available to $\tau$. %This enforces \emph{expansion independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables that appear in candidate expansion types. 
+The second premise of Rule (\ref{rule:cvalidT-U-splicedt}) checks that $\tau$ is well-formed under the application site type formation context, $\Delta_S$, which appears in the type splicing scene. The hypotheses in the candidate expansion type formation context, $\Delta$, are not made available to $\tau$. %This enforces \emph{expansion independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables that appear in candidate expansion types. 
 
-The third premise of Rule (\ref{rule:cvalidT-U-splicedt}) requires that the candidate expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_S$. This premise can always be discharged by alpha-varying the candidate expansion that the reference to the spliced type appears within. 
+The third premise of Rule (\ref{rule:cvalidT-U-splicedt}) imposes the constraint that the candidate expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_S$. This premise can always be discharged by $\alpha$-varying the candidate expansion that the reference to the spliced type appears within. 
 
-This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- the TSM provider can choose type variable names freely within a candidate expansion, because the language keeps them from shadowing type variables at the application site (by alpha-varying the candidate expansion as needed).%Such a change in bound variable names is possible again because variables bound by the ueTSM provider in a candidate expansion cannot ``leak into'' spliced terms because the hypotheses in $\Delta$ are not made available to the spliced type, $\tau$. 
+This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- the TSM provider can choose type variable names freely within a candidate expansion, because the language prevents them from shadowing type variables at the application site (by $\alpha$-varying the candidate expansion as needed).%Such a change in bound variable names is possible again because variables bound by the ueTSM provider in a candidate expansion cannot ``leak into'' spliced terms because the hypotheses in $\Delta$ are not made available to the spliced type, $\tau$. 
 \end{subequations}
-\end{itemize}
 % \begin{subequations}\label{rules:cvalidT-U}
 % \begin{equation}\label{rule:cvalidT-U-tvar}
 % \inferrule{ }{
@@ -994,10 +1009,10 @@ This achieves \emph{expansion-independent splicing} as described in Sec. \ref{se
 
 
 \subsubsection{Candidate Expansion Expression Validation}
-The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, is defined mutually inductively with the typed expansion judgement as follows.% This is necessary because a typed expansion judgement appears as a premise in Rule (\ref{rule:cvalidE-U-splicede}) below, and a candidate expansion expression validation judgement appears as a premise in Rule (\ref{rule:expandsU-tsmap}) above.
+The \emph{candidate expansion expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, is defined mutually inductively with the typed expansion judgement by Rules (\ref*{rules:cvalidE-U}) as follows.% This is necessary because a typed expansion judgement appears as a premise in Rule (\ref{rule:cvalidE-U-splicede}) below, and a candidate expansion expression validation judgement appears as a premise in Rule (\ref{rule:expandsU-tsmap}) above.
 
-\paragraph{Corresponding Forms}
-For each expanded expression form defined in Figure \ref{fig:U-expanded-terms}, Figure \ref{fig:U-candidate-terms} defines a corresponding candidate expansion expression form. The validation rules for candidate expansion expressions of these forms are each based on the corresponding typing rule in Rules (\ref{rules:hastypeU}). For example, the validation rules for candidate expansion expressions of variable, function and function application form  are based on Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively:
+\paragraph{Shared Forms} Rules (\ref*{rule:cvalidE-U-var}) through (\ref*{rule:cvalidE-U-case}) validate ce-expressions of shared form. The first three of these rules are defined below:
+%For each expanded expression form defined in Figure \ref{fig:U-expanded-terms}, Figure \ref{fig:U-candidate-terms} defines a corresponding candidate expansion expression form. The validation rules for candidate expansion expressions of these forms are each based on the corresponding typing rule in Rules (\ref{rules:hastypeU}). For example, the validation rules for candidate expansion expressions of variable, function and function application form  are based on Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively:
 \begin{subequations}\label{rules:cvalidE-U}
 \begin{equation}\label{rule:cvalidE-U-var}
 \inferrule{ }{
@@ -1020,9 +1035,9 @@ For each expanded expression form defined in Figure \ref{fig:U-expanded-terms}, 
     \cvalidE{\Delta}{\Gamma}{\escenev}{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation}
-Formally, Rules (\ref*{rule:cvalidE-U-var}) through (\ref*{rule:cvalidE-U-case}) are defined as follows. 
-%Rather than defining Rules (\ref*{rule:cvalidE-U-tlam}) through (\ref*{rule:cvalidE-U-case}) explicitly, we define them (as well as Rules (\ref*{rule:cvalidE-U-var}) through (\ref*{rule:cvalidE-U-ap}) above) as follows. 
-For each rule in Rules (\ref{rules:hastypeU}),
+Observe that, in each of these rules, the ce-expression form and the expanded expression form in the conclusion correspond, and the premises correspond to those of the corresponding typing rule, i.e. rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively. The expression splicing scene, $\escenev$, passes opaquely through these rules.
+
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeU}),
 \begin{mathpar}\refstepcounter{equation}
 \label{rule:cvalidE-U-tlam}
 \refstepcounter{equation}
@@ -1047,7 +1062,7 @@ For each rule in Rules (\ref{rules:hastypeU}),
     J
   }
 \end{mathpar}
-we define the corresponding candidate expansion expression validation rule
+the corresponding candidate expansion expression validation rule is 
 \begin{mathpar}
   \inferrule{
     \VExpof{J_1}\\
@@ -1063,9 +1078,8 @@ where
   \VExpof{\hastypeU{\Delta}{\Gamma}{e}{\tau}} & = \cvalidE{\Delta}{\Gamma}{\escenev}{\VExpof{e}}{e}{\tau}\\
   \VExpof{\{J_i\}_{i \in \labelset}} & = \{\VExpof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\VExpof{e}$ is defined as follows:
+and where $\VExpof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{CEExp}$ defined as follows:
 \begin{itemize}
-  \item When $e$ is of indefinite form, $\VExpof{e}$ is a uniquely corresponding metavariable of indefinite form ranging over candidate expansion expressions.
   \item When $e$ is of definite form, $\VExpof{e}$ is defined as follows:
   \[\begin{split}
     \VExpof{x} & = x\\
@@ -1073,13 +1087,14 @@ and where $\VExpof{e}$ is defined as follows:
     \VExpof{\aeap{e_1}{e_2}} & = \aceap{\VExpof{e_1}}{\VExpof{e_2}}
   \end{split}\]
   and so on for the remaining expression forms.
+  \item When $e$ is of indefinite form, $\VExpof{e}$ is a uniquely corresponding metapattern also of indefinite form. For example, $\VExpof{e_1}=\ce_1$ and $\VExpof{e_2}=\ce_2$.
 \end{itemize}
 
-Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the candidate expansion's typing context, $\Gamma$, are validated. Variables assigned a type in the application site typing context, which is in the expression splicing scene $\escenev$, are not validated. Indeed, $\escenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} -- ueTSMs cannot impose ``hidden constraints'' on the application site typing context, because the variable bindings at the application site are not available to candidate expansions directly.
+It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:cvalidE-U-tlam}) through (\ref*{rule:cvalidE-U-case}).
 
-\paragraph{Spliced Unexpanded Expressions}
+Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the candidate expansion typing context, $\Gamma$, are validated. Variables  in the application site typing context, which appears within the expression splicing scene $\escenev$, are not validated. Indeed, $\escenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} -- ueTSMs cannot impose ``hidden constraints'' on the application site typing context, because the variable bindings at the application site are not directly available to candidate expansions.
 
-The only candidate expansion expression form that does not correspond to an expanded expression form is $\acesplicede{m}{n}$. Candidate expansion expressions of this form are \emph{references to a spliced unexpanded expression}, i.e. they indicate that an unexpanded expression should be parsed out from the literal body, $b$, beginning at position $m$ and ending at position $n$. Rule (\ref{rule:cvalidE-U-splicede}) governs this form. 
+\paragraph{References to Spliced Unexpanded Expressions} The only ce-expression form that does not correspond to an expanded expression form is $\acesplicede{m}{n}$, which is a \emph{reference to a spliced unexpanded expression}, i.e. it indicates that an unexpanded expression should be parsed out from the literal body beginning at position $m$ and ending at position $n$. Rule (\ref{rule:cvalidE-U-splicede}) governs this form:
 \begin{equation}\label{rule:cvalidE-U-splicede}
 \inferrule{
   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\\\
@@ -1090,13 +1105,13 @@ The only candidate expansion expression form that does not correspond to an expa
   \cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}
 }
 \end{equation}
-The first premise extracts the indicated subsequence of $b$ (using the metafunction $\bsubseq{b}{m}{n}$) and parses it (using the metafunction $\mathsf{parseUExp}(b)$) to produce the spliced unexpanded expression, $\ue$. Again, we do not explicitly specify these metafunctions for simplicity. Instead, we will give certain necessary conditions in the next subsection.
+The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseUExp}(b)$ to produce the referenced spliced unexpanded expression, $\ue$. Again, we do not define these metafunctions directly. Instead, we only give certain necessary conditions in the next subsection.
 
-The second premise of Rule (\ref{rule:cvalidE-U-splicede}) types and expands the spliced unexpanded expression $\ue$ assuming the application site contexts, $\Delta_S$ and $\Gamma_S$, and ueTSM environment, $\Sigma_S$. 
+The second premise of Rule (\ref{rule:cvalidE-U-splicede}) types and expands the spliced unexpanded expression $\ue$ assuming the application site contexts, $\Delta_S$ and $\Gamma_S$, and ueTSM environment, $\Sigma_S$, which all appear in the expression splicing scene. The hypotheses in the candidate expansion type formation context, $\Delta$, and typing context, $\Gamma$, are not made available to $\ue$. 
 
-The third premise requires that the candidate expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_S$. Similarly, the fourth premise requires that the candidate expansion's typing context, $\Gamma$, be disjoint from the application site typing context, $\Gamma_S$. These two premises can always be discharged by alpha-varying the candidate expansion expression that the reference to the spliced unexpanded expression appears within. 
+The third premise of Rule (\ref{rule:cvalidE-U-splicede}) imposes the constraint that the candidate expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_S$. Similarly, the fourth premise requires that the candidate expansion's typing context, $\Gamma$, be disjoint from the application site typing context, $\Gamma_S$. These two premises can always be discharged by $\alpha$-varying the ce-expression that the reference to the spliced unexpanded expression appears within. 
 
-This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} -- the TSM provider can choose variable and type variable names freely within a candidate expansion, because the language keeps them from shadowing those at the application site (by alpha-varying the candidate expansion as needed).
+This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} -- the TSM provider can choose variable names freely within a candidate expansion, because the language prevents them from shadowing those at the application site (by $\alpha$-varying the candidate expansion as needed).
 \end{subequations}
 % \begin{subequations}\label{rules:cvalidE-U}
 % \begin{equation}\label{rule:cvalidE-U-var}
@@ -1200,13 +1215,18 @@ This achieves \emph{expansion-independent splicing} as described in Sec. \ref{se
 
 
 \subsection{Metatheory}
-For the judgements we have specified to form a sensible language, we must have that typed expansion of unexpanded expressions be consistent with typing of expanded expressions. Formally, this can be expressed as the following theorem.
+For the judgements we have defined to form a sensible language, we must have that typed expansion and candidate expansion expression validation be consistent with typing. Formally, this can be expressed as follows.
 
-\begin{theorem}[Typed Expansion]\label{thm:typed-expansion-U}
-If $\expandsU{\Delta}{\Gamma}{\Sigma}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\Sigma}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$. 
+\begin{theorem}[Typed Expansion]\label{thm:typed-expansion-U} Both of the following must hold:
+\begin{enumerate}
+\item If $\expandsU{\Delta}{\Gamma}{\Sigma}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\Sigma}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+\item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_S}{\Sigma_S}$ then $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$.
+\end{enumerate}
 \end{theorem}
 \begin{proof}
-By rule induction over Rules (\ref{rules:expandsU}).
+By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules:cvalidE-U}). 
+
+The proof of part 1 proceeds by inducting over the typed expansion assumption:
 \begin{byCases}
 \item[\text{(\ref{rule:expandsU-var})}] We have
 \begin{pfsteps}
@@ -1243,7 +1263,7 @@ By rule induction over Rules (\ref{rules:expandsU}).
 \end{pfsteps}
 \resetpfcounter
 
-\item[\Uof{\text{\ref{rule:hastypeU-tlam}}}~\text{through}~\Uof{\text{\ref{rule:hastypeU-case}}}] These cases follow analagously, i.e. we apply the IH to all typed expansion premises and then apply the corresponding typing rule.
+\item[\text{(\ref{rule:expandsU-tlam})}~\text{through}~\text{(\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply the IH to all typed expansion premises and then apply the corresponding typing rule.
 \\
 
 \item[\text{(\ref{rule:expandsU-syntax})}] We have 
@@ -1269,16 +1289,12 @@ By rule induction over Rules (\ref{rules:expandsU}).
   \item \decodeCondE{\ecand}{\ce} \BY{assumption}
   \item \cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
   \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
-  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{Theorem \ref{thm:candidate-expansion-validation-U} on \pfref{cvalidE} and \pfref{uetsmenv}}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 2 on \pfref{cvalidE} and \pfref{uetsmenv}}
 \end{pfsteps}
 \resetpfcounter
 \end{byCases}
-\end{proof}
-We need to define the following theorem about candidate expansion expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
-\begin{theorem}[Candidate Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
-If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_S}{\Sigma_S}$ then $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$.
-\end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:cvalidE-U}).
+
+The second part of the theorem proceeds by induction over the candidate expansion expression validation assumption as follows:
 \begin{byCases}
 \item[\text{(\ref{rule:cvalidE-U-var})}] We have
 \begin{pfsteps*}
@@ -1318,7 +1334,7 @@ If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{
 \end{pfsteps*}
 \resetpfcounter
 
-\item[\VExpof{\text{\ref{rule:hastypeU-tlam}}}~\text{through}~\VExpof{\text{\ref{rule:hastypeU-case}}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
+\item[{\text{(\ref{rule:cvalidE-U-tlam})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
 \\
 
 \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
@@ -1327,14 +1343,13 @@ If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{
   \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
   \item $\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
-  \item $\hastypeU{\Delta_S}{\Gamma_S}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expansion-U} on \pfref{expands} and \pfref{uetsmenv}} \pflabel{hastype}
+  \item $\hastypeU{\Delta_S}{\Gamma_S}{e}{\tau}$ \BY{IH, part 1 on \pfref{expands} and \pfref{uetsmenv}} \pflabel{hastype}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} on \pfref{hastype}}
 \end{pfsteps*}
 \resetpfcounter
 \end{byCases}
-\end{proof}
 
-The mutual induction used to prove Theorems \ref{thm:typed-expansion-U} and \ref{thm:candidate-expansion-validation-U} can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
+The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
 \begin{align*}
 \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
 \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
@@ -1347,9 +1362,9 @@ where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the len
 \sizeof{\autlam{t}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\autap{\ue}{\tau}} & = \sizeof{\ue}\\
 \sizeof{\aufold{t}{\tau}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auunfold{\ue}} & = \sizeof{\ue}
-\end{align*}
-\begin{align*}
+\sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
+%\end{align*}
+%\begin{align*}
 \sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
 \sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
@@ -1358,9 +1373,9 @@ where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the len
 \sizeof{\autsmap{b}{a}} & = \sizeof{b}
 \end{align*}
 
-The only case in the proof of Theorem \ref{thm:typed-expansion-U} that invokes Theorem \ref{thm:candidate-expansion-validation-U} is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \[\sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau}} = \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\autsmap{b}{a}}{e}{\tau}}=\sizeof{b}\]
+The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \[\sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\Sigma}{b}}{\ce}{e}{\tau}} = \sizeof{\expandsU{\Delta}{\Gamma}{\Sigma}{\autsmap{b}{a}}{e}{\tau}}=\sizeof{b}\]
 
-The only case in the proof of Theorem \ref{thm:candidate-expansion-validation-U} that invokes Theorem \ref{thm:typed-expansion-U} is Case (\ref{rule:cvalidE-U-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and Theorem \ref{thm:typed-expansion-U} is invoked on the judgement $\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}$. Because the metric is stable when passing from Theorem \ref{thm:typed-expansion-U} to Theorem \ref{thm:candidate-expansion-validation-U}, we must have that it is strictly decreasing in the other direction:
+The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidE-U-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and Theorem \ref{thm:typed-expansion-U} is invoked on the judgement $\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
 \[\sizeof{\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
@@ -1372,9 +1387,71 @@ The second condition states that an unexpanded expression constructed by parsing
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 
-\qed
+\end{proof}
+% We need to define the following theorem about candidate expansion expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
+% \begin{theorem}[Candidate Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
+% If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_S}{\Sigma_S}$ then $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$.
+% \end{theorem}
+% \begin{proof} By rule induction over Rules (\ref{rules:cvalidE-U}).
+% \begin{byCases}
+% \item[\text{(\ref{rule:cvalidE-U-var})}] We have
+% \begin{pfsteps*}
+%   \item $\ce=x$ \BY{assumption}
+%   \item $e=x$ \BY{assumption}
+%   \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeU-var})} \pflabel{hastypeU}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma', \Ghyp{x}{\tau}}{\Gamma_S}}{x}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Gamma_S$ to \pfref{hastypeU}}
+% \end{pfsteps*}
+% \resetpfcounter
 
-Finally, the proof of Theorem \ref{thm:candidate-expansion-validation-U} invokes the following lemma about candidate expansion type validation.
+% \item[\text{(\ref{rule:cvalidE-U-lam})}] We have
+% \begin{pfsteps*}
+%   \item $\ce=\acelam{\ctau_1}{x}{\ce'}$ \BY{assumption}
+%   \item $e=\aelam{\tau_1}{x}{e'}$ \BY{assumption}
+%   \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
+%   \item $\cvalidT{\Delta}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
+%   \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
+%   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
+%   \item $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau_1}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_S}}{e'}{\tau_2}$ \BY{IH on \pfref{cvalidE} and \pfref{uetsmenv}} \pflabel{hastype1}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}, \Ghyp{x}{\tau_1}}{e'}{\tau_2}$ \BY{exchange over $\Gamma_S$ on \pfref{hastype1}} \pflabel{hastype2}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype} and \pfref{hastype2}}
+% \end{pfsteps*}
+% \resetpfcounter
+
+% \item[\text{(\ref{rule:cvalidE-U-ap})}] We have
+% \begin{pfsteps*}
+%   \item $\ce=\aceap{\ce_1}{\ce_2}$ \BY{assumption}
+%   \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
+%   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_1}{e_1}{\aparr{\tau_1}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
+%   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_S}{\Gamma_S}{\Sigma_S}{b}}{\ce_2}{e_2}{\tau_1}$ \BY{assumption} \pflabel{cvalidE2}
+%   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e_1}{\aparr{\tau_1}{\tau}}$ \BY{IH on \pfref{cvalidE1} and \pfref{uetsmenv}} \pflabel{hastypeU1}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e_2}{\tau_1}$ \BY{IH on \pfref{cvalidE2} and \pfref{uetsmenv}} \pflabel{hastypeU2}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{\aeap{e_1}{e_2}}{\tau}$ \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
+% \end{pfsteps*}
+% \resetpfcounter
+
+% \item[\VExpof{\text{\ref{rule:hastypeU-tlam}}}~\text{through}~\VExpof{\text{\ref{rule:hastypeU-case}}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
+% \\
+
+% \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
+% \begin{pfsteps*}
+%   \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
+%   \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
+%   \item $\expandsU{\Delta_S}{\Gamma_S}{\Sigma_S}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+%   \item $\uetsmenv{\Delta_S}{\Sigma_S}$ \BY{assumption} \pflabel{uetsmenv}
+%   \item $\hastypeU{\Delta_S}{\Gamma_S}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expansion-U} on \pfref{expands} and \pfref{uetsmenv}} \pflabel{hastype}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_S}}{\Gcons{\Gamma}{\Gamma_S}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} on \pfref{hastype}}
+% \end{pfsteps*}
+% \resetpfcounter
+% \end{byCases}
+% \end{proof}
+
+
+%\qed
+
+Finally, the proof of the second part of Theorem \ref{thm:typed-expansion-U} invokes the following lemma about candidate expansion type validation.
 \begin{lemma}[Candidate Expansion Type Validation]\label{lemma:candidate-expansion-type-validation}
 If $\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau}{\tau}$ then $\istypeU{\Dcons{\Delta}{\Delta_S}}{\tau}$.
 \end{lemma}
@@ -1413,7 +1490,7 @@ If $\cvalidT{\Delta}{\tsceneU{\Delta_S}{b}}{\ctau}{\tau}$ then $\istypeU{\Dcons{
 \end{pfsteps*}
 \resetpfcounter
 
-\item[\VTypof{\text{\ref{rule:istypeU-rec}}}~\text{through}~\VTypof{\text{\ref{rule:istypeU-sum}}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion type validation premises, exchange as needed and then the corresponding type formation rule.
+\item[{\text{(\ref{rule:istypeU-rec})}}~\text{through}~{\text{(\ref{rule:istypeU-sum})}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion type validation premises, exchange as needed and then the corresponding type formation rule.
 \\
 % \item[\text{(\ref{rule:cvalidT-U-rec})}] We have
 % \begin{pfsteps*}
