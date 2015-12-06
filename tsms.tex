@@ -407,7 +407,7 @@ The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to exp
 \end{subequations}
 Rules (\ref{rules:istypeU}) and (\ref{rules:hastypeU}) are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately. The following standard lemmas also hold. 
 
-The Weakening Lemma establishes that extending a context with unused hypotheses preserves well-formedness and typing.
+The Weakening Lemma establishes that extending a context with unnecessary hypotheses preserves well-formedness and typing.
 \begin{lemma}[Weakening]\label{lemma:weakening-U} All of the following hold: 
 \begin{enumerate} 
 \item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
@@ -418,10 +418,10 @@ The Weakening Lemma establishes that extending a context with unused hypotheses 
 \end{lemma}
 \begin{proof-sketch} For each part, by rule induction on the derivation of the assumption. 
 %\begin{enumerate} 
-%\item By rule induction on Rules (\ref{rules:istypeU}).
-%\item By rule induction on Rules (\ref{rules:isctxU}).
-%\item By rule induction on Rules (\ref{rules:hastypeU}).
-%\item By rule induction on Rules (\ref{rules:hastypeU}).
+%\item By rule induction over Rules (\ref{rules:istypeU}).
+%\item By rule induction over Rules (\ref{rules:isctxU}).
+%\item By rule induction over Rules (\ref{rules:hastypeU}).
+%\item By rule induction over Rules (\ref{rules:hastypeU}).
 %\end{enumerate}
 \end{proof-sketch}
 
@@ -447,17 +447,17 @@ The Decomposition Lemma is the converse of the Substitution Lemma.
 \end{enumerate}\end{lemma}
 \begin{proof-sketch}
 \begin{enumerate}
-\item By rule induction on Rules (\ref{rules:istypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
+\item By rule induction over Rules (\ref{rules:istypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
 %\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
-\item By rule induction on Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
-\item By rule induction on Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ does not depend on the form of $e'$.
+\item By rule induction over Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
+\item By rule induction over Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ does not depend on the form of $e'$.
 \end{enumerate}
 \end{proof-sketch}
 
 The Regularity Lemma establishes that the type assigned to an expanded expression under a well-formed typing context is well-formed. 
 \begin{lemma}[Regularity]\label{lemma:regularity-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
 \begin{proof-sketch}
-By rule induction on Rules (\ref{rules:hastypeU}), and Lemma \ref{lemma:substitution-U}.
+By rule induction over Rules (\ref{rules:hastypeU}), and Lemma \ref{lemma:substitution-U}.
 \end{proof-sketch}
 \subsection{Structural Dynamics}\label{sec:dynamics-U}
 The \emph{structural dynamics of }$\miniVerseUE$ is specified as a transition system by judgements of the following form:
@@ -551,7 +551,7 @@ The typed expansion judgement is inductively defined by Rules (\ref*{rules:expan
     \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation}
-Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively. In particular, the type formation premises correspond directly, and the typed expansion premises correspond to the typing premises. The ueTSM environment, $\Sigma$, need not yet be discussed because it passes opaquely through these rules.
+Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively. In particular, the type formation premises correspond directly, and the typed expansion premises correspond to the typing premises. The ueTSM environment, $\Sigma$, need not yet be discussed because it passes opaquely through these rules.
 
 We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeU}),
 \begin{mathpar}
@@ -592,16 +592,23 @@ where
 and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows.
 \begin{itemize}
 \item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
-\[\begin{split}
+\begin{align*}
 \Uof{x} & = x\\
 \Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
-\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}
-\end{split}\]
-and so on for the remaining expanded expression forms.
+\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
+\Uof{\aetlam{t}{e}} & = \autlam{t}{\Uof{e}}\\
+\Uof{\aetap{e}{\tau}} & = \autap{\Uof{e}}{\tau}\\
+\Uof{\aefold{t}{\tau}{e}} & = \aufold{t}{\tau}{e}\\
+\Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
+\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
+\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\Uof{e}}\\
+\Uof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \aucase{\labelset}{\tau}{\Uof{e}}{\mapschemabx{\Uofv}{x}{e}{i}{\labelset}}
+\end{align*}
+%and so on for the remaining expanded expression forms.
 \item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metapattern also of indefinite form. For example, in Rule (\ref{rule:hastypeU-ap}), $e_1$ and $e_2$ are of indefinite form, i.e. they match arbitrary expanded expressions. The rule transformation simply ``hats'' them, i.e. $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
 \end{itemize}
 
-It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-tlam}) through (\ref*{rule:expandsU-case}). By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this approach makes our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
+It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-tlam}) through (\ref*{rule:expandsU-case}). By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded expressions of shared form, so our exposition is somewhat ``robust'' to changes to the inner core. %o that when the inner core changes,  typed expansion rules  our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
 % \begin{subequations}\label{rules:expandsU}
 % \begin{equation}\label{rule:expandsU-var}
 %   \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{x}{x}{\tau}}
@@ -875,9 +882,9 @@ The \emph{candidate expansion validation judgements} validate ce-types and ce-ex
 \[\tsfrom{\esceneU{\Delta}{\Gamma}{\Sigma}{b}} = \tsceneU{\Delta}{b}\]
 
 \subsubsection{Candidate Expansion Type Validation}
-The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref*{rules:cvalidT-U}) as follows:
+The \emph{candidate expansion type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref*{rules:cvalidT-U}) as follows.
 
-\paragraph{Shared Forms} Rules (\ref*{rule:cvalidT-U-tvar}) through (\ref*{rule:cvalidT-U-sum}) validate ce-types of shared form. The first three of these rules are defined below:
+\paragraph{Shared Forms} Rules (\ref*{rule:cvalidT-U-tvar}) through (\ref*{rule:cvalidT-U-sum}) validate ce-types of shared form. The first three of these rules are defined as follows.
 %Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
 \begin{subequations}\label{rules:cvalidT-U}
 \begin{equation}\label{rule:cvalidT-U-tvar}
@@ -930,12 +937,14 @@ where
 and where $\VTypof{\tau}$, when $\tau$ is a metapattern of sort $\mathsf{Typ}$, is a metapattern of sort $\mathsf{CETyp}$ defined as follows:
 \begin{itemize}
 \item When $\tau$ is of definite form, $\VTypof{\tau}$ is defined as follows:
-\[\begin{split}
+\begin{align*}
 \VTypof{t} & = t\\
 \VTypof{\aparr{\tau_1}{\tau_2}} & = \aceparr{\VTypof{\tau_1}}{\VTypof{\tau_2}}\\
-\VTypof{\aall{t}{\tau}} & = \aceall{t}{\VTypof{\tau}} 
-\end{split}\]
-and so on for the remaining type forms.
+\VTypof{\aall{t}{\tau}} & = \aceall{t}{\VTypof{\tau}}\\
+\VTypof{\arec{t}{\tau}} & = \acerec{t}{\VTypof{\tau}}\\
+\VTypof{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \aceprod{\labelset}{\mapschemax{\VTypofv}{\tau}{i}{\labelset}}\\
+\VTypof{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \acesum{\labelset}{\mapschemax{\VTypofv}{\tau}{i}{\labelset}}
+\end{align*}
 \item When $\tau$ is of indefinite form, $\VTypof{\tau}$ is a uniquely corresponding metapattern also of indefinite form. For example, $\VTypof{\tau_1}=\ctau_1$ and $\VTypof{\tau_2}=\ctau_2$.
 \end{itemize}
 
@@ -1081,12 +1090,18 @@ where
 and where $\VExpof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{CEExp}$ defined as follows:
 \begin{itemize}
   \item When $e$ is of definite form, $\VExpof{e}$ is defined as follows:
-  \[\begin{split}
-    \VExpof{x} & = x\\
-    \VExpof{\aelam{\tau}{x}{e}} & = \acelam{\VTypof{\tau}}{x}{\VExpof{e}}\\
-    \VExpof{\aeap{e_1}{e_2}} & = \aceap{\VExpof{e_1}}{\VExpof{e_2}}
-  \end{split}\]
-  and so on for the remaining expression forms.
+  \begin{align*}
+\VExpof{x} & = x\\
+\VExpof{\aelam{\tau}{x}{e}} & = \acelam{\VTypof{\tau}}{x}{\VExpof{e}}\\
+\VExpof{\aeap{e_1}{e_2}} & = \aceap{\VExpof{e_1}}{\VExpof{e_2}}\\
+\VExpof{\aetlam{t}{e}} & = \acetlam{t}{\VExpof{e}}\\
+\VExpof{\aetap{e}{\tau}} & = \acetap{\VExpof{e}}{\VTypof{\tau}}\\
+\VExpof{\aefold{t}{\tau}{e}} & = \acefold{t}{\VTypof{\tau}}{e}\\
+\VExpof{\aeunfold{e}} & = \aceunfold{\VExpof{e}}\\
+\VExpof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\VExpofv}{e}{i}{\labelset}}\\
+\VExpof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \acein{\labelset}{\ell}{\mapschemax{\VTypofv}{\tau}{i}{\labelset}}{\VExpof{e}}\\
+\VExpof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \acecase{\labelset}{\VTypof{\tau}}{\VExpof{e}}{\\&\phantom{=}~~\quad\mapschemabx{\VExpofv}{x}{e}{i}{\labelset}}
+\end{align*}
   \item When $e$ is of indefinite form, $\VExpof{e}$ is a uniquely corresponding metapattern also of indefinite form. For example, $\VExpof{e_1}=\ce_1$ and $\VExpof{e_2}=\ce_2$.
 \end{itemize}
 
@@ -1334,7 +1349,7 @@ The second part of the theorem proceeds by induction over the candidate expansio
 \end{pfsteps*}
 \resetpfcounter
 
-\item[{\text{(\ref{rule:cvalidE-U-tlam})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH to all candidate expansion expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all candidate expansion type validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
+\item[{\text{(\ref{rule:cvalidE-U-tlam})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH to all ce-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all ce-type validation judgements, weakening and exchange as needed, and the corresponding typing rule.
 \\
 
 \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
@@ -1628,7 +1643,7 @@ Here, \li{spliced<1, 4>} refers to the subpattern \li{name} by position, and \li
 The language validates candidate expansion before a final expansion is generated. One aspect of candidate expansion validation is checking the candidate expansion against the type annotation specified by the pattern TSM, e.g. the type \li{Rx} in the example above.
 
 \subsection{Hygiene}\label{sec:ptsms-hygiene}
-In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining expansions directly, the validation process allows variables (e.g. \lstinline{name} and \lstinline{ssn} above) to occur only in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). Indeed, there is no constructor for the type \li{CEPat} corresponding to a variable pattern. This protection against ``hidden bindings'' is beneficial because it leaves variable naming entirely up to the client of the pattern TSM. 
+In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining expansions directly, the validation process allows variables (e.g. \lstinline{name} and \lstinline{ssn} above) to occur only in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). Indeed, there is no constructor for the type \li{CEPat} corresponding to a variable pattern. This protection against ``hidden bindings'' is beneficial because it leaves variable naming entirely up to the client of the pattern TSM. A pattern TSM cannot inadvertently shadow a binding at the application site.
 
 \subsection{Final Expansion}\label{sec:ptsms-final-expansion}
 If validation succeeds, the semantics generates the \emph{final expansion} of the pattern from the candidate expansion by replacing the references to spliced subpatterns with their final expansions. For example, the final expansion of \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} is:
@@ -1637,9 +1652,9 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 \section{\texorpdfstring{$\miniVersePat$}{miniVerseU}}\label{sec:miniVerseUP}
-To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce a reduced calculus with support for both unparameterized expression TSMs and unparameterized pattern TSMs called $\miniVersePat$.
+To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a small language with support for both unparameterized expression TSMs and unparameterized pattern TSMs.
 \subsection{Syntax of the Inner Core}\label{sec:UP-expanded-terms}
-The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ differs from that of $\miniVerseUE$  only in that the case analysis operator has been replaced by the pattern matching operator\footnote{We do not also remove the labeled tuple projection operator because it has lower syntactic cost than pattern matching when projecting out only a single field from a labeled tuple.}, so we will gloss some definitions that are identical to those in Sec. \ref{sec:miniVerseU}. Our formulation of the semantics of pattern matching is adapted from the Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
+The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ differs from that of $\miniVerseUE$  only in that the case analysis operator has been replaced by the pattern matching operator\footnote{We do not also remove the projection operator because it has lower syntactic cost than pattern matching when only a single field from a labeled tuple is needed.}, so we will gloss some definitions that are identical to those in Sec. \ref{sec:miniVerseU}. Our formulation of the semantics of pattern matching is adapted from the Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
 
 \begin{figure}
 $\begin{array}{lllllll}
@@ -1668,7 +1683,7 @@ $\begin{array}{lllllll}
 &&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
 &&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}
 \end{array}$
-\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$]{Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} without restating them, and assume that all metavariables not redefined here are defined identically. We write $\seqschemaX{r}$ for sequences of $n \geq 0$ rule arguments and $\seqschemaX{x}.e$ for expressions binding the sequence of $n \geq 0$ variables $\seqschemaX{x}$. There is no notion of substitution within patterns, i.e. variables in patterns do not stand for terms, but rather serve as references to the bindings in the rule that the pattern appears within. The semantics below makes this clear.}
+\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$]{Syntax of types and expanded expressions, rules and patterns (collectively, expanded terms) in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} without restating them, unless otherwise specified. We write $\seqschemaX{r}$ for sequences of $n \geq 0$ rule arguments and $\seqschemaX{x}.e$ for expressions binding the sequence of $n \geq 0$ variables $\seqschemaX{x}$. Variable patterns are not pattern variables, i.e. they do not stand for terms, but rather serve as references to the bindings in the rule that the pattern appears within. The semantics below will clarify this. Types and expanded terms are identified up to $\alpha$-equivalence.}
 \label{fig:UP-expanded-terms}
 \end{figure}
 
@@ -1711,7 +1726,7 @@ The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types
 }{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation}  
 \end{subequations}
-The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{This premise, and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$ the type $\tau'$ is arbitrary.} The third premise then ensures that each of the $n \geq 0$ rules $r_i$, for $1 \leq i \leq n$, take values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
+The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{The second premise of Rule (\ref{rule:hastypeUP-match}), and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$, the type $\tau'$ is arbitrary. In all other cases, $\tau'$ can be determined by assigning types to the  branch expressions.} The third premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
 \begin{equation}\label{rule:ruleType}
 \inferrule{
   \patType{\pctx}{p}{\tau}\\
@@ -1721,7 +1736,7 @@ The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, t
 \end{equation}
 The premises of Rule (\ref{rule:ruleType}) can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$, and gather the typing hypotheses that the pattern generates in a \emph{pattern typing context}, $\Omega$. Pattern typing contexts, like typing contexts, $\Gamma$, consist of hypotheses $x : \tau$. We specify a distinct metavariable because the {pattern typing judgement} is a \emph{linear hypothetical judgement}, i.e. it does not obey weakening. This is to ensure that the pattern typing context captures exactly those variables bound by a pattern, and no others. Algorithmically, one should think of the pattern typing context as an ``output'' of the pattern typechecker.
+\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$, and to gather the typing hypotheses that the pattern generates in a \emph{pattern typing context}, $\Omega$. Pattern typing contexts, like typing contexts, $\Gamma$, are finite mappings from variables to  hypotheses of the form $x : \tau$. Algorithmically, however, consider the pattern typing context the ``output'' of the pattern typing judgement. %We use the letter $\pctx$ rather than $\Gamma$ only to emphasize that 
 
 The pattern typing judgement is inductively defined by the following rules:
 \begin{subequations}\label{rules:patType}
@@ -1734,7 +1749,7 @@ The pattern typing judgement is inductively defined by the following rules:
 \begin{equation}\label{rule:patType-tpl}
 \inferrule{
   \{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
-  \cap_{i \in \labelset} \domof{\pctx_i} = \emptyset
+  \{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}
 }{
   \patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 }
@@ -1752,9 +1767,9 @@ Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, can match 
 
 Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern can also match values of any type, $\tau$, but wildcard patterns generate no hypotheses. 
 
-Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern of this form matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. Each subpattern $p_i$ is checked against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The rule then ensures that the subpatterns bind distinct variables by checking that the domains of the generated pattern typing contexts $\pctx_i$ are disjoint. The hypotheses generated in the conclusion of the rule are the union of the hypotheses $\pctx_i$.
+Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern of this form matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. The first premise checks each subpattern $p_i$ against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The second premise ensures that no variables are multiply bound by checking that the domains of the generated pattern typing contexts $\pctx_i$ are mutually disjoint. The hypotheses generated in the conclusion of the rule are the union of the hypotheses generated by the subpatterns. 
 
-Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that specify a case for $\ell$. Rule (\ref{rule:patType-inj}) checks the subpattern $p$ against the corresponding type $\tau$, and passes through the assumptions that $p$ generates.
+Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that define a case for the label $\ell$. Rule (\ref{rule:patType-inj}) checks the subpattern $p$ against the corresponding type $\tau$, and passes through the assumptions that $p$ generates.
 
 \item The second premise of Rule (\ref{rule:ruleType}) ensures that pattern typing of $p$ has generated hypotheses for all of the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for rules, $\matchrule{p}{e}$, the variables bound in $e$ are, implicitly, exactly those mentioned in p.% The bindings for $e$ would be extracted from the pattern implicitly. 
 \item The final premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.
@@ -1762,7 +1777,7 @@ Injection patterns, $\aeinjp{\ell}{p}$, match values of labeled sum types of the
 
 The rules above are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately or proving it explicitly. The following standard lemmas also hold.
 
-The Weakening Lemma expresses the intuition that extending a typing or type formation contxt with unused variables preserves well-formedness, typing and rule typing.
+The Weakening Lemma establishes that extending the context with unnecessary hypotheses preserves well-formedness and typing.
 \begin{lemma}[Weakening]\label{lemma:weakening-UP} All of the following hold: 
 \begin{enumerate} 
 \item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
@@ -1779,14 +1794,15 @@ The Weakening Lemma expresses the intuition that extending a typing or type form
 \end{lemma}
 \begin{proof-sketch}
 \begin{enumerate}
-\item By rule induction on Rules (\ref{rules:istypeU}).
-%\item By rule induction on Rules (\ref{rules:isctxU}).
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By rule induction over Rules (\ref{rules:istypeU}).
+%\item By rule induction over Rules (\ref{rules:isctxU}).
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
 \end{enumerate}
 \end{proof-sketch}
+Note that the {pattern typing judgement} is a \emph{linear hypothetical judgement}, i.e. it does \emph{not} obey weakening of the pattern typing context. This is to ensure that the pattern typing context captures exactly those hypotheses generated by a pattern, and no others.
 
-The Substitution Lemma expresses the intuition that substitution of a type for a type variable, or an expression of the appropriate type for an expression variable, preserves well-formedness, typing and rule typing.
+We assume that renaming of bound variables, $\alpha$-equivalence and substitution are defined as in \emph{PFPL} \cite{pfpl}, with the additional stipulation that the variables that are bound by the branch expression in an expanded rule are renamed together with those in the corresponding expanded pattern. The Substitution Lemma establishes that substitution of a well-formed type for a type variable, or an expanded expression of the appropriate type for an expanded expression variable, preserves well-formedness and typing.
 \begin{lemma}[Substitution]\label{lemma:substitution-UP} All of the following hold:
 \begin{enumerate}
 \item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
@@ -1802,9 +1818,9 @@ The Substitution Lemma expresses the intuition that substitution of a type for a
 \end{enumerate}\end{lemma}
 \begin{proof-sketch}
 \begin{enumerate}
-\item By rule induction on Rules (\ref{rules:istypeU}).
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By rule induction over Rules (\ref{rules:istypeU}).
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
 \end{enumerate}
 \end{proof-sketch}
 
@@ -1824,18 +1840,18 @@ The Decomposition Lemma is the converse of the Substitution Lemma.
 \end{enumerate}\end{lemma}
 \begin{proof-sketch}
 \begin{enumerate}
-\item By rule induction on Rules (\ref{rules:istypeU}) and case analysis over the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the structure of $\tau'$.
+\item By rule induction over Rules (\ref{rules:istypeU}) and case analysis over the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
 %\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ or $\ruleType{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]r}{[\tau'/t]\tau}{[\tau'/t]\tau''}$ does not depend on the structure of $\tau'$.
-\item By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ or $\ruleType{\Delta}{\Gamma}{[e'/x]r}{\tau}{\tau''}$ does not depend on the structure of $e'$.
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ or $\ruleType{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]r}{[\tau'/t]\tau}{[\tau'/t]\tau''}$ does not depend on the form of $\tau'$.
+\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ or $\ruleType{\Delta}{\Gamma}{[e'/x]r}{\tau}{\tau''}$ does not depend on the form of $e'$.
 \end{enumerate}
 \end{proof-sketch}
 
-The Pattern Regularity Lemma expresses the intuition that the hypotheses generated by checking a pattern against a well-formed type involve only well-formed types themselves.
+The Pattern Regularity Lemma establishes that the hypotheses generated by checking a pattern against a well-formed type involve only well-formed types.
 \begin{lemma}[Pattern Regularity]\label{lemma:pattern-regularity-UP} 
 If $\patType{\pctx}{p}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\pctx$.
 \end{lemma}
-\begin{proof} By rule induction on Rules (\ref{rules:patType}).
+\begin{proof} By rule induction over Rules (\ref{rules:patType}).
 \begin{byCases}
 \item[\text{(\ref{rule:patType-var})}] We have:
 \begin{pfsteps*}
@@ -1853,8 +1869,8 @@ If $\patType{\pctx}{p}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta
   \item $\pctx=\cup_{i \in \labelset} \pctx_i$ \BY{assumption}
   \item $\istypeU{\Delta}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{assumption} \pflabel{istypeU}
   \item $\istypeU{\Delta}{\tau_i}$ for each $i \in \labelset$ \BY{Inversion of Rule (\ref{rule:istypeU-prod}) on \pfref{istypeU}}\pflabel{istypeU-each}
-  \item $\istypeU{\Delta}{\tau_{ij}}$ for each assumption $x_{ij} : \tau_{ij}$ in $\pctx_i$, for each $i \in \labelset$ \BY{IH on \pfref{patType} and \pfref{istypeU-each} for each $i \in \labelset$} \pflabel{biggy}
-  \item $\istypeU{\Delta}{\tau_{ij}}$ for each assumption $x_{ij} : \tau_{ij}$ in $\cup_{i \in \labelset}\pctx_i$ \BY{the definition of pattern context union and \pfref{biggy}}
+  \item $\istypeU{\Delta}{\tau_{ij}}$ for each $x_{ij} : \tau_{ij}$ in $\pctx_i$, for each $i \in \labelset$ \BY{IH on \pfref{patType} and \pfref{istypeU-each} for each $i \in \labelset$} \pflabel{biggy}
+  \item $\istypeU{\Delta}{\tau_{ij}}$ for each $x_{ij} : \tau_{ij}$ in $\cup_{i \in \labelset}\pctx_i$ \BY{the definition of pattern context union and \pfref{biggy}}
 \end{pfsteps*}
 \resetpfcounter
 \item[\text{(\ref{rule:patType-inj})}] We have:
@@ -1869,14 +1885,14 @@ If $\patType{\pctx}{p}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta
 \end{byCases}
 \end{proof}
 
-The Regularity Lemma expresses the intuition that the type assigned to an expression under a well-formed typing context is well-formed. 
+Finally, the Regularity Lemma establishes that the type assigned to an expression under a well-formed typing context is well-formed. 
 \begin{lemma}[Regularity]\label{lemma:regularity-UP} All of the following hold:
 \begin{enumerate}
 \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau}$.
 \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau'}$.
 \end{enumerate}
 \end{lemma}
-\begin{proof-sketch} By mutual rule induction on Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}), Lemma \ref{lemma:substitution-UP} and Lemma \ref{lemma:pattern-regularity-UP}.
+\begin{proof-sketch} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}), and Lemma \ref{lemma:substitution-UP} and Lemma \ref{lemma:pattern-regularity-UP}.
 \end{proof-sketch}
 \subsection{Structural Dynamics}\label{sec:dynamics-UP}
 The \emph{structural dynamics of }$\miniVersePat$ is specified as a transition system, and is organized around judgements of the following form:
@@ -1892,7 +1908,7 @@ We also define auxiliary judgements for \emph{iterated transition}, $\multistepU
 
 \begin{definition}[Evaluation]\label{defn:evaluation-UP}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
 
-As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor the auxiliary judgements for specifying the dynamics of the match operator, not shown, so we do not provide these details here. Instead, it suffices to state the following conditions.
+As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of judgements used only for defining the dynamics of the match operator, not shown, so we do not provide these details here. Instead, it suffices to state the following conditions.
 
 The Canonical Forms condition characterizes well-typed values. We assume an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. This condition is identical to Condition \ref{condition:canonical-forms-U}.
 
@@ -1904,29 +1920,17 @@ The Canonical Forms condition characterizes well-typed values. We assume an \emp
 \item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$ for each $i \in \labelset$.
 \item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau_\ell}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau_\ell}{e'}$ and $\hastypeUC{e'}{\tau_\ell}$ and $\isvalU{e'}$.\end{enumerate}\end{condition}
 
-The Preservation and Progress conditions (together, the {Type Safety} condition) ensure that the statics of the inner core and the structural dynamics are coherent, i.e. that evaluation of a well-typed expression preserves typing and cannot ``get stuck''.
+The Preservation condition ensures that evaluation preserves typing.
 \begin{condition}[Preservation]\label{condition:preservation-UP} If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
+The Progress condition ensures that evaluation of a well-typed expression preserves typing and cannot ``get stuck''.
 \begin{condition}[Progress]\label{condition:progress-UP} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or $\matchfail{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+ 
+The Preservation and Progress conditions together establish type safety.
 %\noindent
 %Condition \ref{condition:preservation-UP} is identical to Condition \ref{condition:preservation-U}, while Condition \ref{condition:progress-UP} modifies Condition \ref{condition:progress-U} to allow for match failure. 
 
-We do not specify exhaustiveness and redundancy properties here, because these can be checked post-expansion and are thus not relevant to our subsequent developments (but see \cite{pfple1} for a formal account).
+We do not define exhaustiveness and redundancy properties here, because these can be checked post-expansion and so are also not relevant to our subsequent developments (but see \cite{pfple1} for a formal account).
 
-
-\subsection{Typed Expansion}
-The surface syntax of $\miniVersePat$ consists of types, as above, unexpanded expressions, $\ue$, unexpanded rules, $\urv$, and unexpanded patterns, $\upv$. The syntax of unexpanded terms is specified in Figure \ref{fig:UP-unexpanded-terms}. 
-
-Unexpanded terms are simultaneously typed and expanded according to the \emph{typed expansion judgements}:
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau} & \text{$\ue$ expands to $e$ at type $\tau$ assuming $\Delta$ and $\Gamma$ under ueTSM}\\
-& \text{environment $\Sigma$ and upTSM environment $\Phi$}\\
-\ruleExpands{\Delta}{\Gamma}{\Sigma}{\Phi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ expands to $r$ taking values of type $\tau$ to values of type $\tau'$}\\
-& \text{assuming $\Delta$ and $\Gamma$ under TSM environments $\Sigma$ and $\Phi$}\\
-\patExpands{\pctx}{\Phi}{\upv}{p}{\tau} & \text{$\upv$ expands to $p$ at type $\tau$ generating hypotheses $\pctx$ under}\\
-& \text{upTSM environment $\Phi$}
-\end{array}\]
-The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau}$, is inductively defined by the following rules:
 \begin{figure}
 \hspace{-8px}$\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
@@ -1956,6 +1960,26 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Si
 \caption[Syntax of unexpanded expressions, rules and patterns in $\miniVersePat$]{Abstract syntax of unexpanded expressions, rules and patterns in $\miniVersePat$. Metavariable $\tsmv$ ranges over TSM names and $b$ ranges over literal bodies. Literal bodies might contain unparsed terms, so variable renaming and substitution cannot be defined in the usual manner over unexpanded terms (i.e. they should be thought of as partially parsed abstract syntax trees, not abstract binding trees.)}
 \label{fig:UP-unexpanded-terms}
 \end{figure}
+
+\subsection{Syntax of the Outer Surface}
+Programs ultimately evaluate as expanded expressions, but programmers do not write expanded terms directly. Instead, the \emph{outer surface of} $\miniVersePat$ consists of types, defined above, and \emph{unexpanded expressions}, $\ue$, \emph{unexpanded rules}, $\urv$, and \emph{unexpanded patterns}, $\upv$ (collectively, \emph{unexpanded terms}). The syntax of unexpanded terms is specified in Figure \ref{fig:UP-unexpanded-terms}. 
+Notice that each expanded term form corresponds to an unexpanded term form. We refer to these as the \emph{shared forms}. In addition, four unexpanded term forms do not correspond to expanded term forms: the ueTSM definition form, the ueTSM application form, the upTSM definition form and the upTSM application form.
+
+\subsection{Typed Expansion}
+Unexpanded terms are typed and expanded according to the \emph{typed expansion judgements}:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM environment $\Sigma$}\\
+& \text{and upTSM environment $\Phi$ assuming $\Delta$ and $\Gamma$}\\
+\ruleExpands{\Delta}{\Gamma}{\Sigma}{\Phi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
+& \text{type $\tau'$ under TSM environments $\Sigma$ and $\Phi$ assuming $\Delta$ and $\Gamma$}\\
+\patExpands{\pctx}{\Phi}{\upv}{p}{\tau} & \text{$\upv$ has expansion $p$ and type $\tau$ and generates hypotheses $\pctx$ }\\
+& \text{under upTSM environment $\Phi$}
+\end{array}\]
+
+The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\Delta}{\Gamma}{\Sigma}{\Phi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref*{rules:expandsUP}) and Rule (\ref*{rule:ruleExpands}), respectively, as follows.
+
+\paragraph{Shared Forms} Rules (\ref*{rule:expandsUP-var}) through (\ref*{rule:expandsUP-match}) define typed expansion of  unexpanded expressions of shared form. The first three of these rules are shown below:
 \begin{subequations}\label{rules:expandsUP}
 \begin{equation}\label{rule:expandsUP-var}
   \inferrule{ }{\expandsUP{\Delta}{\Gamma, x : \tau}{\Sigma}{\Phi}{x}{x}{\tau}}
@@ -1974,65 +1998,131 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\Delta}{\Gamma}{\Si
     \expandsUPX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation}
-\begin{equation}\label{rule:expandsUP-tlam}
-  \inferrule{
-    \expandsUP{\Delta, \Dhyp{t}}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau}
-  }{
-    \expandsUPX{\autlam{t}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-tap}
-  \inferrule{
-    \expandsUPX{\ue}{e}{\aall{t}{\tau}}\\
-    \istypeU{\Delta}{\tau'}
-  }{
-    \expandsUPX{\autap{\ue}{\tau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-fold}
-  \inferrule{
-    \istypeU{\Delta, \Dhyp{t}}{\tau}\\
-    \expandsUPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
-  }{
-    \expandsUPX{\aufold{t}{\tau}{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-unfold}
-  \inferrule{
-    \expandsUPX{\ue}{e}{\arec{t}{\tau}}
-  }{
-    \expandsUPX{\auunfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-tpl}
-  \inferrule{
-    \{\expandsUPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \expandsUPX{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-pr}
-  \inferrule{
-    \expandsUPX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }{
-    \expandsUPX{\aupr{\ell}{\ue}}{\aepr{\ell}{e}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-in}
-  \inferrule{
-    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
-    \istypeU{\Delta}{\tau}\\
-    \expandsUPX{\ue}{e}{\tau}
-  }{
-    \left\{\shortstack{$\Delta~\Gamma \vdash_{\Sigma;\,\Phi} \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
-  }
-\end{equation}
+% \begin{equation}\label{rule:expandsUP-tlam}
+%   \inferrule{
+%     \expandsUP{\Delta, \Dhyp{t}}{\Gamma}{\Sigma}{\Phi}{\ue}{e}{\tau}
+%   }{
+%     \expandsUPX{\autlam{t}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-tap}
+%   \inferrule{
+%     \expandsUPX{\ue}{e}{\aall{t}{\tau}}\\
+%     \istypeU{\Delta}{\tau'}
+%   }{
+%     \expandsUPX{\autap{\ue}{\tau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-fold}
+%   \inferrule{
+%     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
+%     \expandsUPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
+%   }{
+%     \expandsUPX{\aufold{t}{\tau}{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-unfold}
+%   \inferrule{
+%     \expandsUPX{\ue}{e}{\arec{t}{\tau}}
+%   }{
+%     \expandsUPX{\auunfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-tpl}
+%   \inferrule{
+%     \{\expandsUPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
+%   }{
+%     \expandsUPX{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-pr}
+%   \inferrule{
+%     \expandsUPX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%   }{
+%     \expandsUPX{\aupr{\ell}{\ue}}{\aepr{\ell}{e}}{\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:expandsUP-in}
+%   \inferrule{
+%     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
+%     \istypeU{\Delta}{\tau}\\
+%     \expandsUPX{\ue}{e}{\tau}
+%   }{
+%     \left\{\shortstack{$\Delta~\Gamma \vdash_{\Sigma;\,\Phi} \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
+%   }
+% \end{equation}
+Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeUP-var}), (\ref{rule:hastypeUP-lam}) and (\ref{rule:hastypeUP-ap}), respectively. In particular, the type formation premises correspond directly, and the typed expansion premises correspond to the typing premises. The ueTSM environment, $\Sigma$, and upTSM environment, $\Phi$, pass opaquely through these rules.
+\refstepcounter{equation}
+\label{rule:expandsUP-tlam}
+\refstepcounter{equation}
+\label{rule:expandsUP-tap}
+\refstepcounter{equation}
+\label{rule:expandsUP-fold}
+\refstepcounter{equation}
+\label{rule:expandsUP-unfold}
+\refstepcounter{equation}
+\label{rule:expandsUP-tpl}
+\refstepcounter{equation}
+\label{rule:expandsUP-pr}
+\refstepcounter{equation}
+\label{rule:expandsUP-in}
+
+Rule (\ref*{rule:expandsUP-match}), shown below, defines typed expansion of the unexpanded match expression, and follows a similar scheme. The rule typing premise corresponds to a typed rule expansion premise.
 \begin{equation}\label{rule:expandsUP-match}
 \inferrule{
   \expandsUPX{\ue}{e}{\tau}\\
   \{\ruleExpands{\Delta}{\Gamma}{\Sigma}{\Phi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 }{\expandsUPX{\aumatchwith{n}{\tau'}{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation}  
+
+
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeUP}),
+\begin{mathpar}
+%\refstepcounter{equation}
+%\label{rule:expandsU-case}
+\inferrule{J_1\\ \cdots \\ J_k}{J}
+\end{mathpar}
+the corresponding typed expansion rule is 
+\begin{mathpar}
+\inferrule{
+  \Uof{J_1} \\
+  \cdots\\
+  \Uof{J_k}
+}{
+  \Uof{J}
+}
+\end{mathpar}
+where
+\[\begin{split}
+\Uof{\istypeU{\Delta}{\tau}} & = \istypeU{\Delta}{\tau} \\
+\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsUP{\Gamma}{\Delta}{\Sigma}{\Phi}{\Uof{e}}{e}{\tau}\\
+\Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Gamma}{\Delta}{\Sigma}{\Phi}{\Uof{r}}{r}{\tau}{\tau'}\\
+\Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
+\end{split}\]
+and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows:
+\begin{itemize}
+\item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
+\[\begin{split}
+\Uof{x} & = x\\
+\Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
+\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
+\Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \aumatchwith{n}{\tau}{\Uof{e}}{{\Uof{\seqschemaX{r}}}}
+\end{split}\]
+and so on for the remaining expanded expression forms.
+\item $\Uof{\mapschema{e}{i}{\labelset}} = \{\mapitem{i}{\Uof{e_i}}\}_{i \in \labelset}$
+\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metapattern of indefinite form. %For example, in Rule (\ref{rule:hastypeUP-ap}), $e_1$ and $e_2$ are of indefinite form, i.e. they match arbitrary expanded expressions. The rule transformation simply ``hats'' them, i.e. $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+\end{itemize}
+and where:
+\begin{itemize}
+\item $\Uof{\seqschemaX{r}} = \{\Uof{r_i}\}_{1 \leq i \leq n}$
+\item $\Uof{r}$, when $r$ is a metapattern of sort $\mathsf{ERule}$ of indefinite form, is a uniquely corresponding  metapattern of sort $\mathsf{URule}$ of indefinite form. 
+\end{itemize}
+
+It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsUP-var}) through (\ref{rule:expandsUP-ap}) and Rule (\ref{rule:expandsUP-match}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsUP-tlam}) through (\ref*{rule:expandsUP-in}). 
+
+The rule typing 
+%By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this approach makes our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).
+
 \begin{equation}\label{rule:expandsUP-syntax}
 \inferrule{
   \istypeU{\Delta}{\tau}\\

@@ -48,6 +48,8 @@
 \newcommand{\labelset}{L}
 \newcommand{\mapschema}[3]{\{#2 \hookrightarrow #1_{#2}\}_{#2 \in #3}}
 \newcommand{\mapschemab}[4]{\{#3 \hookrightarrow #1_{#3}.#2_{#3}\}_{#3 \in #4}}
+\newcommand{\mapschemax}[4]{\{#3 \hookrightarrow #1(#2_{#3})\}_{#3 \in #4}}
+\newcommand{\mapschemabx}[5]{\{#4 \hookrightarrow #2_{#4}.#1(#3_{#4})\}_{#4 \in #5}}
 \newcommand{\finmap}[1]{#1}
 \newcommand{\mapitem}[2]{#1 \hookrightarrow #2}
 \newcommand{\lbltxt}[1]{\mathtt{#1}}
@@ -110,10 +112,12 @@
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
 
-\newcommand{\Uof}[1]{\mathcal{U}(#1)}
-\newcommand{\VTypof}[1]{\mathcal{V}_\mathsf{Typ}(#1)}
-\newcommand{\VExpof}[1]{\mathcal{V}_\mathsf{Exp}(#1)}
-\newcommand{\rulemv}{R}
+\newcommand{\Uofv}{\mathcal{U}}
+\newcommand{\Uof}[1]{\Uofv(#1)}
+\newcommand{\VTypofv}{\mathcal{V}_\mathsf{Typ}}
+\newcommand{\VTypof}[1]{\VTypofv(#1)}
+\newcommand{\VExpofv}{\mathcal{V}_\mathsf{EExp}}
+\newcommand{\VExpof}[1]{\VExpofv(#1)}
 
 % Statics of miniVerseU expanded expressions
 \newcommand{\istypeU}[2]{#1 \vdash #2~\mathsf{type}}
