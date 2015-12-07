@@ -57,6 +57,7 @@
 % sequences
 \newcommand{\seqschema}[4]{\{#1_{#2}\}_{#3 \leq #2 \leq #4}}
 \newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
+\newcommand{\seqschemaXx}[2]{\{#1(#2_i)\}_{1 \leq i \leq n}}
 
 % Expanded/Unexpanded/Candidate expressions
 \newcommand{\lam}[3]{\lambda #1{:}#2.#3}
@@ -212,7 +213,7 @@
 \newcommand{\aumatchrule}[4]{\abopic{urule}{#1}{#2}{#3.#4}}
 \newcommand{\acematchrule}[4]{\abopic{cerule}{#1}{#2}{#3.#4}}
 
-\newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Rightarrow #5}
+\newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Mapsto #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
 \newcommand{\pctx}{\Omega}
 
@@ -256,7 +257,7 @@
 \newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
 \newcommand{\expandsUPX}[3]{\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{#1}{#2}{#3}}
 
-\newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Rightarrow #8}
+\newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
 \newcommand{\patExpands}[5]{#1 \vdash_{#2} #3 \leadsto #4 : #5}
 \newcommand{\xuptsmdef}[2]{\abop{uptsm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
