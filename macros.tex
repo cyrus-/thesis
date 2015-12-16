@@ -139,8 +139,13 @@
 \newcommand{\multistepU}[2]{#1 \mapsto^{*} #2}
 \newcommand{\evalU}[2]{#1 \Downarrow #2}
 
+% Unexpanded types
+\newcommand{\utau}{{\hat\tau}}
+\newcommand{\ut}{{\hat{t}}}
+
 % Unexpanded expressions
 \newcommand{\ue}{{\hat e}}
+\newcommand{\ux}{{\hat x}}
 \newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
 \newcommand{\audefuetsm}[4]{\abopcc{usyntaxue}{#1}{#2}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
@@ -152,6 +157,15 @@
 \newcommand{\tsmv}{a}
 \newcommand{\utsmdef}[2]{\texttt{syntax}~@~#1~\texttt{\{}#2\texttt{\}}}
 \newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
+
+\newcommand{\uGamma}{\hat{\Gamma}}
+\newcommand{\uDelta}{\hat{\Delta}}
+\newcommand{\uD}{\mathcal{D}}
+\newcommand{\uG}{\mathcal{G}}
+\newcommand{\uDD}[2]{#1 \vert #2}
+\newcommand{\uGG}[2]{#1 \vert #2}
+\newcommand{\uGammaOK}[1]{#1 \vdash \mathsf{ok}}
+\newcommand{\uDeltaOK}[1]{#1 \vdash \mathsf{ok}}
 
 \newcommand{\tBody}{\mathtt{Body}}
 \newcommand{\tParseResultExp}{\mathtt{ParseResultExp}} 

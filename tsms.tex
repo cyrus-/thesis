@@ -245,7 +245,7 @@ To make the intuitions developed in the previous section mathematically precise,
 &&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
 &&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
 &&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
-\mathsf{EExp} & e & ::= & x & x & \text{variable}\\
+\mathsf{Exp} & e & ::= & x & x & \text{variable}\\
 &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
 &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
 &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
@@ -275,7 +275,7 @@ The \emph{statics of the inner core} is specified by hypothetical judgements of 
 \hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ is assigned type $\tau$ assuming $\Delta$ and $\Gamma$}
 \end{array}\]
 \noindent
-\emph{Type formation contexts}, $\Delta$, are finite sets of hypotheses of the form $\Dhyp{t}$, and \emph{typing contexts}, $\Gamma$, are finite mappings from variables, $x$, to corresponding hypotheses of the form $\Ghyp{x}{\tau}$. We write contexts as comma-separated sequences of {hypotheses} identified up to exchange and contraction. Empty contexts are written $\emptyset$, or omitted entirely.
+\emph{Type formation contexts}, $\Delta$, are finite sets of hypotheses of the form $\Dhyp{t}$. Empty contexts are written $\emptyset$, or omitted entirely. We write $\Delta, \Dhyp{t}$ when $\Dhyp{t} \notin \Delta$ for the extension of $\Delta$ with the hypothesis $\Dhyp{t}$. We write $\Dcons{\Delta}{\Delta'}$ for the union of $\Delta$ and $\Delta'$.
 
 The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, ensures that all free type variables in $\tau$ are tracked by $\Delta$. It is inductively defined by the following rules:
 \begin{subequations}\label{rules:istypeU}
@@ -319,7 +319,12 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, ensures that all 
 \end{subequations}
 Premises of the form $\{{J}_i\}_{i \in \labelset}$ mean that for each $i \in \labelset$, the judgement ${J}_i$ must hold. 
 
-The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions. It is inductively defined by the following rules:
+\emph{Typing contexts}, $\Gamma$, are finite mappings from variables, $x$, to corresponding hypotheses of the form $\Ghyp{x}{\tau}$. We write $\domof{\Gamma}$ for the domain of $\Gamma$. We write empty contexts as $\emptyset$, or omit their mention. We write $\Gamma, \Ghyp{x}{\tau}$ when $x \notin \domof{\Gamma}$ for the extension of $\Gamma$ with a mapping from $x$ to the hypothesis $\Ghyp{x}{\tau}$, and $\Gcons{\Gamma}{\Gamma'}$ when $\domof{\Gamma} \cap \domof{\Gamma'} = \emptyset$ for the typing context with domain $\domof{\Gamma} \cup \domof{\Gamma'}$ mapping each variable to the corresponding hypothesis in $\Gamma$ or $\Gamma'$. We write $\isctxU{\Delta}{\Gamma}$ if every type in $\Gamma$ is well-formed relative to $\Delta$.
+\begin{definition}\label{def:isctxU}
+$\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have $\istypeU{\Delta}{\tau}$.
+\end{definition}
+
+The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions, assuming $\Delta$ and $\Gamma$. It is inductively defined by the following rules:
 \begin{subequations}\label{rules:hastypeU}
 \begin{equation}\label{rule:hastypeU-var}
   \inferrule{ }{
@@ -455,9 +460,9 @@ The Decomposition Lemma is the converse of the Substitution Lemma.
 \end{proof-sketch}
 
 The Regularity Lemma establishes that the type assigned to an expanded expression under a well-formed typing context is well-formed. 
-\begin{lemma}[Regularity]\label{lemma:regularity-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau_i}$ for each assumption $x_i : \tau_i$ in $\Gamma$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begin{lemma}[Regularity]\label{lemma:regularity-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
 \begin{proof-sketch}
-By rule induction over Rules (\ref{rules:hastypeU}), and Lemma \ref{lemma:substitution-U}.
+By rule induction over Rules (\ref{rules:hastypeU}), Definition \ref{def:isctxU} and Lemma \ref{lemma:substitution-U}.
 \end{proof-sketch}
 \subsection{Structural Dynamics}\label{sec:dynamics-U}
 The \emph{structural dynamics of }$\miniVerseUE$ is specified as a transition system by judgements of the following form:
@@ -511,19 +516,25 @@ Unexpanded expressions are typed and expanded simultaneously according to the \e
 \begin{figure}
 \hspace{-6px}$\arraycolsep=3.5pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{UExp} & \ue & ::= & x & x & \text{variable}\\
-&&& \aulam{\tau}{x}{\ue} & \lam{x}{\tau}{\ue} & \text{abstraction}\\
+\mathsf{UTyp} & \utau & ::= & \ut & \ut & \text{variable}\\
+&&& \aparr{\utau}{\utau} & \parr{\utau}{\utau} & \text{partial function}\\
+&&& \aall{\ut}{\utau} & \forallt{\ut}{\utau} & \text{polymorphic}\\
+&&& \arec{\ut}{\utau} & \rect{\ut}{\utau} & \text{recursive}\\
+&&& \aprod{\labelset}{\mapschema{\utau}{i}{\labelset}} & \prodt{\mapschema{\utau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\utau}{i}{\labelset}} & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{UExp} & \ue & ::= & \ux & \ux & \text{variable}\\
+&&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
 &&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
-&&& \autlam{t}{\ue} & \Lam{t}{\ue} & \text{type abstraction}\\
-&&& \autap{\ue}{\tau} & \App{\ue}{\tau} & \text{type application}\\
-&&& \aufold{t}{\tau}{\ue} & \fold{\ue} & \text{fold}\\
+&&& \autlam{\ut}{\ue} & \Lam{\ut}{\ue} & \text{type abstraction}\\
+&&& \autap{\ue}{\utau} & \App{\ue}{\utau} & \text{type application}\\
+&&& \aufold{\ut}{\utau}{\ue} & \fold{\ue} & \text{fold}\\
 &&& \auunfold{\ue} & \unfold{\ue} & \text{unfold}\\
 &&& \autpl{\labelset}{\mapschema{\ue}{i}{\labelset}} & \tpl{\mapschema{\ue}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
-&&& \auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
-&&& \aucase{\labelset}{\tau}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \caseof{\ue}{\mapschemab{x}{\ue}{i}{\labelset}} & \text{case analysis}\\
+&&& \auin{\labelset}{\ell}{\mapschema{\utau}{i}{\labelset}}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
+&&& \aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}} & \caseof{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}} & \text{case analysis}\\
 \LCC  &  & & \lightgray & \lightgray & \lightgray \\
-&&& \audefuetsm{\tau}{e}{\tsmv}{\ue} & \uesyntax{\tsmv}{\tau}{e}{\ue} & \text{ueTSM definition}\\ 
+&&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{ueTSM definition}\\ 
 &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\ECC
 \end{array}$
 \caption[Syntax of unexpanded expressions in $\miniVerseUE$]{Abstract syntax of unexpanded expressions in $\miniVerseUE$. Metavariable $\tsmv$ ranges over TSM names and $b$ ranges over literal bodies. Literal bodies might be found during typed expansion to contain spliced terms, so variable renaming and substitution cannot be defined in the usual manner over unexpanded expressions.}
@@ -590,7 +601,7 @@ where
 \Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsU{\Gamma}{\Delta}{\Sigma}{\Uof{e}}{e}{\tau}\\
 \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows.
+and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{Exp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows.
 \begin{itemize}
 \item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
 \begin{align*}
@@ -1111,7 +1122,7 @@ where
   \VExpof{\hastypeU{\Delta}{\Gamma}{e}{\tau}} & = \cvalidE{\Delta}{\Gamma}{\escenev}{\VExpof{e}}{e}{\tau}\\
   \VExpof{\{J_i\}_{i \in \labelset}} & = \{\VExpof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\VExpof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{CEExp}$ defined as follows:
+and where $\VExpof{e}$, when $e$ is a metapattern of sort $\mathsf{Exp}$, is a metapattern of sort $\mathsf{CEExp}$ defined as follows:
 \begin{itemize}
   \item When $e$ is of definite form, $\VExpof{e}$ is defined as follows:
   \begin{align*}
@@ -1697,7 +1708,7 @@ $\begin{array}{lllllll}
 &&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
 &&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
 &&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
-\mathsf{EExp} & e & ::= & x & x & \text{variable}\\
+\mathsf{Exp} & e & ::= & x & x & \text{variable}\\
 &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
 &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
 &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
@@ -2137,7 +2148,7 @@ where
 \Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Gamma}{\Delta}{\Sigma}{\Phi}{\Uof{r}}{r}{\tau}{\tau'}\\
 \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{EExp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows:
+and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{Exp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows:
 \begin{itemize}
 \item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
 \begin{align*}
