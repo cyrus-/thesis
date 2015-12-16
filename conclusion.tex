@@ -114,7 +114,7 @@ in
   end
 end 
 \end{lstlisting}
-If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. In VerseML, expansion validation occurs assuming the type equalities that are known at the definition site, to avoid this problem.  
+If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. \todo{actually, this is why doing this is a bad idea. export TSMs only from units, not modules}
 
 \subsection{TSMs and TSLs In Candidate Expansions}\label{sec:tsms-in-expansions}
 

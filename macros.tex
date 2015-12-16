@@ -140,9 +140,9 @@
 \newcommand{\evalU}[2]{#1 \Downarrow #2}
 
 % Unexpanded expressions
-\newcommand{\ue}{\hat{e}}
+\newcommand{\ue}{{\hat e}}
 \newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\{#3\}~\texttt{in}~#4}
-\newcommand{\audefuetsm}[4]{\abopcc{udefuetsm}{#1}{#2}{#3.#4}}
+\newcommand{\audefuetsm}[4]{\abopcc{usyntaxue}{#1}{#2}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
 \newcommand{\autsmap}[2]{\texttt{uapuetsm}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
@@ -251,7 +251,9 @@
 \newcommand{\auinjp}[2]{\abopp{uinp}{#1}{#2}}
 \newcommand{\aceinjp}[2]{\abopp{ceinp}{#1}{#2}}
 
-\newcommand{\audefuptsm}[4]{\abopcc{udefuptsm}{#1}{#2}{#3.#4}}
+
+\newcommand{\usyntaxup}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for~patterns}~\{#3\}~\texttt{in}~#4}
+\newcommand{\audefuptsm}[4]{\abopcc{usyntaxup}{#1}{#2}{#3.#4}}
 \newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
 
 \newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
@@ -270,7 +272,8 @@
 \newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{CEPat} #2}
 
 \newcommand{\cvalidP}[5]{\vdash^{#1;\,#2} #3 \leadsto #4 : #5}
-\newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Rightarrow #7}
+\newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Mapsto #7}
 \newcommand{\pscenev}{\mathbbmss{P}}
 \newcommand{\pscene}[2]{#1;\,#2}
 
+\newcommand{\parseUPat}[2]{\mathsf{parseUPat}(#1)=#2}
