@@ -174,7 +174,7 @@ let x = let
 in (* $rx is no longer in scope *) end
 \end{lstlisting}
 
-We will consider the question of how TSM definitions can be exported from within modules in Sec. \ref{sec:tsm-packaging}.
+We will consider the question of how TSM definitions can be exported from compilation units in Sec. \ref{sec:tsm-packaging}.
 
 \subsection{Comparison to ML+Rx}
 Let us compare the VerseML TSM \li{#\dolla#rx} to ML+Rx, the hypothetical syntactic dialect of ML with support for derived forms for regular expressions described in Sec. \ref{sec:syntax-examples-regexps}.
@@ -223,7 +223,7 @@ The benefit of this approach is that we can easily define other TSMs to use alon
 % % \\~
 % \end{array}$
 % \todo{finish breaking this up into syntax tables}
-% \caption[Syntax of $\miniVerseUE$]{Syntax of $\miniVerseUE$. The forms $\mapschema{V}{i}{\labelset}$ and $\mapschemab{x}{V}{i}{\labelset}$ where $V$ is a metavariable indicate finite mappings from each label $i \in \labelset$ to a term, $V_i$, or binder, $x_i.V_i$, respectively.}
+% \caption[Syntax of $\miniVerseUE$]{Syntax of $\miniVerseUE$. The forms $\mapschema{V}{i}{\labelset}$ and $\mapschemab{x}{V}{i}{\labelset}$ where $V$ is a metavariable indicate finite functions from each label $i \in \labelset$ to a term, $V_i$, or binder, $x_i.V_i$, respectively.}
 % \label{fig:lambda-tsm-syntax}
 % \end{figure}
 
@@ -257,7 +257,7 @@ To make the intuitions developed in the previous section mathematically precise,
 &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
 &&& \aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}} & \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} & \text{case analysis}
 \end{array}$
-\caption[Syntax of types and expanded expressions in $\miniVerseUE$]{Abstract syntax of types and expanded expressions, which form the \emph{inner core of }$\miniVerseUE$. Metavariable $x$ ranges over variables, $t$ ranges over type variables, $\ell$ ranges over labels and $\labelset$ ranges over finite sets of labels. We adopt \emph{PFPL}'s conventions for operational forms, i.e. the names of operators and indexed families of operators are written in $\texttt{typewriter font}$, indexed families of operators specify non-symbolic indices within $[\text{mathematical braces}]$ and symbolic indices within \texttt{[}textual braces\text{]}, and term arguments are grouped arbitrarily (roughly, by ``phase'') using \texttt{\{}textual curly braces\texttt{\}} and \texttt{(}textual rounded braces\texttt{)} \cite{pfpl}. We write $\mapschema{\tau}{i}{\labelset}$ for a sequence of arguments $\tau_i$, one for each $i\in \labelset$, and similarly for arguments of other valences. Operations  parameterized by label sets, e.g. $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$, are identified up to mutual reordering of the label set and the corresponding argument sequence. %When using stylized forms, the label set is omitted when it can be inferred, e.g. the labeled product type $\prodt{\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}}$ leaves the label set $\{\ell_1, \ell_2\}$ implicit. 
+\caption[Syntax of types and expanded expressions in $\miniVerseUE$]{Abstract syntax of types and expanded expressions, which form the \emph{inner core of }$\miniVerseUE$. Metavariables $x$ range over variables, $t$ over type variables, $\ell$ over labels and $\labelset$ over finite sets of labels. We adopt \emph{PFPL}'s conventions for operational forms, i.e. the names of operators and indexed families of operators are written in $\texttt{typewriter font}$, indexed families of operators specify non-symbolic indices within $[\text{mathematical braces}]$ and symbolic indices within \texttt{[}textual braces\text{]}, and term arguments are grouped arbitrarily (roughly, by ``phase'') using \texttt{\{}textual curly braces\texttt{\}} and \texttt{(}textual rounded braces\texttt{)} \cite{pfpl}. We write $\mapschema{\tau}{i}{\labelset}$ for a sequence of arguments $\tau_i$, one for each $i\in \labelset$, and similarly for arguments of other valences. Operations  parameterized by label sets, e.g. $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$, are identified up to mutual reordering of the label set and the corresponding argument sequence. %When using stylized forms, the label set is omitted when it can be inferred, e.g. the labeled product type $\prodt{\finmap{\mapitem{\ell_1}{e_1}, \mapitem{\ell_2}{e_2}}}$ leaves the label set $\{\ell_1, \ell_2\}$ implicit. 
 When we use the stylized forms, we assume that the reader can infer suppressed indices and arguments from the surrounding context. Types and expanded expressions are identified up to $\alpha$-equivalence.}
 \label{fig:U-expanded-terms}
 \end{figure}
@@ -275,7 +275,7 @@ The \emph{statics of the inner core} is specified by hypothetical judgements of 
 \hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ is assigned type $\tau$ assuming $\Delta$ and $\Gamma$}
 \end{array}\]
 \noindent
-\emph{Type formation contexts}, $\Delta$, are finite sets of hypotheses of the form $\Dhyp{t}$. Empty contexts are written $\emptyset$, or omitted entirely. We write $\Delta, \Dhyp{t}$ when $\Dhyp{t} \notin \Delta$ for the extension of $\Delta$ with the hypothesis $\Dhyp{t}$. We write $\Dcons{\Delta}{\Delta'}$ for the union of $\Delta$ and $\Delta'$.
+\emph{Type formation contexts}, $\Delta$, are finite sets of hypotheses of the form $\Dhyp{t}$. Empty finite sets are written $\emptyset$, or omitted entirely within judgements, and non-empty finite sets are written as comma-separated finite sequences identified up to exchange. We write $\Delta, \Dhyp{t}$, when $\Dhyp{t} \notin \Delta$, for $\Delta$ extended with the hypothesis $\Dhyp{t}$. %Finite sets are written as finite sequences identified up to exchange.% We write $\Dcons{\Delta}{\Delta'}$ for the union of $\Delta$ and $\Delta'$.
 
 The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, ensures that all free type variables in $\tau$ are tracked by $\Delta$. It is inductively defined by the following rules:
 \begin{subequations}\label{rules:istypeU}
@@ -319,12 +319,12 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, ensures that all 
 \end{subequations}
 Premises of the form $\{{J}_i\}_{i \in \labelset}$ mean that for each $i \in \labelset$, the judgement ${J}_i$ must hold. 
 
-\emph{Typing contexts}, $\Gamma$, are finite mappings from variables, $x$, to corresponding hypotheses of the form $\Ghyp{x}{\tau}$. We write $\domof{\Gamma}$ for the domain of $\Gamma$. We write empty contexts as $\emptyset$, or omit their mention. We write $\Gamma, \Ghyp{x}{\tau}$ when $x \notin \domof{\Gamma}$ for the extension of $\Gamma$ with a mapping from $x$ to the hypothesis $\Ghyp{x}{\tau}$, and $\Gcons{\Gamma}{\Gamma'}$ when $\domof{\Gamma} \cap \domof{\Gamma'} = \emptyset$ for the typing context with domain $\domof{\Gamma} \cup \domof{\Gamma'}$ mapping each variable to the corresponding hypothesis in $\Gamma$ or $\Gamma'$. We write $\isctxU{\Delta}{\Gamma}$ if every type in $\Gamma$ is well-formed relative to $\Delta$.
+\emph{Typing contexts}, $\Gamma$, are finite functions that map each $x \in \domof{\Gamma}$, to the hypothesis $\Ghyp{x}{\tau}$, for some $\tau$. Empty typing contexts are written $\emptyset$, or omitted entirely within judgements, and non-empty typing contexts are written as finite sequences of hypotheses identified up to exchange (we do not separately write down the finite set $\domof{\Gamma}$ because it can be determined from the listed hypotheses). We write $\Gamma, \Ghyp{x}{\tau}$, when $x \notin \domof{\Gamma}$, for the extension of $\Gamma$ with a mapping from $x$ to the hypothesis $\Ghyp{x}{\tau}$, and $\Gcons{\Gamma}{\Gamma'}$ when $\domof{\Gamma} \cap \domof{\Gamma'} = \emptyset$ for the typing context mapping each $x \in \domof{\Gamma} \cup \domof{\Gamma'}$ to $x : \tau$ if $x : \tau \in \Gamma$ or $x : \tau \in \Gamma'$. We write $\isctxU{\Delta}{\Gamma}$ if every type in $\Gamma$ is well-formed relative to $\Delta$.
 \begin{definition}\label{def:isctxU}
 $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have $\istypeU{\Delta}{\tau}$.
 \end{definition}
 
-The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions, assuming $\Delta$ and $\Gamma$. It is inductively defined by the following rules:
+The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions assuming $\Delta$ and $\Gamma$. It is inductively defined by the following rules:
 \begin{subequations}\label{rules:hastypeU}
 \begin{equation}\label{rule:hastypeU-var}
   \inferrule{ }{
@@ -421,7 +421,7 @@ The Weakening Lemma establishes that extending a context with unnecessary hypoth
 \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
 \end{enumerate}
 \end{lemma}
-\begin{proof-sketch} For each part, by rule induction on the derivation of the assumption. 
+\begin{proof-sketch} For each part, by rule induction on the assumption. 
 %\begin{enumerate} 
 %\item By rule induction over Rules (\ref{rules:istypeU}).
 %\item By rule induction over Rules (\ref{rules:isctxU}).
@@ -439,7 +439,7 @@ We assume that renaming of bound variables, $\alpha$-equivalence and substitutio
 \item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
 \end{enumerate}\end{lemma}
 \begin{proof-sketch}
-For each part, by rule induction on the derivation of the first assumption.
+For each part, by rule induction on the first assumption.
 \end{proof-sketch}
 
 The Decomposition Lemma is the converse of the Substitution Lemma.
@@ -473,13 +473,13 @@ The \emph{structural dynamics of }$\miniVerseUE$ is specified as a transition sy
 \end{array}\]
 We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
 
-\begin{definition}[Iterated Transition]\label{defn:iterated-transition-U} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement.\end{definition}
+\begin{definition}[Iterated Transition]\label{defn:iterated-transition-U} $\multistepU{e}{e'}$ is the reflexive, transitive closure of $\stepsU{e}{e'}$.\end{definition}
 
 \begin{definition}[Evaluation]\label{defn:evaluation-U}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
 
 Our subsequent developments do not require making reference to particular rules in the structural dynamics (because TSMs operate statically), so we do not reproduce the rules here. Instead, it suffices to state the following conditions.
 
-The Canonical Forms condition characterizes well-typed values. We assume an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. 
+The Canonical Forms condition characterizes well-typed values. Satisfying this condition requires an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. 
 \begin{condition}[Canonical Forms]\label{condition:canonical-forms-U} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
 \begin{enumerate}
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
@@ -495,34 +495,17 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 \begin{condition}[Progress]\label{condition:progress-U} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
 Together, these two conditions constitute the Type Safety condition.
 
-\subsection{Syntax of the Outer Surface}
-Programs ultimately evaluate as expanded expressions, but programmers do not write expanded expressions directly. Instead, the \emph{outer surface of} $\miniVerseUE$ consists of types, defined above, and \emph{unex\-panded expressions}, $\ue$. The syntax of unexpanded expressions is defined in Figure \ref{fig:U-unexpanded-terms}. Notice that each expanded expression form corresponds to an unexpanded expression form. We call these \emph{shared forms}. There are also two unexpanded expression forms, highlighted in gray in Figure \ref{fig:U-unexpanded-terms}, that do not correspond to expanded expression forms -- the ueTSM definition form and the ueTSM application form.% These are the ``interesting'' forms. % Let us define this correspondence by the metafunction $\Uof{e}$:
-%\[
-%\begin{split}
-%\Uof{x} & = x\\
-%\Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
-%\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}
-%\end{split}
-%\] and so on for the remaining expanded expression forms.
-
-\subsection{Typed Expansion}\label{sec:typed-expansion-U}
-Unexpanded expressions are typed and expanded simultaneously according to the \emph{typed expansion judgement}:
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\expandsUX{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM environment $\Sigma$}\\
-& \text{assuming $\Delta$ and $\Gamma$}
-\end{array}\]
-%\newcommand{\gray}[1]{{\color{gray} #1}}
+\subsection{Syntax of the Outer Surface}\label{sec:syntax-U}
 \begin{figure}
 \hspace{-6px}$\arraycolsep=3.5pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{UTyp} & \utau & ::= & \ut & \ut & \text{variable}\\
-&&& \aparr{\utau}{\utau} & \parr{\utau}{\utau} & \text{partial function}\\
-&&& \aall{\ut}{\utau} & \forallt{\ut}{\utau} & \text{polymorphic}\\
-&&& \arec{\ut}{\utau} & \rect{\ut}{\utau} & \text{recursive}\\
-&&& \aprod{\labelset}{\mapschema{\utau}{i}{\labelset}} & \prodt{\mapschema{\utau}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\labelset}{\mapschema{\utau}{i}{\labelset}} & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
-\mathsf{UExp} & \ue & ::= & \ux & \ux & \text{variable}\\
+\mathsf{UTyp} & \utau & ::= & \ut & \ut & \text{sigil}\\
+&&& \auparr{\utau}{\utau} & \parr{\utau}{\utau} & \text{partial function}\\
+&&& \auall{\ut}{\utau} & \forallt{\ut}{\utau} & \text{polymorphic}\\
+&&& \aurec{\ut}{\utau} & \rect{\ut}{\utau} & \text{recursive}\\
+&&& \auprod{\labelset}{\mapschema{\utau}{i}{\labelset}} & \prodt{\mapschema{\utau}{i}{\labelset}} & \text{labeled product}\\
+&&& \ausum{\labelset}{\mapschema{\utau}{i}{\labelset}} & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{UExp} & \ue & ::= & \ux & \ux & \text{sigil}\\
 &&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
 &&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
 &&& \autlam{\ut}{\ue} & \Lam{\ut}{\ue} & \text{type abstraction}\\
@@ -537,23 +520,154 @@ Unexpanded expressions are typed and expanded simultaneously according to the \e
 &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{ueTSM definition}\\ 
 &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\ECC
 \end{array}$
-\caption[Syntax of unexpanded expressions in $\miniVerseUE$]{Abstract syntax of unexpanded expressions in $\miniVerseUE$. Metavariable $\tsmv$ ranges over TSM names and $b$ ranges over literal bodies. Literal bodies might be found during typed expansion to contain spliced terms, so variable renaming and substitution cannot be defined in the usual manner over unexpanded expressions.}
+\caption[Syntax of unexpanded types and expressions in $\miniVerseUE$]{Abstract syntax of unexpanded types and expressions in $\miniVerseUE$. Metavariable $\tsmv$ ranges over TSM names and $b$ ranges over literal bodies. Literal bodies might be found during typed expansion to contain spliced terms, so variable renaming and substitution cannot be defined in the usual manner over unexpanded expressions. Metavariable $\ut$ ranges over type sigils, and $\ux$ ranges over expression sigils.}
 \label{fig:U-unexpanded-terms}
 \end{figure}
+Programs ultimately evaluate as expanded expressions, but programmers do not write expanded expressions directly. Instead, the \emph{outer surface of} $\miniVerseUE$ consists of \emph{unex\-panded expressions}, $\ue$, which may contain \emph{unexpanded types}, $\utau$. The syntax of unexpanded expressions and types is defined in Figure \ref{fig:U-unexpanded-terms}. 
+
+Unlike types and expanded expressions, we cannot trivially identify unexpanded types and expressions up to $\alpha$-equivalence. This is because the literal bodies, $b$, within an unexpanded expression might contain spliced subexpressions, but these are parsed out only during the typed expansion process, which we define next. %In other words, unexpanded expressions are not abstract binding trees, nor sequences of characters, but a ``transitional'' structure with some characteristics of each of these. 
+For this reason, we will need to handle generating fresh variables explicitly at binding sites in our semantics. To do so, we distinguish \emph{type sigils}, $\ut$, and \emph{expression sigils}, $\ux$, from type variables, $t$, and expression variables, $x$. Sigils will be given meaning by expansion to variables (which, in turn, are given meaning by substitution, as described above). The metafunction $\sigilof{t}$ maps $t$ to a uniquely corresponding type sigil (notice the distinction between $\ut$, which is a metavariable ranging over type sigils, and $\sigilof{t}$, which is a metafunction over type variables), and similarly, $\sigilof{x}$ maps $x$ to a uniquely corresponding expression sigil.
+
+Each type form corresponds to an unexpanded type form. The metafunction $\Uof{\tau}$ maps $\tau$ to an unexpanded type of the corresponding form, and is defined as follows: 
+  \begin{align*}
+  \Uof{t} &= \sigilof{t}\\
+  \Uof{\aparr{\tau_1}{\tau_2}} & = \auparr{\Uof{\tau_1}}{\Uof{\tau_2}}\\
+  \Uof{\aall{t}{\tau}} & = \auall{\sigilof{t}}{\Uof{\tau}}\\
+  \Uof{\arec{t}{\tau}} & = \aurec{\sigilof{t}}{\Uof{\tau}}\\
+  \Uof{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \auprod{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}\\
+  \Uof{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \ausum{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}
+  \end{align*}
+
+Similarly, each expanded expression form corresponds to an unexpanded expression form. The metafunction $\Uof{e}$ maps $e$ to an unexpanded expression of the corresponding form, and is defined as follows:
+\begin{align*}
+\Uof{x} & = \sigilof{x}\\
+\Uof{\aelam{\tau}{x}{e}} & = \aulam{\Uof{\tau}}{\sigilof{x}}{\Uof{e}}\\
+\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
+\Uof{\aetlam{t}{e}} & = \autlam{\sigilof{t}}{\Uof{e}}\\
+\Uof{\aetap{e}{\tau}} & = \autap{\Uof{e}}{\Uof{\tau}}\\
+\Uof{\aefold{t}{\tau}{e}} & = \aufold{\sigilof{t}}{\Uof\tau}{\Uof e}\\
+\Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
+\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
+\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auin{\labelset}{\ell}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}{\Uof{e}}\\
+\Uof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \aucase{\labelset}{\Uof\tau}{\Uof{e}}{\mapschemabx{\Uofv}{x}{e}{i}{\labelset}}
+\end{align*}
+
+We refer to the forms above as \emph{shared forms}. There are additionally two unexpanded expression forms, highlighted in gray in Figure \ref{fig:U-unexpanded-terms}, that do not correspond to expanded expression forms -- the ueTSM definition form and the ueTSM application form. %These are the ``interesting'' forms. % These are the ``interesting'' forms. % Let us define this correspondence by the metafunction $\Uof{e}$:
+%\[
+%\begin{split}
+%\Uof{x} & = x\\
+%\Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
+%\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}
+%\end{split}
+%\] and so on for the remaining expanded expression forms.
+
+
+\subsection{Typed Expansion}\label{sec:typed-expansion-U}
+Unexpanded expressions, and the unexpanded types therein, are checked and expanded simultaneously according to the \emph{typed expansion judgements}:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ is well-formed and has expansion $\tau$ assuming $\uDelta$}\\
+\expandsUX{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM environment $\Sigma$}\\
+& \text{assuming $\uDelta$ and $\uGamma$}
+\end{array}\]
+%\newcommand{\gray}[1]{{\color{gray} #1}}
+
+\subsubsection{Type Expansion}
+The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by the following rules.
+\begin{subequations}\label{rules:expandsTU}
+\begin{equation}\label{rule:expandsTU-var}
+\inferrule{ }{\expandsTU{\uDelta, \uDhyp{\ut}{t}}{\ut}{t}}
+\end{equation}
+\begin{equation}\label{rule:expandsTU-parr}
+\inferrule{
+  \expandsTU{\uDelta}{\utau_1}{\tau_1}\\
+  \expandsTU{\uDelta}{\utau_2}{\tau_2}
+}{\expandsTU{\uDelta}{\auparr{\utau_1}{\utau_2}}{\aparr{\tau_1}{\tau_2}}}
+\end{equation}
+\begin{equation}\label{rule:expandsTU-all}
+  \inferrule{
+    \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
+  }{
+    \expandsTU{\uDelta}{\auall{\ut}{\utau}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-rec}
+  \inferrule{
+    \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
+  }{
+    \expandsTU{\uDelta}{\aurec{\ut}{\utau}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-prod}
+  \inferrule{
+    \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \expandsTU{\uDelta}{\auprod{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-sum}
+  \inferrule{
+    \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \expandsTU{\uDelta}{\ausum{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\end{subequations}
+\emph{Unexpanded type formation contexts}, $\uDelta$, are of the form $\uDD{\uD}{\Delta}$, where $\uD$ is a \emph{type sigil expansion context}, and $\Delta$ is a type formation context. A type sigil expansion context, $\uD$, is a finite function over type sigils that maps each $\ut \in \domof{\uD}$ to the hypothesis $\vExpands{\ut}{t}$, for some type variable $t$. We write $\ctxUpdate{\uD}{\ut}{t}$ for the type sigil expansion context that maps $\ut$ to $\vExpands{\ut}{t}$ and defers to $\uD$ for all other type sigils (i.e. the previous mapping, if it exists, is updated). 
+We define $\uDelta, \uDhyp{\ut}{t}$ when $\uDelta=\uDD{\uD}{\Delta}$ as an abbreviation of  \[\uDD{\ctxUpdate{\uD}{\ut}{t}}{\Delta, \Dhyp{t}}\]%type identifier expansion context is always extended/updated together with 
+%We write $\uDeltaOK{\uDelta}$ when $\uDelta=\uDD{\uD}{\Delta}$ and each type variable in $\uD$ also appears in $\Delta$.
+%\begin{definition}\label{def:uDeltaOK} $\uDeltaOK{\uDD{\uD}{\Delta}}$ iff for each $\vExpands{\ut}{t} \in \uD$, we have $\Dhyp{t} \in \Delta$.\end{definition}
+
+To understand how type sigil expansion contexts operate, it is instructive to examine the derivation of, for example, the judgement $\expandsTU{\uDD{\emptyset}{\emptyset}}{\forallt{\ut}{\forallt{\ut}{\ut}}}{\forallt{t}{\forallt{t'}{t'}}}$:
+\begin{mathpar}
+\inferrule{
+  \inferrule{
+    \inferrule{ }{
+      \expandsTU{\uDD{\vExpands{\ut}{t'}}{{\Dhyp{t}}, {\Dhyp{t'}}}}{\ut}{t'}
+    }~\text{(\ref*{rule:expandsTU-var})}
+  }{
+    \expandsTU{\uDD{\vExpands{\ut}{t}}{\Dhyp{t}}}{\auall{\ut}{\ut}}{\aall{t'}{t'}}
+  }~\text{(\ref*{rule:expandsTU-all})}
+}{
+  \expandsTU{\uDD{\emptyset}{\emptyset}}{\auall{\ut}{\auall{\ut}{\ut}}}{\aall{t}{\aall{t'}{t'}}}
+}~\text{(\ref*{rule:expandsTU-all})}
+\end{mathpar}
+Had we used type variables in the syntax and type formation contexts in the rules above, rather than type sigils and type sigil expansion contexts, derivations for unexpanded types where an inner binding shadows an outer binding would not exist, because by definition we cannot extend a type formation context with a variable it already mentions nor implicitly $\alpha$-vary the unexpanded type to sidestep this problem. 
+
+These rules validate the following lemmas. The Type Expansion Lemma establishes that the expansion of an unexpanded type is a well-formed type.
+
+\begin{lemma}[Type Expansion] If $\expandsTU{\uDD{\uD}{\Delta}}{\utau}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begin{proof} By rule induction over Rules (\ref{rules:expandsTU}). In each case, we apply the IH to or over each premise, then apply the corresponding type formation rule in Rules (\ref{rules:istypeU}). \end{proof}
+
+The Type Expressibility Lemma establishes that every well-formed type, $\tau$, can be expressed as a well-formed unexpanded type, $\Uof{\tau}$. This requires defining the metafunction $\Uof{\Delta}$ which produces the unexpanded type formation context corresponding to the type formation context $\Delta$ as follows:
+\begin{align*}
+\Uof{\emptyset} &= \uDD{\emptyset}{\emptyset}\\
+\Uof{\Delta, \Dhyp{t}} &= \Uof{\Delta}, \uDhyp{\sigilof{t}}{t}
+\end{align*}
+\begin{lemma}[Type Expressibility]\label{lemma:type-expressibility} If $\istypeU{\Delta}{\tau}$ then $\expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau}$.\end{lemma}
+\begin{proof} By rule induction over Rules (\ref{rules:istypeU}) using the definitions of $\Uof{\tau}$ and $\Uof{\Delta}$ above. In each case, we apply the IH to or over each premise, then apply the corresponding type expansion rule in Rules (\ref{rules:expandsTU}).\end{proof}
+
+\subsubsection{Typed Expression Expansion}
 \begin{subequations}\label{rules:expandsU}
-\noindent
-The typed expansion judgement is inductively defined by Rules (\ref*{rules:expandsU}) as follows.
+\emph{Unexpanded typing contexts}, $\uGamma$, are of the form $\uGG{\uG}{\Gamma}$, where $\uG$ is an \emph{expression sigil expansion context}, and $\Gamma$ is a typing context. An expression sigil expansion context, $\uG$, is a finite function that maps each expression sigil $\ux \in \domof{\uG}$ to the hypothesis $\vExpands{\ux}{x}$, for some expression variable, $x$. We write $\ctxUpdate{\uG}{\ux}{x}$ for the expression sigil expansion context that maps $\ux$ to $\vExpands{\ux}{x}$ and defers to $\uG$ for all other expression sigils (i.e. the previous mapping, if it exists, is updated). %We write $\uGammaOK{\uGamma}$ when $\uGamma=\uGG{\uG}{\Gamma}$ and each expression variable in $\uG$ is assigned a type by $\Gamma$.
+%\begin{definition} $\uGammaOK{\uGG{\uG}{\Gamma}}$ iff for each $\vExpands{\ux}{x} \in \uG$, we have $\Ghyp{x}{\tau} \in \Gamma$ for some $\tau$.\end{definition}
+%\noindent 
+In the rules below, we define $\uGamma, \uGhyp{\ux}{x}{\tau}$ when $\uGamma = \uGG{\uG}{\Gamma}$ as an abbreviation of \[\uGG{\uG, \vExpands{\ux}{x}}{\Gamma, \Ghyp{x}{\tau}}\]
+
+The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is inductively defined by Rules (\ref*{rules:expandsU}) as follows. %These rules validate the following theorem, which establishes that typed expansion produces an expansion of the assigned type. 
+%\begin{theorem}[Typed Expression Expansion] If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\Sigma}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\Sigma}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.\end{theorem}
+%\begin{proof} This is the first part of Theorem \ref{thm:typed-expansion-U}, defined and proven below.\end{proof}
 
 \paragraph{Shared Forms} Rules (\ref*{rule:expandsU-var}) through (\ref*{rule:expandsU-case}) handle unexpanded expressions of shared form. The first three of these rules are defined below:
 %Each of these rules is based on the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
 \begin{equation}\label{rule:expandsU-var}
-  \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{x}{x}{\tau}}
+  \inferrule{ }{\expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\Sigma}{\ux}{x}{\tau}}
 \end{equation}
 \begin{equation}\label{rule:expandsU-lam}
   \inferrule{
-    \istypeU{\Delta}{\tau}\\
-    \expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{\ue}{e}{\tau'}
-  }{\expandsUX{\aulam{\tau}{x}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
+    \expandsTU{\uDelta}{\utau}{\tau}\\
+    \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\Sigma}{\ue}{e}{\tau'}
+  }{\expandsUX{\aulam{\utau}{\ux}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
 \end{equation}
 \begin{equation}\label{rule:expandsU-ap}
   \inferrule{
@@ -563,9 +677,9 @@ The typed expansion judgement is inductively defined by Rules (\ref*{rules:expan
     \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation}
-Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively. In particular, the type formation premises correspond directly, and the typed expansion premises correspond to the typing premises. The ueTSM environment, $\Sigma$, need not yet be discussed because it passes opaquely through these rules.
+Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively. In particular, the type expansion premises and type formation premises correspond, and the typed expression expansion and typing premises correspond. The ueTSM environment, $\Sigma$, passes opaquely through these rules (we will define ueTSM environments below). Rules (\ref{rules:expandsTU}) were similarly generated by mechanically transforming Rules (\ref{rules:istypeU}).
 
-We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeU}),
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
 \begin{mathpar}
 \refstepcounter{equation}
 \label{rule:expandsU-tlam}
@@ -597,30 +711,45 @@ the corresponding typed expansion rule is
 \end{mathpar}
 where
 \[\begin{split}
-\Uof{\istypeU{\Delta}{\tau}} & = \istypeU{\Delta}{\tau} \\
-\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsU{\Gamma}{\Delta}{\Sigma}{\Uof{e}}{e}{\tau}\\
+\Uof{\istypeU{\Delta}{\tau}} & = \expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau} \\
+\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsU{\Uof{\Gamma}}{\Uof{\Delta}}{\Sigma}{\Uof{e}}{e}{\tau}\\
 \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
 \end{split}\]
-and where $\Uof{e}$, when $e$ is a metapattern of sort $\mathsf{Exp}$, is a metapattern of sort $\mathsf{UExp}$ defined as follows.
+and where:
 \begin{itemize}
-\item When $e$ is of definite form, $\Uof{e}$ is defined as follows:
+\item $\Uof{\tau}$ is defined as follows:
+  \begin{itemize}
+  \item When $\tau$ is of indefinite form, $\Uof{\tau}$ is a uniquely corresponding metavariable of sort $\mathsf{UTyp}$ also of indefinite form. For example, in Rule (\ref{rule:istypeU-parr}), $\tau_1$ and $\tau_2$ are of indefinite form, i.e. they match arbitrary types. The rule transformation simply ``hats'' them, i.e. $\Uof{\tau_1}=\utau_1$ and $\Uof{\tau_2}=\utau_2$.
+  \item When $\tau$ is of a definite form, $\Uof{\tau}$ is defined as in Sec. \ref{sec:syntax-U}.
+  \end{itemize}
+\item $\Uof{e}$ is defined as follows
+\begin{itemize}
+\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metavariable of sort $\mathsf{UExp}$ also of indefinite form. For example, $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+\item When $e$ is of a definite form, $\Uof{e}$ is defined as in Sec. \ref{sec:syntax-U}. 
+\end{itemize}
+\item $\Uof{\Delta}$ is defined as follows:
+  \begin{itemize} 
+  \item When $\Delta$ is of indefinite form, $\Uof{\Delta}$ is a uniquely corresponding metavariable ranging over unexpanded type formation contexts. For example, $\Uof{\Delta} = \uDelta$.
+  \item When $\Delta$ is of definite form, $\Uof{\Delta}$ is defined as above.
+  \end{itemize}
+\item $\Uof{\Gamma}$ is defined as follows:
+  \begin{itemize}
+  \item When $\Gamma$ is of indefinite form, $\Uof{\Gamma}$ is a uniquely corresponding metavariable ranging over unexpanded typing contexts. For example, $\Uof{\Gamma} = \uGamma$.
+  \item When $\Gamma$ is of definite form, $\Uof{\Gamma}$ produces the corresponding unexpanded typing context as follows:
 \begin{align*}
-\Uof{x} & = x\\
-\Uof{\aelam{\tau}{x}{e}} & = \aulam{\tau}{x}{\Uof{e}}\\
-\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
-\Uof{\aetlam{t}{e}} & = \autlam{t}{\Uof{e}}\\
-\Uof{\aetap{e}{\tau}} & = \autap{\Uof{e}}{\tau}\\
-\Uof{\aefold{t}{\tau}{e}} & = \aufold{t}{\tau}{e}\\
-\Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
-\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
-\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\Uof{e}}\\
-\Uof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \aucase{\labelset}{\tau}{\Uof{e}}{\mapschemabx{\Uofv}{x}{e}{i}{\labelset}}
+\Uof{\emptyset} & = \uGG{\emptyset}{\emptyset}\\
+\Uof{\Gamma, \Ghyp{x}{\tau}} & = \Uof{\Gamma}, \uGhyp{\sigilof{x}}{x}{\tau}
 \end{align*}
-%and so on for the remaining expanded expression forms.
-\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metapattern also of indefinite form. For example, in Rule (\ref{rule:hastypeU-ap}), $e_1$ and $e_2$ are of indefinite form, i.e. they match arbitrary expanded expressions. The rule transformation simply ``hats'' them, i.e. $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+\end{itemize}
 \end{itemize}
 
-It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-tlam}) through (\ref*{rule:expandsU-case}). By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded expressions of shared form, so our exposition is somewhat ``robust'' to changes to the inner core. %o that when the inner core changes,  typed expansion rules  our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
+It is instructive to use this rule transformation to generate Rules (\ref{rules:expandsTU}) and Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-ap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-tlam}) through (\ref*{rule:expandsU-case}). By instead defining these rules solely by the rule transformation just described, we avoid having to write down a number of rules that are of limited marginal interest. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded types and expressions of shared form, so our exposition is somewhat ``robust'' to changes to the inner core. 
+
+We can now establish the Expressibility Theorem -- that each well-typed expanded expression, $e$, can be expressed as an unexpanded expression, $\ue$, assigned the same type under the corresponding contexts.
+
+\begin{theorem}[Expressibility] If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsU{\Uof{\Delta}}{\Uof{\Gamma}}{\Sigma}{\Uof{e}}{e}{\tau}$.\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:hastypeU}). The above rule transformation guarantees that this theorem holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH to or over each typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsU}).\end{proof}
+%o that when the inner core changes,  typed expansion rules  our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
 % \begin{subequations}\label{rules:expandsU}
 % \begin{equation}\label{rule:expandsU-var}
 %   \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\Sigma}{x}{x}{\tau}}
@@ -701,7 +830,7 @@ It is instructive to use this rule transformation to generate Rules (\ref{rule:e
 %   }
 % \end{equation}
 \end{subequations}
-\paragraph{ueTSM Definition and Application} Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), which govern the ueTSM definition and application forms, are defined in the next two subsections, respectively. 
+\paragraph{ueTSM Definition and Application} The two remaining typed expansion rules, Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), govern the ueTSM definition and application forms, and are defined in the next two subsections, respectively. 
 
 % \begin{equation}\label{rule:expandsU-syntax}
 % \inferrule{
@@ -730,7 +859,12 @@ It is instructive to use this rule transformation to generate Rules (\ref{rule:e
 %There are two unexpanded expression forms that do not correspond to an expanded expression form: the ueTSM definition form, and the ueTSM application form. The rules governing these two forms interact with the ueTSM environment, and are the topics of the next two subsections, respectively.
 
 \subsection{ueTSM Definitions}\label{sec:U-uetsm-definition}
-The ueTSM definition form: \[\uesyntax{a}{\tau}{\eparse}{\ue}\] introduces a {ueTSM} named $a$ at type $\tau$ with \emph{parse function} $\eparse$ into the ueTSM environment of $\ue$. The operational form corresponding to this stylized form is \[\audefuetsm{\tau}{\eparse}{a}{\ue}\]
+The stylized ueTSM definition form is \[\uesyntax{a}{\utau}{\eparse}{\ue}\] 
+The operational form corresponding to this stylized form is \[\audefuetsm{\utau}{\eparse}{a}{\ue}\]
+An unexpanded expression of this form introduces a {ueTSM} named $a$ at type $\utau$ with \emph{parse function} $\eparse$ into the ueTSM environment of $\ue$. 
+
+The reason that the parse function is an expanded expression is that parse functions are applied statically (i.e. during typed expansion of $\ue$), as we will discuss when describing ueTSM application below, and evaluation is defined only for closed expanded expressions. This assumption simplifies our exposition, but it is not practical because it provides no way for TSM providers to share definitions between parse functions, nor any way for TSM providers to use TSMs to define other TSMs. We discuss enriching the language to eliminate these limitations in Sec. \ref{sec:uetsms-static-language}. %It is pedagogically simpler to leave the machinery necessary to support this out of our calculus for now.
+
 Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of ueTSM definitions (we use the stylized form in the conclusion of the rule for clarity):
 \begin{subequations}[resume]
 % \begin{equation}\label{rule:expandsU-syntax}
@@ -744,20 +878,20 @@ Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of ueTSM definitions 
 % \end{equation}
 \begin{equation}\label{rule:expandsU-syntax}
 \inferrule{
-  \istypeU{\Delta}{\tau}\\
+  \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  \expandsU{\Delta}{\Gamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+  \expandsU{\uDelta}{\uGamma}{\Sigma, \xuetsmbnd{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
 }{
-  \expandsUX{\uesyntax{a}{\tau}{\eparse}{\ue}}{e}{\tau'}
+  \expandsUX{\uesyntax{a}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
 \end{equation}
 \end{subequations}
 The premises of Rule (\ref{rule:expandsU-syntax}) can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise ensures that the type annotation is well-formed.
+\item The first premise ensures that the type annotation is well-formed and expands it to produce the expanded type annotation, $\tau$.
 
-\item The second premise checks that the parse function, $\eparse$, is of type \[\aparr{\tBody}{\tParseResultExp}\] %to generate the \emph{expanded parse function}, $\eparse$. 
-Parse functions are applied statically (i.e. during typed expansion), as we will discuss when describing ueTSM application below, and evaluation is defined only for closed expanded expressions, so the parse function must be closed. %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
+\item The second premise checks that the parse function, $\eparse$, is a closed expanded expression of type \[\aparr{\tBody}{\tParseResultExp}\] %to generate the \emph{expanded parse function}, $\eparse$. 
+ %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
 %The parse function must be of type $\aparr{\tBody}{\tParseResultExp}$ where the type abbreviations $\tBody$ and $\tParseResultExp$ are defined as follows.
 
 The type abbreviated $\tBody$ classifies encodings of literal bodies, $b$. The mapping from literal bodies to values of type $\tBody$ is defined by the \emph{body encoding judgement} $\encodeBody{b}{\ebody}$. An inverse mapping is defined   by the \emph{body decoding judgement} $\decodeBody{\ebody}{b}$.
@@ -807,7 +941,7 @@ Again, rather than picking a particular definition of $\tCEExp$ and defining the
 \end{enumerate}
 
 
-\emph{ueTSM environments}, $\Sigma$, are finite mappings from TSM names, $a$, to \emph{ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {parse function}. TSM names, $a$, are symbolic, i.e. they can be compared for equality and disequality, but unlike variables, are not given meaning by substitution. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
+\emph{ueTSM environments}, $\Sigma$, are finite functions from TSM names, $a$, to \emph{ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {parse function}. TSM names, $a$, are symbolic, i.e. they can be compared for equality and disequality, but unlike variables, are not given meaning by substitution. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \uetsmenv{\Delta}{\Sigma} & \text{$\Sigma$ is well-formed assuming $\Delta$}\end{array}\]
@@ -1780,7 +1914,7 @@ The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, t
 \end{equation}
 The premises of Rule (\ref{rule:ruleType}) can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$, and to gather the typing hypotheses that the pattern generates in a \emph{pattern typing context}, $\Omega$. Pattern typing contexts, like typing contexts, $\Gamma$, are finite mappings from variables to  hypotheses of the form $x : \tau$. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. %We use the letter $\pctx$ rather than $\Gamma$ only to emphasize that 
+\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$, and to gather the typing hypotheses that the pattern generates in a \emph{pattern typing context}, $\Omega$. Pattern typing contexts, like typing contexts, $\Gamma$, are finite functions from variables to  hypotheses of the form $x : \tau$. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. %We use the letter $\pctx$ rather than $\Gamma$ only to emphasize that 
 
 The pattern typing judgement is inductively defined by the following rules:
 \begin{subequations}\label{rules:patType}
@@ -1949,13 +2083,13 @@ The \emph{structural dynamics of }$\miniVersePat$ is specified as a transition s
 \end{array}\]
 We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
 
-\begin{definition}[Iterated Transition]\label{defn:iterated-transition-UP} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement.\end{definition}
+\begin{definition}[Iterated Transition]\label{defn:iterated-transition-UP} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
 
 \begin{definition}[Evaluation]\label{defn:evaluation-UP}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
 
 As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of judgements that are used only for defining the dynamics of the match operator, so we do not provide these details here. Instead, it suffices to state the following conditions.
 
-The Canonical Forms condition characterizes well-typed values. We assume an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. This condition is identical to Condition \ref{condition:canonical-forms-U}.
+The Canonical Forms condition characterizes well-typed values. Satisfying this condition requires an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. This condition is identical to Condition \ref{condition:canonical-forms-U}.
 
 \begin{condition}[Canonical Forms]\label{condition:canonical-forms-UP} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
 \begin{enumerate}
@@ -2287,7 +2421,7 @@ The syntax of candidate expansion terms is defined in Figure \ref{fig:UP-candida
 \end{condition}
 
 
-ueTSM environments, $\Sigma$, are finite mappings from TSM names, $a$, to {ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {parse function}. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
+ueTSM environments, $\Sigma$, are finite functions from TSM names, $a$, to {ueTSM definitions}, $\xuetsmdef{\tau}{\eparse}$, where $\tau$ is the ueTSM's {type annotation} and $\eparse$ is its {parse function}. The \emph{ueTSM environment formation judgement}, $\uetsmenv{\Delta}{\Sigma}$, ensures that the type annotations in $\Sigma$ are well-formed assuming $\Delta$, and that the parse functions in $\Sigma$ are  of type $\aparr{\tBody}{\tParseResultExp}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \uetsmenv{\Delta}{\Sigma} & \text{$\Sigma$ is well-formed assuming $\Delta$}\end{array}\]
@@ -2367,7 +2501,7 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 
 \item The final premise of Rule (\ref{rule:expandsUP-defuptsm}) extends the upTSM environment with the newly determined {upTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsUP-defuptsm}) assigns this type and expansion to the ueTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 \end{enumerate}
-upTSM environments, $\Phi$, are finite mappings from TSM names, $a$, to \emph{upTSM definitions}, $\xuptsmdef{\tau}{\eparse}$, where $\tau$ is the upTSM's type annotation and $\eparse$ is the upTSM's parse function. The \emph{upTSM environment formation judgement}, $\uptsmenv{\Delta}{\Phi}$, ensures that the type annotations in $\Phi$ are well-formed assuming $\Delta$ and the parse functions in $\Phi$ are of type $\aparr{\tBody}{\tParseResultPat}$.
+upTSM environments, $\Phi$, are finite functions from TSM names, $a$, to \emph{upTSM definitions}, $\xuptsmdef{\tau}{\eparse}$, where $\tau$ is the upTSM's type annotation and $\eparse$ is the upTSM's parse function. The \emph{upTSM environment formation judgement}, $\uptsmenv{\Delta}{\Phi}$, ensures that the type annotations in $\Phi$ are well-formed assuming $\Delta$ and the parse functions in $\Phi$ are of type $\aparr{\tBody}{\tParseResultPat}$.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \uptsmenv{\Delta}{\Phi} & \text{upTSM environment $\Phi$ is well-formed assuming $\Delta$}\end{array}\]
