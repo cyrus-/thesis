@@ -55,6 +55,7 @@
 \newcommand{\mapschemab}[4]{\{#3 \hookrightarrow #1_{#3}.#2_{#3}\}_{#3 \in #4}}
 \newcommand{\mapschemax}[4]{\{#3 \hookrightarrow #1(#2_{#3})\}_{#3 \in #4}}
 \newcommand{\mapschemabx}[5]{\{#4 \hookrightarrow \sigilof{#2_{#4}}.#1(#3_{#4})\}_{#4 \in #5}}
+\newcommand{\mapschemacx}[5]{\{#4 \hookrightarrow {#2_{#4}}.#1(#3_{#4})\}_{#4 \in #5}}
 \newcommand{\finmap}[1]{#1}
 \newcommand{\mapitem}[2]{#1 \hookrightarrow #2}
 \newcommand{\lbltxt}[1]{\mathtt{#1}}
@@ -66,52 +67,52 @@
 
 % Expanded/Unexpanded/Candidate expressions
 \newcommand{\lam}[3]{\lambda #1{:}#2.#3}
-\newcommand{\aelam}[3]{\abopc{elam}{#1}{#2.#3}}
+\newcommand{\aelam}[3]{\abopc{lam}{#1}{#2.#3}}
 \newcommand{\aulam}[3]{\abopc{ulam}{#1}{#2.#3}}
 \newcommand{\acelam}[3]{\abopc{celam}{#1}{#2.#3}}
 
 \newcommand{\ap}[2]{#1(#2)}
-\newcommand{\aeap}[2]{\abop{eap}{#1; #2}}
+\newcommand{\aeap}[2]{\abop{ap}{#1; #2}}
 \newcommand{\auap}[2]{\abop{uap}{#1; #2}}
 \newcommand{\aceap}[2]{\abop{ceap}{#1; #2}}
 
 \newcommand{\Lam}[2]{\Lambda #1.#2}
-\newcommand{\aetlam}[2]{\abop{etlam}{#1.#2}}
+\newcommand{\aetlam}[2]{\abop{tlam}{#1.#2}}
 \newcommand{\autlam}[2]{\abop{utlam}{#1.#2}}
 \newcommand{\acetlam}[2]{\abop{cetlam}{#1.#2}}
 
 \newcommand{\App}[2]{#1\texttt{[}#2\texttt{]}}
-\newcommand{\aetap}[2]{\abopc{etap}{#2}{#1}}
+\newcommand{\aetap}[2]{\abopc{tap}{#2}{#1}}
 \newcommand{\autap}[2]{\abopc{utap}{#2}{#1}}
 \newcommand{\acetap}[2]{\abopc{cetap}{#2}{#1}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
-\newcommand{\aefold}[3]{\abopc{efold}{#1.#2}{#3}}
+\newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
 \newcommand{\aufold}[3]{\abopc{ufold}{#1.#2}{#3}}
 \newcommand{\acefold}[3]{\abopc{cefold}{#1.#2}{#3}}
 
 \newcommand{\unfold}[1]{\texttt{unfold}(#1)}
-\newcommand{\aeunfold}[1]{\abop{eunfold}{#1}}
+\newcommand{\aeunfold}[1]{\abop{unfold}{#1}}
 \newcommand{\auunfold}[1]{\abop{uunfold}{#1}}
 \newcommand{\aceunfold}[1]{\abop{ceunfold}{#1}}
 
 \newcommand{\tpl}[1]{\langle #1\rangle}
-\newcommand{\aetpl}[2]{\abopi{etpl}{#1}{#2}}
+\newcommand{\aetpl}[2]{\abopi{tpl}{#1}{#2}}
 \newcommand{\autpl}[2]{\abopi{utpl}{#1}{#2}}
 \newcommand{\acetpl}[2]{\abopi{cetpl}{#1}{#2}}
 
 \newcommand{\prj}[2]{#1 \cdot #2}
-\newcommand{\aepr}[2]{\abopp{epr}{#1}{#2}}
+\newcommand{\aepr}[2]{\abopp{pr}{#1}{#2}}
 \newcommand{\aupr}[2]{\abopp{upr}{#1}{#2}}
 \newcommand{\acepr}[2]{\abopp{cepr}{#1}{#2}}
 
 \newcommand{\inj}[2]{#1 \cdot #2}
-\newcommand{\aein}[4]{\abopibc{ein}{#1}{#2}{#3}{#4}}
+\newcommand{\aein}[4]{\abopibc{in}{#1}{#2}{#3}{#4}}
 \newcommand{\auin}[4]{\abopibc{uin}{#1}{#2}{#3}{#4}}
 \newcommand{\acein}[4]{\abopibc{cein}{#1}{#2}{#3}{#4}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
-\newcommand{\aecase}[4]{\abopic{ecase}{#1}{#2}{#3; #4}}
+\newcommand{\aecase}[4]{\abopic{case}{#1}{#2}{#3; #4}}
 \newcommand{\aucase}[4]{\abopic{ucase}{#1}{#2}{#3; #4}}
 \newcommand{\acecase}[4]{\abopic{cecase}{#1}{#2}{#3; #4}}
 
@@ -123,8 +124,10 @@
 \newcommand{\sigilof}[1]{\widehat{#1}}
 \newcommand{\VTypofv}{\mathcal{V}_\mathsf{Typ}}
 \newcommand{\VTypof}[1]{\VTypofv(#1)}
-\newcommand{\VExpofv}{\mathcal{V}_\mathsf{EExp}}
+\newcommand{\VExpofv}{\mathcal{V}_\mathsf{Exp}}
 \newcommand{\VExpof}[1]{\VExpofv(#1)}
+\newcommand{\Cofv}{\mathcal{C}}
+\newcommand{\Cof}[1]{\Cofv(#1)}
 
 % Statics of miniVerseU expanded expressions
 \newcommand{\istypeU}[2]{#1 \vdash #2~\mathsf{type}}
@@ -160,7 +163,7 @@
 \newcommand{\ueparse}{\uet{parse}}
 
 % TSM expressions
-\newcommand{\tsmv}{a}
+\newcommand{\tsmv}{\hat{a}}
 \newcommand{\utsmdef}[2]{\texttt{syntax}~@~#1~\texttt{\{}#2\texttt{\}}}
 \newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
 
@@ -177,17 +180,22 @@
 \newcommand{\uDhyp}[2]{#1 \leadsto #2~\mathsf{type}}
 \newcommand{\uGhyp}[3]{#1 \leadsto #2 : #3}
 
+\newcommand{\uSigma}{\hat{\Sigma}}
+\newcommand{\uA}{\mathcal{A}}
+\newcommand{\uAS}[2]{\langle #1; #2 \rangle}
+\newcommand{\uShyp}[4]{#1 \leadsto #2 \hookrightarrow \xuetsmdef{#3}{#4}}
+
 \newcommand{\tBody}{\mathtt{Body}}
 \newcommand{\tParseResultExp}{\mathtt{ParseResultExp}} 
 \newcommand{\tCEExp}{\mathtt{CEExp}} % Typed expansion
 \newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6} % there's a multiline one in the document done manually
-\newcommand{\expandsUX}[3]{\expandsU{\uDelta}{\uGamma}{\Sigma}{#1}{#2}{#3}}
+\newcommand{\expandsUX}[3]{\expandsU{\uDelta}{\uGamma}{\uSigma}{#1}{#2}{#3}}
 \newcommand{\expandsUC}[3]{\vdash #1 \leadsto #2 : #3}
 \newcommand{\expandsTU}[3]{#1 \vdash #2 \leadsto #3~\mathsf{type}}
 \newcommand{\domof}[1]{\text{dom}(#1)}
 \newcommand{\xuetsmdef}[2]{\abop{uetsm}{#1;\,#2}}
 \newcommand{\xuetsmbnd}[3]{#1 \hookrightarrow \xuetsmdef{#2}{#3}}
-\newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{ok}}
+\newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{ueTSMs}}
 \newcommand{\encodeBody}[2]{#1 \downarrow #2}
 \newcommand{\decodeBody}[2]{#1 \uparrow #2}
 \newcommand{\ebody}{\etxt{body}}
@@ -221,7 +229,7 @@
 \newcommand{\tsceneU}[2]{#1;\,#2}
 \newcommand{\tsceneUP}[2]{\tsceneU{#1}{#2}}
 \newcommand{\tsfrom}[1]{\mathsf{ts}(#1)}
-\newcommand{\parseTyp}[2]{\mathsf{parseTyp}(#1)=#2}
+\newcommand{\parseUTyp}[2]{\mathsf{parseUTyp}(#1)=#2}
 \newcommand{\parseUExp}[2]{\mathsf{parseUExp}(#1)=#2}
 \newcommand{\bsubseq}[3]{\mathsf{subseq}(#1; #2; #3)}
 
@@ -229,12 +237,12 @@
 
 % Pattern matching
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
-\newcommand{\aematchwith}[4]{\abopic{ematch}{#1}{#2}{#3; #4}}
+\newcommand{\aematchwith}[4]{\abopic{match}{#1}{#2}{#3; #4}}
 \newcommand{\aumatchwith}[4]{\abopic{umatch}{#1}{#2}{#3; #4}}
 \newcommand{\acematchwith}[4]{\abopic{cematch}{#1}{#2}{#3; #4}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
-\newcommand{\aematchrule}[4]{\abopic{erule}{#1}{#2}{#3.#4}}
+\newcommand{\aematchrule}[4]{\abopic{rule}{#1}{#2}{#3.#4}}
 \newcommand{\aumatchrule}[4]{\abopic{urule}{#1}{#2}{#3.#4}}
 \newcommand{\acematchrule}[4]{\abopic{cerule}{#1}{#2}{#3.#4}}
 
@@ -257,22 +265,22 @@
 \newcommand{\cpv}{\grave{p}}
 
 \newcommand{\wildp}{\_}
-\newcommand{\aewildp}{\texttt{ewildp}}
+\newcommand{\aewildp}{\texttt{wildp}}
 \newcommand{\auwildp}{\texttt{uwildp}}
 \newcommand{\acewildp}{\texttt{cewildp}}
 
 \newcommand{\foldp}[1]{\abop{fold}{#1}}
-\newcommand{\aefoldp}[1]{\abop{efoldp}{#1}}
+\newcommand{\aefoldp}[1]{\abop{foldp}{#1}}
 \newcommand{\aufoldp}[1]{\abop{ufoldp}{#1}}
 \newcommand{\acefoldp}[1]{\abop{cefoldp}{#1}}
 
 \newcommand{\tplp}[1]{\langle #1 \rangle}
-\newcommand{\aetplp}[2]{\abopi{etplp}{#1}{#2}}
+\newcommand{\aetplp}[2]{\abopi{tplp}{#1}{#2}}
 \newcommand{\autplp}[2]{\abopi{utplp}{#1}{#2}}
 \newcommand{\acetplp}[2]{\abopi{cetplp}{#1}{#2}}
 
 \newcommand{\injp}[2]{#1 \cdot #2}
-\newcommand{\aeinjp}[2]{\abopp{einp}{#1}{#2}}
+\newcommand{\aeinjp}[2]{\abopp{inp}{#1}{#2}}
 \newcommand{\auinjp}[2]{\abopp{uinp}{#1}{#2}}
 \newcommand{\aceinjp}[2]{\abopp{ceinp}{#1}{#2}}
 
