@@ -164,15 +164,16 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 \subsection{Scoping}
-A benefit of specifying TSMs as a language primitive, rather than relying on extralinguistic mechanisms to manipulate the concrete syntax of our language directly, is that TSMs follow standard scoping rules. 
+A benefit of specifying TSMs as a language primitive, rather than relying on extralinguistic mechanisms to manipulate the concrete syntax of our language directly, is that TSMs follow standard scoping rules.
 
 For example, we can define a TSM that is visible only to a single expression like this:
 \begin{lstlisting}[numbers=none]
-let x = let 
-    syntax $rx at Rx { (* ... *) }
-  in (* $rx is in scope here *) end 
+let x = (syntax $rx at Rx { (* ... *) } in 
+           (* $rx is in scope here *) 
+         end)
 in (* $rx is no longer in scope *) end
 \end{lstlisting}
+
 
 We will consider the question of how TSM definitions can be exported from compilation units in Sec. \ref{sec:tsm-packaging}.
 
@@ -228,7 +229,7 @@ The benefit of this approach is that we can easily define other TSMs to use alon
 % \end{figure}
 
 
-To make the intuitions developed in the previous section mathematically precise, we will now introduce a reduced formal system called $\miniVerseUE$ with support for ueTSMs. $\miniVerseUE$ consists of an \emph{inner core} and an \emph{outer surface}.
+To make the intuitions developed in the previous section mathematically precise, we will now introduce a reduced language called $\miniVerseUE$ with support for ueTSMs. $\miniVerseUE$ consists of an \emph{inner core} and an \emph{outer surface}.
 %For reference, the syntax of $\miniVerseUE$ is specified in Figure \ref{fig:lambda-tsm-syntax}. We will reproduce relevant portions of this specification inline (in tabular form) as we continue. 
 %We specify all formal systems in this document within the metatheoretic framework detailed in \emph{PFPL} \cite{pfpl}, and assume familiarity of fundamental background concepts (e.g. abstract binding trees, substitution, implicit identification of terms up to $\alpha$-equivalence, structural induction and rule induction) covered therein. %Familiarity with other accounts of typed lambda calculi should also suffice to understand the formal systems in this document. 
 
@@ -493,7 +494,7 @@ The Preservation condition ensures that evaluation preserves typing.
 \begin{condition}[Preservation]\label{condition:preservation-U} If $\hastypeUC{e}{\tau}$ and $\multistepU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
 The Progress condition ensures that evaluation of a well-typed expanded expression cannot ``get stuck''.
 \begin{condition}[Progress]\label{condition:progress-U} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
- Together, these two conditions constitute the Type Safety condition.
+ Together, these two conditions constitute the Type Safety Condition.
 
 \subsection{Syntax of the Outer Surface}\label{sec:syntax-U}
 \begin{figure}
@@ -524,7 +525,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 \label{fig:U-unexpanded-terms}
 \end{figure}
 A $\miniVerseUE$ program ultimately evaluates as an expanded expression. However, the programmer does not write the expanded expression directly. Instead, the programmer writes a textual sequence, $b$, consisting of characters in some suitable alphabet (e.g. in practice, \texttt{ASCII} or \texttt{Unicode}), which is parsed by some partial metafunction $\mathsf{parseUExp}(b)$ to produce an \emph{unex\-panded expression}, $\ue$. Unexpanded expressions can contain \emph{unexpanded types}, $\utau$, so we also need a partial metafunction $\mathsf{parseUTyp}(b)$. The abstract syntax of unexpanded types and expressions, which form  the \emph{outer surface} of $\miniVerseUE$, is defined in Figure \ref{fig:U-unexpanded-terms}. The full definition of the textual syntax of $\miniVerseUE$, which $\mathsf{parseUExp}(b)$ and $\mathsf{parseUTyp}(b)$ implement, is not important for our purposes, so we simply give the following condition, which states that there is some way to textually represent every unexpanded type and expression. %We also assume a metafunction $\mathsf{parseUTyp}(b)$ for parsing unexpanded types, and impose an analagous condition.
-\begin{condition}[Textual Representability] Both of the following hold:
+\begin{condition}[Textual Representability] Both of the following must hold:
 \begin{enumerate}
 \item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
 \item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
@@ -540,7 +541,7 @@ Unexpanded types and expressions bind \emph{type sigils}, $\ut$, \emph{expressio
 Each inner core form (defined in Figure \ref{fig:U-expanded-terms}) maps onto an outer surface form. We refer to these as the \emph{shared forms}. In particular:
 \begin{itemize}
 \item Each type variable, $t$, maps onto a unique {type sigil}, written $\sigilof{t}$ (pronounced ``sigil of $t$''). Notice the distinction between $\ut$, which is a metavariable ranging over type sigils, and $\sigilof{t}$, which is a metafunction, written in stylized form, applied to a type variable to produce a type sigil.
-\item Each type form maps onto an unexpanded type form $\Uof{\tau}$ as follows: 
+\item Each type form, $\tau$, maps onto an unexpanded type form, $\Uof{\tau}$, as follows: 
   \begin{align*}
   \Uof{t} &= \sigilof{t}\\
   \Uof{\aparr{\tau_1}{\tau_2}} & = \auparr{\Uof{\tau_1}}{\Uof{\tau_2}}\\
@@ -550,7 +551,7 @@ Each inner core form (defined in Figure \ref{fig:U-expanded-terms}) maps onto an
   \Uof{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \ausum{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}
   \end{align*}
 \item Each expression variable, $x$, maps onto a unique expression sigil written $\sigilof{x}$. Again, notice the distinction between $\ux$ and $\sigilof{x}$.
-\item Each expanded expression form maps onto an unexpanded expression form $\Uof{e}$ as follows:
+\item Each expanded expression form, $e$, maps onto an unexpanded expression form, $\Uof{e}$, as follows:
 \begin{align*}
 \Uof{x} & = \sigilof{x}\\
 \Uof{\aelam{\tau}{x}{e}} & = \aulam{\Uof{\tau}}{\sigilof{x}}{\Uof{e}}\\

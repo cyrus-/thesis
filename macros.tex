@@ -293,7 +293,7 @@
 \newcommand{\expandsUPX}[3]{\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{#1}{#2}{#3}}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
-\newcommand{\patExpands}[5]{#1 \vdash_{#2} #3 \leadsto #4 : #5}
+\newcommand{\patExpands}[5]{#1 \Vdash_{#2} #3 \leadsto #4 : #5}
 \newcommand{\xuptsmdef}[2]{\abop{uptsm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
 \newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{ok}}
@@ -309,4 +309,9 @@
 \newcommand{\pscenev}{\mathbbmss{P}}
 \newcommand{\pscene}[2]{#1;\,#2}
 
+\newcommand{\parseURule}[2]{\mathsf{parseURule}(#1)=#2}
 \newcommand{\parseUPat}[2]{\mathsf{parseUPat}(#1)=#2}
+
+\newcommand{\uPhi}{\hat\Phi}
+\newcommand{\uAP}[2]{\langle #1; #2 \rangle}
+\newcommand{\upctx}{\hat\Omega}
