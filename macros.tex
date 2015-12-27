@@ -179,6 +179,7 @@
 \newcommand{\ctxUpdate}[3]{#1 \uplus \vExpands{#2}{#3}}
 \newcommand{\uDhyp}[2]{#1 \leadsto #2~\mathsf{type}}
 \newcommand{\uGhyp}[3]{#1 \leadsto #2 : #3}
+\newcommand{\uGcons}[2]{#1 \uplus #2}
 
 \newcommand{\uSigma}{\hat{\Sigma}}
 \newcommand{\uA}{\mathcal{A}}
@@ -242,9 +243,9 @@
 \newcommand{\acematchwith}[4]{\abopic{cematch}{#1}{#2}{#3; #4}}
 
 \newcommand{\matchrule}[2]{#1 \Rightarrow #2}
-\newcommand{\aematchrule}[4]{\abopic{rule}{#1}{#2}{#3.#4}}
-\newcommand{\aumatchrule}[4]{\abopic{urule}{#1}{#2}{#3.#4}}
-\newcommand{\acematchrule}[4]{\abopic{cerule}{#1}{#2}{#3.#4}}
+\newcommand{\aematchrule}[2]{\abop{rule}{#1.#2}}
+\newcommand{\aumatchrule}[2]{\abop{urule}{#1.#2}}
+\newcommand{\acematchrule}[2]{\abop{cerule}{#1.#2}}
 
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Mapsto #5}
 \newcommand{\patType}[3]{#1 \Vdash #2 : #3}
@@ -290,7 +291,7 @@
 \newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
 
 \newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
-\newcommand{\expandsUPX}[3]{\expandsUP{\Delta}{\Gamma}{\Sigma}{\Phi}{#1}{#2}{#3}}
+\newcommand{\expandsUPX}[3]{\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{#1}{#2}{#3}}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
 \newcommand{\patExpands}[5]{#1 \Vdash_{#2} #3 \leadsto #4 : #5}
