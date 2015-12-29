@@ -521,7 +521,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{ueTSM definition}\\ 
 &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\ECC
 \end{array}$
-\caption[Syntax of unexpanded types and expressions in $\miniVerseUE$]{Abstract syntax of unexpanded types and expressions in $\miniVerseUE$. Metavariable $\ut$ ranges over type sigils, $\ux$ ranges over expression sigils, $\tsmv$  over TSM names and $b$ over sequences of characters, which, when they appear in an unexpanded expression, are called literal bodies. Literal bodies might contain spliced subterms that are only ``surfaced'' during typed expansion, so renaming of bound identifiers and substitution are not defined over unexpanded types and expressions.}
+\caption[Syntax of unexpanded types and expressions in $\miniVerseUE$]{Abstract syntax of unexpanded types and expressions in $\miniVerseUE$. Metavariable $\ut$ ranges over type sigils, $\ux$ ranges over expression sigils, $\tsmv$  over TSM names and $b$ over textual sequences, which, when they appear in an unexpanded expression, are called literal bodies. Literal bodies might contain spliced subterms that are only ``surfaced'' during typed expansion, so renaming of bound identifiers and substitution are not defined over unexpanded types and expressions.}
 \label{fig:U-unexpanded-terms}
 \end{figure}
 A $\miniVerseUE$ program ultimately evaluates as an expanded expression. However, the programmer does not write the expanded expression directly. Instead, the programmer writes a textual sequence, $b$, consisting of characters in some suitable alphabet (e.g. in practice, \texttt{ASCII} or \texttt{Unicode}), which is parsed by some partial metafunction $\mathsf{parseUExp}(b)$ to produce an \emph{unex\-panded expression}, $\ue$. Unexpanded expressions can contain \emph{unexpanded types}, $\utau$, so we also need a partial metafunction $\mathsf{parseUTyp}(b)$. The abstract syntax of unexpanded types and expressions, which form  the \emph{outer surface} of $\miniVerseUE$, is defined in Figure \ref{fig:U-unexpanded-terms}. The full definition of the textual syntax of $\miniVerseUE$, which $\mathsf{parseUExp}(b)$ and $\mathsf{parseUTyp}(b)$ implement, is not important for our purposes, so we simply give the following condition, which states that there is some way to textually represent every unexpanded type and expression. %We also assume a metafunction $\mathsf{parseUTyp}(b)$ for parsing unexpanded types, and impose an analagous condition.
@@ -944,7 +944,7 @@ Rather than defining $\tBody$ explicitly, and these judgements inductively again
 $\tParseResultExp$ abbreviates a labeled sum type that distinguishes successful parses from parse errors\footnote{In VerseML, the \li{ParseError} constructor of \li{ParseResult} required an error message and an error location, but we omit these in our formalization for simplicity}:
 \[\tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]\] 
 
-The type abbreviated $\tCEExp$ classifies encodings of \emph{candidate expansion expressions} (or \emph{ce-expression}), $\ce$ (pronounced ``grave $e$''). The syntax of ce-expressions will be described in Sec. \ref{sec:ce-syntax-U}. The mapping from ce-expressions to values of type $\tCEExp$ is defined by the \emph{ce-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{ce-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
+The type abbreviated $\tCEExp$ classifies encodings of \emph{candidate expansion expressions} (or \emph{ce-expressions}), $\ce$ (pronounced ``grave $e$''). The syntax of ce-expressions will be described in Sec. \ref{sec:ce-syntax-U}. The mapping from ce-expressions to values of type $\tCEExp$ is defined by the \emph{ce-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{ce-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
@@ -954,7 +954,7 @@ The type abbreviated $\tCEExp$ classifies encodings of \emph{candidate expansion
 
 Again, rather than picking a particular definition of $\tCEExp$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEExp$ and ce-expressions.
 
-\begin{condition}[Candidate Expansion Expression Isomorphism] All of the following hold:
+\begin{condition}[Candidate Expansion Expression Isomorphism] All of the following must hold:
 \begin{enumerate}
 \item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
 \item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
@@ -1035,7 +1035,7 @@ The typed expansion rule governing ueTSM application is below:
 The premises of Rule (\ref{rule:expandsU-tsmap}) can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise determines the encoding of the literal body, $\ebody$ (see above).
-\item The second premise applies the parse function $\eparse$, which appears in the ueTSM context associated with $\tsmv$, to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed ueTSM context, by transitive application of the Preservation assumption). We call $\ecand$ the \emph{encoding of the candidate expansion}.
+\item The second premise applies the parse function $\eparse$, which appears in the ueTSM context associated with $\tsmv$, to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed ueTSM context, by application of Assumption \ref{condition:preservation-U}). We call $\ecand$ the \emph{encoding of the candidate expansion}.
 
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
@@ -1461,7 +1461,7 @@ and where:
 It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-ap}) above. We omit the remaining rules for shared forms, i.e. Rules (\ref*{rule:cvalidE-U-tlam}) through (\ref*{rule:cvalidE-U-case}).
 
 The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that is assigned the same type under any expression splicing scene.
-\begin{lemma}[Candidate Expansion Expression Expressibility]\label{lemma:ce-expressions-expressibility-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.\end{lemma}
+\begin{theorem}[Candidate Expansion Expression Expressibility]\label{theorem:ce-expressions-expressibility-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.\end{theorem}
 \begin{proof} By rule induction over Rules (\ref{rules:hastypeU}). The rule transformation above guarantees that this lemma holds by construction. In particular, in each case, we apply Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise, the IH to or over each typing premise, then apply the corresponding ce-expression validation rule in Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}).
 \end{proof}
 
@@ -1801,7 +1801,6 @@ The second condition states that an unexpanded expression constructed by parsing
 \begin{condition}[Body Parsing]\label{condition:body-parsing} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
-
 \end{proof}
 % We need to define the following theorem about candidate expansion expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
 % \begin{theorem}[Candidate Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
