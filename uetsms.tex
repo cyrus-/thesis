@@ -1602,8 +1602,8 @@ For the judgements we have defined to form a sensible language, we must have tha
 
 \begin{theorem}[Typed Expansion]\label{thm:typed-expansion-U} Both of the following hold:
 \begin{enumerate}
-\item If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uAS{\uA}{\Sigma}}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\Sigma}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
-\item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uAS{\uA}{\Sigma}}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_\text{app}}{\Sigma}$ and $\Delta \cap \Delta_\text{app} = \emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$.
+\item If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uAS{\uA}{\Sigma}}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+\item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uAS{\uA}{\Sigma}}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app} = \emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof}
@@ -1611,7 +1611,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules
 
 The proof of part 1 proceeds by inducting over the typed expansion assumption. In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ and $\uSigma=\uAS{\uA}{\Sigma}$.
 \begin{byCases}
-\item[\text{(\ref{rule:expandsU-var})}] We have
+\item[\text{(\ref{rule:expandsU-var})}] We have:
 \begin{pfsteps}
   \item \ue=\ux \BY{assumption}
   \item e=x \BY{assumption}
@@ -1620,46 +1620,46 @@ The proof of part 1 proceeds by inducting over the typed expansion assumption. I
 \end{pfsteps}
 \resetpfcounter
 
-\item[\text{(\ref{rule:expandsU-lam})}] We have 
+\item[\text{(\ref{rule:expandsU-lam})}] We have:
 \begin{pfsteps}
   \item \ue=\aulam{\utau_1}{\ux}{\ue'} \BY{assumption}
   \item e=\aelam{\tau_1}{x}{e'} \BY{assumption}
   \item \tau=\aparr{\tau_1}{\tau_2} \BY{assumption}
   \item \expandsTU{\uDelta}{\utau_1}{\tau_1} \BY{assumption} \pflabel{istype}
   \item \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uSigma}{\ue'}{e'}{\tau_2} \BY{assumption} \pflabel{expandsU}
-  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
+%  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
   \item \istypeU{\Delta}{\tau_1} \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{istype}} \pflabel{istype2}
-  \item \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{e'}{\tau_2} \BY{IH on \pfref{expandsU} and \pfref{uetsmenv}} \pflabel{hastypeU}
+  \item \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{e'}{\tau_2} \BY{IH, part 1 on \pfref{expandsU}} \pflabel{hastypeU}
   \item \hastypeU{\Delta}{\Gamma}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}} \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype2} and \pfref{hastypeU}}
 \end{pfsteps}
 \resetpfcounter
 
-\item[\text{(\ref{rule:expandsU-ap})}] We have
+\item[\text{(\ref{rule:expandsU-ap})}] We have:
 \begin{pfsteps}
   \item \ue=\auap{\ue_1}{\ue_2} \BY{assumption}
   \item e=\aeap{e_1}{e_2} \BY{assumption}
   \item \expandsU{\uDelta}{\uGamma}{\uSigma}{\ue_1}{e_1}{\aparr{\tau_1}{\tau}} \BY{assumption}\pflabel{expandsU1}
   \item \expandsU{\uDelta}{\uGamma}{\uSigma}{\ue_2}{e_2}{\tau_1} \BY{assumption}\pflabel{expandsU2}
-  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
-  \item \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau_1}{\tau}} \BY{IH on \pfref{expandsU1} and \pfref{uetsmenv}}\pflabel{hastypeU1}
-  \item \hastypeU{\Delta}{\Gamma}{e_2}{\tau_1} \BY{IH on \pfref{expandsU2} and \pfref{uetsmenv}}\pflabel{hastypeU2}
+%  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
+  \item \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau_1}{\tau}} \BY{IH, part 1 on \pfref{expandsU1}}\pflabel{hastypeU1}
+  \item \hastypeU{\Delta}{\Gamma}{e_2}{\tau_1} \BY{IH on \pfref{expandsU2}}\pflabel{hastypeU2}
   \item \hastypeU{\Delta}{\Gamma}{\aeap{e_1}{e_2}}{\tau} \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
 \end{pfsteps}
 \resetpfcounter
 
-\item[\text{(\ref{rule:expandsU-tlam})}~\text{through}~\text{(\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply Lemma \ref{lemma:type-expansion-U} to or over the type expansion premises and the IH to or over the typed expression expansion premises and then apply the corresponding typing rule.
+\item[\text{(\ref{rule:expandsU-tlam})}~\text{through}~\text{(\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply Lemma \ref{lemma:type-expansion-U} to or over the type expansion premises and the IH, part 1, to or over the typed expression expansion premises and then apply the corresponding typing rule in Rules (\ref{rule:hastypeU-tlam}) through (\ref{rule:hastypeU-case}).
 \\
 
 \item[\text{(\ref{rule:expandsU-syntax})}] We have 
 \begin{pfsteps}
   \item \ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
   \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
-  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
+%  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
   \item \expandsU{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
-  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption}\pflabel{uetsmenv1}
-  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-  \item \uetsmenv{\Delta}{\Sigma, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH on \pfref{expandsU} and \pfref{uetsmenv3}}
+%  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption}\pflabel{uetsmenv1}
+%  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%  \item \uetsmenv{\Delta}{\Sigma, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1 on \pfref{expandsU}}
 \end{pfsteps}
 \resetpfcounter 
 
@@ -1672,10 +1672,10 @@ The proof of part 1 proceeds by inducting over the typed expansion assumption. I
   \item \evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}} \BY{assumption}
   \item \decodeCondE{\ecand}{\ce} \BY{assumption}
   \item \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uSigma}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
-  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
+%  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
   \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
-  \item \domof{\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
-  \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{uetsmenv}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
+  \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
+  \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
   \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set union over \pfref{penultimate}}
 \end{pfsteps}
 \resetpfcounter
@@ -1700,13 +1700,13 @@ The second part of the theorem proceeds by induction over the candidate expansio
   \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
   \item $\cvalidT{\Delta}{\tsceneU{\uDelta_\text{app}}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
   \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uSigma}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
-  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
+%  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
   \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
   \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
   \item $x \notin \domof{\Gamma_\text{app}}$ \BY{identification convention} \pflabel{x-fresh}
   \item $\domof{\Gamma, x : \tau_1} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{\pfref{gamma-disjoint} and \pfref{x-fresh}} \pflabel{gamma-disjoint2}
   \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_1}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_\text{app}}}{e'}{\tau_2}$ \BY{IH on \pfref{cvalidE}, \pfref{uetsmenv}, \pfref{delta-disjoint} and \pfref{gamma-disjoint2}} \pflabel{hastype1}
+  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_\text{app}}}{e'}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint2}} \pflabel{hastype1}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}, \Ghyp{x}{\tau_1}}{e'}{\tau_2}$ \BY{exchange over $\Gamma_\text{app}$ on \pfref{hastype1}} \pflabel{hastype2}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype} and \pfref{hastype2}}
 \end{pfsteps*}
@@ -1718,11 +1718,11 @@ The second part of the theorem proceeds by induction over the candidate expansio
   \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uSigma}{b}}{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uSigma}{b}}{\ce_2}{e_2}{\tau_2}$ \BY{assumption} \pflabel{cvalidE2}
-  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
+%  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
   \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
   \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{IH on \pfref{cvalidE1}, \pfref{uetsmenv}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU1}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_2}{\tau_2}$ \BY{IH on \pfref{cvalidE2}, \pfref{uetsmenv}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU2}
+  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{IH, part 2 on \pfref{cvalidE1}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU1}
+  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_2}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE2}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU2}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aeap{e_1}{e_2}}{\tau}$ \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
 \end{pfsteps*}
 \resetpfcounter
@@ -1733,18 +1733,18 @@ The second part of the theorem proceeds by induction over the candidate expansio
   \item e = \aetlam{t}{e'} \BY{assumption}
   \item \tau = \aall{t}{\tau'}\BY{assumption}
   \item \cvalidE{\Delta, \Dhyp{t}}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uSigma}{b}}{\ce'}{e'}{\tau'} \BY{assumption} \pflabel{cvalidE}
-  \item \uetsmenv{\Delta_\text{app}}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
+%  \item \uetsmenv{\Delta_\text{app}}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
   \item \Delta \cap \Delta_\text{app}=\emptyset \BY{assumption} \pflabel{delta-disjoint}
   \item \domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset \BY{assumption} \pflabel{gamma-disjoint}
   \item \Dhyp{t} \notin \Delta_\text{app} \BY{identification convention}\pflabel{t-fresh}
   \item \Delta, \Dhyp{t} \cap \Delta_\text{app} = \emptyset \BY{\pfref{delta-disjoint} and \pfref{t-fresh}}\pflabel{delta-disjoint2}
-  \item \hastypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{IH on \pfref{cvalidE}, \pfref{uetsmenv}, \pfref{delta-disjoint2} and \pfref{gamma-disjoint}}\pflabel{hastype1}
+  \item \hastypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint2} and \pfref{gamma-disjoint}}\pflabel{hastype1}
   \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}, \Dhyp{t}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{exchange over $\Delta_\text{app}$ on \pfref{hastype1}}\pflabel{hastype2}
   \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aetlam{t}{e'}}{\aall{t}{\tau'}} \BY{Rule (\ref{rule:hastypeU-tlam}) on \pfref{hastype2}}
 \end{pfsteps}
 \resetpfcounter
 
-\item[{\text{(\ref{rule:cvalidE-U-tap})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH to all ce-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all ce-type validation judgements, the identification convention to ensure that extended contexts remain disjoint, weakening and exchange as needed, and the corresponding typing rule.
+\item[{\text{(\ref{rule:cvalidE-U-tap})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH, part 2 to all ce-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all ce-type validation judgements, the identification convention to ensure that extended contexts remain disjoint, weakening and exchange as needed, and the corresponding typing rule in Rules (\ref{rule:hastypeU-tap}) through (\ref{rule:hastypeU-case}).
 \\
 
 \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
@@ -1752,10 +1752,10 @@ The second part of the theorem proceeds by induction over the candidate expansio
   \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
   \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
   \item $\expandsU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uSigma}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
-  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
+%  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
   \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
   \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-  \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1 on \pfref{expands} and \pfref{uetsmenv}} \pflabel{hastype}
+  \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1 on \pfref{expands}} \pflabel{hastype}
   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
 \end{pfsteps*}
 \resetpfcounter
@@ -1768,20 +1768,20 @@ The mutual induction can be shown to be well-founded by showing that the followi
 \end{align*}
 where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the literal bodies in $\ue$,
 \begin{align*}
-\sizeof{x} & = 0\\
-\sizeof{\aulam{\tau}{x}{\ue}} &= \sizeof{\ue}\\
+\sizeof{\ux} & = 0\\
+\sizeof{\aulam{\utau}{\ux}{\ue}} &= \sizeof{\ue}\\
 \sizeof{\auap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
-\sizeof{\autlam{t}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autap{\ue}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\aufold{t}{\tau}{\ue}} & = \sizeof{\ue}\\
+\sizeof{\autlam{\ut}{\ue}} & = \sizeof{\ue}\\
+\sizeof{\autap{\ue}{\utau}} & = \sizeof{\ue}\\
+\sizeof{\aufold{\ut}{\utau}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
 %\end{align*}
 %\begin{align*}
 \sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
 \sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auin{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\aucase{\labelset}{\tau}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\audefuetsm{\tau}{\ueparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
+\sizeof{\auin{\labelset}{\ell}{\mapschema{\utau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
+\sizeof{\aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
+\sizeof{\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\autsmap{b}{\tsmv}} & = \sizeof{b}
 \end{align*}
 
@@ -1797,8 +1797,8 @@ i.e. by the definitions above,
 
 This is established by appeal to the following two conditions. The first condition simply states that subsequences of $b$ are no longer than $b$.
 \begin{condition}[Body Subsequencing]\label{condition:body-subsequences} If $\bsubseq{b}{m}{n}=b'$ then $\sizeof{b'} \leq \sizeof{b}$. \end{condition}
-The second condition states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke a TSM on and delimit each literal body.
-\begin{condition}[Body Parsing]\label{condition:body-parsing} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
+The second condition states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke a TSM and delimit each literal body.
+\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
