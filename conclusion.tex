@@ -3,58 +3,12 @@
 \section{Interesting Applications}
 Most of the examples in Sec. \ref{sec:motivating-examples} can be expressed straightforwardly using the constructs introduced in the previous chapters. Here, let us highlight certain interesting examples and exceptions.
 
-\subsection{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
-Static functions can also make use of TSMs. In this section, we will show how quasiquotation syntax and grammar-based parser generators can be expressed using TSMs. These TSMs are quite useful for writing other TSMs.
-\subsubsection{Quasiquotation}
-TSMs must generate values of type \li{CEExp}. Doing so explicitly can have high syntactic cost. To decrease the syntactic cost of constructing values of this type, the prelude includes a TSM that provides quasiquotation syntax (cf. Sec. \ref{sec:syntax-examples-quasiquotation}):
-\begin{lstlisting}[numbers=none]
-syntax $qqexp at CEExp {
-	static fn(body : Body) : ParseResult => (* expression parser here *)
-}
-
-syntax $qqtype at CETyp {
-	static fn(body : Body) : ParseResult => (* type parser here *)
-}
-\end{lstlisting}
-For example, the following expression:
-\begin{lstlisting}[numbers=none]
-let gx = $qqexp `SQTg(x)EQT`
-\end{lstlisting}
-is more concise than its expansion:
-\begin{lstlisting}[numbers=none]
-let gx = App(Var 'SSTRgESTR', Var 'SSTRxESTR')
-\end{lstlisting}
-The full concrete syntax of the language can be used. Anti-quotation, i.e. splicing in an expression of type \li{MarkedExp}, is indicated by the prefix \li{%}:
-\begin{lstlisting}[numbers=none]
-let fgx = $qqexp `SQTf(%EQTgxSQT)EQT`
-\end{lstlisting}
-The expansion of this expression is:
-\begin{lstlisting}[numbers=none]
-let fgx = App(Var 'SSTRfESTR', gx)
-\end{lstlisting}
-
-
-\subsubsection{Parser Generators}
-\todo{grammars, compile function, TSM for grammar, example of IP address}
-
 \subsection{Monadic Commands}\label{sec:application-monadic-commands}
 
 \section{Summary}
 \todo{Write summary}
 
 \section{Future Directions}
-\subsection{Static Language}\label{sec:uetsms-static-language}
-We have assumed throughout this work that parse functions are fully self-contained, i.e. they are closed. This simplifies our exposition and metatheory, but it is not a realistic constraint -- in practice, one would want to be able to share helper code between parse functions. To allow this, VerseML allows programmers to introduce \emph{static blocks}, which introduce bindings available only in other static blocks and static functions. For example, the following static block defines a helper function for use in the subsequent parse function.
-\begin{lstlisting}
-static
-  val parseInt : Body -> Exp option = (* ... *)
-end
-syntax $rx at Rx {
-  static fn(body : Body) : ParseResultExp => 
-    (* ... parseInt is available here ... *)
-}
-val x = parseInt("34") (* error: parseInt is not bound here *)
-\end{lstlisting}
 
 \subsection{TSM Packaging}\label{sec:tsm-packaging}
 

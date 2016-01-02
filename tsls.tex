@@ -1,73 +1,65 @@
 % !TEX root = omar-thesis.tex
-\chapter{Type-Specific Languages (TSLs)}\label{chap:tsls}
-With TSMs, library providers can control the expansion of arbitrary syntax that appears between delimiters, but clients must explicitly identify the TSM and provide the required type and module parameters at each use site. To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of derived syntax built in primitively (e.g. list syntax), we will now discuss how VerseML allows library providers to define \emph{type-specific languages} (TSLs) by associating a TSM directly with an abstract type or datatype. When the type system encounters a delimited form not prefixed by a TSM name, it applies the TSM associated with the type it is being analyzed against implicitly.
+\chapter{Unparameterized TSM Implicits}\label{chap:tsls}
+Using TSMs, a library provider can control the expansion of generalized literal forms. However, the library client must explicitly prefix each such form with a TSM name. To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one TSM as that type's \emph{implicit TSM} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TSM name (an \emph{unadorned literal form}), it applies the TSM associated with the type that the expression or pattern is being checked against.
 
-\section{TSLs By Example}
-For example, a module \lstinline{P} can associate the TSM \lstinline{rx} defined in the previous section with the abstract type \lstinline{R.t} by qualifying the definition of the sealed module it is defined by as follows:
+\section{TSM Implicits By Example}\label{sec:tsm-implicits-by-example}
+We begin in this section by introducing TSM implicits by example in VerseML. In Sec. \ref{sec:b-miniverse}, we will formalize TSM implicits with a reduced calculus, {Bidirectional} $\miniVersePat$. 
+
+\subsection{Designation and Usage}
+In the following example, the expression TSM named \li{#\dolla#rx}, defined in Section \ref{sec:uetsms-definition}, is designated the implicit expression TSM at type \li{Rx}, and the pattern TSM named \li{#\dolla#rx}, defined in Sec. \ref{sec:ptsms-definition}, is designated the implicit pattern TSM at type \li{Rx},  both within the indicated scope.  %The scope of this declaration could be further restricted using the clauses shown in comments below. 
+\begin{lstlisting}
+implicit syntax 
+  $rx at Rx for expressions
+  $rx at Rx for patterns
+in
+  fun is_ssn(s : string) => rx_match /SURL\d\d\d-\d\d-\d\d\d\dEURL/ s
+  fun name_from_example_rx(r : Rx) : string option => 
+    match r with 
+      /SURL@EURLnameSURL: %EURL_/ => Some name
+    | _ => None
+end
+\end{lstlisting}
+For convenience, VerseML also provides a derived designation form that combines the two designations above:
 \begin{lstlisting}[numbers=none]
-module R = mod {
-  type t = (* ... *)
+implicit syntax 
+  $rx at Rx 
+in 
   (* ... *)
-} :> RX with syntax rx
+end 
 \end{lstlisting}
-More generally, when sealing a module expression against a signature, the programmer can specify, for each abstract type that is generated, at most one previously defined TSMs. This TSM must take as its first parameter the module being sealed.
 
-The following function has the same expansion as \lstinline{example_using_tsm} but, by using the TSL just defined, it is more concise. Notice the return type annotation, which is necessary to ensure that the TSL can be unambiguously determined:
+On Line 5 of the example above, we apply a function \li{rx_match} (not shown), which has type \li{Rx -> string -> MatchResult}, to an expression of unadorned literal form. The expression TSM \li{#\dolla#rx} is applied implicitly to this expression to determine its expansion because the expression appears in a syntactic position where it must be of type \li{Rx}, and we have designated \li{#\dolla#rx} as the implicit expression TSM at this type. %f we had instead applied it explicitly, Line 2 would be written as follows:
+% \begin{lstlisting}[numbers=none]
+% fun is_ssn(s : string) => rx_match ($rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/) s
+% \end{lstlisting}
+
+Similarly, a pattern of unadorned literal form appears on Line 8. Because it appears in a syntactic position where it must match values of type \li{Rx}, the pattern TSM \li{#\dolla#rx} is implicitly applied to determine its expansion.
+
+\subsection{Analytic and Synthetic Positions}
+When typechecking a subexpression, $e'$, of an expresssion, $e$, we say that $e'$ appears in an \emph{analytic position} if the type that $e'$ must have is fully determined by its position within $e$. For example, an expression appearing as a function argument is in an analytic position because the function's type determines each of the argument types. Similarly, an expression may be in analytic position due to a \emph{type ascription}, either directly on the expression, or on the binding or definition that the expression appears within:
 \begin{lstlisting}[numbers=none]
-fun example_using_tsl(name : string) : R.t => /SURL@EURLnameSURL: %EURLssn/
+val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ : Rx
+val ssn : Rx = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+fun ssn() : Rx => /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 \end{lstlisting}
 
-As another example, let us consider the standard list datatype. We can use TSLs to express derived list syntax, for both expressions and patterns:
+If the type of $e'$ is not fully determined by its position within $e$, we instead say that the expression appears in a \emph{synthetic position}. For example, a top-level expression, or an expression appearing in a binding or definition without a type ascription, appears in a synthetic position.
+
+Expressions of unadorned literal form are only valid in analytic position, because their type must be known to be able to determine the appropriate TSM to implicitly apply. The following expressions cannot be typechecked because expressions of unadorned literal form appear in synthetic position:
 \begin{lstlisting}[numbers=none]
-datatype list('a) { Nil | Cons of 'a * list('a) } with syntax {
-  static fn (body : Body) => 
-    (* ... comma-delimited spliced exps ... *)
-} with pattern syntax {
-  static fn (body : Body) : Pat => 
-    (* ... list pattern parser ... *)
-}
-\end{lstlisting}
-Together with the TSL for regular expression patterns, this allows us to write lists like this:
-\begin{lstlisting}[numbers=none]
-let val x : list(R.t) = [/SURL\dEURL/SHTML, EHTML/SURL\d\dEURL/SHTML, EHTML/SURL\d\d\dEURL/]
-\end{lstlisting}
-From the client's perspective, it is essentially as if the language had built in derived syntax for lists and regular expression patterns directly.%However, we did not need to build in this syntax primitively.%The only constraint is that this syntax must be used in an analytic position, which we argue is actually better for code compren when encountering unfamiliar syntax.
-
-\section{Parameterized Modules}
-TSLs can be associated with abstract types that are generated by parameterized modules (i.e. generative functors in Standard ML) as well. For example, consider a trivially parameterized module that creates modules sealed against \lstinline{RX}:
-\begin{lstlisting}[numbers=none]
-module F() => mod {
-  type t = (* ... *)
-  (* ... *)
-} :> RX with syntax rx 
-\end{lstlisting}
-Each application of \lstinline{F} generates a distinct abstract type. The semantics associates the appropriately parameterized TSM with each of these as they are generated:
-\begin{lstlisting}[numbers=none]
-module F1 = F() (* F1.t has TSL rx(F1) *)
-module F2 = F() (* F2.t has TSL rx(F2) *)
+let 
+  val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ (* INVALID *)
+  fun ssn() => /SURL\d\d\d-\d\d-\d\d\d\dEURL/ (* INVALID *)
+in 
+  (* ... *) 
+end
 \end{lstlisting}
 
-As a more complex example, let us define two signatures, \lstinline{A} and \lstinline{B}, a TSM \texttt{\$G} and a parameterized module \lstinline{G : A -> B}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-signature A = sig { type t; val x : t }
-signature B = sig { type u; val y : u }
-syntax $G(M : A)(G : B) at G.u { (* ... *) }
-module G(M : A) => mod { 
-  type u = M.t; val y = M.x } :> B with syntax $G(M)
-\end{lstlisting}
-Both \lstinline{G} and \texttt{\$G} take a parameter \lstinline{M : A}. We associate the partially applied TSM \texttt{\$G(M)} with the abstract type that \lstinline{G} generates. Again, this satisfies the requirement that one must be able to apply the TSM being associated with the abstract type to the module being sealed. 
-
-Only fully abstract types can have TSLs associated with them. Within the definition of \lstinline{G}, type \lstinline{u} does not have a TSL available to it because it is synonymous to \lstinline{M.t}. More generally, TSL lookup respects type equality, so any synonyms of a type with a TSL will also have that TSL. We can see this in the following example, where the type \lstinline{u} has a different TSL associated with it inside and outside the definition of the module \lstinline{N}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-module M : A = mod { type t = int; val x = 0 }
-module G1 = G(M) (* G1.t has TSL $G(M), per above *)
-module N = mod { 
-  type u = G1.t (* u = G1.t in this scope, so u also has TSL $G(M) *)
-  val y = /asdf/ (* we can use it to create a value of that type *) 
-} :> B (* did not specify a TSL for N.u at the point where it is sealed, 
-            so N.u has no TSL in the outer scope *)
-val z : N.u = /asdf/ (* ERROR: no TSL for type N.u *)
-\end{lstlisting}
-
-\section{\texorpdfstring{$\miniVerseTSL$}{miniVerseTSL}}
-A formal specification of TSLs in a language that supports only non-parametric datatypes is available in a paper published in ECOOP 2014 \cite{TSLs}. %We will add support for parameterized TSLs in the dissertation (see Sec. %\ref{sec:syntax-timeline}).
+In VerseML, the scrutinee of a match expression is always in synthetic position. Consequently, the type of value that a pattern appearing within a match expression must match is always known, so patterns can always be of unadorned literal form.
+\section{Bidirectional $\miniVersePat$}\label{sec:b-miniverse}
+\subsection{Inner Core}
+\subsection{Syntax of the Outer Surface}
+\subsection{Bidirectionally Typed Expansion}
+\subsection{uTSL Definition}
+\subsection{uTSL Application}
+\subsection{Candidate Expansion Validation}

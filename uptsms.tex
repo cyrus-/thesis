@@ -1,5 +1,5 @@
 % !TEX root = omar-thesis.tex
-\chapter{Unparameterized Pattern TSMs}\label{chap:uptsms}
+\chapter{Unparameterized Pattern TSMs (upTSMs)}\label{chap:uptsms}
 In Chapter \ref{chap:uetsms}, we considered situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value. In full-scale functional languages like ML and Haskell, values are deconstructed by \emph{pattern matching} over their structure. For example, recall the recursive labeled sum type \lstinline{Rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct:
 \begin{lstlisting}
 fun read_example_rx(r : Rx) : (string * Rx) option => 
@@ -107,7 +107,7 @@ To make the intuitions developed in the previous section about pattern TSMs prec
 \subsection{Syntax of the Inner Core}\label{sec:UP-expanded-terms}
 The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ forms a pure language and differs from the inner core of $\miniVerseUE$  only in that the case analysis operator has been replaced by the pattern matching operator\footnote{We retain the projection operator because it has lower syntactic cost than pattern matching when only a single field from a labeled tuple is needed.}, so we will gloss some definitions that would be expressed identically to those in Sec. \ref{sec:miniVerseU}. The new constructs are highlighted in gray in Figure \ref{fig:UP-expanded-terms}. Our formulation of the semantics of pattern matching is based on Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
 
-\begin{figure}
+\begin{figure}[p] 
 $\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\

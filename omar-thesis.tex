@@ -70,7 +70,7 @@ basicstyle=\ttfamily\fontsize{11pt}{1em}\selectfont,
 commentstyle=\itshape\ttfamily\color{gray}, 
 stringstyle=\ttfamily\color{red},
 mathescape=false,escapechar=\#,
-numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in,patterns,expressions},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
+numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in,patterns,expressions,implicit},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
 moredelim=**[is][\color{red}]{SSTR}{ESTR},
 moredelim=**[is][\color{OliveGreen}]{SHTML}{EHTML},
 moredelim=**[is][\color{purple}]{SCSS}{ECSS},
@@ -96,7 +96,7 @@ deletestring=[d]{"},
 \patchcmd{\lsthk@TextStyle}{\let\lst@DefEsc\@empty}{}{}{\errmessage{failed to patch}}
 \makeatother
 
-% Provides a draft mark at the top of the document. 
+% Provides a draft mark at the bottom of the document. 
 \draftstamp{\today}{DRAFT}
 
 
@@ -249,8 +249,9 @@ Full-scale functional programming languages often make \emph{ad hoc} choices in 
 
 \input{uetsms}
 \input{uptsms}
-\input{ptsms}
 \input{tsls}
+\input{ptsms}
+\input{static-language}
 
 \input{conclusion}
 

@@ -1,5 +1,5 @@
 % !TEX root = omar-thesis.tex
-\chapter{Unparameterized Expression TSMs}\label{chap:uetsms}
+\chapter{Unparameterized Expression TSMs (ueTSMs)}\label{chap:uetsms}
 We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM). TSMs, like term-rewriting macros (Sec. \ref{sec:term-rewriting}), generate expansions. Unlike term-rewriting macros, TSMs are applied to unparsed \emph{generalized literal forms}, which gives them substantially more syntactic flexibility. This chapter considers perhaps the simplest manifestation of TSMs: \textbf{unparameterized expression TSMs} (ueTSMs), which generate expressions of a single specified type. We will consider unparameterized pattern TSMs (upTSMs) in Chapter \ref{chap:uptsms} and parameterized TSMs (pTSMs) in Chapter \ref{chap:ptsms}.
 
 %Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
@@ -174,7 +174,7 @@ let x = (syntax $rx at Rx { (* ... *) } in
 in (* $rx is no longer in scope *) end
 \end{lstlisting}
 
-
+If the \li{in} clause is omitted, the scope of the TSM extends to the end of the current block. 
 We will consider the question of how TSM definitions can be exported from compilation units in Sec. \ref{sec:tsm-packaging}.
 
 \subsection{Comparison to ML+Rx}
