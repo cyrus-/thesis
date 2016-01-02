@@ -104,7 +104,7 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \section{\texorpdfstring{$\miniVersePat$}{miniVerseU}}\label{sec:miniVerseUP}
 To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a reduced language with support for both ueTSMs and upTSMs. Like $\miniVerseUE$, $\miniVersePat$ consists of an \emph{inner core} and an \emph{outer surface}.
 
-\subsection{Syntax of the Inner Core}\label{sec:UP-expanded-terms}
+\subsection{Syntax of the Inner Core}\label{sec:UP-expanded-terms}\label{sec:inner-core-syntax-UP}
 The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ forms a pure language and differs from the inner core of $\miniVerseUE$  only in that the case analysis operator has been replaced by the pattern matching operator\footnote{We retain the projection operator because it has lower syntactic cost than pattern matching when only a single field from a labeled tuple is needed.}, so we will gloss some definitions that would be expressed identically to those in Sec. \ref{sec:miniVerseU}. The new constructs are highlighted in gray in Figure \ref{fig:UP-expanded-terms}. Our formulation of the semantics of pattern matching is based on Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
 
 \begin{figure}[p] 
@@ -140,7 +140,7 @@ $\begin{array}{lllllll}
 \end{figure}
 
 
-\subsection{Statics of the Inner Core}
+\subsection{Statics of the Inner Core}\label{sec:inner-core-statics-UP}
 The \emph{statics of the inner core} is specified by judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
@@ -462,7 +462,7 @@ Each inner core form (defined in Figure \ref{fig:UP-expanded-terms}) maps onto a
 \begin{itemize}
 \item Each type variable, $t$, maps onto a unique {type sigil}, written $\sigilof{t}$ (pronounced ``sigil of $t$''). Notice the distinction between $\ut$, which is a metavariable ranging over type sigils, and $\sigilof{t}$, which is a metafunction, written in stylized form, applied to a type variable to produce a type sigil.
 \item Each type form, $\tau$, maps onto an unexpanded type form, $\Uof{\tau}$, according to the definition of $\Uof{\tau}$ in Sec. \ref{sec:syntax-U}.
-\item Each expression variable, $x$, maps onto a unique expression sigil written $\sigilof{x}$. Again, notice the distinction between $\ux$ and $\sigilof{x}$.
+\item Each expression variable, $x$, maps onto a unique expression sigil, written $\sigilof{x}$. Again, notice the distinction between $\ux$ and $\sigilof{x}$.
 \item Each expanded expression form, $e$, maps onto an unexpanded expression form $\Uof{e}$ as follows:
 \begin{align*}
 \Uof{x} & = \sigilof{x}\\
@@ -497,31 +497,31 @@ Unexpanded terms are checked and expanded simultaneously according to the \emph{
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ is well-formed and has expansion $\tau$ assuming $\uDelta$}\\
-\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM context $\uSigma$}\\
+\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM context $\uPsi$}\\
 & \text{and upTSM context $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
-\ruleExpands{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
-& \text{type $\tau'$ under TSM environments $\uSigma$ and $\Phi$ assuming $\Delta$ and $\Gamma$}\\
+\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
+& \text{type $\tau'$ under $\uPsi$ and $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
 \patExpands{\upctx}{\uPhi}{\upv}{p}{\tau} & \text{$\upv$ has expansion $p$ and type $\tau$ and generates hypotheses $\pctx$ }\\
-& \text{under upTSM context $\Phi$ assuming $\Delta$}
+& \text{under upTSM context $\uPhi$ assuming $\Delta$}
 \end{array}\]
 
 \subsubsection{Type Expansion}
-\emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is defined by Rules (\ref{rules:expandsTU}).
+\emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}).
 
 \subsubsection{Typed Expression, Rule and Pattern Expansion}
-\emph{Unexpanded typing contexts}, $\uGamma$, were defined in Sec. \ref{sec:typed-expansion-U}. \emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). \emph{ueTSM contexts}, $\uSigma$, are of the form $\uAS{\uA}{\Sigma}$, where $\uA$ is a \emph{TSM naming context} and $\Sigma$ is a \emph{ueTSM definition context}. TSM naming contexts were defined in Sec. \ref{sec:U-uetsm-definition} and the definition of ueTSM definition contexts would be written identically to the definition in Sec. \ref{sec:U-uetsm-definition}, so we gloss it. \emph{upTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
+\emph{Unexpanded typing contexts}, $\uGamma$, were defined in Sec. \ref{sec:typed-expansion-U}. \emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). \emph{ueTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM naming context} and $\Psi$ is a \emph{ueTSM definition context}. TSM naming contexts were defined in Sec. \ref{sec:U-uetsm-definition} and the definition of ueTSM definition contexts would be written identically to the definition in Sec. \ref{sec:U-uetsm-definition}, so we gloss it. \emph{upTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
 
-The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref*{rules:expandsUP}) and Rule (\ref*{rule:ruleExpands}), respectively, and the \emph{typed pattern expansion judgement}, $\patExpands{\pctx}{\Phi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref*{rules:patExpands}) as follows.
+The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref*{rules:expandsUP}) and Rule (\ref*{rule:ruleExpands}), respectively, and the \emph{typed pattern expansion judgement}, $\patExpands{\pctx}{\Phi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref*{rules:patExpands}) as follows.
 
 \paragraph{Shared Forms} Rules (\ref*{rule:expandsUP-var}) through (\ref*{rule:expandsUP-match}) define typed expansion of  unexpanded expressions of shared form. The first five of these rules are shown below:
 \begin{subequations}\label{rules:expandsUP}
 \begin{equation}\label{rule:expandsUP-var}
-  \inferrule{ }{\expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uSigma}{\uPhi}{\ux}{x}{\tau}}
+  \inferrule{ }{\expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}}
 \end{equation}
 \begin{equation}\label{rule:expandsUP-lam}
   \inferrule{
     \expandsTU{\uDelta}{\utau}{\tau}\\
-    \expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uSigma}{\uPhi}{\ue}{e}{\tau'}
+    \expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
   }{\expandsUPX{\aulam{\utau}{\ux}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
 \end{equation}
 \begin{equation}\label{rule:expandsUP-ap}
@@ -534,7 +534,7 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\
 \end{equation}
 \begin{equation}\label{rule:expandsUP-tlam}
   \inferrule{
-    \expandsUP{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}
+    \expandsUP{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
   }{
     \expandsUPX{\autlam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
   }
@@ -549,7 +549,7 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\
 \end{equation}
 % \begin{equation}\label{rule:expandsUP-tlam}
 %   \inferrule{
-%     \expandsUP{\Delta, \Dhyp{t}}{\Gamma}{\uSigma}{\Phi}{\ue}{e}{\tau}
+%     \expandsUP{\Delta, \Dhyp{t}}{\Gamma}{\uPsi}{\Phi}{\ue}{e}{\tau}
 %   }{
 %     \expandsUPX{\autlam{t}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
 %   }
@@ -597,10 +597,10 @@ The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\
 %     \istypeU{\Delta}{\tau}\\
 %     \expandsUPX{\ue}{e}{\tau}
 %   }{
-%     \left\{\shortstack{$\Delta~\Gamma \vdash_{\uSigma;\,\Phi} \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
+%     \left\{\shortstack{$\Delta~\Gamma \vdash_{\uPsi;\,\Phi} \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
 %   }
 % \end{equation}
-These rules are similar to Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}). In particular, in both sets of rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form -- here, Rules (\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTSM context, $\uSigma$, and now also the upTSM context, $\uPhi$, pass opaquely through these rules.
+These rules are similar to Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}). In particular, in both sets of rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form -- here, Rules (\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTSM context, $\uPsi$, and now also the upTSM context, $\uPhi$, pass opaquely through these rules.
 % \refstepcounter{equation}
 % \label{rule:expandsUP-tlam}
 % \refstepcounter{equation}
@@ -621,7 +621,7 @@ Rule (\ref*{rule:expandsUP-match}), below, handles unexpanded match expressions 
 \inferrule{
   \expandsUPX{\ue}{e}{\tau}\\
   \expandsTU{\uDelta}{\utau'}{\tau'}\\
-  \{\ruleExpands{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+  \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 }{\expandsUPX{\aumatchwith{n}{\utau'}{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation}  
 
@@ -645,8 +645,8 @@ the corresponding typed expansion rule is
 where
 \[\begin{split}
 \Uof{\istypeU{\Delta}{\tau}} & = \expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau} \\
-\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsUP{\Uof{\Gamma}}{\Uof{\Delta}}{\uSigma}{\uPhi}{\Uof{e}}{e}{\tau}\\
-\Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Uof{\Gamma}}{\Uof{\Delta}}{\uSigma}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}\\
+\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsUP{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}\\
+\Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}\\
 \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
 \end{split}\]
 and where $\Uof{\Delta}$, $\Uof{\Gamma}$ and $\Uof{\tau}$ are defined as in Sec. \ref{sec:typed-expansion-U} and:
@@ -670,9 +670,9 @@ The typed rule expansion judgement is defined by Rule (\ref*{rule:ruleExpands}),
 \begin{equation}\label{rule:ruleExpands}
 \inferrule{
   \patExpands{\uAS{\uG'}{\pctx}}{\uPhi}{\upv}{p}{\tau}\\
-  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uSigma}{\uPhi}{\ue}{e}{\tau'} 
+  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
 }{
-  \ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uSigma}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
+  \ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
 \end{equation}
 As in the typed expression expansion judgements, the unexpanded and expanded forms in the conclusion of the rule above correspond. The premises correspond to those of Rule (\ref{rule:ruleType}). In particular, the typed pattern expansion premise in the rule above corresponds to the pattern typing premise of Rule (\ref{rule:ruleType}) and the typed expression expansion premise in the rule above corresponds to the typing premise of Rule (\ref{rule:ruleType}). Because unexpanded terms bind expression sigils, which are given meaning by expansion to variables, the pattern typing rules must generate both a sigil expansion context, $\uG'$, and a pattern typing context, $\pctx$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
@@ -738,8 +738,8 @@ We can now establish the Expressibility Theorem -- that each well-typed expanded
 
 \begin{theorem}[Expressibility] Both of the following hold:
 \begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsUP{\Uof{\Delta}}{\Uof{\Gamma}}{\uSigma}{\uPhi}{\Uof{e}}{e}{\tau}$.
-\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleExpands{\Uof{\Delta}}{\Uof{\Gamma}}{\uSigma}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsUP{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}$.
+\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleExpands{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
@@ -758,8 +758,8 @@ For part 2, we induct over the assumption. There is only one case:
 \item $\Uof{\Gamma \cup \pctx} = \uGG{\uG \uplus \uG'}{\Gamma \cup \pctx}$ \BY{definition of $\Uof{\pctx}$}
 \item $\Uof{r} = \aumatchrule{\Uof{p}}{\Uof{e}}$ \BY{definition of $\Uof{r}$}
 \item $\patExpands{\uGG{\uG'}{\pctx}}{\uPhi}{\Uof{p}}{p}{\tau}$ \BY{Lemma \ref{lemma:pattern-expressibility} on \pfref{patType}} \pflabel{patExpands}
-\item $\expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uSigma}{\uPhi}{\Uof{e}}{e}{\tau'}$ \BY{IH, part 1 on \pfref{hasType}} \pflabel{expandsUP}
-\item $\ruleExpands{\Uof{\Delta}}{\uGG{\uG}{\Gamma}}{\uSigma}{\uPhi}{\aumatchrule{\Uof{p}}{\Uof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleExpands}) on \pfref{patExpands} and \pfref{expandsUP}}
+\item $\expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau'}$ \BY{IH, part 1 on \pfref{hasType}} \pflabel{expandsUP}
+\item $\ruleExpands{\Uof{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\Uof{p}}{\Uof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleExpands}) on \pfref{patExpands} and \pfref{expandsUP}}
 \end{pfsteps*}
 \resetpfcounter
 \end{byCases}
@@ -772,7 +772,7 @@ For part 2, we induct over the assumption. There is only one case:
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  \expandsUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\ue}{e}{\tau'}
+  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\ue}{e}{\tau'}
 }{
   \expandsUPX{\usyntaxueP{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
@@ -782,9 +782,9 @@ For part 2, we induct over the assumption. There is only one case:
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
   \decodeCondE{\ecand}{\ce}\\\\
-  \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}
+  \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}
 }{
-  \expandsUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\Phi}{\utsmap{\tsmv}{b}}{e}{\tau}
+  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\Phi}{\utsmap{\tsmv}{b}}{e}{\tau}
 }
 \end{equation}
 \end{subequations}
@@ -853,7 +853,7 @@ Rule (\ref*{rule:expandsUP-defuptsm}) defines typed expansion of upTSM definitio
 % \inferrule{
 %   \istypeU{\Delta}{\tau}\\
 %   \expandsU{\emptyset}{\emptyset}{\emptyset}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-%   \expandsU{\Delta}{\Gamma}{\uSigma, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{\ue}{e}{\tau'}
+%   \expandsU{\Delta}{\Gamma}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{\ue}{e}{\tau'}
 % }{
 %   \expandsUX{\audefuetsm{\tau}{\ueparse}{\tsmv}{\ue}}{e}{\tau'}
 % }
@@ -862,7 +862,7 @@ Rule (\ref*{rule:expandsUP-defuptsm}) defines typed expansion of upTSM definitio
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultPat}}\\\\
-  \expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+  \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
 }{
   \expandsUPX{\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
@@ -1037,8 +1037,8 @@ The \emph{candidate expansion validation judgements} validate ce-terms and simul
 \cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ expands to $p$ and matches values of type $\tau$ generating}\\
 & \text{assumptions $\upctx$ assuming pattern splicing scene $\pscenev$}
 \end{array}\]
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}$, \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$. Their purpose is to ``remember'', during candidate expansion validation, the contexts, TSM environments and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsUP-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and TSM environments from $\escenev$:
-\[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$, \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$. Their purpose is to ``remember'', during candidate expansion validation, the contexts, TSM environments and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsUP-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and TSM environments from $\escenev$:
+\[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
 
 \subsubsection{Candidate Expansion Type Validation}
 The \emph{ce-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{sec:ce-validation-U}.
@@ -1072,11 +1072,11 @@ Rules written identically to Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule
 \begin{equation}\label{rule:cvalidE-UP-splicede}
 \inferrule{
   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \expandsUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uSigma}{\uPhi}{\ue}{e}{\tau}\\\\
+  \expandsUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
     \Delta \cap \Delta_\text{app} = \emptyset\\
   \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset\\
 }{
-  \cvalidE{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uSigma}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}
+  \cvalidE{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}
 }
 \end{equation}
 \end{itemize}
@@ -1152,7 +1152,7 @@ Rules written identically to Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule
 %     \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
 %     \cvalidEX{\ce}{e}{\tau}
 %   }{
-%     \left\{\shortstack{$\Delta~\Gamma \vdash_\uSigma \acein{\labelset, \ell}{\ell}{\mapschema{\ctau}{i}{\labelset}; \mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
+%     \left\{\shortstack{$\Delta~\Gamma \vdash_\uPsi \acein{\labelset, \ell}{\ell}{\mapschema{\ctau}{i}{\labelset}; \mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:cvalidE-UP-case}
@@ -1471,12 +1471,12 @@ Finally, the following theorem establishes that typed expression and rule expans
 \begin{theorem}[Typed Expansion] All of the following hold:
 \begin{enumerate}
   \item \begin{enumerate}
-    \item If $\expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uSigma}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
-    \item If $\ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uSigma}{\uPhi}{\urv}{r}{\tau}{\tau'}$  then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
+    \item If $\expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+    \item If $\ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$  then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
   \end{enumerate}
   \item \begin{enumerate}
-    \item If $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uSigma}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
-    \item If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uSigma}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
+    \item If $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
+    \item If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
   \end{enumerate}
 \end{enumerate}
 \end{theorem}
@@ -1493,9 +1493,9 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
       \begin{pfsteps*}
         \item $\ue=\aumatchwith{n}{\utau}{\ue'}{\seqschemaX{\urv}}$ \BY{assumption}
         \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
-        \item $\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue'}{e'}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
+        \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
         \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption} \pflabel{expandsTU}
-        \item $\{\ruleExpands{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\urv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption}\pflabel{ruleExpands}
+        \item $\{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption}\pflabel{ruleExpands}
         \item $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}}\pflabel{hasType}
         \item $\istypeU{\Delta}{\tau}$ \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{expandsTU}}\pflabel{istype}
         \item $\{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{IH, part 1(b) over \pfref{ruleExpands}}\pflabel{ruleType}
@@ -1507,10 +1507,10 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item \ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
         \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
       %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-        \item \expandsUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
-      %  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption}\pflabel{uetsmenv1}
+        \item \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
+      %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
       %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-      %  \item \uetsmenv{\Delta}{\Sigma, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+      %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
         \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
       \end{pfsteps}
       \resetpfcounter 
@@ -1518,12 +1518,12 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
     \item[\text{(\ref{rule:expandsUP-tsmap})}] We have:
       \begin{pfsteps}
         \item \ue=\autsmap{b}{\tsmv} \BY{assumption}
-        \item \uSigma = \uSigma', \uShyp{\tsmv}{a}{\tau}{\eparse} \BY{assumption}
+        \item \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse} \BY{assumption}
         \item \encodeBody{b}{\ebody} \BY{assumption}
         \item \evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}} \BY{assumption}
         \item \decodeCondE{\ecand}{\ce} \BY{assumption}
-        \item \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
-      %  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption} \pflabel{uetsmenv}
+        \item \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
+      %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
         \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
         \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
         \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
@@ -1535,10 +1535,10 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
           \item \ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
           \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
         %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-          \item \expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
-        %  \item \uetsmenv{\Delta}{\Sigma} \BY{assumption}\pflabel{uetsmenv1}
+          \item \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
+        %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
         %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-        %  \item \uetsmenv{\Delta}{\Sigma, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+        %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
           \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
         \end{pfsteps}
         \resetpfcounter 
@@ -1550,7 +1550,7 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
         \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
-        \item $\expandsUP{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uSigma}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
+        \item $\expandsUP{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
         \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion}, part 1 on \pfref{patExpands}}\pflabel{patType}
         \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}} \pflabel{hasType}
         \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
@@ -1566,9 +1566,9 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
       \begin{pfsteps*}
         \item $\ce=\acematchwith{n}{\ctau}{\ce'}{\seqschemaX{\crv}}$ \BY{assumption}
         \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
-        \item $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\ce'}{e'}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+        \item $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce'}{e'}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
         \item $\cvalidT{\Delta}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption} \pflabel{cvalidT}
-        \item $\{\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\crv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption} \pflabel{cvalidR}
+        \item $\{\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\crv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption} \pflabel{cvalidR}
         \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption} \pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
         \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{e'}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastype}
@@ -1581,8 +1581,8 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
       \begin{pfsteps*}
         \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
         \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
-        \item $\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
-      %  \item $\uetsmenv{\Delta_\text{app}}{\Sigma}$ \BY{assumption} \pflabel{uetsmenv}
+        \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+      %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
         \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
         \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a) on \pfref{expands}} \pflabel{hastype}
@@ -1598,7 +1598,7 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
         \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
-        \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+        \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
         \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
         \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
@@ -1614,8 +1614,8 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
 
 The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
 \begin{align*}
-\sizeof{\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
+\sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
+\sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 \end{align*}
 where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
 \begin{align*}
@@ -1643,12 +1643,12 @@ and $\sizeof{r}$ is defined as follows:
 \end{align*}
 
 The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsUP-tsmap}). There, we have that the metric remains stable: \begin{align*}
- & \sizeof{\expandsUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
-=& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uSigma, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}}\\
+ & \sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
+=& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}}\\
 =&\sizeof{b}\end{align*}
 
-The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidE-UP-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgement $\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
-\[\sizeof{\expandsUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uSigma}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
+The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidE-UP-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgement $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
+\[\sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
 

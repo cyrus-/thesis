@@ -1,12 +1,13 @@
 % !TEX root = omar-thesis.tex
 \chapter{Unparameterized TSM Implicits}\label{chap:tsls}
-Using TSMs, a library provider can control the expansion of generalized literal forms. However, the library client must explicitly prefix each such form with a TSM name. To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one TSM as that type's \emph{implicit TSM} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TSM name (an \emph{unadorned literal form}), it applies the TSM associated with the type that the expression or pattern is being checked against.
+Using TSMs, a library provider can control the expansion of generalized literal forms, and thereby control the syntactic cost of common idioms. However, library clients must explicitly prefix each such form with a TSM name. In situations where the client is repeatedly using a TSM throughout a codebase, this can be inelegant. To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one expression TSM and one pattern TSM as that type's \emph{designated TSMs} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TSM name (an \emph{unadorned literal form}), it implicitly applies the TSM designated at the type that the expression or pattern is being checked against.
 
 \section{TSM Implicits By Example}\label{sec:tsm-implicits-by-example}
-We begin in this section by introducing TSM implicits by example in VerseML. In Sec. \ref{sec:b-miniverse}, we will formalize TSM implicits with a reduced calculus, {Bidirectional} $\miniVersePat$. 
+We begin in this section by introducing TSM implicits by example in VerseML. In Sec. \ref{sec:b-miniverse}, we formalize unparameterized TSM implicits with a reduced calculus, $\miniVerseUB$. We will also return to the topic of TSM implicits after introducing parameterized TSMs in Chapter \ref{chap:ptsms}.
 
-\subsection{Designation and Usage}
-In the following example, the expression TSM named \li{#\dolla#rx}, defined in Section \ref{sec:uetsms-definition}, is designated the implicit expression TSM at type \li{Rx}, and the pattern TSM named \li{#\dolla#rx}, defined in Sec. \ref{sec:ptsms-definition}, is designated the implicit pattern TSM at type \li{Rx},  both within the indicated scope.  %The scope of this declaration could be further restricted using the clauses shown in comments below. 
+\subsection{Designation}
+In the example in Figure \ref{fig:implicits-example}, Lines 1 through 3 designate the expression TSM named \li{#\dolla#rx}, defined in Section \ref{sec:uetsms-definition}, and the pattern TSM named \li{#\dolla#rx}, defined in Sec. \ref{sec:ptsms-definition}, both at type \li{Rx}. These designations influence typed expansion of Lines 5 through 9.  %The scope of this declaration could be further restricted using the clauses shown in comments below. 
+\begin{figure}
 \begin{lstlisting}
 implicit syntax 
   $rx at Rx for expressions
@@ -19,16 +20,21 @@ in
     | _ => None
 end
 \end{lstlisting}
-For convenience, VerseML also provides a derived designation form that combines the two designations above:
+\caption{An example of TSM implicits in VerseML}
+\label{fig:implicits-example}
+\end{figure}
+
+
+Expression and pattern TSMs need not be designated together, nor have the same name if they are. However, this is a common idiom, so for convenience, VerseML also provides a derived designation form that combines the two designations in Figure \ref{fig:implicits-example}:
 \begin{lstlisting}[numbers=none]
-implicit syntax 
-  $rx at Rx 
-in 
-  (* ... *)
-end 
+implicit syntax $rx at Rx in (* ... *) end 
 \end{lstlisting}
 
-On Line 5 of the example above, we apply a function \li{rx_match} (not shown), which has type \li{Rx -> string -> MatchResult}, to an expression of unadorned literal form. The expression TSM \li{#\dolla#rx} is applied implicitly to this expression to determine its expansion because the expression appears in a syntactic position where it must be of type \li{Rx}, and we have designated \li{#\dolla#rx} as the implicit expression TSM at this type. %f we had instead applied it explicitly, Line 2 would be written as follows:
+The type annotation on a designation is technically redundant -- the definition of the designated TSM determines the designated type. It is included in our examples for readability, but can be omitted if desired.
+
+\subsection{Usage}
+
+On Line 5 of Figure \ref{fig:implicits-example}, we apply a function \li{rx_match} (not shown), which has type \li{Rx -> string -> MatchResult}, to an expression of unadorned literal form. During typed expansion, the expression TSM \li{#\dolla#rx} is applied implicitly to this form to determine the expression's expansion,  because \li{#\dolla#rx} is the designated TSM at the argument type \li{Rx}. %f we had instead applied it explicitly, Line 2 would be written as follows:
 % \begin{lstlisting}[numbers=none]
 % fun is_ssn(s : string) => rx_match ($rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/) s
 % \end{lstlisting}
@@ -36,16 +42,16 @@ On Line 5 of the example above, we apply a function \li{rx_match} (not shown), w
 Similarly, a pattern of unadorned literal form appears on Line 8. Because it appears in a syntactic position where it must match values of type \li{Rx}, the pattern TSM \li{#\dolla#rx} is implicitly applied to determine its expansion.
 
 \subsection{Analytic and Synthetic Positions}
-When typechecking a subexpression, $e'$, of an expresssion, $e$, we say that $e'$ appears in an \emph{analytic position} if the type that $e'$ must have is fully determined by its position within $e$. For example, an expression appearing as a function argument is in an analytic position because the function's type determines each of the argument types. Similarly, an expression may be in analytic position due to a \emph{type ascription}, either directly on the expression, or on the binding or definition that the expression appears within:
+During typed expansion of a subexpression, $e'$, of an expresssion, $e$, we say that $e'$ appears in an \emph{analytic position} if the type that $e'$ must necessarily have can be determined based on the surrounding context, without examining $e'$. For example, an expression appearing as a function argument is in an analytic position because the function's type determines the argument's type. Similarly, an expression may appear in an analytic position due to a \emph{type ascription}, either directly on the expression, or ``further up'' in the expression:
 \begin{lstlisting}[numbers=none]
 val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ : Rx
 val ssn : Rx = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun ssn() : Rx => /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 \end{lstlisting}
 
-If the type of $e'$ is not fully determined by its position within $e$, we instead say that the expression appears in a \emph{synthetic position}. For example, a top-level expression, or an expression appearing in a binding or definition without a type ascription, appears in a synthetic position.
+If the type that $e'$ must be assigned cannot be determined from context -- i.e. $e'$ must be examined to synthesize its type -- we instead say that the expression appears in a \emph{synthetic position}. For example, a top-level expression, or an expression appearing in a binding or function definition without a type ascription, appears in a synthetic position.
 
-Expressions of unadorned literal form are only valid in analytic position, because their type must be known to be able to determine the appropriate TSM to implicitly apply. The following expressions cannot be typechecked because expressions of unadorned literal form appear in synthetic position:
+Expressions of unadorned literal form can only appear in an analytic position, because their type must be known to be able to determine the designated TSM that will control their expansion. For example, typed expansion of the following expression will fail because subexpressions of unadorned literal form appear in synthetic positions:\newpage
 \begin{lstlisting}[numbers=none]
 let 
   val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ (* INVALID *)
@@ -55,11 +61,133 @@ in
 end
 \end{lstlisting}
 
-In VerseML, the scrutinee of a match expression is always in synthetic position. Consequently, the type of value that a pattern appearing within a match expression must match is always known, so patterns can always be of unadorned literal form.
-\section{Bidirectional $\miniVersePat$}\label{sec:b-miniverse}
+Patterns can always be of unadorned literal form in VerseML, because the scrutinee of a match expression is always in synthetic position, and so the type of value that each pattern appearing within the match expression must match is always known without examining the pattern itself. 
+\section{\texorpdfstring{$\miniVerseUB$}{Bidirectional miniVerseU}}\label{sec:b-miniverse}
+To formalize TSM implicits, we will now develop a reduced calculus called $\miniVerseUB$, or ``Bidirectional $\miniVersePat$'' (so named because it  explicitly distinguishes type analysis from type synthesis during typed expansion, as explained below).
+
 \subsection{Inner Core}
+The inner core of $\miniVerseUB$ is the same as the inner core of $\miniVersePat$, as described in Sections \ref{sec:inner-core-syntax-UP} through \ref{sec:dynamics-UP}. It consists of types, $\tau$, expanded expressions, $e$, expanded rules, $r$, and expanded patterns, $p$.
+
 \subsection{Syntax of the Outer Surface}
+
+\begin{figure}
+\hspace{-8px}$\arraycolsep=4pt\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{UTyp} & \utau & ::= & \ut & \ut & \text{sigil}\\
+&&& \auparr{\utau}{\utau} & \parr{\utau}{\utau} & \text{partial function}\\
+&&& \auall{\ut}{\utau} & \forallt{\ut}{\utau} & \text{polymorphic}\\
+&&& \aurec{\ut}{\utau} & \rect{\ut}{\utau} & \text{recursive}\\
+&&& \auprod{\labelset}{\mapschema{\utau}{i}{\labelset}} & \prodt{\mapschema{\utau}{i}{\labelset}} & \text{labeled product}\\
+&&& \ausum{\labelset}{\mapschema{\utau}{i}{\labelset}} & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{UExp} & \ue & ::= & \ux & \ux & \text{sigil}\\
+&&& \auasc{\utau}{\ue} & \asc{\ue}{\utau} & \text{ascription}\\
+&&& \auletsyn{\ux}{\ue}{\ue} & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+&&& \auanalam{\ux}{\ue} & \analam{\ux}{\ue} & \text{abstraction (analytic)}\\
+&&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction (synthetic)}\\
+&&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
+&&& \autlam{\ut}{\ue} & \Lam{\ut}{\ue} & \text{type abstraction}\\
+&&& \autap{\ue}{\utau} & \App{\ue}{\utau} & \text{type application}\\
+&&& \auanafold{\ue} & \fold{\ue} & \text{fold}\\
+&&& \auunfold{\ue} & \unfold{\ue} & \text{unfold}\\
+&&& \autpl{\labelset}{\mapschema{\ue}{i}{\labelset}} & \tpl{\mapschema{\ue}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
+&&& \auanain{\ell}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
+&&& \aumatchwithb{n}{\ue}{\seqschemaX{\urv}} & \matchwith{\ue}{\seqschemaX{\urv}} & \text{match}\\
+&&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTSM definition}\\
+&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
+\LCC &&& \lightgray & \lightgray & \lightgray \\
+&&& \auimplicite{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{ueTSM designation}\\
+&&&                          & \texttt{expressions\,in}~\ue\\ \ECC
+&&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\\%\ECC
+\LCC &&& \lightgray & \lightgray & \lightgray \\
+&&& \auelit{b} & {\lit{b}}  & \text{ueTSM unadorned literal}\\\ECC
+&&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTSM definition}\\
+&&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\
+\LCC &&& \lightgray & \lightgray & \lightgray \\
+&&& \auimplicitp{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{upTSM designation}\\
+&&&                          & \texttt{patterns\,in}~\ue\\ \ECC
+\mathsf{URule} & \urv & ::= & \aumatchrule{\upv}{\ue} & \matchrule{\upv}{\ue} & \text{match rule}\\
+\mathsf{UPat} & \upv & ::= & \ux & \ux & \text{sigil pattern}\\
+&&& \auwildp & \wildp & \text{wildcard pattern}\\
+&&& \aufoldp{\upv} & \foldp{\upv} & \text{fold pattern}\\
+&&& \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}} & \tplp{\mapschema{\upv}{i}{\labelset}} & \text{labeled tuple pattern}\\
+&&& \auinjp{\ell}{\upv} & \injp{\ell}{\upv} & \text{injection pattern}\\
+&&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTSM application}\\
+\LCC &&& \lightgray & \lightgray & \lightgray\\
+&&& \auplit{b} & \lit{b} & \text{upTSM unadorned literal}\ECC
+\end{array}$
+\caption[Syntax of unexpanded types, expressions, rules and patterns in $\miniVerseUB$]{Abstract syntax of unexpanded types, expressions, rules and patterns in $\miniVerseUB$.}
+\label{fig:B-unexpanded-terms}
+\end{figure}
+A $\miniVerseUB$ program ultimately evaluates as an expanded expression. However, the programmer does not write the expanded expression directly. Instead, the programmer writes a textual sequence, $b$, consisting of characters in some suitable alphabet (e.g. in practice, \texttt{ASCII} or \texttt{Unicode}), which is parsed by some partial metafunction $\mathsf{parseUExp}(b)$ to produce an \emph{unex\-panded expression}, $\ue$. Unexpanded expressions can contain \emph{unexpanded types}, $\utau$, \emph{unexpanded rules}, $\urv$, and \emph{unexpanded patterns}, $\upv$, so we also need partial metafunctions $\mathsf{parseUTyp}(b)$, $\mathsf{parseURule}(b)$ and $\mathsf{parseUPat}(b)$. The abstract syntax of unexpanded types, expressions, rules and patterns, which form  the \emph{outer surface} of $\miniVerseUB$, is defined in Figure \ref{fig:UP-unexpanded-terms}. The full definition of the textual syntax of $\miniVerseUB$ is not important for our purposes, so we simply give the following condition, which states that there is some way to textually represent every unexpanded type, expression, rule and pattern. %We also assume a metafunction $\mathsf{parseUTyp}(b)$ for parsing unexpanded types, and impose an analagous condition.
+\begin{condition}[Textual Representability] All of the following must hold:
+\begin{enumerate}
+\item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
+\item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
+\item For each $\urv$, there exists $b$ such that $\parseURule{b}{\urv}$.
+\item For each $\upv$, there exists $b$ such that $\parseUPat{b}{\upv}$.
+\end{enumerate}
+\end{condition}
+
+As in $\miniVersePat$, unexpanded types and expressions bind \emph{type sigils}, $\ut$, \emph{expression sigils}, $\ux$, and \emph{TSM names}, $\tsmv$. Sigils are given meaning by expansion to variables during typed expansion. We \textbf{cannot} adopt the usual definition of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below.
+
+Each inner core form (defined in Figure \ref{fig:UP-expanded-terms}) maps onto an outer surface form. In particular:
+\begin{itemize}
+\item Each type variable, $t$, maps onto a unique {type sigil}, written $\sigilof{t}$. %(pronounced ``sigil of $t$''). %Notice the distinction between $\ut$, which is a metavariable ranging over type sigils, and $\sigilof{t}$, which is a metafunction, written in stylized form, applied to a type variable to produce a type sigil.
+\item Each type form, $\tau$, maps onto an unexpanded type form, $\Uof{\tau}$, according to the definition of $\Uof{\tau}$ in Sec. \ref{sec:syntax-U}.
+\item Each expression variable, $x$, maps onto a unique expression sigil, written $\sigilof{x}$. %Again, notice the distinction between $\ux$ and $\sigilof{x}$.
+\item Each expanded expression form, $e$, maps onto an unexpanded expression form $\Uof{e}$ as follows:
+\begin{align*}
+\Uof{x} & = \sigilof{x}\\
+\Uof{\aelam{\tau}{x}{e}} & = \aulam{\Uof{\tau}}{\sigilof{x}}{\Uof{e}}\\
+\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
+\Uof{\aetlam{t}{e}} & = \autlam{\sigilof{t}}{\Uof{e}}\\
+\Uof{\aetap{e}{\tau}} & = \autap{\Uof{e}}{\Uof{\tau}}\\
+\Uof{\aefold{t}{\tau}{e}} & = \auasc{\aurec{\sigilof{t}}{\Uof{\tau}}}{\auanafold{\Uof e}}\\
+\Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
+\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
+\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auasc{\ausum{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}}{\auanain{\ell}{\Uof{e}}}\\
+\Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} &= \auasc{{\Uof{\tau}}}{\aumatchwithb{n}{\Uof{e}}{\seqschemaXx{\Uofv}{r}}}\\
+\end{align*}
+Notice that some type arguments that appear in $e$ appear within a type ascription in $\Uof{e}$. 
+\item The expanded rule form maps onto the unexpanded rule form as follows:
+\begin{align*}
+\Uof{\aematchrule{p}{e}} & = \aumatchrule{\Uof{p}}{\Uof{e}}
+\end{align*}
+\item Each expanded pattern form, $p$, maps onto the unexpanded pattern form $\Uof{p}$ as follows:
+\begin{align*}
+\Uof{x} & = \sigilof{x}\\
+\Uof{\aewildp} &= \auwildp\\
+\Uof{\aefoldp{p}} &= \aufoldp{\Uof{p}}\\
+\Uof{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}} & = \autplp{\labelset}{\mapschemax{\Uofv}{p}{i}{\labelset}}\\
+\Uof{\aeinjp{\ell}{p}} & = \auinjp{\ell}{\Uof{p}}
+\end{align*}
+\end{itemize}
+
+%Eight unexpanded forms relate to TSMs: the unexpanded expression forms for ueTSM definition, ueTSM designation, ueTSM application, ueTSM unadorned literals, upTSM definition and upTSM designation, and the unexpanded pattern forms for upTSM application and upTSM undorned literals. 
+The forms related to TSM implicits are highlighted in gray in Figure \ref{fig:B-unexpanded-terms}.
+
 \subsection{Bidirectionally Typed Expansion}
+Unexpanded terms are checked and expanded simultaneously according to the \emph{bidirectionally typed expansion judgements}:
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ is well-formed and has expansion $\tau$ assuming $\uDelta$}\\
+\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and synthesizes type $\tau$ under $\uPsi$ and $\uPhi$}\\
+& \text{assuming $\uDelta$ and $\uGamma$}\\
+\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ when analyzed against type $\tau$ under}\\
+& \text{under $\uPsi$ and $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
+\rsyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
+& \text{synthesized type $\tau'$ under $\uPsi$ and $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
+\rana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and, when analyzed against type $\tau'$, }\\
+& \text{takes values of type $\tau$ to values of type $\tau'$ under $\uPsi$ }\\
+& \text{and $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
+\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau} & \text{$\upv$ has expansion $p$ and type $\tau$ and generates hypotheses $\pctx$ }\\
+& \text{under upTSM context $\uPhi$ assuming $\Delta$}
+\end{array}\]
+
+\subsubsection{Type Expansion}
+\emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{thm:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}).
+
 \subsection{uTSL Definition}
 \subsection{uTSL Application}
 \subsection{Candidate Expansion Validation}

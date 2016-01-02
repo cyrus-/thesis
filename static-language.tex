@@ -2,9 +2,9 @@
 \chapter{Static Evaluation and State}
 In the previous sections, we have assumed that the parse functions in a TSM definition are closed expanded expressions. This is unrealistic. In this section, we discuss the semantics of the static phase of evaluation. We also add support for stateful programming with reference cells, so that we can discuss how these interact with static evaluation.
 
-\subsection{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
+\section{TSMs For Defining TSMs}\label{sec:tsms-for-tsms}
 Static functions can also make use of TSMs. In this section, we will show how quasiquotation syntax and grammar-based parser generators can be expressed using TSMs. These TSMs are quite useful for writing other TSMs.
-\subsubsection{Quasiquotation}
+\subsection{Quasiquotation}
 TSMs must generate values of type \li{CEExp}. Doing so explicitly can have high syntactic cost. To decrease the syntactic cost of constructing values of this type, the prelude includes a TSM that provides quasiquotation syntax (cf. Sec. \ref{sec:syntax-examples-quasiquotation}):
 \begin{lstlisting}[numbers=none]
 syntax $qqexp at CEExp {
@@ -33,10 +33,10 @@ let fgx = App(Var 'SSTRfESTR', gx)
 \end{lstlisting}
 
 
-\subsubsection{Parser Generators}
+\subsection{Parser Generators}
 \todo{grammars, compile function, TSM for grammar, example of IP address}
 
-\subsection{Static Language}\label{sec:uetsms-static-language}
+\section{Static Language}\label{sec:uetsms-static-language}
 We have assumed throughout this work that parse functions are fully self-contained, i.e. they are closed. This simplifies our exposition and metatheory, but it is not a realistic constraint -- in practice, one would want to be able to share helper code between parse functions. To allow this, VerseML allows programmers to introduce \emph{static blocks}, which introduce bindings available only in other static blocks and static functions. For example, the following static block defines a helper function for use in the subsequent parse function.
 \begin{lstlisting}
 static
