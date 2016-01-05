@@ -744,9 +744,9 @@ We can now establish the Expressibility Theorem -- that each well-typed expanded
 \end{theorem}
 \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
 
-For part 1, we induct over the assumption. The rule transformation defined above guarantees that this part holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH (part 1) to or over each typing premise, the IH (part 2) over each rule typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsUP}).
+For part 1, we induct on the assumption. The rule transformation defined above guarantees that this part holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH (part 1) to or over each typing premise, the IH (part 2) over each rule typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsUP}).
 
-For part 2, we induct over the assumption. There is only one case:
+For part 2, we induct on the assumption. There is only one case:
 \begin{byCases}
 \item[(\ref{rule:ruleType})] We have:
 \begin{pfsteps*}
@@ -784,7 +784,7 @@ For part 2, we induct over the assumption. There is only one case:
   \decodeCondE{\ecand}{\ce}\\\\
   \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}
 }{
-  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\Phi}{\utsmap{\tsmv}{b}}{e}{\tau}
+  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}
 }
 \end{equation}
 \end{subequations}
@@ -937,7 +937,7 @@ Rule (\ref*{rule:patExpands-apuptsm}), below, governs upTSM application.
   \decodeCEPat{\ecand}{\cpv}\\\\
   \cvalidP{\upctx}{\pscene{\Delta}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\cpv}{p}{\tau}
 }{
-  \patExpands{\upctx}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\auapuptsm{b}{\tsmv}}{p}{\tau}
+  \patExpands{\upctx}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\utsmap{\tsmv}{b}}{p}{\tau}
 }
 \end{equation}
 \end{subequations}
@@ -1185,7 +1185,7 @@ The following lemma establishes that each well-typed expanded expression, $e$, c
 \end{theorem}
 \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
 
-For part 1, we induct over the assumption. 
+For part 1, we induct on the assumption. 
 \begin{byCases}
 \item[\text{(\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in})}] In each of these cases, we apply Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise, the IH (part 1) to or over each typing premise, then apply the corresponding ce-expression validation rule in Rules (\ref{rule:cvalidE-UP-var}) through (\ref{rule:cvalidE-UP-in}).
 \item[\text{(\ref{rule:hastypeUP-match})}] We have:
@@ -1203,7 +1203,7 @@ For part 1, we induct over the assumption.
 \end{byCases}
 \resetpfcounter
 
-For part 2, we induct over the assumption. There is only one case.
+For part 2, we induct on the assumption. There is only one case.
 \begin{byCases}
 \item[\text{(\ref{rule:ruleType})}] We have:
   \begin{pfsteps}
@@ -1264,7 +1264,7 @@ Rules (\ref{rule:cvalidP-UP-wild}) through (\ref{rule:cvalidP-UP-in}) handle ce-
 Notice that none of these rules explicitly add any hypotheses to the pattern typing context, so upTSMs cannot introduce any hypotheses other than those that come from such spliced subpatterns. This achieves the ``no hidden assumptions'' hygiene property described in Sec. \ref{sec:ptsms-hygiene}.
 
 The following lemma establishes that every well-typed expanded pattern that generates no hypotheses can be expressed as a ce-pattern.
-\begin{lemma}[Candidate Expansion Pattern Expressibility] If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
+\begin{lemma}[Candidate Expansion Pattern Expressibility]\label{lemma:ce-pattern-expressibility-U} If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:patType}).
 \begin{byCases}
 \item[\text{(\ref{rule:patType-var})}] This case does not apply.
@@ -1318,8 +1318,8 @@ The following theorem establishes that typed pattern expansion produces an expan
 \end{theorem}
 \begin{proof}
   By mutual rule induction on Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}).
-
-  For part 1, we induct over the premise. In the following cases, let $\uPhi=\uAP{\uA}{\Phi}$ and $\upctx=\uGG{\uG}{\pctx}$.
+  \begin{enumerate}
+  \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
     \item[\text{(\ref{rule:patExpands-var})}] We have:
       \begin{pfsteps*}
@@ -1385,7 +1385,7 @@ The following theorem establishes that typed pattern expansion produces an expan
       \resetpfcounter
   \end{byCases}
 
-  For part 2, we induct over the premise. In the following cases, let $\uPhi=\uAP{\uA}{\Phi}$ and $\upctx=\uGG{\uG}{\pctx}$.
+  \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
     \item[\text{(\ref{rule:cvalidP-UP-wild})}] We have:
       \begin{pfsteps*}
@@ -1437,7 +1437,8 @@ The following theorem establishes that typed pattern expansion produces an expan
       \end{pfsteps*}
       \resetpfcounter
   \end{byCases}
-The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
+  \end{enumerate}
+The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct on is decreasing:
 \begin{align*}
 \sizeof{\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}} & = \sizeof{\upv}\\
 \sizeof{{\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}}} & = \sizeof{b}
@@ -1461,7 +1462,7 @@ The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cval
 i.e. by the definitions above, 
 \[\sizeof{\upv} < \sizeof{b}\]
 
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke the pattern TSM and delimit each literal body.
+This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body.
 \begin{condition}[Pattern Parsing Monotonicity]\label{condition:pattern-parsing} If $\parseUPat{b}{\upv}$ then $\sizeof{\upv} < \sizeof{b}$.\end{condition}
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
@@ -1608,11 +1609,12 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
         \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
       \end{pfsteps*}
+      \resetpfcounter
    \end{byCases} 
 \end{enumerate}
 \end{enumerate}
 
-The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct over is decreasing:
+The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct on is decreasing:
 \begin{align*}
 \sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
 \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
@@ -1652,7 +1654,7 @@ The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cval
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
 
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke a TSM and delimit each literal body.
+This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply a TSM and delimit each literal body.
 \begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-UP} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-UP}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
