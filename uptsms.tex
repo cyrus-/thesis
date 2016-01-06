@@ -509,7 +509,7 @@ Unexpanded terms are checked and expanded simultaneously according to the \emph{
 \emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}).
 
 \subsubsection{Typed Expression, Rule and Pattern Expansion}
-\emph{Unexpanded typing contexts}, $\uGamma$, were defined in Sec. \ref{sec:typed-expansion-U}. \emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). \emph{ueTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM naming context} and $\Psi$ is a \emph{ueTSM definition context}. TSM naming contexts were defined in Sec. \ref{sec:U-uetsm-definition} and the definition of ueTSM definition contexts would be written identically to the definition in Sec. \ref{sec:U-uetsm-definition}, so we gloss it. \emph{upTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
+\emph{Unexpanded typing contexts}, $\uGamma$, were defined in Sec. \ref{sec:typed-expansion-U}. \emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). % and the definition of ueTSM definition contexts is reproduced below. \emph{upTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
 
 The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref*{rules:expandsUP}) and Rule (\ref*{rule:ruleExpands}), respectively, and the \emph{typed pattern expansion judgement}, $\patExpands{\pctx}{\Phi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref*{rules:patExpands}) as follows.
 
@@ -789,6 +789,12 @@ For part 2, we induct on the assumption. There is only one case:
 \end{equation}
 \end{subequations}
 These rules are nearly identical to Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), respectively, differing only in that the upTSM context, $\uPhi$, passes through them opaquely. The premises of these rules, and the following auxiliary definitions and conditions, can be understood as described in Sec. \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. 
+
+\emph{ueTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM naming context} and $\Psi$ is a \emph{ueTSM definition context}. TSM naming contexts were defined in Sec. \ref{sec:U-uetsm-definition}. A \emph{ueTSM definition context}, $\Psi$, is a finite function mapping each symbol $a \in \domof{\Psi}$ to an \emph{expanded ueTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the ueTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of type $\parr{\tBody}{\tParseResultExp}$.
+
+\begin{definition}[ueTSM Definition Context Formation]\label{def:ueTSM-def-ctx-formation-UP} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{\tsmv}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultExp}}$.\end{definition}
+
+We define $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPsi=\uAS{\uA}{\Psi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}\]
 
 The type abbreviated $\tBody$ classifies encodings of literal bodies, $b$. The mapping from literal bodies to values of type $\tBody$ is defined by the \emph{body encoding judgement} $\encodeBody{b}{\ebody}$. An inverse mapping is defined   by the \emph{body decoding judgement} $\decodeBody{\ebody}{b}$.
 \[\begin{array}{ll}
@@ -1528,7 +1534,7 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
         \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
         \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-        \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set union over \pfref{penultimate}}
+        \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set and finite function union over \pfref{penultimate}}
       \end{pfsteps}
       \resetpfcounter
     \item[\text{(\ref{rule:expandsUP-defuptsm})}] We have:
@@ -1587,7 +1593,7 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
         \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a) on \pfref{expands}} \pflabel{hastype}
-        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
+        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
       \end{pfsteps*}
       \resetpfcounter
 

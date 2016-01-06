@@ -1676,7 +1676,7 @@ The proof of part 1 proceeds by inducting over the typed expansion assumption. I
   \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
   \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
   \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set union over \pfref{penultimate}}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set and finite function union over \pfref{penultimate}}
 \end{pfsteps}
 \resetpfcounter
 \end{byCases}
