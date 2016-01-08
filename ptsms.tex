@@ -1,15 +1,96 @@
 % !TEX root = omar-thesis.tex
 
-\chapter{Parameterized TSMs and TSLs}\label{chap:ptsms}
+\chapter{Parameterized TSMs}\label{chap:ptsms}
 \section{Parameterized TSMs By Example}
 \subsection{Type Parameters By Example}
+\begin{lstlisting}[numbers=none]
+syntax $list('a :: Type) at 'a list {
+  static fn(body : Body) => (* ... *)
+}
+val example = $list int [1, 2, 3]
+
+\end{lstlisting}
+
+\begin{lstlisting}[numbers=none]
+implicit syntax $list 'a at 'a list forall 'a :: Type in
+	val example : int list = [1, 2, 3]
+end
+\end{lstlisting}
+\begin{lstlisting}[numbers=none]
+implicit syntax $list 'a at 'a list in
+	val example : int list = [1, 2, 3]
+end
+\end{lstlisting}
 \subsection{Module Parameters By Example}
 \section{\texorpdfstring{$\miniVerseParam$}{miniVerseForall}}
-\subsection{Signatures and Structures}
-\subsection{Kinds, Constructors and Types}
-\subsection{Expanded Expressions}
-\subsection{Parameter Application and Deferred Substitution}
-\subsection{Macro Expansion and Validation}
+\subsection{Syntax of the Inner Language}
+
+\begin{figure}[p] 
+$\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{Kind} & \kappa & ::= & \akty & \kty & \text{types}\\
+&&& \aksing{c} & \ksing{c} & \text{singleton}\\
+&&& \akdarr{\kappa}{u}{\kappa} & \kdarr{u}{\kappa}{\kappa} & \text{dependent function}\\
+&&& \akunit & \kunit & \text{nullary product}\\
+&&& \akdprod{\kappa}{u}{\kappa} & \kdprod{u}{\kappa}{\kappa} & \text{dependent product}\\
+\mathsf{Con} & c & ::= & u & u & \text{variable}\\
+%\mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\
+&&& \aparr{c}{c} & \parr{c}{c} & \text{partial function}\\
+&&& \aallu{\kappa}{u}{c} & \forallu{u}{\kappa}{c} & \text{polymorphic}\\
+&&& \arecu{\kappa}{u}{c} & \recu{u}{\kappa}{c} & \text{recursive}\\
+&&& \aprod{\labelset}{\mapschema{c}{i}{\labelset}} & \prodt{\mapschema{c}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{c}{i}{\labelset}} & \sumt{\mapschema{c}{i}{\labelset}} & \text{labeled sum}\\
+% \mathsf{Exp} & e & ::= & x & x & \text{variable}\\
+% &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+% &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
+% &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+% &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+% &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+% &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
+% &&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+% &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+% &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+% \LCC \lightgray & \lightgray & \lightgray & \lightgray & \lightgray & \lightgray \\
+% &&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
+% \mathsf{ERule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
+% \mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
+% &&& \aewildp & \wildp & \text{wildcard pattern}\\
+% &&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
+% &&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
+% &&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}\ECC
+\end{array}$
+\caption[Syntax of kinds and constructors in $\miniVerseParam$]{Syntax of kinds and constructors in $\miniVerseParam$. We adopt the metatheoretic conventions established for our specification of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} and $\miniVersePat$ in Sec. \ref{sec:miniVerseUP} without restating them. Kinds and constructors are identified up to $\alpha$-equivalence.}
+\label{fig:P-kinds-constructors}
+\end{figure}
+
+\subsubsection{Syntax of the Inner Core Language}
+\todo{do this}
+\subsubsection{Syntax of the Inner Module Language}
+\todo{do this}
+\subsection{Statics of the Inner Language}
+\todo{do this}
+\subsubsection{Kinds, Constructors and Types}
+\todo{do this}
+\subsubsection{Expanded Expressions}
+\todo{do this}
+\subsubsection{Signatures and Structures}
+\todo{do this}
+\subsection{Structural Dynamics}
+\todo{do this}
+\subsection{Syntax of the Surface Language}
+\todo{do this}
+\subsubsection{Syntax of the Surface Core Language}
+\todo{do this}
+\subsubsection{Syntax of the Expression TSM Language}
+\todo{do this}
+\subsubsection{Syntax of the Pattern TSM Language}
+\todo{do this}
+\subsubsection{Syntax of Type Patterns}
+\todo{do this}
+\subsubsection{Syntax of the Surface Module Language}
+\todo{do this}
+
+\subsection{Typed Expansion}
 \subsection{Metatheory}
 
 \section{pTSLs By Example}

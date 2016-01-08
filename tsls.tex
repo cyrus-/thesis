@@ -1423,9 +1423,9 @@ i.e. by the definitions above,
 \[\sizeof{\ue} < \sizeof{b}\]
 
 This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to delimit each literal body.
-\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-UP} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
+\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-B} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
 
-Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-UP}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
+Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-B}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \item In Case (\ref{rule:eana-subsume}) of the proof of part 1(b)(i), we apply the IH, part 1(a)(i), with $\ue=\ue$. This is well-founded because all applications of the IH, part 1(b)(i) elsewhere in the proof are on strictly smaller terms.
 \item Similarly, in Case (\ref{rule:cana-subsume}) of the proof of part 2(b)(i), we apply the IH, part 2(a)(i), with $\ce=\ce$. This is well-founded because all applications of the IH, part 2(b)(i) elsewhere in the proof are on strictly smaller terms.
 \end{itemize}

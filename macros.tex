@@ -36,10 +36,16 @@
 \newcommand{\auall}[2]{\abop{uall}{#1.#2}}
 \newcommand{\aceall}[2]{\abop{ceall}{#1.#2}}
 
+\newcommand{\forallu}[3]{\forall(#1 :: #2).#3}
+\newcommand{\aallu}[3]{\abopc{all}{#1}{#2.#3}}
+
 \newcommand{\rect}[2]{\mu #1.#2}
 \newcommand{\arec}[2]{\abop{rec}{#1.#2}}
 \newcommand{\aurec}[2]{\abop{urec}{#1.#2}}
 \newcommand{\acerec}[2]{\abop{cerec}{#1.#2}}
+
+\newcommand{\recu}[3]{\mu(#1 :: #2).#3}
+\newcommand{\arecu}[3]{\abopc{rec}{#1}{#2.#3}}
 
 \newcommand{\prodt}[1]{\langle #1 \rangle}
 \newcommand{\aprod}[2]{\abopi{prod}{#1}{#2}}
@@ -376,3 +382,20 @@
 \newcommand{\uI}{\mathcal{I}}
 \newcommand{\designate}[2]{#1 \hookrightarrow #2}
 \newcommand{\uIOK}[2]{#1 \vdash #2~\mathsf{designations}}
+
+% Kinds
+\newcommand{\kty}{\texttt{Type}}
+\newcommand{\akty}{\texttt{Type}}
+
+\newcommand{\ksing}[1]{[\texttt{=}#1]}
+\newcommand{\aksing}[1]{\abop{S}{#1}}
+
+\newcommand{\kdarr}[3]{(#1 :: #2) \rightarrow #3}
+\newcommand{\akdarr}[3]{\abop{darr}{#1; #2.#3}}
+
+\newcommand{\kunit}{\langle\rangle}
+\newcommand{\akunit}{\texttt{unit}}
+
+\newcommand{\kdprod}[3]{\langle #1 :: #2~\texttt{in}~#3 \rangle}
+\newcommand{\akdprod}[3]{\abop{dprod}{#1; #2.#3}}
+
