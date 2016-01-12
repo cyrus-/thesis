@@ -44,9 +44,6 @@
 \newcommand{\aurec}[2]{\abop{urec}{#1.#2}}
 \newcommand{\acerec}[2]{\abop{cerec}{#1.#2}}
 
-\newcommand{\recu}[3]{\mu(#1 :: #2).#3}
-\newcommand{\arecu}[3]{\abopc{rec}{#1}{#2.#3}}
-
 \newcommand{\prodt}[1]{\langle #1 \rangle}
 \newcommand{\aprod}[2]{\abopi{prod}{#1}{#2}}
 \newcommand{\auprod}[2]{\abopi{uprod}{#1}{#2}}
@@ -70,6 +67,8 @@
 
 % sequences
 \newcommand{\seqschema}[4]{\{#1_{#2}\}_{#3 \leq #2 \leq #4}}
+\newcommand{\seqschemaijb}[8]{\{\{#1_{#3, #6}\}_{#7 \leq #6 < #8}.#2_{#3}\}_{#4 \leq #3 \leq #5}}
+\newcommand{\seqschemaj}[4]{\{#1_{#2}\}_{#3 \leq #2 < #4}}
 \newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
 \newcommand{\seqschemaXx}[2]{\{#1(#2_i)\}_{1 \leq i \leq n}}
 
@@ -105,6 +104,12 @@
 \newcommand{\aetap}[2]{\abopc{tap}{#2}{#1}}
 \newcommand{\autap}[2]{\abopc{utap}{#2}{#1}}
 \newcommand{\acetap}[2]{\abopc{cetap}{#2}{#1}}
+
+\newcommand{\clam}[3]{\Lambda #1{::}#2.#3}
+\newcommand{\aeclam}[3]{\abopc{clam}{#1}{#2.#3}}
+
+\newcommand{\cAp}[2]{#1\texttt{[}#2\texttt{]}}
+\newcommand{\aecap}[2]{\abopc{cap}{#2}{#1}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
@@ -384,7 +389,7 @@
 \newcommand{\uIOK}[2]{#1 \vdash #2~\mathsf{designations}}
 
 % Kinds
-\newcommand{\kty}{\texttt{Type}}
+\newcommand{\kty}{\texttt{T}}
 \newcommand{\akty}{\texttt{Type}}
 
 \newcommand{\ksing}[1]{[\texttt{=}#1]}
@@ -393,9 +398,37 @@
 \newcommand{\kdarr}[3]{(#1 :: #2) \rightarrow #3}
 \newcommand{\akdarr}[3]{\abop{darr}{#1; #2.#3}}
 
-\newcommand{\kunit}{\langle\rangle}
+\newcommand{\kunit}{\llangle\rrangle}
 \newcommand{\akunit}{\texttt{unit}}
 
-\newcommand{\kdprod}[3]{\langle #1 :: #2~\texttt{in}~#3 \rangle}
-\newcommand{\akdprod}[3]{\abop{dprod}{#1; #2.#3}}
+\newcommand{\dpitem}[3]{\mapitem{#1 \triangleright #2}{#3}}
+\newcommand{\kdprod}[1]{\llangle #1 \rrangle}
+\newcommand{\kdprodstd}{\kdprod{\{\dpitem{\ell_i}{u_i}{\kappa_i}\}_{1 \leq i \leq n}}}
+\newcommand{\akdprod}[3]{\abopi{dprod}{#1; #2}{#3}}
+\newcommand{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa}{i}{1}{n}{j}{1}{i}}}
 
+% Constructors
+\newcommand{\cabs}[3]{\lambda #1{::}#2.#3}
+\newcommand{\acabs}[3]{\abopc{abs}{#1}{#2.#3}}
+
+\newcommand{\capp}[2]{#1(#2)}
+\newcommand{\acapp}[2]{\abop{app}{#1; #2}}
+
+\newcommand{\ctriv}{\llangle\rrangle}
+\newcommand{\actriv}{\texttt{triv}}
+
+\newcommand{\cpair}[3]{\llangle #1=#2, #3 \rrangle}
+\newcommand{\acpair}[3]{\abop{pair}{#1; #2.#3}}
+
+\newcommand{\dtpl}[1]{\llangle #1 \rrangle}
+\newcommand{\dtplX}{\dtpl{\{\dpitem{\ell_i}{u_i}{c_i}\}_{1 \leq i \leq n}}}
+\newcommand{\adtpl}[3]{\abopi{dtpl}{#1; #2}{#3}}
+\newcommand{\adtplX}{\adtpl{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{c}{i}{1}{n}{j}{1}{i}}}
+
+\newcommand{\cprl}[1]{#1 \cdot \texttt{l}}
+\newcommand{\acprl}[1]{\abop{prl}{#1}}
+
+\newcommand{\adprj}[2]{\abopp{prj}{#1}{#2}}
+
+\newcommand{\cprr}[1]{#1 \cdot \texttt{r}}
+\newcommand{\acprr}[1]{\abop{prr}{#1}}

@@ -1,69 +1,212 @@
 % !TEX root = omar-thesis.tex
 
-\chapter{Parameterized TSMs}\label{chap:ptsms}
-\section{Parameterized TSMs By Example}
-\subsection{Type Parameters By Example}
+\chapter{Parameterized TSMs (pTSMs)}\label{chap:ptsms}
+In the preceding chapters, we introduced unparameterized TSMs (uTSMs). uTSMs are defined at a single type, like \li{Rx}, and the expansions that they generate have access to bindings at the application site only via spliced subterms. In this chapter, we introduce \emph{parameterized TSMs} (pTSMs) -- TSMs that abstract over types and modules. pTSMs can be defined over a parameterized family of types, and can access their parameters within the expansions that they generate. 
+
+This chapter is organized much like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parameterized TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then formalize parameterized TSMs by defining a reduced calculus, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
+\section{Parameterized TSMs By Example}\label{sec:parameterized-tsms-by-example}
+
+\subsection{Type Parameters}\label{sec:type-parameters}
+VerseML, like many ML dialects, provides support for defining \emph{type constructors}, which express type-parameterized families of types. The canonical example is the type constructor \li{list}, which constructs list types given one type parameter, the \emph{element type}. 
+In VerseML, \li{list} is defined as follows.
 \begin{lstlisting}[numbers=none]
-syntax $list('a :: Type) at 'a list {
-  static fn(body : Body) => (* ... *)
+type list('a) = Nil | Cons of 'a * list('a)
+\end{lstlisting}
+
+For any type \li{T}, the type of lists containing elements of type \li{T} can be constructed by applying \li{list} to \li{T}, written \li{list(T)}.\footnote{As with function application, the parentheses are optional (though for type constructor application, it is typical to include them). In many other ML dialects, type parameters are given in prefix form, e.g. in Standard ML, one writes \li{int list} rather than \li{list(int)}.} In other words, type constructors can be understood as total functions at the level of \emph{constructor expressions}. 
+
+\emph{Kinds} classify constructor expressions, much like types classify expressions. Types are constructor expressions of kind \li{T}, and type constructors are constructor expressions of arrow kind. Here, \li{list} takes a single type parameter, so it has arrow kind \li{T -> T}.
+
+As discussed in Sec. \ref{sec:syntax-examples-containers}, full-scale ML dialects commonly define derived syntactic forms that decrease the syntactic cost of introducing and pattern matching over values of list type. VerseML, in contrast, does not build in such derived list forms. 
+
+In lieu of derived forms for introducing lists, we define the following \emph{parameterized expression TSM} (peTSM):
+\begin{lstlisting}
+syntax $list('a) at list('a) {
+  static fn(body : Body) : ParseResult(CEExp) => (* ... *)
 }
-val example = $list int [1, 2, 3]
-
+\end{lstlisting}
+Line 1 names the peTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a} (implicitly of kind \li{T}). This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when applied to a type \li{'a} and a generalized literal form, will only generate expansions of type \li{list('a)}. For example, we can apply \li{#\dolla#list} to the type \li{int} and generalized literal forms delimited by square brackets as follows.
+\begin{lstlisting}[numbers=none]
+val y = $list(int) [3SURL, EURL4SURL, EURL5]
+val x = $list(int) [1SURL, EURL2SURL :: EURLy]
 \end{lstlisting}
 
+Line 2 of the definition of \li{#\dolla#list} defines its parse function. Parse functions operate as described in Chapter \ref{chap:uetsms} to generate encodings of candidate expansions, which are subsequently validated to generate the final expansions of expressions of peTSM application form, like those in the example above. For \li{#\dolla#list}, the parse function (whose body is elided above for concision) breaks the literal body up into  spliced subexpressions -- those separated by commas become individual elements at the head of the list being generated, and, optionally, a trailing spliced subexpression prefixed by two colons (\li{SURL::EURL}) becomes the tail of the list being generated (the tail is \li{Nil} otherwise). The final expansion of the example above, if written textually, is:
 \begin{lstlisting}[numbers=none]
-implicit syntax $list 'a at 'a list forall 'a :: Type in
-	val example : int list = [1, 2, 3]
+val y : list(int) = Cons(3, Cons(4, Cons(5, Nil)))
+val x : list(int) = Cons(1, Cons(2, y))
+\end{lstlisting}
+% differing only in that any type parameter that the peTSM specifies can appear free in the generated expansion.
+
+Similarly, in lieu of derived list pattern forms, we define the following \emph{parameterized pattern TSM} (ppTSM):
+\begin{lstlisting}[numbers=none]
+syntax $list('a) at list('a) for patterns {
+  static fn(body : Body) : ParseResult(CEPat) => (* ... *)
+}
+\end{lstlisting}
+Again, Line 1 names the ppTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when apply to a type \li{'a} and a generalized literal form, will only generate patterns that match values of type \li{list('a)}. 
+
+For example, we can apply the ppTSM \li{#\dolla#list} and the \li{#\dolla#list} to define the polymorphic map function as follows.
+\begin{lstlisting}[numbers=none]
+fun map (f : 'a -> 'b) (x : list('a)) => match x { 
+  $list('a) [] => $list('b) []
+| $list('a) [hdSURL :: EURLtl] => $list('b) [f hdSURL :: EURLmap f tl]
+}
+\end{lstlisting}
+The expansion of this function definition, written textually, is:
+\begin{lstlisting}[numbers=none]
+fun map (f : 'a -> 'b) (x : list('a)) : 'b list => match x { 
+  Nil => Nil
+| Cons(hd, tl) => Cons(f hd, map f tl)
+}
+\end{lstlisting}
+This is somewhat unsatisfying, however, because the expansion is more concise than the unexpanded definition of \li{map}. To further reduce syntactic cost, we can designate \li{#\dolla#list} as the implicit TSM for both expressions and patterns at all types \li{'a list} around our definition of \li{map} as follows.
+\begin{lstlisting}[numbers=none]
+implicit syntax $list('a) in
+  fun map (f : 'a -> 'b) (x : 'a list) : 'b list => match x {
+    [] => []
+  | [hdSURL :: EURLtl] => [f hdSURL :: EURLmap f tl]
+  }
 end
 \end{lstlisting}
+By designating an implicit TSM, we no longer need to explicitly apply \li{#\dolla#list} within expressions in analytic position or patterns.
+
+% When designating an implicit TSM, we assume that free type variables in the type annotation, e.g. here \li{'a}, range over all types. We can make this more explicit by specifying a type parameter explicitly as follows:
+% \begin{lstlisting}[numbers=none]
+% implicit syntax('a) $list('a) at list('a) in
+% 	(* ... *)
+% end
+% \end{lstlisting}
+% All type parameters must appear in the type annotation.
+\subsection{Module Parameters}\label{sec:module-parameters}
+VerseML also provides a module language based on the Standard ML module language \cite{MacQueen:1984:MSM:800055.802036}. The module language consists of \emph{module expressions} classified by \emph{signatures}. %Signatures specify type components, which may be opaque or transparent, value components, and module components.h
+
+%In Sec. \ref{sec:motivating-examples}, we gave several examples of signatures and discussed how one might introduce derived forms that  across a module-parameterized family of types.
+
+The canonical example is the signature for working with persistent queues.
 \begin{lstlisting}[numbers=none]
-implicit syntax $list 'a at 'a list in
-	val example : int list = [1, 2, 3]
+signature QUEUE = sig
+  type queue('a)
+  val empty  : queue('a)
+  val insert : 'a * queue('a) -> queue('a)
+  val remove : queue('a) -> option('a * queue('a))
+end 
+\end{lstlisting}
+Structures that match this signature must define a type constructor \li{queue} of kind \li{T -> T} and three values -- \li{empty} introduces the empty queue, \li{insert} inserts a value onto the back of a queue, and \li{remove} removes the element at the front of the queue and returns it and the remaining queue, or \li{None} if the queue is empty.%one for inserting an item into a queue, and one for removing a value from a queue.
+
+There are many possible structures that implement this signature. For example, we can define a structure \li{ListQueue} that represents queues internally as lists, where the head of the list is the back of the queue. With this representation, \li{insert} is a constant time operation, but \li{remove} is a linear time operation. Alternatively, we might define a structure \li{TwoListQueue} that represents queues internally as a pair of lists, maintaining the invariant that one is the reverse of the other, so that both \li{insert} and \li{remove} are constant time operations (see \cite{harper1997programming} for the details of this and other possibilities). 
+
+Regardless of the implementation that the client chooses, we would like for the client to be able to introduce queues more naturally and at lower syntactic cost than is possible by directly applying the functions specified by the signature above. In VerseML, we can give clients of structures matching the signature \li{QUEUE} this ability by defining the following parameterized expression TSM:
+\begin{lstlisting}[numbers=none]
+syntax $queue(Q : QUEUE)('a) at Q.queue('a) {
+	static fn(body : Body) : ParseResult(CEExp) => (* ... *)
+}
+\end{lstlisting}
+This peTSM specifies one module parameter, \li{Q}, which must match the signature \li{QUEUE}, and one type parameter, \li{'a} (implicitly of kind \li{T}). These appear in the type annotation, which specifies that expansions that arise from applying \li{#\dolla#queue} to a module \li{Q : QUEUE} and a type \li{'a} will be of type \li{Q.queue('a)}. For example:
+\begin{lstlisting}
+val q = $queue TwoListQueue int [SURL> EURL1SURL, EURL2SURL, EURL3]
+val q' = $queue TwoListQueue int [qSURL > EURL4SURL, EURL5]
+\end{lstlisting}
+On Line 1, the initial angle bracket (\li{SURL>EURL}) indicates that the items are inserted in left-to-right order. The items in the queue are given as spliced subexpressions separated by commas. Line 2 inserts two additional items onto the back of the queue \li{q}. The expansion of this example, written textually, is:
+\begin{lstlisting}
+val q : TwoListQueue.queue(int) = 
+	TwoListQueue.insert(1, 
+		TwoListQueue.insert(2, 
+			TwoListQueue.insert(3, 
+				TwoListQueue.empty)))
+val q' : TwoListQueue.queue(int) = 
+  TwoListQueue.insert(4, TwoListQueue.insert(5, q))
+\end{lstlisting}
+Notice that the expansion can refer to the module parameter \li{TwoListQueue}.
+
+We can further reduce syntactic cost by defining a synonym for the partial application of \li{#\dolla#queue} to the module parameter \li{TwoListQueue}:
+\begin{lstlisting}[numbers=none]
+syntax $tlq = $queue TwoListQueue
+val q = $tlq int [SURL> EURL1SURL, EURL2SURL, EURL3]
+\end{lstlisting}
+We can further define a synonym for the partial application of \li{#\dolla#tlq} to a type parameter:
+\begin{lstlisting}[numbers=none]
+syntax $tlqi = $tlq int (* = $queue TwoListQueue int *)
+val q' = $tlqi [qSURL > EURL4SURL, EURL5]
+\end{lstlisting}
+
+Another way to reduce syntactic cost is by designating \li{#\dolla#queue Q 'a} the implicit TSM at all types of the form \li{Q.queue('a)} where \li{Q : QUEUE}. This is written as follows:
+\begin{lstlisting}[numbers=none]
+implicit syntax (Q : QUEUE) ('a) => $queue Q 'a in
+  val q : TwoListQueue.queue(int) = [SURL> EURL1SURL, EURL2SURL, EURL3]
+  val q' : TwoListQueue.queue(int) = [qSURL > EURL4SURL, EURL5]
 end
 \end{lstlisting}
-\subsection{Module Parameters By Example}
-\section{\texorpdfstring{$\miniVerseParam$}{miniVerseForall}}
+This designation is particularly useful for clients who need to construct a queue as an argument to a function. For example, consider a function 
+\begin{lstlisting}[numbers=none]
+enqueue_jobs : Q.queue(Job) -> Ticket
+\end{lstlisting}
+for some \li{Q : QUEUE} and types \li{Job} and \li{Ticket}. We can enqueue a sequence of jobs \li{j1} through \li{j4} under the TSM designation above as follows:
+\begin{lstlisting}[numbers=none]
+enqueue_jobs [SURL> EURLj1SURL, EURLj2SURL, EURLj3SURL, EURLj4]
+\end{lstlisting}
+
+
+\section{\texorpdfstring{$\miniVerseParam$}{miniVerseForall}}\label{sec:miniVerseP}
 \subsection{Syntax of the Inner Language}
+
+
+\subsubsection{Syntax of the Inner Core Language}
+We adopt the metatheoretic conventions established for our definitions of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} and $\miniVersePat$ in Sec. \ref{sec:miniVerseUP} without restating them. 
+
+\begin{landscape}
+\begin{figure}[p] 
+$\begin{array}{rrlllll}
+\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{Kind} & \kappa & ::= & \akdarr{\kappa}{u}{\kappa} & \kdarr{u}{\kappa}{\kappa} & \text{dependent function}\\
+&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
+&&& \akty & \kty & \text{types}\\
+&&& \aksing{\tau} & \ksing{\tau} & \text{singleton}\\
+\mathsf{Con} & c, \tau & ::= & u & u & \text{variable}\\
+&&& t & t & \text{variable}\\
+&&& \acabs{\kappa}{u}{c} & \cabs{u}{\kappa}{c} & \text{abstraction}\\
+&&& \acapp{c}{c} & \capp{c}{c} & \text{application}\\
+&&& \adtplX & \dtplX & \text{labeled dependent tuple}\\
+&&& \adprj{\ell}{c} & \prj{c}{\ell} & \text{projection}\\
+&&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
+&&& \aallu{\kappa}{u}{\tau} & \forallu{u}{\kappa}{\tau} & \text{polymorphic}\\
+&&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
+&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}
+\end{array}$
+\caption[Syntax of kinds and constructors in $\miniVerseParam$]{Syntax of kinds and constructors in $\miniVerseParam$. By convention, we choose the metavariable $\tau$ for constructors that, in well-formed terms, must necessarily be of kind $\kty$, and the metavariable $c$ otherwise. Similarly, we use constructor variables $t$ to stand for constructors of kind $\kty$, and constructor variables $u$ otherwise. Kinds and constructors are identified up to $\alpha$-equivalence.}
+\label{fig:P-kinds-constructors}
+\end{figure}
+\end{landscape}
 
 \begin{figure}[p] 
 $\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{Kind} & \kappa & ::= & \akty & \kty & \text{types}\\
-&&& \aksing{c} & \ksing{c} & \text{singleton}\\
-&&& \akdarr{\kappa}{u}{\kappa} & \kdarr{u}{\kappa}{\kappa} & \text{dependent function}\\
-&&& \akunit & \kunit & \text{nullary product}\\
-&&& \akdprod{\kappa}{u}{\kappa} & \kdprod{u}{\kappa}{\kappa} & \text{dependent product}\\
-\mathsf{Con} & c & ::= & u & u & \text{variable}\\
-%\mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\
-&&& \aparr{c}{c} & \parr{c}{c} & \text{partial function}\\
-&&& \aallu{\kappa}{u}{c} & \forallu{u}{\kappa}{c} & \text{polymorphic}\\
-&&& \arecu{\kappa}{u}{c} & \recu{u}{\kappa}{c} & \text{recursive}\\
-&&& \aprod{\labelset}{\mapschema{c}{i}{\labelset}} & \prodt{\mapschema{c}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\labelset}{\mapschema{c}{i}{\labelset}} & \sumt{\mapschema{c}{i}{\labelset}} & \text{labeled sum}\\
-% \mathsf{Exp} & e & ::= & x & x & \text{variable}\\
-% &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
-% &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
-% &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
-% &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
-% &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
-% &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
-% &&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
-% &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-% &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
-% \LCC \lightgray & \lightgray & \lightgray & \lightgray & \lightgray & \lightgray \\
-% &&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
-% \mathsf{ERule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
-% \mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
-% &&& \aewildp & \wildp & \text{wildcard pattern}\\
-% &&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
-% &&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
-% &&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}\ECC
+\mathsf{Exp} & e & ::= & x & x & \text{variable}\\
+&&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+&&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
+&&& \aeclam{\kappa}{u}{e} & \clam{u}{\kappa}{e} & \text{constructor abstraction}\\
+&&& \aecap{e}{c} & \cAp{e}{c} & \text{constructor application}\\
+&&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+&&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
+&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+&&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
+\mathsf{ERule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
+\mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
+&&& \aewildp & \wildp & \text{wildcard pattern}\\
+&&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
+&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
+&&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}
 \end{array}$
-\caption[Syntax of kinds and constructors in $\miniVerseParam$]{Syntax of kinds and constructors in $\miniVerseParam$. We adopt the metatheoretic conventions established for our specification of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} and $\miniVersePat$ in Sec. \ref{sec:miniVerseUP} without restating them. Kinds and constructors are identified up to $\alpha$-equivalence.}
-\label{fig:P-kinds-constructors}
+\caption[Syntax of expanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of expanded expressions, rules and patterns (collectively, expanded terms) in $\miniVerseParam$. Expanded terms are identified up to $\alpha$-equivalence.}
+\label{fig:P-expanded-terms}
 \end{figure}
+Kinds and constructors in Figure \ref{fig:P-kinds-constructors}.
 
-\subsubsection{Syntax of the Inner Core Language}
+Expanded expressions, rules and patterns in Figure \ref{fig:P-expanded-terms}.
+
 \todo{do this}
 \subsubsection{Syntax of the Inner Module Language}
 \todo{do this}
@@ -92,73 +235,3 @@ $\begin{array}{lllllll}
 
 \subsection{Typed Expansion}
 \subsection{Metatheory}
-
-\section{pTSLs By Example}
-For example, a module \lstinline{P} can associate the TSM \lstinline{rx} defined in the previous section with the abstract type \lstinline{R.t} by qualifying the definition of the sealed module it is defined by as follows:
-\begin{lstlisting}[numbers=none]
-module R = mod {
-  type t = (* ... *)
-  (* ... *)
-} :> RX with syntax rx
-\end{lstlisting}
-More generally, when sealing a module expression against a signature, the programmer can specify, for each abstract type that is generated, at most one previously defined TSMs. This TSM must take as its first parameter the module being sealed.
-
-The following function has the same expansion as \lstinline{example_using_tsm} but, by using the TSL just defined, it is more concise. Notice the return type annotation, which is necessary to ensure that the TSL can be unambiguously determined:
-\begin{lstlisting}[numbers=none]
-fun example_using_tsl(name : string) : R.t => /SURL@EURLnameSURL: %EURLssn/
-\end{lstlisting}
-
-As another example, let us consider the standard list datatype. We can use TSLs to express derived list syntax, for both expressions and patterns:
-\begin{lstlisting}[numbers=none]
-datatype list('a) { Nil | Cons of 'a * list('a) } with syntax {
-  static fn (body : Body) => 
-    (* ... comma-delimited spliced exps ... *)
-} with pattern syntax {
-  static fn (body : Body) : Pat => 
-    (* ... list pattern parser ... *)
-}
-\end{lstlisting}
-Together with the TSL for regular expression patterns, this allows us to write lists like this:
-\begin{lstlisting}[numbers=none]
-let val x : list(R.t) = [/SURL\dEURL/SHTML, EHTML/SURL\d\dEURL/SHTML, EHTML/SURL\d\d\dEURL/]
-\end{lstlisting}
-From the client's perspective, it is essentially as if the language had built in derived syntax for lists and regular expression patterns directly.%However, we did not need to build in this syntax primitively.%The only constraint is that this syntax must be used in an analytic position, which we argue is actually better for code compren when encountering unfamiliar syntax.
-
-\section{Parameterized Modules}
-TSLs can be associated with abstract types that are generated by parameterized modules (i.e. generative functors in Standard ML) as well. For example, consider a trivially parameterized module that creates modules sealed against \lstinline{RX}:
-\begin{lstlisting}[numbers=none]
-module F() => mod {
-  type t = (* ... *)
-  (* ... *)
-} :> RX with syntax rx 
-\end{lstlisting}
-Each application of \lstinline{F} generates a distinct abstract type. The semantics associates the appropriately parameterized TSM with each of these as they are generated:
-\begin{lstlisting}[numbers=none]
-module F1 = F() (* F1.t has TSL rx(F1) *)
-module F2 = F() (* F2.t has TSL rx(F2) *)
-\end{lstlisting}
-
-As a more complex example, let us define two signatures, \lstinline{A} and \lstinline{B}, a TSM \texttt{\$G} and a parameterized module \lstinline{G : A -> B}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-signature A = sig { type t; val x : t }
-signature B = sig { type u; val y : u }
-syntax $G(M : A)(G : B) at G.u { (* ... *) }
-module G(M : A) => mod { 
-  type u = M.t; val y = M.x } :> B with syntax $G(M)
-\end{lstlisting}
-Both \lstinline{G} and \texttt{\$G} take a parameter \lstinline{M : A}. We associate the partially applied TSM \texttt{\$G(M)} with the abstract type that \lstinline{G} generates. Again, this satisfies the requirement that one must be able to apply the TSM being associated with the abstract type to the module being sealed. 
-
-Only fully abstract types can have TSLs associated with them. Within the definition of \lstinline{G}, type \lstinline{u} does not have a TSL available to it because it is synonymous to \lstinline{M.t}. More generally, TSL lookup respects type equality, so any synonyms of a type with a TSL will also have that TSL. We can see this in the following example, where the type \lstinline{u} has a different TSL associated with it inside and outside the definition of the module \lstinline{N}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-module M : A = mod { type t = int; val x = 0 }
-module G1 = G(M) (* G1.t has TSL $G(M), per above *)
-module N = mod { 
-  type u = G1.t (* u = G1.t in this scope, so u also has TSL $G(M) *)
-  val y = /asdf/ (* we can use it to create a value of that type *) 
-} :> B (* did not specify a TSL for N.u at the point where it is sealed, 
-            so N.u has no TSL in the outer scope *)
-val z : N.u = /asdf/ (* ERROR: no TSL for type N.u *)
-\end{lstlisting}
-
-\section{\texorpdfstring{$\miniVerseTSL$}{miniVerseTSL}}
-A formal specification of TSLs in a language that supports only non-parametric datatypes is available in a paper published in ECOOP 2014 \cite{TSLs}. %We will add support for parameterized TSLs in the dissertation (see Sec. %\ref{sec:syntax-timeline}).
