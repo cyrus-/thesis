@@ -160,12 +160,17 @@
 \newcommand{\Cofv}{\mathcal{C}}
 \newcommand{\Cof}[1]{\Cofv(#1)}
 
-% Statics of miniVerseU expanded expressions
+% Statics of miniVerseU and miniVerseParam expanded expressions
 \newcommand{\istypeU}[2]{#1 \vdash #2~\mathsf{type}}
 \newcommand{\isctxU}[2]{#1 \vdash #2~\mathsf{ctx}}
 \newcommand{\hastypeU}[4]{#1~#2 \vdash #3 : #4}
 \newcommand{\hastypeUC}[2]{\vdash #1 : #2}
 \newcommand{\hastypeUCO}[3]{#1 \vdash #2 : #3}
+
+\newcommand{\istypeP}[2]{#1 \vdash #2 :: \akty}
+%\newcommand{\isctxP}[2]{#1 \vdash #2~\mathsf{ctx}}
+\newcommand{\hastypeP}[3]{#1 \vdash #2 : #3}
+\newcommand{\hastypePC}[2]{\vdash #1 : #2}
 
 \newcommand{\Dhyp}[1]{#1~\mathsf{type}}
 \newcommand{\Dcons}[2]{{#1}\cup{#2}}
@@ -289,9 +294,12 @@
 \newcommand{\dashVx}{\text{\reflectbox{$\Vdash$}}}
 \newcommand{\dashV}{~\dashVx~}
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Mapsto #5}
-\newcommand{\patType}[3]{\Delta \vdash #2 : #3 ~\text{\reflectbox{$\Vdash$}}~#1}
+\newcommand{\patType}[3]{\Delta \vdash #2 : #3 \dashV #1}
 \newcommand{\patTypeD}[4]{#1 \vdash #3 : #4 \dashV #2}
-\newcommand{\pctx}{\Omega}
+\newcommand{\ruleTypeP}[4]{#1 \vdash #2 : #3 \Mapsto #4}
+\newcommand{\patTypeP}[3]{\Omega \vdash #2 : #3 \dashV #1}
+\newcommand{\patTypePC}[4]{#1 \vdash #3 : #4 \dashV #2}
+\newcommand{\pctx}{\varUpsilon}
 
 \newcommand{\matchfail}[1]{#1~\mathsf{matchfail}}
 
@@ -361,7 +369,7 @@
 
 \newcommand{\uPhi}{\hat\Phi}
 \newcommand{\uAP}[2]{\langle #1; #2 \rangle}
-\newcommand{\upctx}{\hat\Omega}
+\newcommand{\upctx}{\hat\varUpsilon}
 
 % Implicits
 \newcommand{\implicite}[2]{\texttt{implicit\,syntax}~#1~\texttt{for\,expressions\,in}~#2}
@@ -407,9 +415,21 @@
 \newcommand{\akdprod}[3]{\abopi{dprod}{#1; #2}{#3}}
 \newcommand{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa}{i}{1}{n}{j}{1}{i}}}
 
+\newcommand{\kdbprod}[3]{\llangle #1 :: #2; #3 \rrangle}
+\newcommand{\akdbprod}[3]{\abop{dprod}{#1; #2.#3}}
+
+\newcommand{\iskind}[2]{#1 \vdash #2~\mathsf{kind}}
+\newcommand{\iskindX}[1]{\iskind{\Omega}{#1}}
+
+\newcommand{\kequal}[3]{#1 \vdash #2 \equiv #3}
+\newcommand{\kequalX}[2]{\kequal{\Omega}{#1}{#2}}
+
+\newcommand{\ksub}[3]{#1 \vdash #2 <:: #3}
+\newcommand{\ksubX}[2]{\ksub{\Omega}{#1}{#2}}
+
 % Constructors
-\newcommand{\cabs}[3]{\lambda #1{::}#2.#3}
-\newcommand{\acabs}[3]{\abopc{abs}{#1}{#2.#3}}
+\newcommand{\cabs}[2]{\lambda #1.#2}
+\newcommand{\acabs}[2]{\abop{abs}{#1.#2}}
 
 \newcommand{\capp}[2]{#1(#2)}
 \newcommand{\acapp}[2]{\abop{app}{#1; #2}}
@@ -417,8 +437,8 @@
 \newcommand{\ctriv}{\llangle\rrangle}
 \newcommand{\actriv}{\texttt{triv}}
 
-\newcommand{\cpair}[3]{\llangle #1=#2, #3 \rrangle}
-\newcommand{\acpair}[3]{\abop{pair}{#1; #2.#3}}
+\newcommand{\cpair}[2]{\llangle #1, #2 \rrangle}
+\newcommand{\acpair}[2]{\abop{pair}{#1; #2}}
 
 \newcommand{\dtpl}[1]{\llangle #1 \rrangle}
 \newcommand{\dtplX}{\dtpl{\{\dpitem{\ell_i}{u_i}{c_i}\}_{1 \leq i \leq n}}}
@@ -432,3 +452,43 @@
 
 \newcommand{\cprr}[1]{#1 \cdot \texttt{r}}
 \newcommand{\acprr}[1]{\abop{prr}{#1}}
+
+\newcommand{\mstat}[1]{#1\cdot\texttt{s}}
+\newcommand{\amstat}[1]{\abop{stat}{#1}}
+
+\newcommand{\mdyn}[1]{#1 \cdot \texttt{d}}
+\newcommand{\amdyn}[1]{\abop{dyn}{#1}}
+
+\newcommand{\haskind}[3]{#1 \vdash #2 :: #3}
+\newcommand{\haskindX}[2]{\haskind{\Omega}{#1}{#2}}
+
+\newcommand{\cequal}[4]{#1 \vdash #2 \equiv #3 :: #4}
+\newcommand{\cequalX}[3]{\cequal{\Omega}{#1}{#2}{#3}}
+
+% Modules and signatures
+\newcommand{\signature}[3]{\llbracket #1 :: #2; #3 \rrbracket}
+\newcommand{\asignature}[3]{\abopc{sig}{#1}{#2.#3}}
+
+\newcommand{\struct}[2]{\llbracket #1; #2 \rrbracket}
+\newcommand{\astruct}[2]{\abop{struct}{#1; #2}}
+
+\newcommand{\seal}[2]{#1 \upharpoonleft #2}
+\newcommand{\aseal}[2]{\abopc{seal}{#1}{#2}}
+
+\newcommand{\mlet}[4]{\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3 : #4}
+\newcommand{\amlet}[4]{\abopc{mlet}{#1}{#2; #3.#4}}
+
+\newcommand{\issig}[2]{#1 \vdash #2~\mathsf{sig}}
+\newcommand{\issigX}[1]{\issig{\Omega}{#1}}
+
+\newcommand{\sigequal}[3]{#1 \vdash #2 \equiv #3}
+\newcommand{\sigequalX}[2]{\sigequal{\Omega}{#1}{#2}}
+
+\newcommand{\sigsub}[3]{#1 \vdash #2 <: #3}
+\newcommand{\sigsubX}[2]{\sigsub{\Omega}{#1}{#2}}
+
+\newcommand{\hassig}[3]{#1 \vdash #2 : #3}
+\newcommand{\hassigX}[2]{\hassig{\Omega}{#1}{#2}}
+
+\newcommand{\ismval}[2]{#1 \vdash #2~\mathsf{mval}}
+\newcommand{\ismvalX}[1]{\ismval{\Omega}{#1}}

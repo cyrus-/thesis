@@ -14,11 +14,11 @@ One way to express this abstract syntax is by defining a recursive sum type \cit
 type Rx = Empty | Str of string | Seq of Rx * Rx | 
           Or of Rx * Rx | Star of Rx
 \end{lstlisting}
-\caption{Definition of the recursive sum type \li{Rx}}
+\caption{Definition of the recursive labeled sum type \li{Rx}}
 \label{fig:datatype-rx}
 \end{figure}
 
-Values of type \li{Rx} are constructed by applying a label to a value of the type specified in the corresponding clause above (or simply using the label by itself if no corresponding type is specified). For example, we can define a regular expression that matches only the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} and \li{"SSTRCESTR"} as follows:
+Values of type \li{Rx} are constructed by applying a label to a value of the type specified in the corresponding case above (or simply using the label by itself if no corresponding type is specified). For example, we can define a regular expression that matches only the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} and \li{"SSTRCESTR"} as follows:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}

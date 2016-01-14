@@ -128,8 +128,8 @@ $\begin{array}{lllllll}
 &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
 \LCC \lightgray & \lightgray & \lightgray & \lightgray & \lightgray & \lightgray \\
 &&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
-\mathsf{ERule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
-\mathsf{EPat} & p & ::= & x & x & \text{variable pattern}\\
+\mathsf{Rule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
+\mathsf{Pat} & p & ::= & x & x & \text{variable pattern}\\
 &&& \aewildp & \wildp & \text{wildcard pattern}\\
 &&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
 &&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
@@ -188,7 +188,7 @@ The first premise of Rule (\ref*{rule:hastypeUP-match}) assigns a type, $\tau$, 
 The premises of Rule (\ref{rule:ruleType}) can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$ (defined assuming $\Delta$), and to gather the typing hypotheses that the pattern generates in a \emph{typing context}, $\pctx$. %Pattern typing contexts are typing contexts. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. 
-We use the metavariable $\pctx$ rather than $\Gamma$ only to emphasize the distinct role of the typing context in the pattern typing judgement -- algorithmically, it is the ``output'' of the judgement.% The pattern typing judgement also does not obey weakening (discussed below).
+We use the metavariable $\pctx$ (i.e. ``upsilon'') rather than $\Gamma$ only to emphasize the distinct role of the typing context in the pattern typing judgement -- algorithmically, it is the ``output'' of the judgement.% The pattern typing judgement also does not obey weakening (discussed below).
 
 The pattern typing judgement is inductively defined by the following rules:
 \begin{subequations}\label{rules:patType}
