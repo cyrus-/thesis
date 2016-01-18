@@ -24,6 +24,7 @@
 \newcommand{\abopbc}[4]{\texttt{#1}\texttt{[}#2\texttt{]\{}#3\texttt{\}(}#4\texttt{)}}
 \newcommand{\abopibc}[5]{\texttt{#1}[#2]\texttt{[}#3\texttt{]\{}#4\texttt{\}(}#5\texttt{)}}
 \newcommand{\abopcc}[4]{\texttt{#1}\texttt{\{}#2\texttt{\}\{}#3\texttt{\}(}#4\texttt{)}}
+\newcommand{\abopicz}[3]{\texttt{#1}[#2]\texttt{\{}#3\texttt{\}}}
 
 % Types / candidate expansion types
 \newcommand{\parr}[2]{#1 \rightharpoonup #2}
@@ -38,6 +39,7 @@
 
 \newcommand{\forallu}[3]{\forall(#1 :: #2).#3}
 \newcommand{\aallu}[3]{\abopc{all}{#1}{#2.#3}}
+\newcommand{\auallu}[3]{\abopc{uall}{#1}{#2.#3}}
 
 \newcommand{\rect}[2]{\mu #1.#2}
 \newcommand{\arec}[2]{\abop{rec}{#1.#2}}
@@ -107,9 +109,11 @@
 
 \newcommand{\clam}[3]{\Lambda #1{::}#2.#3}
 \newcommand{\aeclam}[3]{\abopc{clam}{#1}{#2.#3}}
+\newcommand{\auclam}[3]{\abopc{uclam}{#1}{#2.#3}}
 
 \newcommand{\cAp}[2]{#1\texttt{[}#2\texttt{]}}
 \newcommand{\aecap}[2]{\abopc{cap}{#2}{#1}}
+\newcommand{\aucap}[2]{\abopc{ucap}{#2}{#1}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
@@ -167,7 +171,6 @@
 \newcommand{\hastypeUC}[2]{\vdash #1 : #2}
 \newcommand{\hastypeUCO}[3]{#1 \vdash #2 : #3}
 
-\newcommand{\istypeP}[2]{#1 \vdash #2 :: \akty}
 %\newcommand{\isctxP}[2]{#1 \vdash #2~\mathsf{ctx}}
 \newcommand{\hastypeP}[3]{#1 \vdash #2 : #3}
 \newcommand{\hastypePC}[2]{\vdash #1 : #2}
@@ -187,6 +190,15 @@
 % Unexpanded types
 \newcommand{\utau}{{\hat\tau}}
 \newcommand{\ut}{{\hat{t}}}
+\newcommand{\uc}{{\hat c}}
+\newcommand{\uu}{{\hat u}}
+
+% Unexpanded kinds
+\newcommand{\ukappa}{{\hat\kappa}}
+
+% Unexpanded modules
+\newcommand{\uM}{{\hat M}}
+\newcommand{\usigma}{{\hat\sigma}}
 
 % Unexpanded expressions
 \newcommand{\ue}{{\hat e}}
@@ -399,15 +411,19 @@
 % Kinds
 \newcommand{\kty}{\texttt{T}}
 \newcommand{\akty}{\texttt{Type}}
+\newcommand{\aukty}{\texttt{uType}}
 
 \newcommand{\ksing}[1]{[\texttt{=}#1]}
 \newcommand{\aksing}[1]{\abop{S}{#1}}
+\newcommand{\auksing}[1]{\abop{uS}{#1}}
 
 \newcommand{\kdarr}[3]{(#1 :: #2) \rightarrow #3}
 \newcommand{\akdarr}[3]{\abop{darr}{#1; #2.#3}}
+\newcommand{\aukdarr}[3]{\abop{udarr}{#1; #2.#3}}
 
 \newcommand{\kunit}{\llangle\rrangle}
 \newcommand{\akunit}{\texttt{unit}}
+\newcommand{\aukunit}{\texttt{uunit}}
 
 \newcommand{\dpitem}[3]{\mapitem{#1 \triangleright #2}{#3}}
 \newcommand{\kdprod}[1]{\llangle #1 \rrangle}
@@ -417,6 +433,7 @@
 
 \newcommand{\kdbprod}[3]{\llangle #1 :: #2; #3 \rrangle}
 \newcommand{\akdbprod}[3]{\abop{dprod}{#1; #2.#3}}
+\newcommand{\aukdbprod}[3]{\abop{udprod}{#1; #2.#3}}
 
 \newcommand{\iskind}[2]{#1 \vdash #2~\mathsf{kind}}
 \newcommand{\iskindX}[1]{\iskind{\Omega}{#1}}
@@ -430,15 +447,19 @@
 % Constructors
 \newcommand{\cabs}[2]{\lambda #1.#2}
 \newcommand{\acabs}[2]{\abop{abs}{#1.#2}}
+\newcommand{\aucabs}[2]{\abop{uabs}{#1.#2}}
 
 \newcommand{\capp}[2]{#1(#2)}
 \newcommand{\acapp}[2]{\abop{app}{#1; #2}}
+\newcommand{\aucapp}[2]{\abop{uapp}{#1; #2}}
 
 \newcommand{\ctriv}{\llangle\rrangle}
 \newcommand{\actriv}{\texttt{triv}}
+\newcommand{\auctriv}{\texttt{utriv}}
 
 \newcommand{\cpair}[2]{\llangle #1, #2 \rrangle}
 \newcommand{\acpair}[2]{\abop{pair}{#1; #2}}
+\newcommand{\aucpair}[2]{\abop{upair}{#1; #2}}
 
 \newcommand{\dtpl}[1]{\llangle #1 \rrangle}
 \newcommand{\dtplX}{\dtpl{\{\dpitem{\ell_i}{u_i}{c_i}\}_{1 \leq i \leq n}}}
@@ -447,17 +468,21 @@
 
 \newcommand{\cprl}[1]{#1 \cdot \texttt{l}}
 \newcommand{\acprl}[1]{\abop{prl}{#1}}
+\newcommand{\aucprl}[1]{\abop{uprl}{#1}}
 
 \newcommand{\adprj}[2]{\abopp{prj}{#1}{#2}}
 
 \newcommand{\cprr}[1]{#1 \cdot \texttt{r}}
 \newcommand{\acprr}[1]{\abop{prr}{#1}}
+\newcommand{\aucprr}[1]{\abop{uprr}{#1}}
 
-\newcommand{\mstat}[1]{#1\cdot\texttt{s}}
-\newcommand{\amstat}[1]{\abop{stat}{#1}}
+\newcommand{\mcon}[1]{#1\cdot\texttt{c}}
+\newcommand{\amcon}[1]{\abop{con}{#1}}
+\newcommand{\aumcon}[1]{\abop{ucon}{#1}}
 
-\newcommand{\mdyn}[1]{#1 \cdot \texttt{d}}
-\newcommand{\amdyn}[1]{\abop{dyn}{#1}}
+\newcommand{\mval}[1]{#1 \cdot \texttt{v}}
+\newcommand{\amval}[1]{\abop{val}{#1}}
+\newcommand{\aumval}[1]{\abop{uval}{#1}}
 
 \newcommand{\haskind}[3]{#1 \vdash #2 :: #3}
 \newcommand{\haskindX}[2]{\haskind{\Omega}{#1}{#2}}
@@ -468,15 +493,19 @@
 % Modules and signatures
 \newcommand{\signature}[3]{\llbracket #1 :: #2; #3 \rrbracket}
 \newcommand{\asignature}[3]{\abopc{sig}{#1}{#2.#3}}
+\newcommand{\ausignature}[3]{\abopc{usig}{#1}{#2.#3}}
 
 \newcommand{\struct}[2]{\llbracket #1; #2 \rrbracket}
 \newcommand{\astruct}[2]{\abop{struct}{#1; #2}}
+\newcommand{\austruct}[2]{\abop{ustruct}{#1; #2}}
 
 \newcommand{\seal}[2]{#1 \upharpoonleft #2}
 \newcommand{\aseal}[2]{\abopc{seal}{#1}{#2}}
+\newcommand{\auseal}[2]{\abopc{useal}{#1}{#2}}
 
-\newcommand{\mlet}[4]{\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3 : #4}
+\newcommand{\mlet}[4]{(\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3) : #4}
 \newcommand{\amlet}[4]{\abopc{mlet}{#1}{#2; #3.#4}}
+\newcommand{\aumlet}[4]{\abopc{umlet}{#1}{#2; #3.#4}}
 
 \newcommand{\issig}[2]{#1 \vdash #2~\mathsf{sig}}
 \newcommand{\issigX}[1]{\issig{\Omega}{#1}}
@@ -492,3 +521,102 @@
 
 \newcommand{\ismval}[2]{#1 \vdash #2~\mathsf{mval}}
 \newcommand{\ismvalX}[1]{\ismval{\Omega}{#1}}
+
+% Parameterized TSMs
+\newcommand{\urho}{{\hat\rho}}
+\newcommand{\uepsilon}{{\hat\epsilon}}
+\newcommand{\uX}{{\hat X}}
+
+\newcommand{\audefpetsm}[4]{\abopcc{usyntaxpe}{#2}{#1}{#3.#4}}
+\newcommand{\aumdefpetsm}[4]{\abopcc{umsyntaxpe}{#2}{#1}{#3.#4}}
+\newcommand{\auappetsm}[2]{\abopicz{uappetsm}{#1}{#2}}
+\newcommand{\uletpetsm}[3]{\texttt{let}~\texttt{syntax}~#1=#2~\texttt{for}~\texttt{expressions}~\texttt{in}~#3}
+\newcommand{\auletpetsm}[3]{\abopc{uletpetsm}{#1}{#2.#3}}
+\newcommand{\aumletpetsm}[3]{\abopc{umletpetsm}{#1}{#2.#3}}
+
+\newcommand{\audefpptsm}[4]{\abopcc{usyntaxpp}{#2}{#1}{#3.#4}}
+\newcommand{\aumdefpptsm}[4]{\abopcc{umsyntaxpp}{#2}{#1}{#3.#4}}
+\newcommand{\auappptsm}[2]{\abopicz{uappptsm}{#1}{#2}}
+\newcommand{\uletpptsm}[3]{\texttt{let}~\texttt{syntax}~#1=#2~\texttt{for}~\texttt{patterns}~\texttt{in}~#3}
+\newcommand{\auletpptsm}[3]{\abopc{uletpptsm}{#1}{#2.#3}}
+\newcommand{\aumletpptsm}[3]{\abopc{umletpptsm}{#1}{#2.#3}}
+
+\newcommand{\aetype}[1]{\abop{type}{#1}}
+\newcommand{\autype}[1]{\abop{utype}{#1}}
+
+\newcommand{\alltypes}[2]{\forall #1.#2}
+\newcommand{\aealltypes}[2]{\abop{alltypes}{#1.#2}}
+\newcommand{\aualltypes}[2]{\abop{ualltypes}{#1.#2}}
+
+\newcommand{\allmods}[3]{\forall #1{:}#2.#3}
+\newcommand{\aeallmods}[3]{\abopc{allmods}{#1}{#2.#3}}
+\newcommand{\auallmods}[3]{\abopc{uallmods}{#1}{#2.#3}}
+
+% \newcommand{\typeparam}[2]{\Lambda #1.#2}
+% \newcommand{\aetypeparam}[2]{\abop{typeparam}{#1.#2}}
+% \newcommand{\autypeparam}[2]{\abop{utypeparam}{#1.#2}}
+
+% \newcommand{\modparam}[3]{\Lambda #1{:}#2.#3}
+% \newcommand{\aemodparam}[3]{\abopc{modparam}{#1}{#2.#3}}
+% \newcommand{\aumodparam}[3]{\abopc{umodparam}{#1}{#2.#3}}
+
+\newcommand{\aptype}[2]{#1(#2)}
+\newcommand{\aeaptype}[2]{\abopc{aptype}{#1}{#2}}
+\newcommand{\auaptype}[2]{\abopc{uaptype}{#1}{#2}}
+
+\newcommand{\apmod}[2]{#1(#2)}
+\newcommand{\aeapmod}[2]{\abopc{apmod}{#1}{#2}}
+\newcommand{\auapmod}[2]{\abopc{uapmod}{#1}{#2}}
+
+\newcommand{\adefref}[1]{\aboppz{defref}{#1}}
+\newcommand{\abindref}[1]{\aboppz{bindref}{#1}}
+
+\newcommand{\uOmega}{{\hat\Omega}}
+
+\newcommand{\kExpands}[3]{#1 \vdash #2 \leadsto #3~\mathsf{kind}}
+\newcommand{\kExpandsX}[2]{\kExpands{\uOmega}{#1}{#2}}
+
+\newcommand{\cExpands}[4]{#1 \vdash #2 \leadsto #3 :: #4}
+\newcommand{\cExpandsX}[3]{\cExpands{\uOmega}{#1}{#2}{#3}}
+
+\newcommand{\eanaP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6}
+\newcommand{\eanaPX}[3]{\eanaP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+\newcommand{\esynP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6}
+\newcommand{\esynPX}[3]{\esynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+\newcommand{\ranaP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6 \Mapsto #7}
+\newcommand{\ranaPX}[4]{\ranaP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
+\newcommand{\rsynP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
+\newcommand{\rsynPX}[4]{\rsynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
+\newcommand{\patExpandsP}[5]{\Omega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
+
+\newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
+\newcommand{\uMhyp}[3]{#1 \leadsto #2 : #3}
+
+\newcommand{\uOmegaEx}[4]{\langle #1; #2; #3; #4 \rangle}
+\newcommand{\uMctx}{\mathcal{M}}
+
+\newcommand{\istypeP}[2]{\istypeU{#1}{#2}}
+\newcommand{\istypePX}[1]{\istypeP{\Omega}{#1}}
+
+\newcommand{\issubtypeP}[3]{#1 \vdash #2 <: #3}
+\newcommand{\issubtypePX}[2]{\issubtypeP{\Omega}{#1}{#2}}
+
+\newcommand{\tequalP}[3]{#1 \vdash #2 \equiv #3~\mathsf{type}}
+\newcommand{\tequalPX}[2]{\tequalP{\Omega}{#1}{#2}}
+
+\newcommand{\tExpandsP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{type}}
+\newcommand{\tExpandsPX}[2]{\tExpandsP{\uOmega}{#1}{#2}}
+
+\newcommand{\sigExpandsP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{sig}}
+\newcommand{\sigExpandsPX}[2]{\sigExpandsP{\uOmega}{#1}{#2}}
+
+\newcommand{\mExpandsP}[4]{#1 \vdash #2 \leadsto #3 : #4}
+\newcommand{\mExpandsPX}[3]{\mExpandsP{\uOmega}{#1}{#2}{#3}}
+
+\newcommand{\petsmdefn}[3]{#1 \hookrightarrow \texttt{petsm}(#2; #3)}
+\newcommand{\pptsmdefn}[3]{#1 \hookrightarrow \texttt{pptsm}(#2; #3)}
+
+\newcommand{\istsmty}[2]{#1 \vdash #2~\mathsf{tsmty}}
+\newcommand{\tsmtyExpands}[3]{#1 \vdash #2 \leadsto #3 ~\mathsf{tsmty}}
+
+\newcommand{\tParseResultCEExpBnd}{\mathtt{ParseResult}(\mathtt{CEExpBnd})}

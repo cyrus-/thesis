@@ -422,7 +422,7 @@ Values of labeled sum type can appear only in analytic position.
   \inferrule{
     \eanaX{\ue}{e}{\tau}
   }{
-    \left(\shortstack{$\uDelta~\uGamma \vdash_{\uPsi; \uPhi} \auanain{\ell}{\ue}$\\$\leadsto$\\$\auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
+    \left(\shortstack{$\uDelta~\uGamma \vdash_{\uPsi; \uPhi} \auanain{\ell}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
     %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }
 \end{equation}
@@ -855,7 +855,7 @@ Analytic ce-expression validation is governed by the following rules.
   \inferrule{
     \canaX{\ce}{e}{\tau}
   }{
-    \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
+    \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
     %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }
 \end{equation}
