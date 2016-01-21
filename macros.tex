@@ -40,6 +40,7 @@
 \newcommand{\forallu}[3]{\forall(#1 :: #2).#3}
 \newcommand{\aallu}[3]{\abopc{all}{#1}{#2.#3}}
 \newcommand{\auallu}[3]{\abopc{uall}{#1}{#2.#3}}
+\newcommand{\aceallu}[3]{\abopc{ceall}{#1}{#2.#3}}
 
 \newcommand{\rect}[2]{\mu #1.#2}
 \newcommand{\arec}[2]{\abop{rec}{#1.#2}}
@@ -110,10 +111,12 @@
 \newcommand{\clam}[3]{\Lambda #1{::}#2.#3}
 \newcommand{\aeclam}[3]{\abopc{clam}{#1}{#2.#3}}
 \newcommand{\auclam}[3]{\abopc{uclam}{#1}{#2.#3}}
+\newcommand{\aceclam}[3]{\abopc{ceclam}{#1}{#2.#3}}
 
 \newcommand{\cAp}[2]{#1\texttt{[}#2\texttt{]}}
 \newcommand{\aecap}[2]{\abopc{cap}{#2}{#1}}
 \newcommand{\aucap}[2]{\abopc{ucap}{#2}{#1}}
+\newcommand{\acecap}[2]{\abopc{cecap}{#2}{#1}}
 
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
@@ -264,6 +267,10 @@
 \newcommand{\acesplicede}[2]{\texttt{cesplicede}[#1; #2]}
 \newcommand{\splicedp}[2]{\texttt{spliced}\langle#1, #2\rangle}
 \newcommand{\acesplicedp}[2]{\texttt{cesplicedp}[#1; #2]}
+\newcommand{\splicedc}[2]{\texttt{spliced}\langle #1, #2 \rangle}
+\newcommand{\acesplicedc}[2]{\texttt{cesplicedc}[#1; #2]}
+\newcommand{\splicedk}[2]{\texttt{spliced}\langle #1, #2 \rangle}
+\newcommand{\acesplicedk}[2]{\texttt{cesplicedk}[#1; #2]}
 
 \newcommand{\mtau}{\dot{\tau}}
 \newcommand{\mtspliced}[1]{\texttt{spliced}(#1)}
@@ -412,18 +419,22 @@
 \newcommand{\kty}{\texttt{T}}
 \newcommand{\akty}{\texttt{Type}}
 \newcommand{\aukty}{\texttt{uType}}
+\newcommand{\acekty}{\texttt{ceType}}
 
 \newcommand{\ksing}[1]{[\texttt{=}#1]}
 \newcommand{\aksing}[1]{\abop{S}{#1}}
 \newcommand{\auksing}[1]{\abop{uS}{#1}}
+\newcommand{\aceksing}[1]{\abop{ceS}{#1}}
 
 \newcommand{\kdarr}[3]{(#1 :: #2) \rightarrow #3}
 \newcommand{\akdarr}[3]{\abop{darr}{#1; #2.#3}}
 \newcommand{\aukdarr}[3]{\abop{udarr}{#1; #2.#3}}
+\newcommand{\acekdarr}[3]{\abop{cedarr}{#1; #2.#3}}
 
 \newcommand{\kunit}{\llangle\rrangle}
 \newcommand{\akunit}{\texttt{unit}}
 \newcommand{\aukunit}{\texttt{uunit}}
+\newcommand{\acekunit}{\texttt{ceunit}}
 
 \newcommand{\dpitem}[3]{\mapitem{#1 \triangleright #2}{#3}}
 \newcommand{\kdprod}[1]{\llangle #1 \rrangle}
@@ -434,6 +445,7 @@
 \newcommand{\kdbprod}[3]{\llangle #1 :: #2; #3 \rrangle}
 \newcommand{\akdbprod}[3]{\abop{dprod}{#1; #2.#3}}
 \newcommand{\aukdbprod}[3]{\abop{udprod}{#1; #2.#3}}
+\newcommand{\acekdbprod}[3]{\abop{cedprod}{#1; #2.#3}}
 
 \newcommand{\iskind}[2]{#1 \vdash #2~\mathsf{kind}}
 \newcommand{\iskindX}[1]{\iskind{\Omega}{#1}}
@@ -448,18 +460,22 @@
 \newcommand{\cabs}[2]{\lambda #1.#2}
 \newcommand{\acabs}[2]{\abop{abs}{#1.#2}}
 \newcommand{\aucabs}[2]{\abop{uabs}{#1.#2}}
+\newcommand{\acecabs}[2]{\abop{ceabs}{#1.#2}}
 
 \newcommand{\capp}[2]{#1(#2)}
 \newcommand{\acapp}[2]{\abop{app}{#1; #2}}
 \newcommand{\aucapp}[2]{\abop{uapp}{#1; #2}}
+\newcommand{\acecapp}[2]{\abop{ceapp}{#1; #2}}
 
 \newcommand{\ctriv}{\llangle\rrangle}
 \newcommand{\actriv}{\texttt{triv}}
 \newcommand{\auctriv}{\texttt{utriv}}
+\newcommand{\acectriv}{\texttt{cetriv}}
 
 \newcommand{\cpair}[2]{\llangle #1, #2 \rrangle}
 \newcommand{\acpair}[2]{\abop{pair}{#1; #2}}
 \newcommand{\aucpair}[2]{\abop{upair}{#1; #2}}
+\newcommand{\acecpair}[2]{\abop{cepair}{#1; #2}}
 
 \newcommand{\dtpl}[1]{\llangle #1 \rrangle}
 \newcommand{\dtplX}{\dtpl{\{\dpitem{\ell_i}{u_i}{c_i}\}_{1 \leq i \leq n}}}
@@ -469,20 +485,24 @@
 \newcommand{\cprl}[1]{#1 \cdot \texttt{l}}
 \newcommand{\acprl}[1]{\abop{prl}{#1}}
 \newcommand{\aucprl}[1]{\abop{uprl}{#1}}
+\newcommand{\acecprl}[1]{\abop{ceprl}{#1}}
 
 \newcommand{\adprj}[2]{\abopp{prj}{#1}{#2}}
 
 \newcommand{\cprr}[1]{#1 \cdot \texttt{r}}
 \newcommand{\acprr}[1]{\abop{prr}{#1}}
 \newcommand{\aucprr}[1]{\abop{uprr}{#1}}
+\newcommand{\acecprr}[1]{\abop{ceprr}{#1}}
 
 \newcommand{\mcon}[1]{#1\cdot\texttt{c}}
 \newcommand{\amcon}[1]{\abop{con}{#1}}
 \newcommand{\aumcon}[1]{\abop{ucon}{#1}}
+\newcommand{\acemcon}[1]{\abop{cecon}{#1}}
 
 \newcommand{\mval}[1]{#1 \cdot \texttt{v}}
 \newcommand{\amval}[1]{\abop{val}{#1}}
 \newcommand{\aumval}[1]{\abop{uval}{#1}}
+\newcommand{\acemval}[1]{\abop{ceval}{#1}}
 
 \newcommand{\haskind}[3]{#1 \vdash #2 :: #3}
 \newcommand{\haskindX}[2]{\haskind{\Omega}{#1}{#2}}
@@ -587,7 +607,7 @@
 \newcommand{\ranaPX}[4]{\ranaP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
 \newcommand{\rsynP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
 \newcommand{\rsynPX}[4]{\rsynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
-\newcommand{\patExpandsP}[5]{\Omega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
+\newcommand{\patExpandsP}[5]{\uOmega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
 
 \newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
 \newcommand{\uMhyp}[3]{#1 \leadsto #2 : #3}
@@ -619,4 +639,62 @@
 \newcommand{\istsmty}[2]{#1 \vdash #2~\mathsf{tsmty}}
 \newcommand{\tsmtyExpands}[3]{#1 \vdash #2 \leadsto #3 ~\mathsf{tsmty}}
 
-\newcommand{\tParseResultCEExpBnd}{\mathtt{ParseResult}(\mathtt{CEExpBnd})}
+\newcommand{\tParseResultPCEExp}{\mathtt{ParseResult}(\mathtt{PCEExp})}
+
+\newcommand{\tsmexpExpandsExp}[5]{#1 \vdash_{#2}^{\mathsf{Exp}} #3 \leadsto #4~@~#5}
+\newcommand{\tsmexpExpandsExpX}[3]{\tsmexpExpandsExp{\Omega}{\uPsi}{#1}{#2}{#3}}
+
+\newcommand{\tsmexpExpandsPat}[5]{#1 \vdash_{#2}^{\mathsf{Pat}} #3 \leadsto #4~@~#5}
+\newcommand{\tsmexpExpandsPatX}[3]{\tsmexpExpandsPat{\Omega}{\uPsi}{#1}{#2}{#3}}
+
+\newcommand{\hastsmtypeExp}[4]{#1 \vdash_{#2}^{\mathsf{Exp}} #3 ~@~ #4}
+\newcommand{\hastsmtypePat}[4]{#1 \vdash_{#2}^{\mathsf{Pat}} #3 ~@~ #4}
+
+\newcommand{\tsmexpNormalExp}[3]{#1 \vdash_{#2}^\mathsf{Exp} #3~\mathsf{normal}}
+\newcommand{\tsmexpStepsExp}[4]{#1 \vdash_{#2}^\mathsf{Exp} #3 \mapsto #4}
+\newcommand{\tsmexpMultistepsExp}[4]{#1 \vdash_{#2}^\mathsf{Exp} #3 \mapsto^{*} #4}
+\newcommand{\tsmexpEvalsExp}[4]{#1 \vdash_{#2}^\mathsf{Exp} #3 \Downarrow #4}
+
+\newcommand{\tsmdefof}[1]{\mathsf{tsmdef}(#1)}
+
+\newcommand{\decodePCEExp}[2]{#1 \uparrow_\mathsf{PCEExp} #2}
+\newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PCEExp} #2}
+
+\newcommand{\pce}{\check{e}}
+
+\newcommand{\prepce}[8]{#1 \vdash_{#2}^\mathsf{Exp} #3 \looparrowright_{#5} #4 ~?~ #6 \dashv #7 : #8}
+
+%\newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
+%\newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
+\newcommand{\csynP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5}
+\newcommand{\csynPX}[3]{\csyn{\Omega}{\escenev}{#1}{#2}{#3}}
+\newcommand{\canaP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5}
+\newcommand{\canaPX}[3]{\cana{\Omega}{\escenev}{#1}{#2}{#3}}
+%\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
+%\newcommand{\escenev}{\mathbbmss{E}}
+%\newcommand{\tscenev}{\mathbbmss{T}}
+\newcommand{\esceneP}[4]{#1;\,#2;\,#3;\,#4}
+\newcommand{\tsceneP}[2]{\tsceneU{#1}{#2}}
+\newcommand{\psceneP}[3]{#1;\,#2;\,#3}
+
+\newcommand{\abstype}[2]{\Lambda #1.#2}
+\newcommand{\aeabstype}[2]{\abop{abstype}{#1.#2}}
+\newcommand{\auabstype}[2]{\abop{uabstype}{#1.#2}}
+
+\newcommand{\absmod}[3]{\Lambda #1{:}#2.#3}
+\newcommand{\aeabsmod}[3]{\abopc{absmod}{#1}{#2.#3}}
+\newcommand{\auabsmod}[3]{\abopc{uabsmod}{#1}{#2.#3}}
+
+\newcommand{\pcebindtype}[2]{\Lambda #1.#2}
+\newcommand{\apcebindtype}[2]{\abop{cebindtype}{#1.#2}}
+
+\newcommand{\pcebindmod}[2]{\Lambda #1.#2}
+\newcommand{\apcebindmod}[2]{\abop{cebindmod}{#1.#2}}
+
+\newcommand{\pceexp}[1]{#1}
+\newcommand{\apceexp}[1]{\abop{ceexp}{#1}}
+
+\newcommand{\cekappa}{{\grave\kappa}}
+\newcommand{\cec}{{\grave c}}
+
+\newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{CEPat})}
