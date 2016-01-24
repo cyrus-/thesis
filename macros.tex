@@ -457,6 +457,10 @@
 \newcommand{\ksubX}[2]{\ksub{\Omega}{#1}{#2}}
 
 % Constructors
+\newcommand{\casc}[2]{#1 :: #2}
+\newcommand{\aucasc}[2]{\abopc{uasc}{#1}{#2}}
+\newcommand{\acecasc}[2]{\abopc{ceasc}{#1}{#2}}
+
 \newcommand{\cabs}[2]{\lambda #1.#2}
 \newcommand{\acabs}[2]{\abop{abs}{#1.#2}}
 \newcommand{\aucabs}[2]{\abop{uabs}{#1.#2}}
@@ -596,6 +600,11 @@
 \newcommand{\kExpands}[3]{#1 \vdash #2 \leadsto #3~\mathsf{kind}}
 \newcommand{\kExpandsX}[2]{\kExpands{\uOmega}{#1}{#2}}
 
+\newcommand{\kana}[4]{#1 \vdash #2 \leadsto #3 \Leftarrow #4}
+\newcommand{\kanaX}[3]{\kana{\uOmega}{#1}{#2}{#3}}
+\newcommand{\ksyn}[4]{#1 \vdash #2 \leadsto #3 \Rightarrow #4}
+\newcommand{\ksynX}[3]{\ksyn{\uOmega}{#1}{#2}{#3}}
+
 \newcommand{\cExpands}[4]{#1 \vdash #2 \leadsto #3 :: #4}
 \newcommand{\cExpandsX}[3]{\cExpands{\uOmega}{#1}{#2}{#3}}
 
@@ -630,6 +639,11 @@
 \newcommand{\sigExpandsP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{sig}}
 \newcommand{\sigExpandsPX}[2]{\sigExpandsP{\uOmega}{#1}{#2}}
 
+\newcommand{\msyn}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6}
+\newcommand{\msynX}[3]{\msyn{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+\newcommand{\mana}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6}
+\newcommand{\manaX}[3]{\mana{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+
 \newcommand{\mExpandsP}[4]{#1 \vdash #2 \leadsto #3 : #4}
 \newcommand{\mExpandsPX}[3]{\mExpandsP{\uOmega}{#1}{#2}{#3}}
 
@@ -663,13 +677,14 @@
 \newcommand{\pce}{\check{e}}
 
 \newcommand{\prepce}[8]{#1 \vdash_{#2}^\mathsf{Exp} #3 \looparrowright_{#5} #4 ~?~ #6 \dashv #7 : #8}
+\newcommand{\prepcp}[6]{#1 \vdash_{#2}^\mathsf{Pat} \cdot \looparrowright_{#3} \cdot ~?~ #4 \dashv #5 : #6}
 
 %\newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 %\newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
 \newcommand{\csynP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5}
-\newcommand{\csynPX}[3]{\csyn{\Omega}{\escenev}{#1}{#2}{#3}}
+\newcommand{\csynPX}[3]{\csynP{\Omega}{\escenev}{#1}{#2}{#3}}
 \newcommand{\canaP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5}
-\newcommand{\canaPX}[3]{\cana{\Omega}{\escenev}{#1}{#2}{#3}}
+\newcommand{\canaPX}[3]{\canaP{\Omega}{\escenev}{#1}{#2}{#3}}
 %\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
 %\newcommand{\escenev}{\mathbbmss{E}}
 %\newcommand{\tscenev}{\mathbbmss{T}}
@@ -698,3 +713,29 @@
 \newcommand{\cec}{{\grave c}}
 
 \newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{CEPat})}
+
+\newcommand{\cscenev}{\mathbbmss{C}}
+
+\newcommand{\cvalidK}[4]{#1 \vdash^{#2} #3 \leadsto #4~\mathsf{kind}}
+\newcommand{\cvalidKX}[2]{\cvalidK{\Omega}{\cscenev}{#1}{#2}}
+
+\newcommand{\ccsyn}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5}
+\newcommand{\ccsynX}[3]{\ccsyn{\Omega}{\cscenev}{#1}{#2}{#3}}
+\newcommand{\ccana}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5}
+\newcommand{\ccanaX}[3]{\ccana{\Omega}{\cscenev}{#1}{#2}{#3}}
+
+\newcommand{\crsynP}[6]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5 \Mapsto #6}
+\newcommand{\crsynPX}[4]{\crsynP{\Omega}{\escenev}{#1}{#2}{#3}{#4}}
+\newcommand{\cranaP}[6]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5 \Mapsto #6}
+\newcommand{\cranaPX}[4]{\cranaP{\Omega}{\escenev}{#1}{#2}{#3}{#4}}
+
+\newcommand{\parseUKind}[2]{\mathsf{parseUKind}(#1)=#2}
+\newcommand{\parseUCon}[2]{\mathsf{parseUCon}(#1)=#2}
+
+\newcommand{\cvalidTP}[4]{#1 \vdash^{#2} #3 \leadsto #4~\mathsf{type}}
+
+\newcommand{\csfrom}[1]{\mathsf{cs}(#1)}
+
+\newcommand{\cvalidPP}[5]{\Omega_\text{param} \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
+
+\newcommand{\isvalP}[2]{#1 \vdash #2~\mathsf{val}}

@@ -285,9 +285,10 @@ Fields can be projected out of a labeled tuple in synthetic position.
   }
 \end{equation}
 
-Match expressions can appear in synthetic position.
+Match expressions can appear in synthetic position, as long as there is at least one rule.
 \begin{equation}\label{rule:esyn-match}
   \inferrule{
+    n > 0\\
     \esynX{\ue}{e}{\tau}\\
     \{\rsynX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
@@ -780,11 +781,12 @@ Synthetic ce-expression validation is governed by the following rules.
   \inferrule{
     \csynX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }{
-    \esynX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
+    \csynX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
   }
 \end{equation}
 \begin{equation}\label{rule:csyn-match}
   \inferrule{
+    n > 0\\
     \csynX{\ce}{e}{\tau}\\
     \{\crsynX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
