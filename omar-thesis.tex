@@ -200,7 +200,7 @@ deletestring=[d]{"},
 %initialize page style, so contents come out right (see bot) -mjz
 \pagestyle{empty}
 
-\title{\textbf{Modularly Programmable Syntax}}
+\title{\textbf{Reasonably Programmable Syntax}}
 \author{Cyrus Omar}
 \date{\today}
 \Year{2015}
@@ -220,7 +220,7 @@ Eric Van Wyk, University of Minnesota}
 % copyright notice generated automatically from Year and author.
 % permission added if \permission{} given.
 
-\keywords{\todo{keywords}}
+\keywords{concrete syntax, parsing, macro systems, hygiene, type systems, module systems, pattern matching, elaboration semantics, bidirectional typing, type inference, extensible languages, metaprogramming}
 
 \maketitle
 
@@ -231,7 +231,21 @@ Eric Van Wyk, University of Minnesota}
 
 \begin{abstract}
 \noindent
-Full-scale functional programming languages often make \emph{ad hoc} choices in the design of their textual syntax. For example, nearly all major functional languages build in derived forms for lists, but introducing derived forms  for other library constructs, e.g. for HTML elements or regular expressions, requires forming new syntactic dialects of these languages. Programmers cannot  combine  syntactic dialects in general, limiting the choices ultimately available to them. In this work, we introduce and formally specify language primitives that mitigate the need for \emph{ad hoc} derived forms and syntactic dialects by giving library providers the ability to programmatically control the expansion of certain \emph{generalized literal forms} while maintaining a  type discipline, a binding discipline and compositional reasoning principles.
+When designing a human-facing textual syntax for a programming language, it is common to define derived forms that decrease the syntactic cost of working with certain library constructs. 
+% -- library-specific ``syntactic sugar''. 
+For example, the textual syntax of Standard ML (like that of many languages) defines derived forms for introducing and pattern matching on lists, which are defined in the SML Basis library. %Semantically, lists are defined (as a recursive datatype) in the SML Basis library.
+
+Defining derived forms for working with other library constructs, e.g. dictionaries, HTML elements or regular expressions, requires defining new ``library-specific'' (a.k.a. ``domain-specific'') dialects of the textual syntax (perhaps with the aid of a tool, e.g. a parser generator). Unfortunately, clients cannot always combine these  syntactic dialects, limiting the choices available to them. Additionally, it can become difficult for clients to reason in a disciplined manner about types and binding in a program that uses unfamiliar derived forms, because these forms can have arbitrary desugarings.
+
+In this work, we introduce \emph{typed syntax macros} (TSMs), which reduce the need for \emph{ad hoc} derived forms and library-specific syntactic dialects by giving library providers the ability to programmatically control, at compile-time, the parsing and expansion of certain \emph{generalized literal forms}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of conflicts between them, and the language validates each expansion that a TSM generates to maintain:
+\begin{itemize}
+\item a \emph{type discipline}, meaning that a programmer examining a well-typed term can determine its type without examining its expansion directly (by examining type annotations on the TSMs being applied); and 
+\item a \emph{hygienic binding discipline}, meaning that an expansion cannot make any assumptions about identifiers bound at the TSM application site, nor  introduce ``hidden bindings'' into subterms.
+\end{itemize}
+\noindent
+Put pithily, we define a programming language in the ML tradition with a \emph{reasonably programmable syntax}.
+
+We discuss both explicit application of TSMs and implicit, type-directed application of TSMs, which further reduces syntactic cost.
 \end{abstract}
 
 \begin{acknowledgments}
