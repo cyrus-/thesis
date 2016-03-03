@@ -1,73 +1,186 @@
 % !TEX root = omar-thesis.tex
 \chapter{Introduction}\label{chap:intro}
-\vspace{-5px}
-\begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
-and generality in language design is a serious unsolved 
-problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
+%\vspace{-5px}
+% \begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
+% and generality in language design is a serious unsolved 
+% problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
+% \end{quote}
+\begin{quote}
+\textit{Try to imagine that you are a tree. How do you want to look out here?}
+%\textit{You want your tree to have some character.}
+\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
 \end{quote}
-\vspace{-5px}
+
+%\vspace{-5px}
 \section{Motivation}\label{sec:intro-motivation}
 
-%``Full-scale' typed functional programming languages like Standard ML (SML) \cite{mthm97-for-dart,harper1997programming}, OCaml \cite{ocaml-manual} and Haskell \cite{jones2003haskell} are members of a conceptual lineage rooted in the typed lambda calculus \cite{Reynolds94anintroduction}. 
-
-Programming languages come in many sizes. The smallest languages -- for example, the various ``lambda calculi'' -- allow students, researchers and language designers to study the mathematical properties of language primitives of interest in an isolated setting. These studies inform the design of ``full-scale'' programming 
+%Programming languages come in many sizes. The smallest languages -- for example, the various ``lambda calculi'' -- isolate language primitives of interest for the benefit of students, researchers and language designers interested in studying their mathematical properties. These studies inform the design of ``full-scale'' programming 
 %\footnote{Throughout this work, words and phrases that should be read as having an intuitive or informal meaning, rather than a strict mathematical meaning, will be introduced with quotation marks.} 
- languages, which combine several such primitives, or generalizations thereof, and are designed for use by software developers constructing large software systems.
+% languages, which combine several such primitives, or generalizations thereof. Full-scale languages are interesting objects of formal study in their own right. They also serve as useful tools for software developers, allowing them to construct, reason about and modularly organize large software systems.
 
-Because small-scale languages are of interest mainly as objects of mathematical study, their designers often choose to specify only the abstract syntax of their primitives (or, when typesetting documents, stylized representations thereof). Full-scale languages, on the other hand, are both interesting objects of mathematical study and, ideally, useful for humans writing large programs. Consequently, their designers  typically define both an abstract syntax and a more ``human-friendly'' textual syntax that features various \emph{derived forms}, i.e. forms defined by a context-independent ``desugaring'' to a set of \emph{base forms}. These derived forms are designed to decrease the \emph{syntactic cost} or \emph{cognitive cost} of selected idioms. 
-%In some cases, a derived form is designed to capture an idiom that involves only the primitive constructs of the language. 
-For example, full-scale functional languages like Standard ML (SML) \cite{mthm97-for-dart,harper1997programming}, OCaml \cite{ocaml-manual} and Haskell \cite{jones2003haskell} %provide derived forms that decrease the syntactic cost of defining curried functions. In other cases, a derived form may capture an idiom that involves a library construct. For example, all of the languages just mentioned 
-define derived forms for working with lists. In these languages, the form \lstinline{[1, 2, 3, 4, 5]} desugars to: 
+There are many ways to draw a tree. For example, consider these three drawings:
+
+
+\begin{subequations}
+\begin{equation}\label{simple-example-txt-form}
+\texttt{1 / 2\textasciicircum3}
+\end{equation}
+\begin{equation}\label{simple-example-sty-form}
+\frac{\numintro{1}}{{\numintro{2}^{\numintro{3}}}}
+\end{equation}
+
+\begin{equation}\label{simple-example-op-form}\adiv{\anumintro{1}}{
+	\apow{\anumintro{2}}{\anumintro{3}}
+}\end{equation}
+\end{subequations}
+
+\noindent
+These are different drawings of a single tree -- an \emph{abstract syntax tree (AST)}, in particular, of the sort defined by the syntax chart in Figure \ref{fig:simple-example}.\footnote{Some familiarity with ASTs and inductively defined judgements is preliminary to this work. See Sec. \ref{sec:preliminaries} for references and a more thorough discussion of necessary preliminaries.} ASTs of this sort are the expressions of a programming language, $\simplelang$, that can be used to perform simple arithmetic calculations on numbers. 
+As the syntax chart suggests, every $\simplelang$ expression can be drawn in \emph{textual form}, like Drawing (\ref{simple-example-txt-form}), \emph{stylized form}, like Drawing (\ref{simple-example-sty-form}), or \emph{operational form}, like Drawing (\ref{simple-example-op-form}).
+
+
+% In particular, let us consider a simple programming language, $\simplelang$, for performing arithmetic calculations with numbers. The expressions of $\simplelang$ are \emph{abstract syntax trees (ASTs)} of a sort defined by the syntax chart in Figure \ref{fig:simple-example}.\footnote{Familiarity with abstract syntax trees is preliminary to this work (see Sec. \ref{sec:preliminaries} for other preliminaries.)}  For example, the following expression is drawn in stylized form:
+% The same expression is drawn in textual form as follows:
+
+
+% \noindent
+% and in operational form as follows:
+
+ The semantics of $\simplelang$ identifies ASTs {structurally}, i.e. independently of how they are drawn. For instance, the semantics defines a judgement $\isvalU{e}$, which characterizes certain expressions as \emph{values} (as distinct from  expressions that can be further simplified). This judgement is defined by a single inference rule, which establishes that only the number expressions are values in $\simplelang$:
+\begin{mathpar}
+\inferrule{ }{
+	\isvalU{\anumintro{n}}
+}
+\end{mathpar}
+Although this inference rule is drawn using an operational form, we can nevertheless apply it to derive that $\isvalU{\numintro{2}}$, because $\numintro{2}$ and $\anumintro{2}$ identify the same AST. In other words, ``syntax doesn't matter'' from the perspective of the semantics of our language.
+
+
+\begin{figure}
+\hspace{-5px}$\begin{array}{lrlllll}
+\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Typeset Form} & \textbf{Textual Form} & \textbf{Description}\\
+\mathsf{Exp} & e & ::= & \anumintro{n} & \numintro{n} & \numintro{n} & \text{numbers}\\
+&&& \aplus{e}{e} & e + e & e\texttt{ + }e & \text{addition} \\
+&&& \aminus{e}{e} & e - e & e\texttt{ - }e & \text{subtraction}\\
+&&& \amult{e}{e} & e \times e & e\texttt{ * }e & \text{multiplication}\\
+&&& \adiv{e}{e} & \frac{e}{e} & e\texttt{ / }e & \text{division}\\
+&&& \apow{e}{e} & {e}^{e} & e\verb|^|e & \text{exponentiation}
+\end{array}$
+\caption[Syntax of $\simplelang$]{Syntax of $\simplelang$. Metavariable $n$ ranges over mathematical numbers (defined in some suitable manner). The letter $\numintro{n}$ here abbreviates the numeral forms (one for each number $n$, drawn in our examples in \texttt{typewriter} font). A complete definition of the stylized and textual syntax of $\simplelang$ would require 1) defining these numeral forms explicitly; 2) defining a form for parenthesized expressions; 3) defining the precedence and associativity of each infix operator; and 4) defining whitespace conventions. These details are not important for our present purpose, so we assume the usual conventions without stating them explicitly (the definition of ALGOL 60 introduced many of the conventions that persist today \cite{naur1963revised}.)}
+\label{fig:simple-example}
+\end{figure}
+
+That being said, most humans would nevertheless distinguish the examples drawn in stylized and textual form above, perhaps by characterizing them as more ``'readable'' than the example drawn in operational form. Novice programmers in particular would likely be able to grasp the intended meaning more quickly when shown the first two drawings, because they closely follow the widely-known arithmetic conventions. Similarly, the first two drawings  require less effort to produce than the drawing in operational form, given typical tools. %Mistakes may also be less frequent when producing drawings in stylized or textual form (for $\simplelang$ expressions, perhaps only because operational forms use more parentheses). 
+So it seems that different drawings of an AST, though semantically indistinguishable, must in fact be distinguished by the \emph{cognitive costs} (or \emph{cognitive loads}) that human programmers incur when examining or producing them (we will consider various operational definitions of this broad notion in Sec. \ref{sec:syntactic-properties}). %Regardless, it is  apparent that although syntax doesn't matter (semantically), different drawings of .  %that the popular refrain amongst language researchers that syntax ``doesn't matter'' is of rather limited.   %that intuitively,  drawings in stylized or textual form are of lower syntactic cost than those in operational form. This is important not only because aesthetics, but also because syntactic cost relates to measures of programmer productivity and other quantities and qualities of extrinsic interest (we discuss these and other measures in more detail in Sec. \ref{sec:syntactic-properties}). 
+
+%The forms defined by the syntax chart in Figure \ref{fig:simple-example} suffice to allow programmers to draw any $\simplelang$ expression. However, 
+In order to further reduce the cognitive costs associated with common idioms, syntax designers often include additional \emph{derived forms} (colloquially, ``syntactic sugar'') when defining a syntax for a programming language.  Derived forms are defined by context-independent \emph{desugaring} (a.k.a. \emph{rewriting} or \emph{redrawing}) \emph{rules}. For example, we can define a derived stylized form for calculating the square root of a $\simplelang$ expression by including the following rule in the definition of the stylized syntax of expressions:
+\begin{subequations}
+\begin{equation}\label{rule:simplelang-sqrt}
+\sqrt{e} \rightarrowtriangle e^{\frac{\numintro{1}}{\numintro{2}}}
+\end{equation}
+Similarly, we can define a derived textual form for negating an expression by including the following rule in the definition of the textual syntax of expressions:
+\begin{equation}\label{rule:simplelang-negate}
+\texttt{-}e \rightarrowtriangle \amult{e}{\anumintro{-1}}
+\end{equation}
+\end{subequations}
+\noindent 
+When we encounter a drawing of a $\simplelang$ expression, we can desugar  it by first recursively desugaring its subexpressions, then, if the drawing is of derived form, applying the corresponding rule above. If this process succeeds, the resulting drawing will identify an AST, i.e. it will use the forms in Figure \ref{fig:simple-example} (which we refer to collectively as \emph{basic forms}, to distinguish them from derived forms), in some combination.\footnote{For $\footnotesimplelang$, it is not necessary to restrict, for example, textual and operational forms from being interspersed -- no ambiguities can arise. In richer languages, this may no longer be the case. The desugaring process must then be enriched to first convert the pattern on the right hand side of a desugaring rule like Rule (\ref{rule:simplelang-negate}) to the desired variety before it is applied.}
+
+%Similarly, we might define a derived form for taking an arbitrary root of an expression as follows:
+% \begin{align*}
+% \sqrt[e']{e} & \rightarrowtriangle e^{\frac{\numintro{1}}{e'}}
+% \end{align*}
+
+$\simplelang$ expressions are rather limited -- they can express only simple calculations of a single type -- so we should not expect to need more than a few more derived forms like these to satisfyingly capture the  idioms that would arise in common human usage of $\simplelang$. %Consequently, there is little opportunity to go beyond simple derived forms like these. 
+But the study of programming languages (and logics more generally) has produced many other sorts of trees, suitable for expressing substantially richer types of computations.  As humans have used these rich languages across a variety of problem domains, more idioms -- and with them, more derived forms -- have naturally emerged.  For example, Standard ML (a ``general-purpose''  language in the functional tradition \cite{mthm97-for-dart,harper1997programming}) defines derived textual forms for working with lists. In SML, the expression form \lstinline{[1, 2, 3, 4, 5]} desugars to: 
 \begin{lstlisting}[numbers=none]
 Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
 \end{lstlisting}
-where \li{Nil} and \li{Cons} are datatype constructors defined in the standard library. Clearly, the derived list forms all have lower syntactic cost than their desugarings, as measured by the lengths of the two forms. Cognitive cost is typically assessed heuristically using, for example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} or Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area), or empirically using randomized control trials (e.g. as in \cite{journals/jeric/StefikS13}). In this case, we are not aware of any empirical data comparing the two forms, but heuristically, one could argue that the derived forms more closely map to informal forms used for sequences of elements, make the elements of the list more clearly visible and have lower \emph{viscosity} because adding a new item to the middle of the list requires only a local edit. 
+where \li{Nil} and \li{Cons} are the constructors of a recursive datatype defined in the SML Basis Library (i.e. SML's ``standard library'').\footnote{Actually, the desugaring uses unforgeable identifiers bound permanently to these constructors, so that the meaning of the term does not change even in contexts where \li{Nil} or \li{Cons} have been shadowed by different bindings. We will return to such subtleties throughout this work.} Many other languages similarly define lists or list-like data structures in their standard libraries, and define corresponding derived forms in their language definitions, because it is reasonable to expect that programmers will use these data structures pervasively, across problem domains.
 
-'The hope amongst some language designers is that a limited number of derived forms like these will suffice to produce a ``general-purpose'' textual syntax, i.e. one that is accepted as suitable for use across a wide variety of application domains. Alas, a stable design that fully achieves this ideal has yet to emerge, as evidenced by the diverse array of \emph{syntactic dialects} -- dialects that introduce only new derived forms -- that continue to proliferate around all major contemporary languages. For example, Ur/Web defines a syntactic dialect of Ur (an ML-like full-scale language \cite{conf/pldi/Chlipala10}) that builds in derived forms for SQL queries, HTML elements and other datatypes used in the domain of web programming \cite{conf/popl/Chlipala15}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
-We will consider a large number of other examples of syntactic dialects in Sec. \ref{sec:motivating-examples}. 
-Tools like Camlp4 \cite{ocaml-manual}, Sugar* \cite{erdweg2011sugarj,erdweg2013framework} and Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}, which we will discuss in Sec. \ref{sec:existing-approaches}, have lowered the costs of defining and implementing syntactic dialects, further contributing to their proliferation. 
+Other types of computations may be common only in more niche problem domains, which are served by third-party libraries. Languages designers cannot reasonably be expected to anticipate and accomodate idioms that are specific to these libraries. So, to define derived forms that capture such idioms, one must construct a \emph{syntax dialect} -- a new syntax definition constructed by extending an existing syntax definition with  new derived forms. For example, Ur is an ML-like general-purpose language \cite{conf/pldi/Chlipala10} and Ur/Web extends Ur's textual syntax with derived forms for SQL queries, HTML elements and other datatypes common to the domain of web programming \cite{conf/popl/Chlipala15}. % Such dialects are sometimes qualitatively taxonomized as amongst the ``domain-specific language'' for this reason \cite{fowler2010domain}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
+We will consider a large number of other examples of syntax dialects in Sec. \ref{sec:motivating-examples}. In Sec. \ref{sec:existing-approaches}, we will discuss tools like Camlp4 \cite{ocaml-manual}, Sugar* \cite{erdweg2011sugarj,erdweg2013framework} and Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}, which  have lowered the costs of defining and implementing syntax dialects and thereby contributed to their ongoing proliferation. 
+
+
+%Full-scale languages are also interesting objects of mathematical study. Uniquely, however, they are also designed for use by humans. Consequently, their designers  typically define both an abstract syntax and a textual syntax. This textual syntax serves as the primary interface between human programmers and the language, so it is common to define various \emph{derived forms}, i.e. forms defined by a context-independent \emph{desugaring} to a set of \emph{base forms}. These serve to decrease the \emph{syntactic cost} or \emph{cognitive cost} of selected idioms. 
+%In some cases, a derived form is designed to capture an idiom77Gu that involves only the primitive constructs of the language. 
+
+%The hope amongst some language designers is that a limited number of derived forms like these will suffice to produce a ``general-purpose'' textual syntax, i.e. one that is accepted as suitable for use across a wide variety of application domains. Alas, a stable design that fully achieves this ideal has yet to emerge, as evidenced by the diverse array of \emph{syntax dialects} -- dialects that introduce only new derived forms -- that continue to proliferate around all major contemporary languages. 
 
 %In fact, tools that aid in the construction of so-called  ``domain-specific'' language dialects (DSLs)\footnote{In some parts of the literature, such dialects are called ``external DSLs'', to distinguish them from  ``internal'' or ``embedded DSLs'', which are actually  library interfaces that only ``resemble'' distinct dialects \cite{fowler2010domain}.} seem only to be becoming more prominent over time. 
 
 %\subsection{Why are there so many language dialects?}
 %{This calls for an investigation}: why is it that programmers and researchers are still so often unable to satisfyingly express the constructs that they seek in libraries, as modes of use of the ``general-purpose'' primitives already available in major languages today, and instead see a need for new language dialects?
 
-%Perhaps the most common sort of dialect is the \emph{syntactic dialect} -- a dialect that introduces only new derived syntactic forms, motivated by a desire to decrease the {syntactic cost} of working with one or more library constructs of interest. 
-%Put another way, syntactic dialects can be specified by a context-independent expansion to the existing language that they are based on. 
-%For example, Ur/Web is a syntactic dialect of Ur (a language that itself descends from ML \cite{conf/pldi/Chlipala10}) that builds in derived forms for SQL queries, HTML elements and other datatypes used in the domain of web programming \cite{conf/popl/Chlipala15}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
+%Perhaps the most common sort of dialect is the \emph{syntax dialect} -- a dialect that introduces only new derived syntactic forms, motivated by a desire to decrease the {syntactic cost} of working with one or more library constructs of interest. 
+%Put another way, syntax dialects can be specified by a context-independent expansion to the existing language that they are based on. 
+%For example, Ur/Web is a syntax dialect of Ur (a language that itself descends from ML \cite{conf/pldi/Chlipala10}) that builds in derived forms for SQL queries, HTML elements and other datatypes used in the domain of web programming \cite{conf/popl/Chlipala15}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
 %This is not an isolated example -- we will consider a number of additional types of data that similarly stand to benefit from the availability of specialized derived forms in Sec. \ref{sec:motivating-examples}. 
-%Tools like Camlp4 \cite{ocaml-manual}, Sugar* \cite{erdweg2011sugarj,erdweg2013framework} and Racket \cite{Flatt:2012:CLR:2063176.2063195}, which we will discuss in Sec. \ref{sec:existing-approaches}, have lowered the engineering costs of constructing syntactic dialects in such situations, further contributing to their proliferation. 
+%Tools like Camlp4 \cite{ocaml-manual}, Sugar* \cite{erdweg2011sugarj,erdweg2013framework} and Racket \cite{Flatt:2012:CLR:2063176.2063195}, which we will discuss in Sec. \ref{sec:existing-approaches}, have lowered the engineering costs of constructing syntax dialects in such situations, further contributing to their proliferation. 
 
 %More advanced dialects introduce new type structure, going beyond what is possible with only new derived forms. As a simple example, the static and dynamic semantics of records cannot be expressed by context-independent expansion to a language with only nullary and binary products. Various languages have explored ``record-like'' primitives that go further, supporting functional update operators, width and depth coercions (sometimes implicit)%\cite{Cardelli:1984:SMI:1096.1098}
 %, methods, prototypic dispatch and other such ``semantic embellishments'' that in turn cannot be expressed by context-independent expansion to a language with only standard record types (we will detail an  example in Sec. \ref{sec:metamodules-motivating-examples}). OCaml primitively builds in the type structure of polymorphic variants, open datatypes and  operations that use format strings like $\mathtt{sprintf}$ \cite{ocaml-manual}. ReactiveML builds in primitives for functional reactive programming \cite{mandel2005reactiveml}. ML5 builds in high-level primitives for distributed programming based on a modal lambda calculus \cite{Murphy:2007:TDP:1793574.1793585}. Manticore \cite{conf/popl/FluetRRSX07} and AliceML  \cite{AliceLookingGlass} build in parallel programming primitives with a more elaborate type structure than is found in simpler accounts of parallelism. 
 %MLj builds in the type structure of the Java object system (motivated by a desire to interface safely and naturally with Java libraries) \cite{Benton:1999:IWW:317636.317791}. Other dialects do the same for other foreign languages, e.g. Furr and Foster describe a dialect of OCaml that builds in the type structure of C \cite{Furr:2005:CTS:1065010.1065019}. Tools like proof assistants and logical frameworks are used to specify and reason metatheoretically about dialects like these, and tools like compiler generators and language frameworks \cite{erdweg2013state} lower their implementation cost, again contributing to their proliferation. 
 
-\subsection{Syntactic Dialects Considered Harmful}
+\subsection{Syntax Dialects Considered Harmful}
 % express record types as syntactic sugar over the simply-typed lambda calculus with  binary product types.\footnote{Pairs can of course be expressed as syntactic sugar atop records, though one could argue that using binary products as the more primitive concept is simpler.} The static semantics need to be extended with new type and term operators. However, the simplest way to express the dynamic semantics of the newly introduced term operators is by translation to nested binary products, so we can leave the operational semantics alone. \todo{fill this out} %For example, there are dozens of constructs that go by the name of ``records'' in various languages, each defined by a slightly different collection of primitive operations. \todo{examples} %, encouraged  historically  by the availability of tools like compiler generators and,  more recently, language workbenches \cite{workbenches} and DSL frameworks \cite{dsl}. Unfortunately, taking this approach makes it substantially more difficult for clients to import high-level abstractions orthogonally. 
 % test 
-Some  view this proliferation of syntactic dialects as harmless or even desirable, arguing that programmers can simply choose the right dialect for the job at hand \cite{journals/stp/Ward94}. However, this ``dialect-oriented'' approach is, in an important sense, anti-modular: programmers cannot always ``combine'' different dialects when they want to use the forms that they feature together within a single program. For example, while a programmer might have access to a dialect featuring derived HTML forms and to a dialect featuring derived regular expression forms, it may not be straightforward to, from these, construct a dialect featuring both (which might be useful when constructing, for example, a web-based bioinformatics tool.) 
+Some  view this proliferation of syntax dialects as harmless or even desirable, arguing that programmers can simply choose the right dialect for the job at hand \cite{journals/stp/Ward94}. However, this ``dialect-oriented'' approach is, in an important sense, anti-modular: programmers cannot always ``combine'' different dialects when they want to use the derived forms that they define together to draw a single program. For example, suppose that there exists a syntax dialect defining derived forms for working with encodings of HTML documents, and another syntax dialect defining derived forms for working with encodings of regular expression patterns. In domains like bioinformatics, both HTML documents and regular expressions are common, so it would be useful to construct a ``combined dialect'' where all of these derived forms are available. However, it is not necessarily straightforward to, from these two existing dialects, do so. 
 
-In some cases, constructing the desired ``combined dialect'' is difficult simply because the constituent dialects are defined using different formalisms or tools. In other cases, the constituent dialects may be specified using a single formalism that does not operationalize the notion of dialect combination (e.g. Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}). In both of these situations, ``dialect combination'' is a strictly informal notion. 
+In some cases, the reason for the difficulty is quite clear: the constituent dialects are defined using different, mutually incompatible formalisms. Many major library ecosystems include competing parser generator libraries, for example, which operate on different classes of grammars.
 
-Even if we restrict our interest to dialects specified using a single formalism that does operationalize some notion of dialect combination (or, equivalently, one that allows programmers to combine ``dialect fragments''), there may still be a problem: the formalism may not guarantee that the combined dialect will conserve important properties that can be established about the dialects in isolation. %In other words, any putative ``combined language'' must formally be considered a  distinct system for which one must derive essentially all metatheorems of interest anew, guided only informally by those derived for the dialects individually. %There is no well-defined mechanism for constructing such a ``combined language'' in general. 
-For example, consider two syntactic dialects defined using Camlp4, one defining derived syntax for unordered dictionaries, the other defining overlapping syntax for {ordered} dictionaries. Though each has a deterministic grammar, when these grammars are na\"ively  combined by Camlp4, syntactic ambiguities will arise. We are aware of only one formalism that guarantees that determinism is conserved when syntactic dialects are combined \cite{conf/pldi/SchwerdfegerW09}, but it has limited expressive power, as we will discuss in Sec. \ref{sec:direct-syntax-extension}.
+In other cases, it may be that the constituent dialects are specified using a single formalism, but this formalism does not operationalize the notion of ``dialect combination'' (e.g. Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}). In both this and the previous case, ``dialect combination'' is a strictly informal notion, left to library clients to operationalize through manual labor (hence the quotes).
+
+If we restrict our interest further to dialects specified using a single formalism that does operationalize some notion of dialect combination (or, equivalently, one that allows programmers to define and combine dialect fragments), there may still be a modularity problem: the formalism may not guarantee that the combined dialect will conserve important properties that can be established about the constituent dialects in isolation. %In other words, any putative ``combined language'' must formally be considered a  distinct system for which one must derive essentially all metatheorems of interest anew, guided only informally by those derived for the dialects individually. %There is no well-defined mechanism for constructing such a ``combined language'' in general. 
+
+For example, consider two syntax dialects defined using Camlp4, one defining derived forms for sets, the other defining forms for finite mappings, both delimited by \verb~{|~ and \verb~|}~ (in OCaml, simple curly braces are already reserved by the language for record types and values). Though each dialect defines a deterministic grammar, when the grammars are na\"ively combined by Camlp4, syntactic ambiguities will arise (i.e. determinism is not conserved). The problem is that the empty set and the empty dictionary are both written \verb~{||}~. 
+
+As another example, consider one dialect that defines syntax for XML, and another for HTML, based on the respective standards for these data formats. Again, combining these dialects would immediately allow for syntactic ambiguities.
+
+We are aware of only one formalism that guarantees that determinism is conserved when syntax dialects are combined \cite{conf/pldi/SchwerdfegerW09}, but it requires newly introduced derived forms to be uniformly prefixed by a ``predictably unique'' starting token (which, by nature, must be verbose if it is to be predictably unique), amongst other subtle limitations. We will discuss this in Sec. \ref{sec:direct-syntax-extension}.
+
+\subsection{Reasoning About Derived Forms}
+Even putting aside the difficulties of conservatively combining syntax dialects, there are questions about just how reasonable allowing for the introduction of library-specific derived forms might be.
+
+For example, consider the position of a programmer attempting to comprehend some portion a program and coming across the following bindings:
+
+\begin{lstlisting}[numbers=none]
+let q = 42
+let x = 35
+let y = {|(!R)@&{&/x!/:2_!x}'!R}|}
+\end{lstlisting}
+
+If the programmer happens to recognize the intentionally terse syntax of the stack-based database query processing language K, used by a somewhat obscure database engine called \li{KDB} (which presumably is exposed to our language by some library), then this might pose no difficulties. On the other hand, if the programmer does not recognize this syntax, there is no clear protocol for answering basic questions like:
+
+\begin{enumerate}
+\item What type should \li{y} have?
+\item Where was this derived form defined?
+\item Is the character \li{x} mentioned inside this derived form parsed as the host language expression \li{x}, or parsed in some way peculiar to this derived form?
+\item If it is the host language expression \li{x}, does \li{x} refer to the binding on the previous line? Or was that binding shadowed by an unseen binding in the desugaring?
+\item If I rename \li{q} or move it down past the binding of \li{y}, could that possibly affect the desugaring (in other words, does the desugaring rule only operate correctly if  some variable identified as \li{q} is in scope?)
+\end{enumerate}
+
+In summary, it is quite difficult to maintain a \emph{type discipline} and a \emph{binding discipline} in the presence of unfamiliar derived forms whose definitions are unconstrained. In such a setting, the only way to answer these questions is by examining the desugaring, which is likely to defeat the purpose of defining the derived form -- lowering cognitive cost. 
+
+%A related issue arises when one works within a language with a module system, i.e. a system that supports interacting through a defined interface with various implementations of that interface. For example, consider different regular expression engines that differ only with regard to their performance in various circumstances, or different parser generators that accept the same class of grammar. Ideally, one would like to be able to define derived forms once such that they operate only through the common interface. To do so today requires both an awkward syntactic trick and coordination between library providers, as we will discuss in Sec. \ref{sec:syntax-examples-regexps}. Ideally, this would not be necessary.
+
 %It is thus infeasible to simply allow different contributors to a software system to choose their own favorite dialect for each component they are responsible for. 
 %It it clear that dialects are better rhetorical devices than practical engineering artifacts. 
 
 %Due to this paucity of modular reasoning principles, the ``dialect-oriented'' approach is problematic for software development ``in the large''. %Large software projects and software ecosystems must pick a single language that does provide powerful modular reasoning principles and, to benefit from them, stay inside it.
 
-\subsection{Central Planning Considered Harmful}
-Dialects do sometimes have a less direct influence on large-scale software development: they can help convince the designers in control of comparatively popular languages, like OCaml and Scala, to include some variant of the primitives that they feature into backwards-compatible language revisions. %These decisions are increasingly influenced by community processes, e.g. the Scala Improvement Process.  %This approach concentrates power as well as responsibility over maintaining metatheoretic guarantees in the hands of a small group of language designers, though increasingly influenced by various community processes (e.g. the Scala Improvement Process). 
-%Dialects thus serve the role of rhetorical vehicles for new ideas, rather than direct artifacts. 
-%Over time, accepting such extensions has caused these languages to balloon in size. 
-This \emph{ad hoc} approach is unsustainable, for three main reasons. First, as we will demonstrate in Sec. \ref{sec:motivating-examples}, there are simply too  many potentially useful such primitives, and many of these capture idioms common only in relatively narrow application domains. It is unreasonable to expect language designers to be able to evaluate all of these use cases in a timely and informed manner. Second, primitives introduced earlier in a language's lifespan can end up monopolizing finite ``syntactic resources'', forcing subsequent primitives to use ever more esoteric forms. And third, primitives that prove after some time to be flawed in some way cannot be removed or modified without breaking backwards compatibility. For these reasons, language designers are justifiably reticent to add new primitives to major languages.%Because there is often no empirical data about how useful a construct is in practice until it is available in a major language, decisions about which constructs to include are often informed only by intuition (and are thus)
-%Recalling the words of  Reynolds, which are clearly as relevant today as they were almost half a century ago \cite{Reynolds70}: %This approach is antithetical to the ideal of a truly \emph{general-purpose language} described at the beginning of this section.
-%\newpage
+% \subsection{Central Planning Considered Harmful}
+% Dialects do sometimes have a less direct influence on large-scale software development: they can help convince the designers in control of comparatively popular languages, like OCaml and Scala, to include some variant of the primitives that they feature into backwards-compatible language revisions. %These decisions are increasingly influenced by community processes, e.g. the Scala Improvement Process.  %This approach concentrates power as well as responsibility over maintaining metatheoretic guarantees in the hands of a small group of language designers, though increasingly influenced by various community processes (e.g. the Scala Improvement Process). 
+% %Dialects thus serve the role of rhetorical vehicles for new ideas, rather than direct artifacts. 
+% %Over time, accepting such extensions has caused these languages to balloon in size. 
+% This \emph{ad hoc} approach is unsustainable, for three main reasons. First, as we will demonstrate in Sec. \ref{sec:motivating-examples}, there are simply too  many potentially useful such primitives, and many of these capture idioms common only in relatively narrow application domains. It is unreasonable to expect language designers to be able to evaluate all of these use cases in a timely and informed manner. Second, primitives introduced earlier in a language's lifespan can end up monopolizing finite ``syntactic resources'', forcing subsequent primitives to use ever more esoteric forms. And third, primitives that prove after some time to be flawed in some way cannot be removed or modified without breaking backwards compatibility. For these reasons, language designers are justifiably reticent to add new primitives to major languages.%Because there is often no empirical data about how useful a construct is in practice until it is available in a major language, decisions about which constructs to include are often informed only by intuition (and are thus)
+% %Recalling the words of  Reynolds, which are clearly as relevant today as they were almost half a century ago \cite{Reynolds70}: %This approach is antithetical to the ideal of a truly \emph{general-purpose language} described at the beginning of this section.
+% %\newpage
 
-\subsection{Toward More General Primitives}
-This leaves two possible paths forward. One is to simply eschew ``niche'' primitives and settle on the existing designs, which might be considered to sit at a ``sweet spot'' in the overall language design space (accepting that in some circumstances, this leads to  high syntactic cost). 
-The other path forward is to search for a small number of highly general primitives that allow us degrade many of the constructs that are built primitively into languages and their dialects today instead to modular library constructs. 
-Encouragingly, primitives of this sort do occasionally arise. For example, a recent revision of OCaml added support for  generalized algebraic data types (GADTs), based on research on guarded recursive datatype constructors \cite{XiCheChe03}. Using GADTs, OCaml was able to move some of the \emph{ad hoc} machinery for typechecking operations that use format strings, like \li{sprintf}, out of the language and into a library. Syntactic machinery related to \li{sprintf}, however, remains built in. 
+%\subsection{Toward More Reasonable Primitives}
+%These 
+%This leaves two possible paths forward. One is to simply eschew ``niche'' derived forms and settle on the existing designs, which might be considered to sit at a ``sweet spot'' in the overall language design space (accepting that in some circumstances, this leads to  high cognitive cost). 
+
 
 %Similarly, it recently introduced ``open datatypes'', which subsume its previous more specialized exception type, and captures many use cases for .
 
@@ -80,10 +193,15 @@ Encouragingly, primitives of this sort do occasionally arise. For example, a rec
 %\vspace{-10px}
 \section{Overview of Contributions}\label{sec:contributions}
 %%Our broad aim in the work being proposed is to introduce primitive language mechanisms that give library providers the ability to  express new syntactic expansions as well as new types and operators in a safe and modularly composable manner. 
-Our aim in this work is to introduce primitive language constructs that reduce the need for syntactic dialects and \emph{ad hoc} derived syntactic forms. In particular, we introduce \textbf{typed syntax macros}, or \textbf{TSMs}. TSMs are applied like functions to \emph{generalized literal forms} and programmatically control their  parsing and expansion. This occurs statically (i.e. simultaneously with typing). We  introduce TSMs first for a simple language of expressions and types in Chapter \ref{chap:uetsms}, then add support for pattern matching  in Chapter \ref{chap:uptsms} and type and module parameters in Chapter \ref{chap:ptsms}.
+Our aim in this work is to introduce primitive language constructs that reduce the need for \emph{ad hoc} syntax dialects. In their place, we 
+introduce \textbf{typed syntax macros}, or \textbf{TSMs}. TSMs are applied to trees of \emph{generalized literal form} to programmatically control their expansion to trees that do not contain such forms (i.e. trees in \emph{expanded form}).
+
+Syntactic conflicts between TSMs are impossible by construction, because the syntax of the language is never directly modified, only contextually repurposed. Expansion occurs simultaneously with typing, in a phase that we call \emph{typed expansion}. As such, the semantics can take the type and binding structure of the surrounding program into account to impose constraints that serve to ensure that a type discipline and a binding discipline can be maintained by clients, i.e. that questions like those above can be answered without examining the expansion itself. More specifically, we maintain a \emph{hygienic binding discipline}, meaning that the class of perverse expansions that Questions 4 and 5 above were concerned with are disallowed entirely. We will, of course, make these notions more technically precise as we continue.
+
+We  introduce TSMs first for a simple language of expressions and types in Chapter \ref{chap:uetsms}, then add support for pattern matching  in Chapter \ref{chap:uptsms}. In Chapter \ref{chap:ptsms}, we consider the problem of defining TSMs that operate not just at a single type, but uniformly over a type- and module-parameterized family of types.
 
 %\item \textbf{Type-specific languages}, or \textbf{TSLs}. TSLs, described 
-In Chapter \ref{chap:tsls} and Chapter \ref{chap:ptsms}, we also show how library clients can designate, for any type, a privileged TSM at that type, and then rely on local type inference to invoke that TSM and apply its parameters implicitly. TSM implicits can reduce the syntactic cost of an idiom to very nearly the same extent that a special-purpose dialect can, while avoiding the problems described above.
+In Chapter \ref{chap:tsls} as well as in Chapter \ref{chap:ptsms}, we show how library clients can contextually designate, for any type, a privileged TSM at that type, and then rely on a bidirectional typing protocol to invoke that TSM implicitly. This method of \emph{TSM implicits} can reduce the cognitive cost of an idiom to very nearly the same extent that a special-purpose dialect can, while still maintaining a type and hygienic binding discipline.
 %\item \textbf{Metamodules}, introduced in Sec. \ref{sec:metamodules}, reduce the need to primitively build in the type structure of constructs like records (and variants thereof),  labeled sums and other interesting constructs that we will introduce later by giving library providers programmatic ``hooks'' directly into the semantics, which are specified as a \emph{type-directed translation semantics} targeting a small \emph{typed internal language} (introduced in Sec. \ref{sec:VerseML}). %For example, a library provider can implement the type structure of records with a metamodule that:
 %\begin{enumerate}
 %\item introduces a type constructor, \lstinline{record}, parameterized by finite mappings from labels to types, and defines, programmatically, a translation to unary and binary product types (which are built in to the internal language); and 
@@ -92,32 +210,27 @@ In Chapter \ref{chap:tsls} and Chapter \ref{chap:ptsms}, we also show how librar
 %We will see direct analogies between ML-style modules (which our mechanisms also support) and metamodules later.
 %\end{enumerate} 
 
-As vehicles for this work, we will specify a small-scale typed lambda calculus in each of the chapters just mentioned, each building upon the previous one. For the sake of examples, we will also describe (but not formally specify) a full-scale functional language called VerseML.\footnote{We distinguish VerseML from Wyvern, which is the language described in our prior publications about some of the work that we will describe, because Wyvern is a group effort evolving independently.} VerseML is, as its name suggests, a dialect of ML. It diverges from other dialects of ML that have a similar underlying type structure -- in particular, OCaml -- in that it uses a local type inference scheme \cite{Pierce:2000:LTI:345099.345100} (like, for example, Scala \cite{OdeZenZen01}) for reasons that have to do with the mechanisms described in Chapter \ref{chap:tsls}. The reason we will not follow Standard ML \cite{mthm97-for-dart} in giving a complete formal specification of VerseML in this work is both to emphasize that the primitives we introduce are fairly insensitive to the details of the underlying type structure of the language (so TSMs can be considered for inclusion in a variety of languages, not only dialects of ML), and to avoid distracting the reader (and the author) with specifications of primitives that are already well-understood in the literature and that are orthogonal to those that are the focus of this work. %We anticipate that future full-scale language specifications will be able to combine the ideas  in the proposed work without trouble. %The purpose of the work being proposed is to serve as a reference for those interested in the new constructs we introduce, not to serve as a language specification. 
+In the chapters just mentioned, we make a simplifying assumption: that each TSM definition is self-contained, without making use of any common libraries. This allows us to focus on the fundamental theoretical contributions of this work, but it is, of course, an unrealistic assumption in practice. We relax this assumption in Chapter \ref{chap:static-eval}.
+
+As vehicles for this work, we define a small programming language in each of the chapters just mentioned, each building upon the previous one. All formal claims made by this work involve these small languages.
+
+For the sake of examples, we will assume a  a full-scale functional language called VerseML that includes certain conveniences unrelated to those that we will formally discuss.\footnote{We distinguish VerseML from Wyvern, which is the language described in our prior publications about some of the work that we will describe, because Wyvern is a group effort evolving independently.} VerseML is, as its name suggests, a conceptual descendent of ML. It diverges from other dialects of ML that have a similar type structure in that it has a bidirectional type system \cite{Pierce:2000:LTI:345099.345100} (like, for example, Scala \cite{OdeZenZen01}) for reasons that have to do with the mechanism of TSM implicits described in Chapters \ref{chap:tsls} and \ref{chap:ptsms}. The reason we will not follow Standard ML \cite{mthm97-for-dart} in giving a complete formal definition of VerseML in this work is both to emphasize that the primitives we introduce are ``insensitive'' to the details of the underlying type structure of the language (so TSMs can be considered for inclusion in a variety of languages, not only dialects of ML), and to avoid distracting the reader (and the author) with definitions that are already well-understood in the literature and that are orthogonal to those that are the focus of this work. All discussions involving VerseML should be understood to be informal motivating material for the subsequent formal material. %We anticipate that future full-scale language specifications will be able to combine the ideas  in the proposed work without trouble. %The purpose of the work being proposed is to serve as a reference for those interested in the new constructs we introduce, not to serve as a language specification. 
 %We will give a brief overview of these languages are organized in Sec. \ref{sec:VerseML}.
 
 %TSMs, like other macro systems, perform \emph{static code generation} (also sometimes called \emph{static} or \emph{compile-time metaprogramming}), meaning that the relevant rules in the static semantics of the language call for the evaluation of \emph{static functions} that generate term encodings. Static functions are functions that are evaluated statically, i.e. during typing. %Library providers write these static functions using the VerseML \emph{static language} (SL).  
 %Maintaining a separation between the static (or ``compile-time'') phase and the dynamic (or ``run-time'') phase is an important facet of VerseML's design. % static code generation. %We will  also introduce a simple variant of each of these primitives that leverages VerseML's support for local type inference to further reduce syntactic cost in certain common situations. 
 
 
-The main challenge will come in maintaining the following:
-\begin{itemize}
-\item a \emph{type discipline}, meaning that the language must be type safe, and that programmers examining a well-typed expression must be able to determine its type without examining its expansion; 
-\item a \emph{hygienic binding discipline}, meaning that the expansion logic must not be permitted to make ``hidden assumptions'' about the names of variables at macro application sites, nor  introduce ``hidden bindings'' into other terms; and 
-\item \emph{compositional reasoning principles}, meaning that library providers must have the ability to reason about the syntax that they have defined in isolation, and clients must be able to use macros safely in any combination, without the possibility of conflict.\footnote{This is not quite true --  name clashes of the usual sort can arise. We will tacitly assume that in practice, they can be avoided extrinsically, e.g. by using a URI-based naming convention as in the Java ecosystem.} 
-\end{itemize}
-\noindent
-We will, of course, make these notions more technically precise as we continue.
-
 \subsection*{Thesis Statement}
 In summary, this work defends the following statement:
 
 \begin{quote}
 A functional programming language can give library providers the ability to %meta\-pro\-gram\-matic\-ally 
-express new syntactic expansions while maintaining a type discipline, a hygienic binding discipline and compositional reasoning principles. %These  primitives are  expressive enough to subsume the need for a variety of primitives that are, or would need to be, built in to comparable contemporary languages.
+express new syntactic expansions while maintaining a type discipline, a hygienic binding discipline and modular reasoning principles. %These  primitives are  expressive enough to subsume the need for a variety of primitives that are, or would need to be, built in to comparable contemporary languages.
 \end{quote}
 \section{Disclaimers}
-Before we continue, it may be prudent to explicitly acknowledge that completely eliminating the need for dialects would indeed be asking for too much: certain language design decisions are fundamentally incompatible with others or require coordination across a language design. We aim only to decrease the need for syntactic dialects in this work. We will not consider situations that require modifications to the underlying type structure of a language (though this is a rich avenue for future work). % out a larger design space within a single language, VerseML.%a subset of constructs that can be specified by a semantics of a certain ``shape'' specified by VerseML (we will make this more specific later). %There is nothing ``universal'' about VerseML.
+Before we continue, it may be prudent to explicitly acknowledge that completely eliminating the need for dialects would indeed be asking for too much: certain language design decisions are fundamentally incompatible with others or require coordination across a language design. We aim only to decrease the need for syntax dialects in this work. We will not consider situations that require modifications to the underlying type structure of a language (though this is a rich avenue for future work). % out a larger design space within a single language, VerseML.%a subset of constructs that can be specified by a semantics of a certain ``shape'' specified by VerseML (we will make this more specific later). %There is nothing ``universal'' about VerseML.
 
-It may also be useful to explicitly acknowledge that library providers could leverage the primitives we introduce   to define constructs that are in ``poor taste''. We  expect that in practice, VerseML will come with a standard library defining an expertly curated collection of standard constructs, as well as guidelines for advanced users regarding when it would be sensible to use the mechanisms we introduce (following the example of languages that support operator overloading or type classes \cite{Hall:1996:TCH:227699.227700}, which also have some potential for ``abuse'' or ``overuse''). %For most programmers, using VerseML should not be substantially different from using a language like ML or one of its dialects.%The vast majority of programmers should not use the primitives that we introduce directly.
+It may also be useful to explicitly acknowledge that library providers could leverage the primitives we introduce   to define constructs that are in ``poor taste''. We  expect that in practice, VerseML will come with a standard library defining an expertly curated collection of standard constructs, as well as guidelines for advanced users regarding when it would be sensible to use the mechanisms we introduce (following the example of languages that support operator overloading or type classes \cite{Hall:1996:TCH:227699.227700}, which also have some potential for ``abuse'' or ``overuse''.) %For most programmers, using VerseML should not be substantially different from using a language like ML or one of its dialects.%The vast majority of programmers should not use the primitives that we introduce directly.
 
 %Finally, VerseML is not designed as a dependently-typed language like Coq, Agda or Idris. %because these languages do not maintain a phase separation between ``compile-time'' and ``run-time.'' This phase separation is useful for programming tasks (where one would like to be able to discover errors before running a program, particularly programs that may have an effect) but less so for theorem proving tasks (where it is mainly the fact that a pure expression is well-typed that is of interest, by the propositions-as-types principle). 

@@ -1,108 +1,108 @@
 % !TEX root = omar-thesis.tex
 \appendix
-\chapter{Dependent Labeled Product Kinds}
-\begin{landscape}
-\begin{equation}\label{rule:iskind-dlprod}
-\inferrule{
-	\{\iskind{\Omega}{\Delta \cup \{u_{i, j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}\}_{1 \leq i \leq n}
-}{
-	\iskindX{\akdprodstd}
-}
-\end{equation}
+%\chapter{Dependent Labeled Product Kinds}
+% \begin{landscape}
+% \begin{equation}\label{rule:iskind-dlprod}
+% \inferrule{
+% 	\{\iskind{\Omega}{\Delta \cup \{u_{i, j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}\}_{1 \leq i \leq n}
+% }{
+% 	\iskindX{\akdprodstd}
+% }
+% \end{equation}
 
-\begin{equation}\label{rule:kequal-dlprod}
-\inferrule{
-	\{\kequal{\Omega}{\Delta \cup \{u_{i, j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}{\kappa'_i}\}_{1 \leq i \leq n}
-}{
-	\kequalX{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa'}{i}{1}{n}{j}{1}{i}}}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-dlprod}
-\inferrule{
-	\{\ksub{\Omega}{\Delta \cup \{u_{i,j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}{\kappa'_i}\}_{1 \leq i \leq n}
-}{
-	\ksubX{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa'}{i}{1}{n}{j}{1}{i}}}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-dtpl}
-\inferrule{
-	\{\haskind{\Omega}{\Delta \cup \{u_{i, j} :: \aksing{c_j}\}_{1 \leq j < i}}{\Gamma}{c_i}{\kappa_i}\}_{1 \leq i \leq n}
-}{
-	\haskindX{\adtplX}{\akdprodstd}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-prj}
-\inferrule{
-	\haskindX{c}{
-		\akdprod{
-			n' + 1 + n''
-		}{
-			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
-		}{
-			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
-			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
-			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
-		}
-	}
-}{
-	\haskindX{\adprj{\ell}{c}}{[\{\adprj{\ell'_j}{c}/u_{j}\}_{1 \leq j \leq n'}]\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-dtpl}
-\inferrule{
-	c=\adtplX\\
-	c'=\adtpl{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{c'}{i}{1}{n}{j}{1}{i}}\\\\
-	\{\cequal{\Omega}{\Delta \cup \{u_{i, j} :: \aksing{\kappa_j}\}_{1 \leq j < i}}{\Gamma}{c_i}{c'_i}{\kappa_i}\}_{1 \leq i \leq n}
-}{
-	\cequalX{c}{c'}{\akdprodstd}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prj-1}
-\inferrule{
-  \cequalX{c}{c'}{
-		\akdprod{
-			n' + 1 + n''
-		}{
-			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
-		}{
-			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
-			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
-			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
-		}
-	}	
-}{
-	\cequalX{\adprj{\ell}{c}}{\adprj{\ell}{c'}}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prj-2}
-\inferrule{
-	c = \adtpl{
-				n' + 1 + n''
-			}{
-				\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
-			}{
-				\seqschemaijb{u'}{c'}{i}{1}{n'}{j}{1}{i};
-				\{u_j\}_{1 \leq j \leq n}.c_\ell; 
-				\seqschemaijb{u''}{c''}{i}{1}{n''}{j}{1}{i}
-			}\\
-	\haskindX{c}{
-		\akdprod{
-			n' + 1 + n''
-		}{
-			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
-		}{
-			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
-			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
-			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
-		}
-	}
-}{
-	\cequalX{
-		\adprj{\ell}{
-			c
-		}
-	}{[\{\adprj{\ell'_j}{c}/u_j\}_{1 \leq j \leq n'}]c_\ell}{[\{\adprj{\ell'_j}{c}/u_j\}_{1 \leq j \leq n'}]\kappa}
-}
-\end{equation}
+% \begin{equation}\label{rule:kequal-dlprod}
+% \inferrule{
+% 	\{\kequal{\Omega}{\Delta \cup \{u_{i, j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}{\kappa'_i}\}_{1 \leq i \leq n}
+% }{
+% 	\kequalX{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa'}{i}{1}{n}{j}{1}{i}}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksub-dlprod}
+% \inferrule{
+% 	\{\ksub{\Omega}{\Delta \cup \{u_{i,j} :: \kappa_j\}_{1 \leq j < i}}{\Gamma}{\kappa_i}{\kappa'_i}\}_{1 \leq i \leq n}
+% }{
+% 	\ksubX{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa'}{i}{1}{n}{j}{1}{i}}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:haskind-dtpl}
+% \inferrule{
+% 	\{\haskind{\Omega}{\Delta \cup \{u_{i, j} :: \aksing{c_j}\}_{1 \leq j < i}}{\Gamma}{c_i}{\kappa_i}\}_{1 \leq i \leq n}
+% }{
+% 	\haskindX{\adtplX}{\akdprodstd}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:haskind-prj}
+% \inferrule{
+% 	\haskindX{c}{
+% 		\akdprod{
+% 			n' + 1 + n''
+% 		}{
+% 			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
+% 		}{
+% 			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
+% 			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
+% 			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
+% 		}
+% 	}
+% }{
+% 	\haskindX{\adprj{\ell}{c}}{[\{\adprj{\ell'_j}{c}/u_{j}\}_{1 \leq j \leq n'}]\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cequal-dtpl}
+% \inferrule{
+% 	c=\adtplX\\
+% 	c'=\adtpl{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{c'}{i}{1}{n}{j}{1}{i}}\\\\
+% 	\{\cequal{\Omega}{\Delta \cup \{u_{i, j} :: \aksing{\kappa_j}\}_{1 \leq j < i}}{\Gamma}{c_i}{c'_i}{\kappa_i}\}_{1 \leq i \leq n}
+% }{
+% 	\cequalX{c}{c'}{\akdprodstd}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cequal-prj-1}
+% \inferrule{
+%   \cequalX{c}{c'}{
+% 		\akdprod{
+% 			n' + 1 + n''
+% 		}{
+% 			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
+% 		}{
+% 			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
+% 			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
+% 			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
+% 		}
+% 	}	
+% }{
+% 	\cequalX{\adprj{\ell}{c}}{\adprj{\ell}{c'}}{\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cequal-prj-2}
+% \inferrule{
+% 	c = \adtpl{
+% 				n' + 1 + n''
+% 			}{
+% 				\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
+% 			}{
+% 				\seqschemaijb{u'}{c'}{i}{1}{n'}{j}{1}{i};
+% 				\{u_j\}_{1 \leq j \leq n}.c_\ell; 
+% 				\seqschemaijb{u''}{c''}{i}{1}{n''}{j}{1}{i}
+% 			}\\
+% 	\haskindX{c}{
+% 		\akdprod{
+% 			n' + 1 + n''
+% 		}{
+% 			\seqschema{\ell'}{i}{1}{n'}, \ell, \seqschema{\ell''}{i}{1}{n''}
+% 		}{
+% 			\seqschemaijb{u'}{\kappa'}{i}{1}{n'}{j}{1}{i};
+% 			\{u_{j}\}_{1 \leq j \leq n'}.\kappa;
+% 			\seqschemaijb{u''}{\kappa''}{i}{1}{n''}{j}{1}{i}
+% 		}
+% 	}
+% }{
+% 	\cequalX{
+% 		\adprj{\ell}{
+% 			c
+% 		}
+% 	}{[\{\adprj{\ell'_j}{c}/u_j\}_{1 \leq j \leq n'}]c_\ell}{[\{\adprj{\ell'_j}{c}/u_j\}_{1 \leq j \leq n'}]\kappa}
+% }
+% \end{equation}
 
-\end{landscape}
+% \end{landscape}

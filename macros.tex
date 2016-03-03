@@ -5,6 +5,20 @@
 
 \newcommand{\elided}{{\color{gray}\cdots}}
 
+\newcommand{\simplelang}{\textsf{\textbf{\small Calc}}}
+\newcommand{\footnotesimplelang}{\textsf{\textbf{\footnotesize Calc}}}
+\newcommand{\tnum}{\texttt{num}}
+\newcommand{\numintro}[1]{\texttt{#1}}
+\newcommand{\anumintro}[1]{\texttt{num}[#1]}
+\newcommand{\aplus}[2]{\abop{plus}{#1; #2}}
+\newcommand{\aminus}[2]{\abop{minus}{#1; #2}}
+\newcommand{\amult}[2]{\abop{mult}{#1; #2}}
+\newcommand{\adiv}[2]{\abop{div}{#1; #2}}
+\newcommand{\apow}[2]{\abop{pow}{#1; #2}}
+
+\newcommand{\letplain}[3]{\texttt{let}~#1=#2~\texttt{in}~#3}
+\newcommand{\aletplain}[3]{\abop{let}{#1; #2.#3}}
+
 % Calculi Names
 \newcommand{\miniVerseUE}{\mathsf{miniVerse}_\textbf{UE}}
 \newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{U}}
@@ -81,6 +95,7 @@
 \newcommand{\aceasc}[2]{\abopc{ceasc}{#1}{#2}}
 
 \newcommand{\letsyn}[3]{\texttt{let\,val}~#1=#2~\texttt{in}~#3}
+\newcommand{\aletsyn}[3]{\abop{letval}{#2; #1.#3}}
 \newcommand{\auletsyn}[3]{\abop{uletval}{#2; #1.#3}}
 \newcommand{\aceletsyn}[3]{\abop{celetval}{#2; #1.#3}}
 
@@ -739,3 +754,9 @@
 \newcommand{\cvalidPP}[5]{\Omega_\text{param} \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
 
 \newcommand{\isvalP}[2]{#1 \vdash #2~\mathsf{val}}
+
+\newcommand{\suc}[1]{\abop{s}{#1}}
+\newcommand{\asuc}[1]{\abop{succ}{#1}}
+
+\newcommand{\zero}{\texttt{z}}
+\newcommand{\azero}{\texttt{zero}}

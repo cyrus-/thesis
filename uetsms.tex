@@ -125,7 +125,7 @@ Here, \li{spliced<1, 4>} refers to the subexpression \li{name} by position and \
 %\end{lstlisting}
 
 \subsection{Typing}\label{sec:uetsms-validation}
-The language \emph{validates} candidate expansions before a final expansion is generated. One aspect of candidate expansion validation is checking  the candidate expansion against the type annotation specified by the TSM, e.g. the type \li{Rx} in the example above. This maintains a \emph{type discipline}: if a programmer sees a TSM being applied when examining a well-typed program, they need only look up the TSM's type annotation to determine the type of the generated expansion. Determining the type does not require examine the expansion directly.
+The language \emph{validates} candidate expansions before a final expansion is generated. One aspect of candidate expansion validation is checking  the candidate expansion against the type annotation specified by the TSM, e.g. the type \li{Rx} in the example above. This maintains a \emph{type discipline}: if a programmer sees a TSM being applied when examining a well-typed program, they need only look up the TSM's type annotation to determine the type of the generated expansion. Determining the type does not require examining the expansion directly.
 
 
 \subsection{Hygiene}
@@ -981,6 +981,8 @@ A \emph{ueTSM definition context}, $\Psi$, is a finite function mapping each sym
 We define $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPsi=\uAS{\uA}{\Psi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}\]
 
 \end{enumerate}
+
+The reason we distinguish TSM names, $\tsmv$, from symbols, $a$, is in order to support TSM abbreviations, which we defer discussion of until  Chapter \ref{chap:ptsms}. 
 
 % \[\begin{array}{ll}
 % \textbf{Judgement Form} & \textbf{Description}\\

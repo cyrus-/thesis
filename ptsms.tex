@@ -1,6 +1,14 @@
 % !TEX root = omar-thesis.tex
 
 \chapter{Parameterized TSMs (pTSMs)}\label{chap:ptsms}
+% \begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
+% and generality in language design is a serious unsolved 
+% problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
+% \end{quote}
+\begin{quote}\textit{You know me, I gotta put in a big tree.}
+\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
+\end{quote}
+~\\
 In the preceding chapters, we introduced unparameterized TSMs (uTSMs). uTSMs are defined at a single type, like \li{Rx}, and the expansions that they generate have access to bindings at the application site only via spliced subterms. In this chapter, we introduce \emph{parameterized TSMs} (pTSMs) -- TSMs parameterized by types and modules. pTSMs can be defined over a parameterized family of types, and can access their parameters within the expansions that they generate. 
 
 This chapter is organized much like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parameterized TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then formalize parameterized TSMs by defining a reduced calculus, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
