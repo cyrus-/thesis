@@ -1,21 +1,21 @@
 % !TEX root = omar-thesis.tex
 
 \section{Cognitive Cost}\label{sec:syntactic-properties}
-The notion of \emph{cognitive cost} is central to the motivation of this work, though it does not enter into any of the technical material directly. Ultimately, this notion must be understood intuitively, relating as it does to the complexities of the human mind. Nevertheless, it is often useful to operationalize this notion in various ways. 
+The notion of \emph{cognitive cost} is central to the motivation of this work (though it does not enter into any of the technical material directly.) Ultimately, this notion must be understood intuitively, relating as it does to the complexities of the human mind. Nevertheless, it is often useful to operationalize this notion in various ways. 
 
 One simple way to do so is by defining a simpler notion of \emph{syntactic cost}, measured, for example, by counting glyphs. This is often a satisfying proxy for cognitive cost, in that smaller drawings are usually easier to comprehend and produce. For example, the drawing \li{[1, 2, 3, 4, 5]} has lower syntactic cost than its expansion, as discussed in the previous chapter. There is a limit to this, of course. For example, one might argue that the syntax for K shown in the previous chapter, though it has low syntactic cost, nevertheless has high cognitive cost, at least until one is well-experienced with its use (in other words, the relationship between syntactic cost and cognitive cost is \emph{subjective}).
 
-A related property of interest to human programmers is \emph{edit cost}, measured relative to a program editor as the minimum number of primitive edit actions that must be performed to product a drawing. For example, when using a text editor (as most professional programmers do), drawings in textual forms typically have lower edit cost, as measured by the minimum number of keystrokes necessary to draw them, than operational or stylized forms (in fact, some stylized forms may not be expressible at all with a text editor, in which case they can be understood to have infinite edit cost.) %which, for software developers, is their primary mode of interaction with a programming language.%Our choice might also be influenced (or determined) by the tool that we are using to write the program. In particular, stylized forms are suitable for use when typesetting a program, whereas textual forms are necessary for writing programs using a text editor for consumption by an implementation of the semantics on a computer. 
+A related property of interest to human programmers is \emph{edit cost}, measured relative to a program editor as the minimum number of primitive edit actions that must be performed to produce a drawing. For example, when using a text editor (as most professional programmers do), drawings in textual forms typically have lower edit cost, as measured by the minimum number of keystrokes necessary to draw them, than operational or stylized forms (in fact, some stylized forms may not be expressible at all with a text editor, in which case they can be understood to have infinite edit cost.) %which, for software developers, is their primary mode of interaction with a programming language.%Our choice might also be influenced (or determined) by the tool that we are using to write the program. In particular, stylized forms are suitable for use when typesetting a program, whereas textual forms are necessary for writing programs using a text editor for consumption by an implementation of the semantics on a computer. 
 
-One can also analyze cognitive cost using qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} framework and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are popular heuristic frameworks. One could argue heuristically using Green's cognitive dimensions framework that the derived list forms \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad). They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. Finally, the derived forms have lower \emph{viscosity} because adding a new item to the middle of a list written in derived form requires only a local edit, whereas for a list written in basic form, one needs also to add a closing parenthesis to the end of the term.
+One can also analyze cognitive cost using qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} framework and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are popular heuristic frameworks. One could argue heuristically using Green's cognitive dimensions framework that the derived list forms \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad). They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. Finally, the derived forms have lower \emph{viscosity} because adding a new item to the middle of a list drawn in derived form requires only a local edit, whereas for a list drawn in basic form, one needs also to add a closing parenthesis to the end of the term.
 
-Finally, one might consider the notion of cognitive cost in a comparative sense using empirical methods, e.g. by conducting randomized control trials to compare forms. Stefik et al. have performed many such studies focused on novice programmers (summarized, along with those performed by others, in \cite{journals/jeric/StefikS13}). 
+Finally, one might consider the notion of cognitive cost in a comparative sense using empirical methods, e.g. by conducting randomized control trials to compare forms. Stefik et al. have performed many such studies, mainly focused on novice programmers (summarized, along with those performed by others, in \cite{journals/jeric/StefikS13}). 
 
 %Put another way, the stylized and textual forms are preferrable when designing a \emph{user interface} of our programming language.
 
 
 \section{Motivating Examples}\label{sec:motivating-examples}
-In Chapter \ref{chap:intro}, we gave examples involving a toy language, $\simplelang$, and also gave the example of derived list syntax in SML. To further motivate our contributions, we now provide a more complete  example where defining new derived syntactic forms could  decrease the syntactic cost of working with a data structure -- regular expressions, expressed both using recursive sum types and abstract types. We will refer back to this example in subsequent chapters.%We then more concisely survey a number of other examples, grouped informally, to establish the broad applicability of our contributions. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
+In Chapter \ref{chap:intro}, we gave examples involving a toy language, $\simplelang$, and also gave the example of derived list syntax in SML. To further motivate our contributions, we now provide a more complete  example where defining new derived syntactic forms could  decrease the cognitive cost of working with a data structure -- regular expressions, expressed both using recursive sum types and abstract types. We will refer back to this example in subsequent chapters.%We then more concisely survey a number of other examples, grouped informally, to establish the broad applicability of our contributions. %We assume that the reader is familiar with a typed functional language like Standard ML (cf. \cite{harper1997programming}).
 
 \subsection{Regular Expressions}\label{sec:syntax-examples-regexps}
 Regular expressions, or \emph{regexes}, specify string patterns (of a certain class) \cite{Thompson:1968:PTR:363347.363387}. They are particularly common in domains like natural language processing and bioinformatics.
@@ -32,17 +32,17 @@ type Rx = Empty | Str of string | Seq of Rx * Rx |
 \label{fig:datatype-rx}
 \end{figure}
 
-Values of type \li{Rx} are constructed by applying a label to a value of the type specified in the corresponding variant declaration above (or simply using the label by itself if no corresponding type is specified). For example, we can define a regular expression that matches only the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} and \li{"SSTRCESTR"} as follows:
+Values of type \li{Rx} are constructed by applying a label to a value of the type specified in the corresponding variant definition above (or simply using the label by itself if no corresponding type is specified). For example, we can define a regular expression that matches only the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} and \li{"SSTRCESTR"} (i.e. DNA base-pairs) as follows:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 
-This is too verbose to be practical  in all but the simplest examples, so the POSIX standard specifies a more concise textual syntax for regexes \cite{STD95954}. Several programming languages support derived syntax for regexes based on this standard, e.g. Perl \cite{books/daglib/0028711}. Let us consider a hypothetical syntax dialect of Verse called ML/Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes (and does not include the constructs that we will describe in later chapters). ML+Rx extends the textual syntax of VerseML with support for \emph{regex expression literals} delimited by forward slashes. For example, the following regex literal desugars to the expression above:
+This is too verbose to be practical  in all but the simplest examples, so the POSIX standard specifies a more concise textual syntax for regexes \cite{STD95954}. Several programming languages support derived syntax for regexes based on this standard, e.g. Perl \cite{books/daglib/0028711}. Let us consider a hypothetical syntax dialect of VerseML called ML/Rx (perhaps constructed using a tool like Camlp4, discussed in Sec. \ref{sec:direct-syntax-extension}) that similarly builds in derived forms for regexes (and, to avoid conflict, omits the constructs that we will describe in later chapters). ML+Rx defines derived \emph{regex expression literals} delimited by forward slashes. For example, the following regex literal desugars to the expression above:
 \begin{lstlisting}[numbers=none]
 /SURLA|T|G|CEURL/
 \end{lstlisting}
 
-ML+Rx also supports \emph{spliced subexpressions} in regex literals, so that regexes can be constructed from other values. For example, the function \li{example_rx} shown in Figure \ref{fig:derived-spliced-subexpressions} constructs a regex by splicing in a string, \li{name}, and another regex, \li{ssn}. 
+ML+Rx also supports \emph{spliced subexpressions} in regex literals, so that regexes can be constructed from other values. For example, the function \li{example_rx} shown in Figure \ref{fig:derived-spliced-subexpressions} below constructs a regex by splicing a string, \li{name}, and another regex, \li{ssn}, into a regex drawn literally.
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
 let ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
@@ -52,12 +52,12 @@ fun example_rx(name : string) => /SURL@EURLnameSURL: %EURLssn/
 \label{fig:derived-spliced-subexpressions}
 \end{figure}
 
-The prefix \li{@} followed by the variable \li{name} indicates that the expression \lstinline{name} should be spliced in as a string, and the prefix \li{%}
+The prefix \li{SURL@EURL} followed by the variable \li{name} indicates that the expression \lstinline{name} should be spliced in as a string, and the prefix \li{SURL%EURL}
 followed by the variable \li{ssn} indicates that \lstinline{ssn} should be spliced in as a regex. The body of \li{example_rx} desugars to the following:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
-Notice that \li{name} appears wrapped in the constructor \li{Str} because it was prefixed by \li{@}, whereas \li{ssn} appears unadorned because it was prefixed by \li{%}. 
+Notice that \li{name} appears wrapped in the label \li{Str} because it was prefixed by \li{@}, whereas \li{ssn} appears unadorned because it was prefixed by \li{%}. 
 
 To splice in an expression that does not take the form of a variable, e.g. a function call, we can delimit it with parentheses:
 \begin{lstlisting}[numbers=none]
@@ -87,26 +87,27 @@ fun read_example_rx(r : Rx) : option(string * Rx) =>
 
 First, regexes are usually identified up to their reduction to a normal form. For example, $\textbf{seq}(\textbf{empty}, r)$ has normal form $r$. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. 
 
-Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), but one would not want to expose this ``implementation detail'' to clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs.
+Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), but one would not want to expose this ``implementation detail'' to clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs. This suggests that we would like to provide clients with a choice of implementations. 
 
-This suggests that we would like to provide clients with a choice of implementations. For these reasons, another approach in VerseML, as in ML, is to abstract over the choice of representation using  the module system's support for abstract types. In particular, we can define the \emph{module signature} \li{RX}, shown in Figure \ref{fig:signature-RX}, where the type of patterns, \lstinline{t}, is held abstract.
+For these reasons, another approach in VerseML, as in ML, is to abstract over the choice of representation using  the module system's support for abstract types. In particular, we can define the \emph{module signature} \li{RX}, shown in Figure \ref{fig:signature-RX}, where the type of patterns, \lstinline{t}, is held abstract.
 %Notice that it exposes an interface otherwise  to the one available using a case type:
 
 \begin{figure}[ht]
 \begin{lstlisting}[deletekeywords={case},numbers=none]
-signature RX = sig {
+signature RX = 
+sig
   type t
 
-  val Empty : t
-  val Str : string -> t
-  val Seq : t * t -> t
-  val Or : t * t -> t
-  val Star : t -> t
+  val empty : t
+  val str : string -> t
+  val seq : t * t -> t
+  val or : t * t -> t
+  val star : t -> t
 
   type r = Empty | Str of string | Seq of t * t | 
            Or of t * t | Star of t
   val unfold : t -> r
-}
+end
 \end{lstlisting}
 \caption{Definition of the \lstinline{RX} signature}
 \label{fig:signature-RX}
@@ -150,14 +151,14 @@ fun example_R(name : string) => RH.to_R /SURL@EURLnameSURL: %(EURLRH.of_R ssnSUR
 Notice that we had to transform \li{ssn} back into a value of type \li{Rx} in order to splice it into the expression above. The value of this expression is then immediately transformed back into a value of type \li{R.t} by \li{RH.to_R}. This is both syntactically awkward and incurs dynamic cost, i.e. it is an $\mathcal{O}(n)$ operation, where $n$ is the size of the regex being spliced. In this particular case, the cost may be negligible, but for large data structures, this may no longer be the case.
 
 A better alternative would be to define a syntax dialect, ML/RX, that features derived forms whose expansions apply the functions specified by \li{RX} explicitly. To do so, the form must take the particular implementation of \li{RX} as an ``argument'' in some way. For example, ML/RX might allow us to write:
-\begin{lstlisting}
+\begin{lstlisting}[numbers=none]
 let ssn = R./SURL\d\d\d-\d\d\d\d-\d\d\dEURL/
 fun example_R2(name : string) => R./SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
 
-Evaluating the expansion of the body of \li{example_R2}, shown below,  does not require the traversal of \li{ssn}:
+Evaluating the expansion of the body of \li{example_R2}, shown below,  does not require a traversal of \li{ssn}:
 \begin{lstlisting}[numbers=none]
-R.Seq(R.Str(name), R.Seq(R.Str "SSTR: ESTR", ssn))
+R.seq(R.str(name), R.seq(R.str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 % \subsection{Lists, Sets, Maps, Vectors and Other Containers}\label{sec:syntax-examples-containers}
