@@ -5,11 +5,11 @@
 % and generality in language design is a serious unsolved 
 % problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
 % \end{quote}
-\begin{quote}
-\textit{Try to imagine that you are a tree. How do you want to look out here?}
+%\begin{quote}
+%\textit{Try to imagine that you are a tree. How do you want to look out here?}
 %\textit{You want your tree to have some character.}
-\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
-\end{quote}
+%\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
+%\end{quote}
 
 %\vspace{-5px}
 \section{Motivation}\label{sec:intro-motivation}
@@ -70,10 +70,10 @@ Although this inference rule is drawn using an operational form, we can neverthe
 \end{figure}
 
 That being said, most humans would nevertheless distinguish the examples drawn in stylized and textual form above, perhaps by characterizing them as more ``'readable'' than the example drawn in operational form. Novice programmers in particular would likely be able to grasp the intended meaning more quickly when shown the first two drawings, because they closely follow the widely-known arithmetic conventions. Similarly, the first two drawings  require less effort to produce than the drawing in operational form, given typical tools. %Mistakes may also be less frequent when producing drawings in stylized or textual form (for $\simplelang$ expressions, perhaps only because operational forms use more parentheses). 
-So it seems that different drawings of an AST, though semantically indistinguishable, must in fact be distinguished by the \emph{cognitive costs} (or \emph{cognitive loads}) that human programmers incur when examining or producing them (we will consider various operational definitions of this broad notion in Sec. \ref{sec:syntactic-properties}). %Regardless, it is  apparent that although syntax doesn't matter (semantically), different drawings of .  %that the popular refrain amongst language researchers that syntax ``doesn't matter'' is of rather limited.   %that intuitively,  drawings in stylized or textual form are of lower syntactic cost than those in operational form. This is important not only because aesthetics, but also because syntactic cost relates to measures of programmer productivity and other quantities and qualities of extrinsic interest (we discuss these and other measures in more detail in Sec. \ref{sec:syntactic-properties}). 
+So it seems that different drawings of an AST, though semantically indistinguishable, must in fact be distinguished by the \emph{cognitive costs} (or \emph{cognitive loads}) that human programmers incur when examining or producing them. We consider various operational definitions of this broad notion in Sec. \ref{sec:syntactic-properties}. %Regardless, it is  apparent that although syntax doesn't matter (semantically), different drawings of .  %that the popular refrain amongst language researchers that syntax ``doesn't matter'' is of rather limited.   %that intuitively,  drawings in stylized or textual form are of lower syntactic cost than those in operational form. This is important not only because aesthetics, but also because syntactic cost relates to measures of programmer productivity and other quantities and qualities of extrinsic interest (we discuss these and other measures in more detail in Sec. \ref{sec:syntactic-properties}). 
 
 %The forms defined by the syntax chart in Figure \ref{fig:simple-example} suffice to allow programmers to draw any $\simplelang$ expression. However, 
-In order to further reduce the cognitive costs associated with common idioms, syntax designers often include additional \emph{derived forms} (colloquially, ``syntactic sugar'') when defining a syntax for a programming language.  Derived forms are defined by context-independent \emph{desugaring} (a.k.a. \emph{rewriting} or \emph{redrawing}) \emph{rules}. For example, we can define a derived stylized form for calculating the square root of a $\simplelang$ expression by including the following rule in the definition of the stylized syntax of expressions:
+In seeking to reduce the cognitive costs of common idioms, syntax designers often include additional \emph{derived forms} (colloquially, ``syntactic sugar'') in a syntax definition.  Derived forms are defined by context-independent \emph{desugaring} (a.k.a. \emph{rewriting} or \emph{redrawing}) \emph{rules}. For example, we can define a derived stylized form for calculating the square root of a $\simplelang$ expression by including the following rule in the definition of the stylized syntax of expressions:
 \begin{subequations}
 \begin{equation}\label{rule:simplelang-sqrt}
 \sqrt{e} \rightarrowtriangle e^{\frac{\numintro{1}}{\numintro{2}}}
@@ -84,7 +84,7 @@ Similarly, we can define a derived textual form for negating an expression by in
 \end{equation}
 \end{subequations}
 \noindent 
-When we encounter a drawing of a $\simplelang$ expression, we can desugar  it by first recursively desugaring its subexpressions, then, if the drawing is of derived form, applying the corresponding rule above. If this process succeeds, the resulting drawing will identify an AST, i.e. it will use the forms in Figure \ref{fig:simple-example} (which we refer to collectively as \emph{basic forms}, to distinguish them from derived forms), in some combination.\footnote{For $\footnotesimplelang$, it is not necessary to restrict, for example, textual and operational forms from being interspersed -- no ambiguities can arise. In richer languages, this may no longer be the case. The desugaring process must then be enriched to first convert the pattern on the right hand side of a desugaring rule like Rule (\ref{rule:simplelang-negate}) to the desired variety before it is applied.}
+When we encounter a drawing of a $\simplelang$ expression, we can desugar  it by first recursively desugaring its subexpressions, then, if the drawing is in derived form, applying the corresponding rule above. If this process succeeds, the resulting drawing will identify an AST, i.e. it will use the forms in Figure \ref{fig:simple-example} (which we refer to collectively as \emph{basic forms}, to distinguish them from derived forms), in some combination.\footnote{For $\footnotesimplelang$, it is not necessary to restrict, for example, textual and operational forms from being interspersed -- no ambiguities can arise. In richer languages, this may no longer be the case. The desugaring process must then be enriched to first convert the pattern on the right hand side of a desugaring rule like Rule (\ref{rule:simplelang-negate}) to the desired variety before it is applied.}
 
 %Similarly, we might define a derived form for taking an arbitrary root of an expression as follows:
 % \begin{align*}
