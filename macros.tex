@@ -20,6 +20,7 @@
 \newcommand{\aletplain}[3]{\abop{let}{#1; #2.#3}}
 
 % Calculi Names
+\newcommand{\miniVerse}{\mathsf{miniVerse}}
 \newcommand{\miniVerseUE}{\mathsf{miniVerse}_\textbf{UE}}
 \newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{U}}
 \newcommand{\miniVerseParam}{\mathsf{miniVerse}_\mathbf{\forall}}
@@ -73,6 +74,7 @@
 
 % Labels and maps
 \newcommand{\labelset}{L}
+\newcommand{\smapschema}[3]{\{#1_{#2}\}_{#2 \in #3}}
 \newcommand{\mapschema}[3]{\{#2 \hookrightarrow #1_{#2}\}_{#2 \in #3}}
 \newcommand{\mapschemab}[4]{\{#3 \hookrightarrow #1_{#3}.#2_{#3}\}_{#3 \in #4}}
 \newcommand{\mapschemax}[4]{\{#3 \hookrightarrow #1(#2_{#3})\}_{#3 \in #4}}
@@ -88,6 +90,7 @@
 \newcommand{\seqschemaj}[4]{\{#1_{#2}\}_{#3 \leq #2 < #4}}
 \newcommand{\seqschemaX}[1]{\seqschema{#1}{i}{1}{n}}
 \newcommand{\seqschemaXx}[2]{\{#1(#2_i)\}_{1 \leq i \leq n}}
+\newcommand{\seqschemajX}[1]{\seqschema{#1}{j}{1}{n}}
 
 % Expanded/Unexpanded/Candidate expressions
 \newcommand{\asc}[2]{#1 : #2}
@@ -133,6 +136,7 @@
 \newcommand{\aucap}[2]{\abopc{ucap}{#2}{#1}}
 \newcommand{\acecap}[2]{\abopc{cecap}{#2}{#1}}
 
+\newcommand{\foldt}[2]{\texttt{fold}_{#1}(#2)}
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
 \newcommand{\aufold}[3]{\abopc{ufold}{#1.#2}{#3}}
@@ -156,7 +160,8 @@
 \newcommand{\aupr}[2]{\abopp{upr}{#1}{#2}}
 \newcommand{\acepr}[2]{\abopp{cepr}{#1}{#2}}
 
-\newcommand{\inj}[2]{#1 \cdot #2}
+\newcommand{\injt}[3]{\texttt{inj}_{#1}~#2 \cdot #3}
+\newcommand{\inj}[2]{\texttt{inj}~#1 \cdot #2}
 \newcommand{\aein}[4]{\abopibc{in}{#1}{#2}{#3}{#4}}
 \newcommand{\auin}[4]{\abopibc{uin}{#1}{#2}{#3}{#4}}
 \newcommand{\acein}[4]{\abopibc{cein}{#1}{#2}{#3}{#4}}
@@ -276,15 +281,17 @@
 \newcommand{\ce}{\grave{e}}
 \newcommand{\ctau}{\grave{\tau}}
 
-\newcommand{\splicedt}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\splicedt}[2]{\texttt{splicedt}\langle#1, #2\rangle}
+\newcommand{\asplicedt}[2]{\texttt{splicedt}[#1; #2]}
 \newcommand{\acesplicedt}[2]{\texttt{cesplicedt}[#1; #2]}
-\newcommand{\splicede}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\splicede}[2]{\texttt{splicede}\langle#1, #2\rangle}
+\newcommand{\asplicede}[2]{\texttt{splicede}[#1; #2]}
 \newcommand{\acesplicede}[2]{\texttt{cesplicede}[#1; #2]}
-\newcommand{\splicedp}[2]{\texttt{spliced}\langle#1, #2\rangle}
+\newcommand{\splicedp}[2]{\texttt{splicedp}\langle#1, #2\rangle}
 \newcommand{\acesplicedp}[2]{\texttt{cesplicedp}[#1; #2]}
-\newcommand{\splicedc}[2]{\texttt{spliced}\langle #1, #2 \rangle}
+\newcommand{\splicedc}[2]{\texttt{splicedc}\langle #1, #2 \rangle}
 \newcommand{\acesplicedc}[2]{\texttt{cesplicedc}[#1; #2]}
-\newcommand{\splicedk}[2]{\texttt{spliced}\langle #1, #2 \rangle}
+\newcommand{\splicedk}[2]{\texttt{splicedk}\langle #1, #2 \rangle}
 \newcommand{\acesplicedk}[2]{\texttt{cesplicedk}[#1; #2]}
 
 \newcommand{\mtau}{\dot{\tau}}
@@ -354,17 +361,20 @@
 \newcommand{\auwildp}{\texttt{uwildp}}
 \newcommand{\acewildp}{\texttt{cewildp}}
 
+\newcommand{\foldtp}[2]{\texttt{fold}_{#1}(#2)}
 \newcommand{\foldp}[1]{\abop{fold}{#1}}
 \newcommand{\aefoldp}[1]{\abop{foldp}{#1}}
 \newcommand{\aufoldp}[1]{\abop{ufoldp}{#1}}
 \newcommand{\acefoldp}[1]{\abop{cefoldp}{#1}}
 
+\newcommand{\tplpt}[2]{\langle #1 \rangle_{#2}}
 \newcommand{\tplp}[1]{\langle #1 \rangle}
 \newcommand{\aetplp}[2]{\abopi{tplp}{#1}{#2}}
 \newcommand{\autplp}[2]{\abopi{utplp}{#1}{#2}}
 \newcommand{\acetplp}[2]{\abopi{cetplp}{#1}{#2}}
 
-\newcommand{\injp}[2]{#1 \cdot #2}
+\newcommand{\injtp}[3]{\texttt{inj}_{#1}~#2 \cdot #3}
+\newcommand{\injp}[2]{\texttt{inj}~#1 \cdot #2}
 \newcommand{\aeinjp}[2]{\abopp{inp}{#1}{#2}}
 \newcommand{\auinjp}[2]{\abopp{uinp}{#1}{#2}}
 \newcommand{\aceinjp}[2]{\abopp{ceinp}{#1}{#2}}
@@ -450,6 +460,7 @@
 \newcommand{\akunit}{\texttt{unit}}
 \newcommand{\aukunit}{\texttt{uunit}}
 \newcommand{\acekunit}{\texttt{ceunit}}
+\newcommand{\kone}{\mathsf{1}}
 
 \newcommand{\dpitem}[3]{\mapitem{#1 \triangleright #2}{#3}}
 \newcommand{\kdprod}[1]{\llangle #1 \rrangle}
@@ -457,7 +468,7 @@
 \newcommand{\akdprod}[3]{\abopi{dprod}{#1; #2}{#3}}
 \newcommand{\akdprodstd}{\akdprod{n}{\seqschemaX{\ell}}{\seqschemaijb{u}{\kappa}{i}{1}{n}{j}{1}{i}}}
 
-\newcommand{\kdbprod}[3]{\llangle #1 :: #2; #3 \rrangle}
+\newcommand{\kdbprod}[3]{(#1 :: #2) \times #3}
 \newcommand{\akdbprod}[3]{\abop{dprod}{#1; #2.#3}}
 \newcommand{\aukdbprod}[3]{\abop{udprod}{#1; #2.#3}}
 \newcommand{\acekdbprod}[3]{\abop{cedprod}{#1; #2.#3}}
@@ -542,9 +553,19 @@
 \newcommand{\aseal}[2]{\abopc{seal}{#1}{#2}}
 \newcommand{\auseal}[2]{\abopc{useal}{#1}{#2}}
 
+\newcommand{\mletdecl}[4]{\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3}
+\newcommand{\umletdecl}[5]{#1~\texttt{let}~#2~\texttt{=}~#3~\texttt{in}~#4}
 \newcommand{\mlet}[4]{(\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3) : #4}
 \newcommand{\amlet}[4]{\abopc{mlet}{#1}{#2; #3.#4}}
 \newcommand{\aumlet}[4]{\abopc{umlet}{#1}{#2; #3.#4}}
+
+\newcommand{\syntaxps}[6]{#1~\texttt{syntax}~#2~\texttt{at}~#3~\texttt{for}~#4~\texttt{by}~\texttt{static}~#5~\texttt{in}~#6}
+\newcommand{\letsyntaxps}[5]{#1~\texttt{let}~\texttt{syntax}~#2~\texttt{for}~#3=#4~\texttt{in}~#5}
+
+\newcommand{\tsmapp}[2]{\mathtt{/}#1\mathtt{/}~#2}
+
+\newcommand{\bindMod}[2]{#1.#2}
+\newcommand{\bindTyp}[2]{#1.#2}
 
 \newcommand{\issig}[2]{#1 \vdash #2~\mathsf{sig}}
 \newcommand{\issigX}[1]{\issig{\Omega}{#1}}
@@ -558,8 +579,17 @@
 \newcommand{\hassig}[3]{#1 \vdash #2 : #3}
 \newcommand{\hassigX}[2]{\hassig{\Omega}{#1}{#2}}
 
+\newcommand{\raiseerror}{\mathtt{error}}
+\newcommand{\isvalue}[1]{#1~\mathsf{val}}
+\newcommand{\iserr}[1]{#1~\mathsf{err}}
 \newcommand{\ismval}[2]{#1 \vdash #2~\mathsf{mval}}
 \newcommand{\ismvalX}[1]{\ismval{\Omega}{#1}}
+
+\newcommand{\statphase}{\mathtt{static}}
+\newcommand{\dynphase}{\mathtt{dynamic}}
+
+\newcommand{\expsortq}{\mathtt{Exp}}
+\newcommand{\patsortq}{\mathtt{Pat}}
 
 % Parameterized TSMs
 \newcommand{\urho}{{\hat\rho}}
@@ -612,8 +642,11 @@
 
 \newcommand{\uOmega}{{\hat\Omega}}
 
+\newcommand{\kExpandsSP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{kind}}
 \newcommand{\kExpands}[3]{#1 \vdash #2 \leadsto #3~\mathsf{kind}}
 \newcommand{\kExpandsX}[2]{\kExpands{\uOmega}{#1}{#2}}
+
+\newcommand{\cExpandsSP}[4]{#1 \vdash #2 \leadsto #3 :: #4}
 
 \newcommand{\kana}[4]{#1 \vdash #2 \leadsto #3 \Leftarrow #4}
 \newcommand{\kanaX}[3]{\kana{\uOmega}{#1}{#2}{#3}}
@@ -623,14 +656,20 @@
 \newcommand{\cExpands}[4]{#1 \vdash #2 \leadsto #3 :: #4}
 \newcommand{\cExpandsX}[3]{\cExpands{\uOmega}{#1}{#2}{#3}}
 
+\newcommand{\eExpandsSP}[6]{#1 \vdash_{#2;#3} #4 \leadsto #5 : #6}
+
 \newcommand{\eanaP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6}
 \newcommand{\eanaPX}[3]{\eanaP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 \newcommand{\esynP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6}
 \newcommand{\esynPX}[3]{\esynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+
+\newcommand{\rExpandsSP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 : #6 \Mapsto #7}
 \newcommand{\ranaP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6 \Mapsto #7}
 \newcommand{\ranaPX}[4]{\ranaP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
 \newcommand{\rsynP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
 \newcommand{\rsynPX}[4]{\rsynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
+
+\newcommand{\pExpandsSP}[6]{#1 \vdash_{#2} #3 \leadsto #4 : #5 \dashV #6}
 \newcommand{\patExpandsP}[5]{\uOmega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
 
 \newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
@@ -651,11 +690,21 @@
 \newcommand{\tExpandsP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{type}}
 \newcommand{\tExpandsPX}[2]{\tExpandsP{\uOmega}{#1}{#2}}
 
+
+\newcommand{\sigExpandsSP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{sig}}
+
 \newcommand{\sigExpandsP}[3]{#1 \vdash #2 \leadsto #3~\mathsf{sig}}
 \newcommand{\sigExpandsPX}[2]{\sigExpandsP{\uOmega}{#1}{#2}}
 
+\newcommand{\uSigma}{{\hat\Sigma}}
+
+\newcommand{\uPsiE}{\uPsi_\text{E}}
+\newcommand{\uPsiP}{\uPsi_\text{P}}
+
+\newcommand{\mExpandsSP}[7]{#1 \sslash #2 \vdash_{#3; #4} #5 \leadsto #6 : #7}
+
 \newcommand{\msyn}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6}
-\newcommand{\msynX}[3]{\msyn{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+\newcommand{\msynX}[3]{\msyn{\uOmega}{\uPsiE}{\uPsiP}{#1}{#2}{#3}}
 \newcommand{\mana}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6}
 \newcommand{\manaX}[3]{\mana{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 
@@ -690,6 +739,7 @@
 \newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PCEExp} #2}
 
 \newcommand{\pce}{\check{e}}
+\newcommand{\pcp}{\check{p}}
 
 \newcommand{\prepce}[8]{#1 \vdash_{#2}^\mathsf{Exp} #3 \looparrowright_{#5} #4 ~?~ #6 \dashv #7 : #8}
 \newcommand{\prepcp}[6]{#1 \vdash_{#2}^\mathsf{Pat} \cdot \looparrowright_{#3} \cdot ~?~ #4 \dashv #5 : #6}
@@ -714,6 +764,8 @@
 \newcommand{\absmod}[3]{\Lambda #1{:}#2.#3}
 \newcommand{\aeabsmod}[3]{\abopc{absmod}{#1}{#2.#3}}
 \newcommand{\auabsmod}[3]{\abopc{uabsmod}{#1}{#2.#3}}
+
+\newcommand{\tsmapparam}[2]{#1(#2)}
 
 \newcommand{\pcebindtype}[2]{\Lambda #1.#2}
 \newcommand{\apcebindtype}[2]{\abop{cebindtype}{#1.#2}}

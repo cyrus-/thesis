@@ -1,122 +1,537 @@
 % !TEX root = omar-thesis.tex
 \section{Existing Approaches}\label{sec:existing-approaches}
-\subsection{Dynamic String Parsing}\label{sec:dynamic-string-parsing}
-To expose this more concise concrete syntax for regular expression patterns to clients, the most common approach is to provide a function that parses strings to produce patterns. Because, as just mentioned, there  may be many implementations of the \lstinline{RX} signature, the usual approach is to define a parameterized module (a.k.a. a \emph{functor} in SML) defining utility functions like this abstractly:
+We will now review existing approaches that library providers seeking to decrease the cognitive cost of idioms involving definitions like those above might consider. 
 
+\subsection{Standard Abstraction Mechanisms}
+The simplest approach is to capture idioms using the standard abstraction mechanisms of our 
+language, i.e. bound values, functions and modules. 
+
+We already saw examples of this approach above. For example, we defined the ``list constructors'', which capture the idioms of list construction:
 \begin{lstlisting}[numbers=none]
-module RXUtil(R : RX) => mod {
-  fun parse(s : string) : R.t => (* ... regex parser here ... *)
-}
-\end{lstlisting}
-This allows a client of any module \lstinline{R : RX} to use the following definitions:
+val Nil : 'a list = fold(inj[Nil] ())
+fun Cons (x : 'a * 'a list) : 'a list => 
+  fold(inj[Cons] x)
+\end{lstlisting} 
+Such definitions are common enough that VerseML generates them automatically.
+
+We also defined a utility functor for regexes, \li{RXUtil}, in Figure \ref{fig:RXUtil}. As more idioms involving regexes arise, we can capture them by adding additional definitions to this functor (or some other such functor, if we cannot modify \li{RXUtil} itself.) For example, we can define a value that matches digits:
 \begin{lstlisting}[numbers=none]
-let module RUtil = RXUtil(R)
-let val rxparse = RUtil.parse
+val digit = R.Or(R.Str "SSTR0ESTR", R.Or(R.Str "SSTR1ESTR", ...))
 \end{lstlisting}
-to construct patterns like this:
+Similarly, we can define a function \li{repeat : R.t -> int -> R.t} that computes a regex by sequentially repeating the given regex a given number of times. Using these auxiliary definitions, a client can define a regex that matches social security numbers as follows:
 \begin{lstlisting}[numbers=none]
-rxparse "SSTRA|T|G|CESTR"
+val dash = R.Str "SSTR-ESTR"
+val repeat_d = RU.repeat RU.digit
+val ssn = R.Seq(repeat_d 3, R.Seq(dash, R.Seq(repeat_d 2, 
+                R.Seq(dash, repeat_d 4))))
 \end{lstlisting}
- %Again, none of our goals are comprehensively achieved.
-Unfortunately, this approach is imperfect for several reasons:
+
+One limitation of this approach is that it provides no way to capture idioms at the level of patterns. Expressions and patterns are two different sorts of trees, and a pattern must be fully determined statically, whereas variables stand for dynamic values and functions perform dynamic computation.
+
+Another limitation is that this approach does not give library providers control over form. For example, we cannot ``approximate'' SML-style derived list forms using only auxiliary definitions (otherwise, SML would not have defined derived list forms.) 
+Similarly, consider the textual syntax for regexes defined in the POSIX standard \cite{STD95954} (which data suggests that most professional programmers are familiar with \cite{Omar:2012:ACC:2337223.2337324}.) Using this syntax, the regex that matches DNA bases is drawn:
+\begin{lstlisting}[numbers=none]
+A|T|G|C
+\end{lstlisting}
+Similarly, the regex that matches SSNs just discussed is drawn:
+\begin{lstlisting}[numbers=none]
+\d\d\d-\d\d-\d\d\d\d
+\end{lstlisting}
+or
+\begin{lstlisting}[numbers=none]
+\d{3}-\d{2}-\d{4}
+\end{lstlisting}
+These drawings have lower syntactic cost than those above, and programmers familiar with the POSIX syntax for regular expressions would likely agree that these drawings have lower cognitive cost as well. 
+
+\vspace{-6px}
+\subsubsection{String Parsing}\label{sec:dynamic-string-parsing}
+We might attempt to approximate the POSIX syntax for regexes by defining a function \li{parse : string -> R.t} in \li{RXUtil} that parses a string representation of a POSIX regex form  to produce a regular expression value, or raises an exception if the input is malformed with respect to the POSIX specification. 
+
+Using \li{RU.parse}, we can construct the regex matching DNA bases  as follows:
+\begin{lstlisting}[numbers=none]
+RU.parse "SSTRA|T|G|CESTR"
+\end{lstlisting}
+This approach is imperfect for several reasons:
 \begin{enumerate} 
-\item First, there are syntactic conflicts between string escape sequences and pattern escape sequences. For example, the following is not a well-formed term:
+\item First, there are syntactic conflicts between standard string escape sequences and standard regex escape sequences. For example, the following is not a well-formed drawing in Standard ML:
 \begin{lstlisting}[numbers=none,mathescape=|]
-let val ssn = rxparse "SSTR\d\d\d-\d\d-\d\d\d\dESTR"
+val ssn = RU.parse "SSTR\d\d\d-\d\d-\d\d\d\dESTR" (* ERROR *)
 \end{lstlisting}
-When compiling an expression like this, the client would see an error message like \verb|error: illegal escape character|\footnote{This is the error message that \texttt{javac} produces. When compiling an analagous expression using SML of New Jersey (SML/NJ), we encounter a more confusing error message: \texttt{Error: unclosed string}.}, because \verb|\d| is not a valid string escape sequence. In a small lab study, we observed that this class of error often confused even experienced programmers if they had not used regular expressions recently \cite{Omar:2012:ACC:2337223.2337324}. One workaround has higher syntactic cost -- we must double all backslashes:
+In practice, a parser would provide the client with an error message like:\footnote{This is the error message that \texttt{javac} produces. When compiling an analagous expression using SML of New Jersey (SML/NJ), we encounter a more confusing error message: \texttt{Error: unclosed string}.}
 \begin{lstlisting}[numbers=none]
-let val ssn = rxparse "SSTR\\d\\d\\d-\\d\\d-\\d\\d\\d\\dESTR"
+error: illegal escape character
+\end{lstlisting}
+because \verb|\d| is not a valid string escape character (even though it is a valid regex escape character.) In a small lab study, we observed that this class of error confused even experienced programmers if they had not used regexes recently \cite{Omar:2012:ACC:2337223.2337324}. 
+
+One workaround -- escaping all backslashes -- nearly doubles syntactic cost:
+\begin{lstlisting}[numbers=none]
+val ssn = RU.parse "SSTR\\d\\d\\d-\\d\\d-\\d\\d\\d\\dESTR"
 \end{lstlisting}
 
-Some languages, anticipating such modes of use, build in alternative string forms that leave escape sequences uninterpreted. For example, OCaml supports the following, which has only a constant syntactic cost:
-\begin{lstlisting}[numbers=none]
-let val ssn = rxparse {rx|SSTR\d\d\d-\d\d-\d\d\d\dESTR|rx}
-\end{lstlisting}
+Some languages, anticipating this use of string literals, build in alternative string forms that leave escape sequences uninterpreted. For example, OCaml supports alternative string literals like \li+{rx|SSTR\d\d\d-\d\d-\d\d\d\dESTR|rx}+.
 
-\item The next problem is that dynamic string parsing mainly decreases the syntactic cost of complete patterns. Patterns constructed compositionally cannot easily benefit from this technique. For example, consider the following function from strings to patterns:
+\item The next problem is that dynamic string parsing only decreases the syntactic cost of complete regexes. Regexes constructed compositionally do not benefit from this technique. For example, the function below constructs a regex from a string, \li{name}, and another regex, \li{ssn}:
+\begin{figure}[h]
 \begin{lstlisting}[numbers=none]
-fun example(name : string) => 
-  R.Seq(R.Str(name), R.Seq(rxparse "SSTR: ESTR", ssn)) (* ssn as above *)
+  fun lookup_rx(name : string) => 
+    R.Seq(R.Str name, R.Seq(R.Str "SSTR: ESTR", ssn))
 \end{lstlisting}
+\caption{Compositional construction of regexes.}
+\label{fig:lookup_rx}
+\end{figure}
 %We needed to use both dynamic string parsing and explicit applications of pattern constructors to achieve the intended semantics. 
-Had we built derived syntax for regular expression patterns into the language primitively (following Unix conventions of using forward slashes as delimiters), we could have used \emph{splicing syntax}:
-\begin{lstlisting}[numbers=none]
-fun example_shorter(name : string) => /SURL@EURLnameSURL: %EURLssn/
-\end{lstlisting}
-An identifier (or parenthesized expression, not shown) prefixed with an \lstinline{@} is a spliced string, and one prefixed with a \lstinline{%} is a spliced pattern.
 
-It is difficult to capture idioms like this using dynamic string parsing, because strings cannot contain sub-expressions directly. 
+We cannot use \li{RU.parse} to redraw this equivalently, but at lower syntactic cost. 
+
+(We will describe a syntax dialect that does capture such idioms in Sec. \ref{sec:syntax-dialects}. In particular, we will compare Figure \ref{fig:lookup_rx} with Figure \ref{fig:derived-spliced-subexpressions}.)
+
+This is also why dynamic string parsing is irrelevant for capturing idioms like list construction -- list expressions contain sub-expressions.
 
 %(we will see an example of syntax that does capture such idioms below).
 
-\item For functions like \lstinline{example} where we are constructing patterns on the basis of data of type \lstinline{string}, using strings coincidentally to introduce patterns tempts programmers to use string concatenation in subtly incorrect ways. For example, consider the following seemingly more readable definition of \lstinline{example}:
+\item Using strings to introduce regexes also creates a \emph{cognitive hazard} for programmers who are coincidentally working with other data of type \li{string}. For example, consider the following seemingly ``more readable definition of \lstinline{lookup_rx}'', where the infix operator \li{^} means string concatenation:
 \begin{lstlisting}[numbers=none,escapechar=~]
-fun example_bad(name : string) => 
-  rxparse (name ^ {rx|SSTR: \d\d\d-\d\d-\d\d\d\dESTR|rx})
+fun lookup_rx_insecure(name : string) => 
+  RU.parse (name ^ {rx|SSTR: \d\d\d-\d\d-\d\d\d\dESTR|rx})
+\end{lstlisting}
+
+or equivalently, given the regex \li{ssn} as above and an auxiliary function \li{RU.to_string} that can generate its string representation:
+\begin{lstlisting}[numbers=none,escapechar=~]
+fun lookup_rx_insecure(name : string) => 
+  RU.parse (name ^ "SSTR: ESTR" ^ (RU.to_string ssn))
 \end{lstlisting}
 %The (unstated) intent here was to treat \lstinline{name} as a sub-pattern matching only itself, but this is not the observed behavior when \lstinline{name} contains special characters that have other meanings in patterns.
 
-Both \lstinline{example} and \lstinline{example_bad} have the same type and behave identically at many inputs, particularly ``typical'' inputs (i.e. alphabetic names). It is only when the input \lstinline{name} contains special characters that have meaning in the concrete syntax of patterns that a problem arises. 
+Both \lstinline{lookup_rx} and \lstinline{lookup_rx_insecure} have the same type, \li{string -> R.t}, and behave identically at many inputs, particularly the ``typical'' inputs (i.e. alphabetic names.) It is only when \li{lookup_rx_insecure} is applied to a string that corresponds to a regex that matches more than just that string that it behaves incorrectly. 
 
-In applications that query sensitive data, mistakes like this lead to \emph{injection attacks}, which are among the most common and catastrophic security threats on the web today \cite{owasp2013}. These are, of course, a consequence of the programmer making a mistake in an effort to decrease syntactic cost, but proving that mistakes like this have not been made involves reasoning about complex run-time data flows, so it is once again notoriously difficult to automate. If our language supported derived syntax for patterns, this kind of mistake would be substantially less common (because \lstinline{example_shorter} has lower syntactic cost than \lstinline{example_bad}).
+In applications that query sensitive data, mistakes like this lead to \emph{injection attacks}, which are among the most common and catastrophic security threats today \cite{owasp2013}.
+
+This problem is, fundamentally, attributable to the programmer making a mistake in a misguided effort to decrease syntactic cost. However, the availability of a better approach for reducing syntactic cost would serve to make this class of mistakes less prevalent \cite{Bravenboer:2007:PIA:1289971.1289975}. Given that our design philosophy is explicitly concerned with issues of cognitive cost, it is natural to also consider common cognitive hazards.
+
+%Proving that mistakes like this have not been made involves reasoning about complex run-time data flows. 
+
  %Ultimately, of course, mistakes like this are the fault of a programmer using a flawed heuristic, and they could be avoided with discipline. The problem is once again that it is difficult to detect violations of this discipline automatically. 
 
  %Ideally, our library would be able to make it more difficult to inadvertently introduce subtle security bugs like this.
-\item The next problem is that pattern parsing does not occur until the pattern is evaluated. For example, the following malformed pattern will only trigger an exception when this expression is evaluated during the full moon: %Achieving this goal is an explicit goal of this proposal, so we are obviously not happy with this.
+\item The final problem is that regex parsing does not occur until the call to \li{RU.parse} is dynamically evaluated. For example, the malformed string encoding of a regex in the program fragment below will only trigger an exception when this expression is evaluated during the full moon: %Achieving this goal is an explicit goal of this proposal, so we are obviously not happy with this.
 
 \begin{lstlisting}[numbers=none]
-case(moon_phase) {
-    Full => rxparse "SSTR(GCESTR" (* malformedness not statically detected *)
-  | _ => (* ... *)
-}
+match moon_phase with 
+Full => RU.parse "SSTR(GCESTR" | _ => (* ... *)
+end
 \end{lstlisting}
-Though malformed patterns can sometimes be discovered dynamically via testing, empirical data gathered from large open source projects suggests that there remain many malformed regular expression patterns that are not detected by a project's test suite ``in the wild'' \cite{spishak2012type}. 
+Malformed string encodings of regexes can sometimes be discovered by testing, though empirical data gathered from large open source projects suggests that there remain many malformed regexes that are not detected by a project's test suite ``in the wild'' \cite{spishak2012type}.
 
-Statically verifying that pattern formation errors will not dynamically arise requires reasoning about arbitrary dynamic behavior. This is an undecidable verification problem in general and can be difficult to even partially automate. In this example, the verification procedure would first need to be able to establish that the variable \lstinline{rxparse} is equal to the parse function \lstinline{RUtil.parse}. If the string argument had not been written literally but rather computed, e.g. as \lstinline{"SSTR(GESTR" ^ "SSTRCESTR"} where \lstinline{^} is the string concatenation function applied in infix style, it would also need to be able to establish that this expression is equivalent to the string \lstinline{"SSTR(GCESTR"}. For patterns that are dynamically constructed based on input to a function, evaluating the expression statically (or, more generally, in some earlier ``stage'' of evaluation \cite{Jones:Gomard:Sestoft:93:PartialEvaluation}) also does not suffice. 
+One workaround is for the programmer to lift all such calls where the argument is a string literal out to the top level of the program, so that the exception is raised every time the program is evaluated. This subtly changes the performance profile of the program, and there is a cognitive penalty associated with moving the description of a regex away from its use site, but for complete regexes, this might be an acceptable trade-off.% Moreover, the dynamic cost of parsing the regex is incurred on every invocation of the program, even when the regex will never be used.
+% Statically verifying that pattern formation errors will not dynamically arise requires reasoning about arbitrary dynamic behavior. This is an undecidable verification problem in general and can be difficult to even partially automate. In this example, the verification procedure would first need to be able to establish that the variable \lstinline{rxparse} is equal to the parse function \lstinline{RUtil.parse}. If the string argument had not been written literally but rather computed, e.g. as \lstinline{"SSTR(GESTR" ^ "SSTRCESTR"} where \lstinline{^} is the string concatenation function applied in infix style, it would also need to be able to establish that this expression is equivalent to the string \lstinline{"SSTR(GCESTR"}. For patterns that are dynamically constructed based on input to a function, evaluating the expression statically (or, more generally, in some earlier ``stage'' of evaluation \cite{Jones:Gomard:Sestoft:93:PartialEvaluation}) also does not suffice. 
 
-Of course, asking the client to provide a proof of well-formedness would defeat the purpose of lowering syntactic cost.
+% Of course, asking the client to provide a proof of well-formedness would defeat the purpose of lowering syntactic cost.
 
-In contrast, were our language to primitively support  derived pattern syntax, pattern parsing would occur at compile-time and so malformed patterns would produce a compile-time error.
+% In contrast, were our language to support  derived regex syntax, pattern parsing would occur at compile-time and so malformed patterns would produce a compile-time error, no matter where they appear in a program.
 
-\item Dynamic string parsing also necessarily incurs dynamic cost. Regular expression patterns are common when processing large datasets, so it is easy to inadvertently incur this cost repeatedly. For example, consider mapping over a list of strings:
-\begin{lstlisting}[numbers=none]
-map exmpl_list (fn s => rxmatch (rxparse "SSTRA|T|G|CESTR") s)
-\end{lstlisting}
-To avoid incurring the parsing cost for each element of \lstinline{exmpl_list}, the programmer or compiler must move the parsing step out of the closure (for example, by eta-reduction in this simple example).\footnote{Anecdotally, in major contemporary compilers, this optimization is not automatic.} If the programmer must do this, it can (in more complex examples) increase syntactic cost and cognitive cost by moving the pattern itself far away from its use site. Alternatively, an appropriately tuned memoization (i.e. caching) strategy could be used to amortize some of this cost, but it is difficult to reason compositionally about performance using such a strategy. %If the programmer does it, it can sometimes make the program more difficult to read. 
+% \item Dynamic string parsing also necessarily incurs dynamic cost. Regular expression patterns are common when processing large datasets, so it is easy to inadvertently incur this cost repeatedly. For example, consider mapping over a list of strings:
+% \begin{lstlisting}[numbers=none]
+% map exmpl_list (fn s => rxmatch (rxparse "SSTRA|T|G|CESTR") s)
+% \end{lstlisting}
+% To avoid incurring the parsing cost for each element of \lstinline{exmpl_list}, the programmer or compiler must move the parsing step out of the closure (for example, by eta-reduction in this simple example).\footnote{Anecdotally, in major contemporary compilers, this optimization is not automatic.} If the programmer must do this, it can (in more complex examples) increase syntactic cost and cognitive cost by moving the pattern itself far away from its use site. Alternatively, an appropriately tuned memoization (i.e. caching) strategy could be used to amortize some of this cost, but it is difficult to reason compositionally about performance using such a strategy. %If the programmer does it, it can sometimes make the program more difficult to read. 
 
-%This too is difficult if a portion of the pattern is dynamically generated. % Regular expressions are often used across large datasets in scientific applications, so the absolute peformance penalty can be non-trivial.
+% %This too is difficult if a portion of the pattern is dynamically generated. % Regular expressions are often used across large datasets in scientific applications, so the absolute peformance penalty can be non-trivial.
 
-In contrast, were our language to primitively support derived pattern syntax, the expansion would be computed at compile-time and incur no dynamic cost.
+% In contrast, were our language to primitively support derived pattern syntax, the expansion would be computed at compile-time and incur no dynamic cost.
 \end{enumerate}
 
-The problems above are not unique to regular expression patterns. Whenever a library encourages the use of dynamic string parsing to address the issue of syntactic cost (which is, fundamentally, not a dynamic issue), these problems arise. %Strings are, simply put, not ideally suited for this task. 
-	This fact has motivated much research on reducing the need for dynamic string parsing \cite{Bravenboer:2007:PIA:1289971.1289975}. Existing alternatives can be broadly classified as being based on either \emph{direct syntax extension} or \emph{static term rewriting}. We describe these next, in Secs. \ref{sec:direct-syntax-extension} and \ref{sec:term-rewriting} respectively.% We summarize the most relevant work below.
+Problems like these arise whenever a library provider attempts to deploy dynamic string parsing as a solution to the problem of high syntactic cost. The reason is that syntactic cost is a property of a drawing of a program, so trying to address it by drawing a different program requires establishing that the alternative program is equivalent to the program that the client would write if syntactic cost was not a consideration (which is, at worst, an ill-posed problem, and at best, a rather difficult problem.) %Moreover, logically equivalent programs can differ in terms of performance.
 
+This is not to say that one should simply refrain from defining or applying a function like \li{RU.parse}. There are  valid uses of string parsing that are not motivated by the desire to decrease syntactic cost, e.g. when parsing regular expressions received as dynamic input to the program.%Strings are, simply put, not ideally suited for this task. 
 
-\subsection{Direct Syntax Extension}\label{sec:direct-syntax-extension}
-One tempting alternative to dynamic string parsing is to use a system that gives the users of a language the power to directly extend its concrete syntax with new derived forms. %for regular expression patterns.% for patterns.
-
-The simplest such systems are those where the elaboration of each new syntactic form is defined by a single rewrite rule. For example, Gallina, the ``external language'' of the Coq proof assistant, supports such extensions \cite{Coq:manual}. A formal account of such a system has been developed by Griffin \cite{5134}. Unfortunately, a single equation is not enough to allow us to express pattern syntax following the usual conventions. For example, a system like Coq's cannot handle escape characters, because there is no way to programmatically examine a form when generating its expansion.
-
-Other syntax extension systems are more flexible. For example, many are based on context-free grammars, e.g.  Sugar* \cite{erdweg2013framework} and Camlp4 \cite{ocaml-manual} (amongst many others). Other systems give library providers direct programmatic access to the parse stream, like Common Lisp's \emph{reader macros} \cite{steele1990common} (which are distinct from its term-rewriting macros, described in Sec. \ref{sec:term-rewriting} below) and Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}. All of these would allow us to add pattern syntax into our language's grammar, perhaps following Unix conventions and supporting splicing syntax as described above:
+\subsection{Quotation Parsing}\label{sec:dynamic-quotation}
+Some syntax dialects of ML, e.g. a syntax dialect available via a compiler flag in SML/NJ \cite{SML/Quote}, define \emph{quotation literals}:  derived forms for expressions of type \li{'a frag list}, where \li{'a frag} is defined as follows (using SML's datatype declaration syntax):
 \begin{lstlisting}[numbers=none]
-let val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
-fun example_shorter(name : string) => /SURL@EURLnameSURL: %EURLssn/
+datatype 'a frag = QUOTE of 'a | ANTIQUOTE of string
 \end{lstlisting}
-%The body of this function elaborates to the body of \lstinline{example_fixed} as shown above. 
-%Had we mistakenly written \lstinline{%name}, we would encounter only a static type error, rather than the  silent injection  vulnerability discussed above. 
-
-We sidestep the problems of dynamic string parsing described above  when we directly extend the syntax of our language using any of these systems. Unfortunately, direct syntax extension introduces serious new problems. First, the systems mentioned thus far cannot guarantee that {syntactic conflicts} between such extensions will not arise. As stated directly in the  Coq manual: ``mixing different symbolic notations in [the] same text may cause serious parsing ambiguity''. If another library provider used similar syntax for a different implementation or variant of regular expressions, or for some other unrelated construct, then a client could not simultaneously use both libraries at the same time. So properly considered, every combination of extensions introduced using these mechanisms creates a \emph{de facto} syntactic dialect of our language. The benefit of these systems is only that they lower the implementation cost of constructing syntactic dialects. % Resolving such parsing amibiguities is left to each client of the library. 
-
-In response to this problem, Schwerdfeger and Van Wyk developed a modular analysis that accepts only context-free grammar extensions that begin with an identifying starting token and obey certain constraints on  the follow sets of base language's non-terminals \cite{conf/pldi/SchwerdfegerW09}. Extensions that specify distinct starting tokens and that satisfy these constraints can be used together in any combination without the possibility of syntactic conflict. However, the most natural starting tokens like \lstinline{rx} cannot be guaranteed to be unique. To address this problem, programmers must agree on a convention for defining ``globally unique identifiers'', e.g. the common URI convention used on the web and by the Java packaging system. However, this forces us to use a more verbose token like \lstinline{edu_cmu_VerseML_rx}. There is no simple way for clients of our extension to define scoped abbreviations for starting tokens because this mechanism operates purely at the level of the context-free grammar.
-
-Putting this aside, we must also consider another modularity-related question: which particular module should the expansion use? Clearly, simply assuming that some module identified as \lstinline{R} matching \lstinline{RX} is in scope is a brittle solution. In fact, we should expect that the system actively prevents such capture of specific variable names to ensure that variables (here, module variables) can be freely renamed. Such a \emph{hygiene discipline} is well-understood only when performing term-to-term rewriting (discussed below) or in simple language-integrated rewrite systems like those found in Coq. For mechanisms that operate strictly at the level of context-free grammars or the parse stream, it is not clear how one could address this issue. The onus is then on the library provider to make no assumptions about variable names and instead require that the client explicitly identify the module they intend to use as an ``argument'' within the newly introduced form:
+Quotation literals are delimited by backticks, e.g. \li{`SCSSA|T|G|CECSS`} is the same as writing \li{[QUOTE "SSTRA|T|G|CESTR"]}. Expressions of variable or parenthesized form that appear prefixed by a caret in the body of a quotation literal  are parsed out and appear wrapped in the \li{ANTIQUOTE} constructor, e.g. \li{`SCSSGC^(ECSSdna_rxSCSS)GCECSS`}  is the same as writing 
 \begin{lstlisting}[numbers=none]
-let val ssn = edu_cmu_VerseML_rx R /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+[QUOTE "SSTRGCESTR", ANTIQUOTE dna_rx, QUOTE "SSTRGCESTR"]
+\end{lstlisting}
+It is possible to define a function \li{qparse : R.t frag list -> R.t} in \li{RXUtil} that allows clients to dynamically construct regexes from  fragment lists like these.
+
+Similarly, it is possible to define a function \li{qparse : 'a frag list -> 'a list} in the \li{List} module that allows clients to use quotation literals to construct lists:
+\begin{lstlisting}[numbers=none]
+List.qparse `SCSS[^(ECSSx + ySCSS), ^ECSSySCSS, ^ECSSzSCSS]ECSS`
 \end{lstlisting}
 
-Another problem with the approach of direct syntax extension is that, given an unfamiliar piece of syntax, there is no straightforward method for determining what type it will have, causing difficulties for both humans (related to code comprehension) and tools. 
+%This addresses some of the problems of dynamic string parsing, in that we no longer need to use string concatenation to emulate splicing. 
+
+As with dynamic string parsing, parsing occurs dynamically. We cannot use the trick of lifting all calls to \li{qparse} to the top level of our program, because the arguments are no longer string literals. At best, we can lift these calls into the earliest possible ``stage'' of evaluation. Parse errors are only detected once this stage is entered, and the dynamic cost of parsing is incurred each time this stage is entered. For example, \li{List.qparse} is called $n$ times below, where $n$ is the length of \li{input}:
+\begin{lstlisting}[numbers=none]
+List.map (x => List.qparse `SCSS[^ECSSxSCSS, ^(ECSS2 * xSCSS)]ECSS`) input
+\end{lstlisting}
+
+  % the application of \li{qparse} is evaluated.
+Another problem is that the antiquote character, i.e. the caret, is fixed \emph{a priori}. This is problematic for regexes, for example, because the caret has a different meaning in the POSIX standard (and in practice, appears quite often.) 
+
+All antiquoted values must be of the same type. To support both spliced regexes and spliced strings, for example, we need to define an auxiliary datatype in \li{RXUtil} 
+and the client needs to apply it in each antiquotation. These ``marking constructors'' increase syntactic cost. 
+For example, we we would need to write \li{lookup_rx} as follows:
+\begin{lstlisting}[numbers=none]
+fun lookup_rx(string : name) =>
+  RU.qparse' `SCSS^(ECSSRU.QS nameSCSS): ^(ECSSRU.QR readingSCSS)ECSS`
+\end{lstlisting}
+
+Similarly, we would need to use marking constructors to support quoted lists where the tail is explicitly given by the client (following OCaml's revised syntax \cite{ocaml-manual}):
+\begin{lstlisting}[numbers=none]
+List.qparse `SCSS[^(ECSSList.V xSCSS), ^(ECSSList.V ySCSS) :: ^(ECSSList.VS zsSCSS)]ECSS`
+\end{lstlisting}
+
+Finally, quotation parsing, like the other approaches considered thusfar, helps only with the problem of abbreviating expressions. It provides no solution to the problem of abbreviating patterns.% The reason is simple: these approaches require applying functions, which, by nature, are expressions, not patterns.
+
+VerseML does not build in quotation literals.\footnote{In fact, quotation syntax can be expressed using parametric TSMs, which are the topic of Chapter \ref{chap:ptsms}, though we will leave the details as an exercise for the reader. As such, even in the odd situation where parsing fragment lists drawn using quotations is the right solution, VerseML is a suitable language.}
+
+% \subsection{Syntax Dialects}
+% To gain more precise control over form, a library provider, or another interested party, might also consider defining a syntax dialect. 
+% A dialect of a syntax definition, $\mathcal{D}$, is a new syntax definition, $\mathcal{D}'$, that:
+% \begin{enumerate}
+% \item extends $\mathcal{D}$, meaning that all drawings that are well-formed in $\mathcal{D}$ are well-formed in $\mathcal{D}'$ and identify the same AST; and
+% \item defines additional derived forms.
+% \end{enumerate}
+% We leave the notion of a ``syntax definition'' undefined here for the sake of generality -- there are many different syntax definition systems.
+
+\subsection{Infix Function Application}
+To gain more precise control over form, a library provider, or another interested party, might also consider defining a syntax dialect using a syntax definition system.
+
+The simplest syntax definition systems allow programmers to designate identifiers as infix operators. For example, SML builds in such a system. In SML, we can define \li{::} as a right-associative infix operator at precedence level 5 as follows:
+\begin{lstlisting}[numbers=none]
+infixr 5 ::
+\end{lstlisting}
+In a context where the variable \li{op::} is bound to the list constructor that we identified as \li{Cons} earlier, we can construct a list with \li{x} as its head and \li{y :: zs} as its tail as follows:
+\begin{lstlisting}[numbers=none]
+x :: y :: zs
+\end{lstlisting}
+
+In the SML Basis library, the list datatype is defined such that the constructor that we labeled \li{Cons} is instead labeled \li{op::}. As such, clients can use infix \li{::} in patterns as well. Binding the variable \li{op::} to \li{Cons} is not equivalent in this regard (again, because variables do not stand for patterns.)
+
+Figure \ref{fig:infix-RX} shows how our regex library might define several such fixity declarations, together with a functor \li{RXOps} that binds the corresponding operator variables to the appropriate functions. Assuming that the library packaging system has brought the fixity declarations and the definition of \li{RXOps} from Figure \ref{fig:infix-RX} into scope, the client can instantiate \li{RXOps} with their choice of module \li{R : RX} and then \li{open} this instantiated module (also called a \emph{structure} in SML) to make these bindings visible. 
+
+
+\begin{figure}
+\begin{lstlisting}
+infix 5 ::
+infix 6 <*>
+infix 4 <|>
+
+functor RXOps(R : RX) =
+struct 
+  module RU = RXUtil(R)
+  val op:: = R.Seq
+  val op<*> = RU.repeat
+  val op<|> = R.Or
+end
+\end{lstlisting}
+\caption{Fixity declarations and related bindings for \li{RX}.}
+\label{fig:infix-RX}
+\end{figure}
+\begin{lstlisting}[numbers=none]
+structure ROps = RXOps(R)
+open ROps
+\end{lstlisting}
+From there, the client can draw the examples discussed earlier equivalently as follows:
+\begin{lstlisting}[numbers=none]
+val dna = (R.Str "SSTRAESTR") <|> (R.Str "SSTRTESTR") <|> (R.Str "SSTRGESTR") <|> 
+          (R.Str "SSTRCESTR")
+val ssn = (RU.digit)<*>3 :: (RU.digit)<*>2 :: (RU.digit)<*>4
+fun lookup_rx(name : string) => 
+  (Str name) :: (Str "SSTR: ESTR") :: ssn
+\end{lstlisting}
+
+This demonstrates the two main limitations of this approach. 
+
+First, it grants only limited control over form -- we cannot express the POSIX forms in this way, only \emph{ad hoc} (and in this case, rather poor) approximations thereof. Moreover, the infix operators declared in Figure \ref{fig:infix-RX} cannot be used for pattern matching, again because variables only stand for values.% as given cannot be used in patterns.%The desugaring of an infix operator application is always of function application form. In particular, it is always the operator variable (e.g. \li{op::}) applied to two arguments, first the expression on the left, then the expression on the right (with the precedence and associativity determining what these expressions are.)
+
+The second limitation has to do with the possibility of syntactic conflicts. Notice that both the list library and the regex library have declared \li{::} an  infix operator, but with different associativity. They also export different bindings for \li{op::}. As such, clients cannot use both in the same scope. There is no mechanism that allows a client to explicitly qualify the use of an infix operator as referring to the fixity declaration from one or the other library -- fixity declarations are purely syntactic (i.e. they only influence parsing) and are not exported from modules or otherwise integrated into the binding structure of ML (note that libraries are extralinguistic packaging constructs, distinct from modules.) 
+
+%This identifier-oriented approach is also rather \emph{ad hoc}, in that renaming or substituting for an identifier can break or change the meaning of the program.
+
+Formally, each fixity declaration induces a dialect of the subset of SML's textual syntax that does not allow the declared identifier to be used in prefix position. When two such dialects are combined, the resulting dialect is not necessarily a dialect of both of the constituent dialects (the fixity declaration that is used depends on the order in which they are combined.)
+
+Due to these limitations, VerseML does not inherit this mechanism from SML (the infix operators that are available in VerseML, like \li{^} for string concatenation, have a fixed precedence and associativity.)
+
+
+\subsection{More General Syntax Definition Systems}\label{sec:syntax-dialects}
+Fixity declarations give their users no direct control over desugaring -- the desugaring is always the corresponding function application. More general syntax definition systems give users more direct control over the desugaring process. In this section, we will first review these more general syntax definition systems, then give two examples of syntax dialects, followed by a discussion of the difficulties that programmers can encounter if they try to adopt a dialect-oriented approach ``in the large'' (as a follow-up to the problems already introduced in Sec. \ref{sec:problems-with-dialects}.)
+
+\subsubsection{Mixfix Notational Definitions}
+Some languages, including many popular type-theoretic proof assistants like Coq \cite{Coq:manual}, support ``mixfix'' notational definitions. These generalize SML-style fixity declarations, in that newly defined forms can contain any fixed number of sub-terms (rather than just two). Their desugarings are determined by a user-defined rewriting rule. Griffin gives a formal account of such systems \cite{5134}, and Taha and Johann incorporate Griffin's account into a more general and  well-behaved account of \emph{staged notational definitions} \cite{Taha2003}.
+
+Although more expressive than fixity declarations, these syntax definition systems also do not allow us to express POSIX regex syntax as-is. The issue is fundamentally that these systems only give programmers the ability to extend the syntax of the existing sorts of trees, e.g. expressions and patterns. They do not give programmers the ability to define new sorts of trees, with their own distinct syntax. For example, we cannot define a sort for regular expressions, where sequences of characters are not recognized as identifiers but rather as regex character sequences. 
+
+\subsubsection{Grammar-Based Syntax Definition Systems}
+Many syntax definition systems are oriented around \emph{formal grammars} \cite{hopcroft1979introduction}. Formal grammars have been studied since at least the time of P\~anini, who developed a grammar for Sanskrit in or around the 4th century BCE \cite{Ingerman:1967:LFS:363162.363165}. 
+
+\emph{Context-free grammars (CFGs)} were first used to define the textual syntax of a major programming language -- Algol 60 -- by Backus \cite{naur1963revised}. Since then, countless other syntax definition systems oriented around CFGs have emerged -- we will only summarize the systems that are particularly relevant to this work. In these systems a syntax definition consists of a CFG (perhaps from some restricted class of CFGs) equipped with various auxiliary definitions (e.g. a lexer/scanner definition in some systems) and logic for computing an output value (e.g. a tree) based on the determined form of the input. 
+
+Perhaps the most established systems in the ML ecosystem are ML-Lex + ML-Yacc, which is distributed with SML/NJ \cite{TarditiDR:mly}, and Camlp4, which was (until recently)  integrated into  the OCaml system (in recent releases of the OCaml system, it has been deprecated in favor of a simpler system, \li{ppx}, that we discuss in the next section) \cite{ocaml-manual}. In these systems, output is  computed by ML functions that appear associated with each production in the grammar (these functions are referred to as the \emph{semantic actions}.) 
+
+The \emph{syntax definition formalism  (SDF)}  \cite{journals/sigplan/HeeringHKR89} is a syntactic formalism for describing CFGs. SDF is used by a number of syntax definition systems, e.g. the Spoofax ``language workbench'' \cite{kats2010spoofax}. These systems commonly use Stratego, a rule-based rewriting language, as the language that output logic is written in \cite{Visser-RTA01}. SugarJ is an extension of Java that allows programmers to define and combine fragments of SDF+Stratego-based syntax definitions directly from within the program text \cite{erdweg2011sugarj}. SugarHaskell is a similar system based on Haskell \cite{erdweg2012layout} and Sugar* simplifies the task of defining such extensions of other languages \cite{erdweg2013framework}. SoundExt and SugarFOmega add the requirement that new derived forms must come equipped with corresponding derived typing rules \cite{conf/icfp/LorenzenE13}. The system must be able to verify that the rewrite logic is sound with respect to these rules (their verification system is written in, and defers to the facilities of, PLT-Redex \cite{Felleisen-Findler-Flatt09}.) SoundX generalizes this idea to support other base languages, and also adds the ability to define type-dependent rewritings \cite{conf/popl/LorenzenE16}.
+
+ %Erdweg et al. have developed many non-trivial examples, including . \to
+
+Copper implements a CFG-based syntax definition system that uses a context-aware scanner, which is useful for reasons that we will discuss shortly \cite{conf/gpce/WykS07}. Silver is an \emph{attribute grammar} system based on Copper \cite{VanWyk:2010:SEA}. Attribute grammars are used to compositionally define output logic that requires information that is not local to each form \cite{knuth1968semantics}.
+
+
+Some other syntax definition systems are instead oriented  around \emph{parsing expression grammars} (PEGs) \cite{Ford04a}. PEGs are similar to CFGs, distinguished mainly in that they are deterministic by construction (by allowing only for explicitly prioritized choice between alternative parses.)
+
+\subsubsection{Parser Combinator Systems}
+\emph{Parser combinator systems} define a functional interface for defining a parser, together with various functions that generate new parsers from given parsers and other values (these functions are referred to as the \emph{parser combinators}) \cite{Hutton1992d}. In some cases, it is acceptable to take an expression that involves parser combinators as definitional (as opposed to the usual view, where a parser is an \emph{implementation} of a separate syntax definition.) 
+
+For example, Hutton describes a system where parsers are functions of some type in the following type family:% \li{'char 'tree parser}, bound in VerseML's syntax:
+\begin{lstlisting}[numbers=none]
+type 'char 'tree parser = 'char list -> ('tree*'char list) list
+\end{lstlisting}
+i.e., a parser is a function that takes a list of (abstract) characters and returns a list of valid parses, each of which consists of an (abstract) tree and a list of the characters that were not consumed. An input is malformed if this function returns the empty list, and it is ambiguous if this function returns more than one parse. A deterministic parser is one that never returns more than one parse. The parser combinator \li{alt}, declared 
+\begin{lstlisting}[numbers=none]
+val alt : 'c 't parser -> 'c 't parser -> 'c 't parser
+\end{lstlisting}
+combines the two input parsers by applying them both to the input and appending the lists that they return, i.e. it defines non-deterministic choice.
+
+Various alternative formulations of this concept that better control dynamic cost or have other useful properties have also been described. For example, Hutton and Meijer describe a parser combinator in monadic style \cite{hutton1998monadic}. Okasaki has described an alternative design that uses continuations to control cost \cite{Okasaki98b}.
+
+%The most minimal syntax definition systems, e.g. Racket's dialect preprocessor \cite{Flatt:2012:CLR:2063176.2063195}, take any function of a type like \li{string -> exp}, where \li{exp} is a system-defined encoding of the syntax of expressions (enriched perhaps with source code locations and other ``metadata''), as a syntax definition. Programmers using these systems are free to use an implementation of some other syntax definition system to define this function.
+
+\subsubsection{Example 1: $\mathcal{V}_\texttt{rx}$}
+Let us now consider a dialect of VerseML's textual syntax called $\mathcal{V}_\texttt{rx}$, defined using some suitably expressive syntax definition system like those just described, that  builds in derived forms related to the recursive type \li{rx} that was defined in Figure \ref{fig:datatype-rx}.\footnote{Technically, $\mathcal{V}_\texttt{rx}$ must be a dialect of the textual syntax of VerseML's expansion language; cf. Chap. \ref{chap:uetsms}.}
+
+$\mathcal{V}_\texttt{rx}$ extends the syntax of expressions with  \emph{derived regex literals}, which are delimited by forward slashes, e.g.:
+\begin{lstlisting}[numbers=none]
+/SURLA|T|G|CEURL/
+\end{lstlisting}
+The desugaring of this form is equivalent to the following, assuming an environment where the variables \li{Or} and \li{Str} stand for the corresponding regex constructors:
+\begin{lstlisting}[numbers=none]
+Or(Str "SSTRAESTR", Or (Str "SSTRTESTR", Or (Str "SSTRGESTR", Str "SSTRCESTR")))
+\end{lstlisting}
+It is not reasonable to assume that \li{Or} and \li{Str} are bound appropriately at every use site. In order to maintain \emph{context independence}, the desugaring applies the explicit \li{fold} and \li{inj} operators as discussed in Sec. \ref{sec:lists}.\footnote{In SML, where datatypes are generative and the constructors values are necessary, we would need to use a technique like the one described for $\mathcal{V}_\text{RX}$, next.}
+
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+val ssn = SURL/\d\d\d-\d\d-\d\d\d\d/EURL
+fun lookup_rx(name : string) => SURL/@EURLnameSURL: %EURLssnSURL/EURL
+\end{lstlisting}
+\caption{Derived regex expression forms in $\mathcal{V}_\texttt{rx}$}
+\label{fig:derived-spliced-subexpressions}
+\end{figure}
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+fun is_dna_rx(r : rx) : boolean => 
+  match r with 
+  | SURL/A/EURL => True
+  | SURL/T/EURL => True
+  | SURL/G/EURL => True
+  | SURL/C/EURL => True
+  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
+  | _ => False
+  end
+\end{lstlisting}
+\vspace{-5px}
+\caption{Derived regex pattern forms in $\mathcal{V}_\texttt{rx}$}
+\label{fig:derived-pattern-syntax}
+\end{figure}
+
+$\mathcal{V}_\texttt{rx}$ also supports regex literals that contain {subexpressions}, to capture the idioms that arise when constructing regexes compositionally. For example, the definition of \li{lookup_rx} in Figure \ref{fig:derived-spliced-subexpressions} is equivalent to the definition of \li{lookup_rx} that was given in Figure \ref{fig:lookup_rx}, i.e. it constructs a regex from a string, \li{name}, and another regex, \li{ssn}. The prefix \li{SURL@EURL} followed by the identifier \li{name} causes the expression \lstinline{name} to appear in the desugaring as if it was wrapped in the \li{Str} constructor, and the prefix \li{SURL%EURL} 
+followed by the identifier \li{ssn} causes \lstinline{ssn} to appear in the desugaring directly. We refer to the subexpressions that appear inside literal forms as \emph{spliced subexpressions}. 
+
+
+%  The body of \li{example_rx} could equivalently be written as follows:
+% \begin{lstlisting}[numbers=none]
+% Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+% \end{lstlisting}
+% (Again, the desugaring itself must use the explicit \li{fold} and \li{inj} operators to maintain context-independence.)
+%Notice that \li{name} appears wrapped in the label \li{Str} because it was prefixed by \li{@}, whereas \li{ssn} appears unadorned because it was prefixed by \li{%}. 
+
+To splice in an expression that is not of variable form, e.g. a function application, we must delimit it with parentheses:
+\begin{lstlisting}[numbers=none]
+/SURL@(EURLcapitalize nameSURL): %(EURLssnSURL)EURL/
+\end{lstlisting}
+
+Finally, $\mathcal{V}_\texttt{rx}$ extends the syntax of patterns with analagous \emph{derived regex pattern literals}. For example, the definition of \li{is_dna_rx} in Figure \ref{fig:derived-pattern-syntax} is equivalent to the definition of \li{is_dna_rx} that was given in Figure \ref{fig:is_dna_rx}. Notice that the variables bound by the patterns in Figure \ref{fig:derived-pattern-syntax} appear inside \emph{spliced sub-patterns}.
+
+\subsubsection{Example 2: $\mathcal{V}_\text{RX}$}
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+fun is_dna_rx'(r : R.t) : boolean => 
+  match R.unfold_norm r with 
+  | SURL/A/EURL => True
+  | SURL/T/EURL => True
+  | SURL/G/EURL => True
+  | SURL/C/EURL => True
+  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx' r1) andalso (is_dna_rx' r2)
+  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx' r1) andalso (is_dna_rx' r2)
+  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
+  | _ => False
+  end
+\end{lstlisting}\vspace{-5px}
+\caption{Derived pattern forms in $\mathcal{V}_\text{RX}$}
+\label{fig:VRX-pats}
+\end{figure}
+
+In Sec. \ref{sec:syntax-examples-regexps}, we gave a more sophisticated formulation of our regex library organized around the signature \li{RX} defined in Figure \ref{fig:signature-RX}. Let us define another dialect of VerseML's textual syntax called $\mathcal{V}_\text{RX}$ that defines derived forms whose desugarings involve modules that implement \li{RX}. For this to work in a  context-independent manner, these forms must take the particular module that is to appear in the desugaring as a spliced term. For example, in the following program fragment, the module \li{R} is ``passed into'' each derived form for use in its desugaring as a spliced module:
+\begin{lstlisting}[numbers=none]
+val ssn = RSURL./\d\d\d-\d\d\d\d-\d\d\d/EURL
+fun lookup_rx'(name : string) => RSURL./@EURLnameSURL: %EURLssnSURL/EURL
+\end{lstlisting}
+The desugaring of the body of \li{lookup_rx'} is:
+\begin{lstlisting}[numbers=none]
+R.Seq(R.Str(name), R.Seq(R.Str "SSTR: ESTR", ssn))
+\end{lstlisting}
+This is context-independent because the constructors are explicitly qualified (i.e. \li{Seq} and \li{Str} are \emph{field labels} here, not variables.) The only variables are \li{R}, \li{name} and \li{ssn}, all of which were given by the client at the application site.
+
+Recall that \li{RX} specifies a function \li{unfold_norm : t -> t u} for computing the normal unfolding of the given regex, which is a value of type \li{R.t u}. $\mathcal{V}_\text{RX}$ defines derived forms for patterns matching values of types in the type family \li{'a u}. These appear in the definition of \li{is_dna_rx'} given in Figure \ref{fig:VRX-pats}.
+
+
+\subsubsection{Combining $\mathcal{V}_\text{rx}$ and $\mathcal{V}_\text{RX}$}
+
+Notice that the derived regex pattern forms that appear in Figure \ref{fig:VRX-pats} are identical to those that appear in Figure \ref{fig:derived-pattern-syntax}. Their desugarings are, however, different. In particular, the patterns in Figure \ref{fig:VRX-pats} match values of type \li{R.t u}, whereas the patterns in Figure \ref{fig:derived-pattern-syntax} match values of type \li{rx}. 
+
+These two examples were written in different syntax dialects. However, it would be useful to have derived forms for values of type \li{rx} available even when we are working with a value of a type \li{R.t}, because we have defined a function \li{view : R.t -> rx} in \li{RXUtil}. This brings us to the first of the two main problems with the dialect-oriented approach, already described in Chapter \ref{chap:intro}: there is no good way to conservatively combine $\mathcal{V}_\text{rx}$ and $\mathcal{V}_\text{RX}$. In particular, any such ``combined dialect'' will either fail to conserve determinism, or the combined dialect will not be a dialect of both of the constituent dialects, i.e. some of the forms from one dialect will ``shadow'' the overlapping forms from the other dialect (depending on the order in which they were combined \cite{Ford04a}.) 
+
+In response to this problem, Schwerdfeger and Van Wyk have developed a ``nearly'' modular analysis that accepts only deterministic extensions of a base LALR(1) grammar where all new forms must start with a ``marking'' terminal symbol and obey certain other constraints related to  the follow sets of the base grammar's non-terminals \cite{conf/pldi/SchwerdfegerW09}. By relying on a context-aware scanner (a feature of Copper \cite{conf/gpce/WykS07}) to transfer control when the marking terminals are seen, extensions of a base grammar that pass this analysis and specify distinct marking terminals can be combined without introducing conflict. The analysis is ``nearly'' modular in that only a relatively simple ``combine-time'' check that the set of marking terminals is disjoint is necessary.
+
+For the two dialects just considered, these conditions are not satisfied. If we modify the grammar of $\mathcal{V}_\text{RX}$ so that, for example, the regex literal forms are marked with \li{#\dolla#r} and the regex unfolding forms were marked with \li{#\dolla#u}, the analysis will accept both grammars, and the combine-time disjointness check will pass, solving our immediate problem at only a small cost. However, a conflict could still  arise later when a client combines these extensions with another extension that also uses the marking terminals \li{#\dolla#r}, \li{#\dolla#u} or \li{/}. %There is no reason to believe that other dialect providers will avoid these marking terminals.
+
+The solution given in \cite{conf/pldi/SchwerdfegerW09} is 1) to allow for the grammar's name to be used as an additional syntactic prefix when a conflict arises, and 2) to adopt a naming convention for grammars  based on the Internet domain name system (or some similar coordinating system.) Figure \ref{fig:VRX-pats} shows how a client needs to draw \li{is_dna_rx'} when a conflict arises. Clearly, this drawing has substantially higher syntactic cost than the drawing in Figure \ref{fig:VRX-pats}. Moreover, there is no simple way for clients to selectively control this cost by defining scoped abbreviations for marking tokens or grammar names (as one does for types, modules or values that are exported from deeply nested modules) because this mechanism is only syntactic, i.e. agnostic to the binding structure of the base language.
+
+\todo{mention this? \url{http://www.ccs.neu.edu/home/ejs/papers/tfp12-island.pdf}}
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+fun is_dna_rx'(r : R.t) : boolean => 
+  match R.unfold_norm r with 
+  | SURL$cmu_edu_comar_rx $u/A/EURL => True 
+  | SURL$cmu_edu_comar_rx $u/T/EURL => True
+  | SURL$cmu_edu_comar_rx $u/G/EURL => True
+  | SURL$cmu_edu_comar_rx $u/C/EURL => True
+  (* and so on *)
+  | _ => False
+  end
+\end{lstlisting}
+\caption{Using URL-based marking tokens to avoid syntactic conflicts.}
+\label{fig:vanwyk}
+\end{figure}
+
+\subsubsection{Abstract Reasoning About Derived Forms}
+In addition to the difficulties of conservatively combining syntax dialects, there are a  number of other difficulties related to the fact that there is often no useful notion of syntactic abstraction that a programmer can rely on to reason about an unfamiliar derived form. The programmer may need to examine the desugaring, the desugaring logic or even the definitions of all of the constituent dialects, to definitively answer the questions given in Sec. \ref{sec:abs-reasoning-intro}. These questions were stated relative to a particular example involving the query processing language K.  
+Here, we generalize from that example to develop an informal classification of the difficulties that programmers might encounter in analagous situations. In each case, we will discuss exceptional systems where these difficulties are ameliorated or avoided.% We discuss some exceptions from amongst the related work above:
+
+\begin{enumerate}
+\item \textbf{Search:} It is not always straightforward to determine which constituent dialect is responsible for any particular derived form.
+
+The system implemented by Copper \cite{conf/pldi/SchwerdfegerW09} is an exception, in that the marking terminal (and the grammar name, if necessary) allows clients to search across the constituent dialect definitions for the corresponding declaration without needing to understand any of them deeply.
+\item \textbf{Segmentation:} It is not always possible to segment a derived form such that each segment consists either of a spliced base language term (which we have drawn in black in the examples in this document) or a sequence of characters that are parsed otherwise (which we have drawn in color.) When it is possible, determining the segmentation is not always straightforward.
+
+For example, consider a production in a grammar that looks like this: 
+\begin{lstlisting}[numbers=none]
+start <- "%(" verseml_exp ")"
+\end{lstlisting}
+
+The name of the non-terminal \li{verseml_exp} suggests that it will match any VerseML expression, but it is not certain that this is the case. Moreover, even if we know that this non-terminal matches VerseML expressions, it is not certain that the output logic will insert that expression as-is into the desugaring -- it may instead only examine its form, or transform it in some way (in which case highlighting it as a spliced expression might be misleading.)
+
+Systems that support the generation of editor plug-ins, such as Spoofax \cite{kats2010spoofax} and Sugarclipse for SugarJ \cite{Erdweg:2012:GLE}, can generate syntax coloring logic from an annotated grammar definition, which often give programmers some indication of where a spliced term occurs. However, there is no definitive information about segmentation in how the editor displays the derived form. (Moreover, these editor plug-ins can themselves conflict, even if the syntax itself is deterministic.)
+\item \textbf{Shadowing:} The desugaring of a derived form might place spliced terms under binders. These binders are not visible in the program text, but can shadow those that are. This obscures the binding structure of the program.
+
+For derived forms that desugar to module-level definitions (e.g. to one or more \li{val} definitions), a desugaring might introduce locally-scoped bindings and, simultaneously, exported module components that are similarly invisible in the text. This can cause both local shadowing as well as non-local shadowing if a client \li{open}s the module into scope.
+
+In most cases, shadowing is inadvertent. For example, a desugaring might bind an intermediate value to some temporary variable, \li{tmp}. This can cause problems at use sites where \li{tmp} is bound. If the types of the two bindings are incompatible, the problem will be caught statically. Otherwise, it will cause unanticipated dynamic behavior. It is easy to miss this problem in testing.
+
+In some syntax dialects, shadowing is by design. For example, in (Sugar)Haskell, \li{do} notation for monadic values introduces a new binding construct \cite{erdweg2012layout}. For programmers who {are} familiar with \li{do} notation, this can be useful. But when a programmer encounters an unfamiliar form, this forces them to determine whether it similarly is designed as a new binding construct. A simple grammar provides no information about shadowing.%The point is simply that this is a double-edged sword.
+
+In most systems, it is possible for dialect providers to generate identifiers that are guaranteed to be fresh at the use site. If dialect providers are disciplined about using this mechanism, they can prevent such  conflicts. However, this is awkward and most systems provide not guarantee that the dialect provider maintained this freshness discipline \cite{conf/ecoop/ErdwegSD14}.
+
+To enforce a prohibition on shadowing, the system must be integrated into or otherwise made aware of the binding structure of the language. For example, some of the language-integrated mixfix systems discussed above, e.g. Coq's notation system \cite{Coq:manual}, enforce a prohibition on shadowing by alpha-renaming desugarings as necessary. Erdweg et al. have developed a formalism for directly describing the ``binding structure'' of program text, as well as contextual transformations that use these descriptions to rename the identifiers that appear in a desugaring (and more generally, a rewriting) to avoid shadowing \cite{conf/ecoop/ErdwegSD14,conf/sle/RitschelE15}.\footnote{These papers refer to this property as ``capture avoidance''. We use the term ``shadowing'' rather than ``capture'' because ``capture'' has several incompatible meanings in the literature.}
+
+\item \textbf{Context Dependence:} If the desugaring of a derived form assumes that certain identifiers are bound at the use site (e.g. to particular values, or to values of some particular type), we refer to the desugaring as being \emph{context dependent}. 
+
+%One might describe such desugarings as having ``captured'' bindings from the use site. Notice that this is distinct from the situation described above, where it is a term at the use site that ``captures'' bindings from the desugaring. %We will avoid the term ``capture''. %We use the word ``hygiene'' to refer collectively to context independence and shadowing avoidance. 
+
+Context dependent desugarings take control over naming away from clients. Moreover, it is difficult to determine the assumptions that a desugaring is making. As such, it is difficult to reason about whether renaming an identifier or moving a binding is a meaning-preserving transformation. 
+
+In our examples above, we maintained context independence as a ``courtesy'' by explicitly applying the \li{fold} and \li{inj} operators, or by taking the module for use in the desugaring as a ``syntactic argument''. 
+
+To enforce context independence, the system must be aware of binding structure and have some way to distinguish those subterms of a desugaring that originate in the text at the use site (which should have access to bindings at the use site) from those that do not (which should only have access to bindings internal to the desugaring.) 
+For example, language-integrated mixfix systems, e.g. Coq's notation system, use a simple rewriting system to compute desugarings, so they satisfy these requirements and can enforce context independence. Coq gives desugarings access only to the bindings visible where the notation was defined.
+
+More flexible systems where desugarings are computed functionally, or language-external systems that have no understanding of binding structure, do not enforce context independence.
+
+\item \textbf{Typing:} Finally, and perhaps most importantly, it is not always clear what type an expression drawn in derived form has, or what type of value that a pattern drawn in derived form matches.
+
+Similarly, it is not always straightforward to determine what type a spliced expression has, or what type of value that a spliced pattern matches.
+
+SoundExt/SugarFomega \cite{conf/popl/LorenzenE16} and SoundX \cite{conf/sle/RitschelE15} allow dialect providers to define derived typing rules alongside derived forms and desugaring rules. These systems automatically verify that the desugaring rules are sound with respect to these derived typing rules. This ensures that type errors are never reported in terms of the desugaring (which is the stated goal of their work). However, this helps only to a limited extent in answering the questions just given. In particular, the programmer must construct a derivation using the derived typing rules introduced by all of the constituent dialects, then examine this derivation to answer questions about the type of the desugaring and the spliced terms within it. 
+
+Even for relatively simple base languages, like System $\mathbf{F}_\omega$, understanding a typing derivation requires significantly more expertise than programmers usually need.\footnote{At CMU, we teach ML to all first-year students (in 15-150.) However, understanding a judgemental specification of a language like System $\mathbf{F}_\omega$ involves skills that are taught only to some third and fourth year students (in 15-312.)} For languages like ML, the judgement forms are substantially more complex. 
+\end{enumerate}
+
+As discussed in Sec. \ref{sec:problems-with-dialects}, languages with a rich type and binding structure are designed to minimize or eliminate the cognitive cost of answering analagous questions. These reasoning principles are central to the claim that such languages are suitable for ``programming in the large'' \cite{DeRemer76}. 
+
+Due to the problems of syntactic conflict and the reasoning difficulties enumerated above, the textual syntax of VerseML cannot be modified or extended from within.% (There is, of course, no way to stop programmers from defining dialects of VerseML using any language-external syntax definition system of their choosing. Our goal is only to make this a less compelling option for library providers seeking only to capture idioms like those that we have discussed.) 
+
+ % reasonable to obscure the type bind and binding structure by using these mechanisms.
+% One approach would be to define both this encoding and the recursive labeled sum type \li{Rx} and define a parameterized module (i.e. a \emph{functor} in SML) that maps between them, given any module \li{R : RX}: 
+
+% \begin{lstlisting}[numbers=none]
+% structure RxHelper(R : RX) = 
+% struct
+%   fun to_R : Rx -> R.t = (* ... *)
+%   fun of_R : R.t -> Rx = (* ... *)
+% end
+% \end{lstlisting}
+
+% For example, given a particular module \li{R : RX}, we can generate the helper module \li{RH} as follows:
+
+% \begin{lstlisting}[numbers=none]
+% structure RH = RxHelper(R)
+% \end{lstlisting}
+
+% then, if we are using the VerseML/Rx syntax dialect, we can use the derived forms described previously in the argument position of \li{RH.to_r}:
+
+% \begin{lstlisting}[numbers=none]
+% let ssn = RH.to_R /SURL\d\d\d-\d\d\d\d-\d\d\dEURL/
+% \end{lstlisting}
+
+% One problem with this approach is that it makes using the spliced forms awkward. For example, consider writing the function \li{example_rx} in this manner:
+
+% \begin{lstlisting}[numbers=none]
+% fun example_R(name : string) => RH.to_R /SURL@EURLnameSURL: %(EURLRH.of_R ssnSURL)EURL/\end{lstlisting}
+
+% Notice that we had to transform \li{ssn}, which is of type \li{R.t}, back into a value of type \li{Rx} in order to splice it into the expression above. The value of this expression is then immediately transformed back into a value of type \li{R.t} by \li{RH.to_R}. This is both syntactically awkward and incurs dynamic cost, i.e. it is an $\mathcal{O}(n)$ operation, where $n$ is the size of the regex being spliced. In this particular case, the cost may be negligible, but for large data structures, this may no longer be the case.
+
+
+
+
+% \subsubsection{Direct Syntax Extension}\label{sec:direct-syntax-extension}
+% One tempting alternative to dynamic string parsing is to use a system that gives the users of a language the power to directly extend its concrete syntax with new derived forms. %for regular expression patterns.% for patterns.
+
+% The simplest such systems are those where the elaboration of each new syntactic form is defined by a single rewrite rule. For example, Gallina, the ``external language'' of the Coq proof assistant, supports such extensions \cite{Coq:manual}. A formal account of such a system has been developed by Griffin \cite{5134}. Unfortunately, a single equation is not enough to allow us to express pattern syntax following the usual conventions. For example, a system like Coq's cannot handle escape characters, because there is no way to programmatically examine a form when generating its expansion.
+
+% Other syntax extension systems are more flexible. For example, many are based on context-free grammars, e.g.  Sugar* \cite{erdweg2013framework} and Camlp4 \cite{ocaml-manual} (amongst many others). Other systems give library providers direct programmatic access to the parse stream, like Common Lisp's \emph{reader macros} \cite{steele1990common} (which are distinct from its term-rewriting macros, described in Sec. \ref{sec:term-rewriting} below) and Racket's preprocessor \cite{Flatt:2012:CLR:2063176.2063195}. All of these would allow us to add pattern syntax into our language's grammar, perhaps following Unix conventions and supporting splicing syntax as described above:
+% \begin{lstlisting}[numbers=none]
+% let val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+% fun example_shorter(name : string) => /SURL@EURLnameSURL: %EURLssn/
+% \end{lstlisting}
+% %The body of this function elaborates to the body of \lstinline{example_fixed} as shown above. 
+% %Had we mistakenly written \lstinline{%name}, we would encounter only a static type error, rather than the  silent injection  vulnerability discussed above. 
+
+% We sidestep the problems of dynamic string parsing described above  when we directly extend the syntax of our language using any of these systems. Unfortunately, direct syntax extension introduces serious new problems. First, the systems mentioned thus far cannot guarantee that {syntactic conflicts} between such extensions will not arise. As stated directly in the  Coq manual: ``mixing different symbolic notations in [the] same text may cause serious parsing ambiguity''. If another library provider used similar syntax for a different implementation or variant of regular expressions, or for some other unrelated construct, then a client could not simultaneously use both libraries at the same time. So properly considered, every combination of extensions introduced using these mechanisms creates a \emph{de facto} syntactic dialect of our language. The benefit of these systems is only that they lower the implementation cost of constructing syntactic dialects. % Resolving such parsing amibiguities is left to each client of the library. 
+
+% In response to this problem, Schwerdfeger and Van Wyk developed a modular analysis that accepts only context-free grammar extensions that begin with an identifying starting token and obey certain constraints on  the follow sets of base language's non-terminals \cite{conf/pldi/SchwerdfegerW09}. Extensions that specify distinct starting tokens and that satisfy these constraints can be used together in any combination without the possibility of syntactic conflict. However, the most natural starting tokens like \lstinline{rx} cannot be guaranteed to be unique. To address this problem, programmers must agree on a convention for defining ``globally unique identifiers'', e.g. the common URI convention used on the web and by the Java packaging system. However, this forces us to use a more verbose token like \lstinline{edu_cmu_VerseML_rx}. There is no simple way for clients of our extension to define scoped abbreviations for starting tokens because this mechanism operates purely at the level of the context-free grammar.
+
+% In particular, if det(H) and det(R) and the set of marking terminals on dialects such that if OK(H) and OK(R) and starttokens(H) disjoint from starttokens(R) then det(H cup R). This is not quite modular, in that we still need to check that the start tokens are disjoint at ``combination-time''. To be confident that this check will not fail, a community might adopt a social convention, e.g. using URIs as start tokens. 
+
+
+% Putting this aside, we must also consider another modularity-related question: which particular module should the expansion use? Clearly, simply assuming that some module identified as \lstinline{R} matching \lstinline{RX} is in scope is a brittle solution. In fact, we should expect that the system actively prevents such capture of specific variable names to ensure that variables (here, module variables) can be freely renamed. Such a \emph{hygiene discipline} is well-understood only when performing term-to-term rewriting (discussed below) or in simple language-integrated rewrite systems like those found in Coq. For mechanisms that operate strictly at the level of context-free grammars or the parse stream, it is not clear how one could address this issue. The onus is then on the library provider to make no assumptions about variable names and instead require that the client explicitly identify the module they intend to use as an ``argument'' within the newly introduced form:
+% \begin{lstlisting}[numbers=none]
+% let val ssn = edu_cmu_VerseML_rx R /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+% \end{lstlisting}
+
+% Another problem with the approach of direct syntax extension is that, given an unfamiliar piece of syntax, there is no straightforward method for determining what type it will have, causing difficulties for both humans (related to code comprehension) and tools. 
 
 % \todo{Related work I haven't mentioned yet:}
 % \begin{itemize}
@@ -127,8 +542,36 @@ Another problem with the approach of direct syntax extension is that, given an u
 % \item That Modularity paper
 % \item Template Haskell and similar
 % \end{itemize}
-\subsection{Term Rewriting}\label{sec:term-rewriting}
-An alternative approach is to leave the concrete syntax of the language fixed, but repurpose it for novel ends using a \emph{local term-rewriting system}. The LISP macro system \cite{Hart63a} is perhaps the most prominent example of such a system. Early variants of this system suffered from the problem of unhygienic variable capture just described, but  later variants, notably in the Scheme dialect of LISP, brought support for enforcing hygiene \cite{Kohlbecker86a}. In languages with a richer static type discipline, variants of macros that restrict rewriting to a particular type and perform the rewriting statically have also been studied \cite{Herman10:Theory,ganz2001macros} and integrated into languages, e.g. MacroML \cite{ganz2001macros} and Scala \cite{ScalaMacros2013}. 
+\subsection{Rewriting Systems}\label{sec:term-rewriting}
+Another approach is to leave the textual syntax of the language fixed, but repurpose it for novel ends using a \emph{term rewriting system}.
+
+\subsubsection{Language-External Term Rewriting}
+Language-external rewriting systems operate as \emph{preprocessors}, transforming well-formed program fragments to produce other well-formed program fragments.
+
+For example, one could define a preprocessor that rewrites every string literal that is followed by the comment \li{(*rx*)} to the corresponding expression (or pattern) of type \li{rx}, following the approach discussed in the previous section. For example, the following expression would be rewritten to a regex expression, with \li{dna} treated as a spliced subexpression as described in the previous section:
+\begin{lstlisting}[numbers=none]
+"SSTRGC%(dna)GCESTR"(*rx*)
+\end{lstlisting}
+
+OCaml 4.02 introduced \emph{extension points} into its textual syntax \cite{ocaml-manual-4.02}. Extension points serve as markers for the benefit of a preprocessor. They are less \emph{ad hoc} than comments, in that each extension point is associated with a single term in a well-defined way, and the compiler gives an error if any extension points remain after preprocessing is complete. For example, in the following program fragment, 
+\begin{lstlisting}[numbers=none]
+let%lwt (x, y) = f in x + y
+\end{lstlisting}
+the \li{%lwt} 
+annotation on the let expression causes a preprocessor distributed with \li{Lwt}, a lightweight threading library, to rewrite this fragment to:
+\begin{lstlisting}[numbers=none]
+Lwt.bind f (fun (x, y) -> x + y)
+\end{lstlisting}
+The OCaml system is distributed with a library called \li{ppx_tools} that simplifies the task of writing  preprocessors that operate on terms annotated with extension points.
+
+These systems have nearly all of the same conceptual problems as dialect-oriented systems do. \todo{elaborate on this}
+
+\subsubsection{Macro Systems}
+Macro systems allow programmers to designate functions that operate over term encodings as macros, and then apply these macros directly to terms. \todo{search is solved. delimitation is solved. conflict is solved.}
+
+The LISP macro system \cite{Hart63a} is perhaps the most prominent example of such a system. Early variants of this system suffered from the problem of hygiene described earlier \todo{elaborate}, but  later variants, notably in the Scheme dialect of LISP, brought support for enforcing hygiene \cite{Kohlbecker86a}. 
+
+In languages with a richer static type discipline, variants of macros that restrict rewriting to a particular type and perform the rewriting statically have also been studied \cite{Herman10:Theory,ganz2001macros} and integrated into languages, e.g. MacroML \cite{ganz2001macros} and Scala \cite{ScalaMacros2013}. \todo{actually MacroML isn't a term rewriting system; just a staging system. write about this.} \todo{typing is sort of solved...}
 
 The most immediate problem with using these for our example is that we are not aware of any such statically-typed macro system that integrates cleanly with an ML-style module system. In other words, macros cannot be parameterized by modules. However, let us imagine such a macro system. We could use it to repurpose string syntax  as follows:
 \begin{lstlisting}[numbers=none]
@@ -161,6 +604,6 @@ The binary operator \lstinline{^} is repurposed to indicate a spliced string and
 
 Having to creatively repurpose existing forms in this way limits the effect a library provider can have on cognitive cost (particularly when it would be desirable to express conventions that are quite different from the conventions adopted by the language). It also can create confusion for readers expecting parenthesized expressions to behave in a consistent manner. However,  this approach is preferable to direct syntax extension because it avoids many of the problems discussed above: there cannot be syntactic conflicts (because the syntax is not extended at all), we can define macro abbreviations because macros are integrated into the language, there is a hygiene discipline that guarantees that the expansion will not capture variables inadvertently, and by using a typed macro system, programmers need not examine the expansion to know what type the expansion produced by a macro must have. 
 
-\subsection{Active Libraries}
-The design we are proposing also has conceptual roots in earlier work on \emph{active libraries}, which similarly envisioned using compile-time computation to give library providers more control over various aspects of a programming system, including its concrete syntax (but did not take an approach rooted in the study of type systems) \cite{active-libraries-thesis}. 
+% \subsection{Active Libraries}
+% The design we are proposing also has conceptual roots in earlier work on \emph{active libraries}, which similarly envisioned using compile-time computation to give library providers more control over various aspects of a programming system, including its concrete syntax (but did not take an approach rooted in the study of type systems) \cite{active-libraries-thesis}. 
 % TODO FLESH THIS OUT 
