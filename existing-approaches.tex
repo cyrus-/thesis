@@ -4,7 +4,7 @@ We will now review existing approaches that library providers seeking to decreas
 
 \subsection{Standard Abstraction Mechanisms}
 The simplest approach is to capture idioms using the standard abstraction mechanisms of our 
-language, i.e. bound values, functions and modules. 
+language, e.g. functions and modules. 
 
 We already saw examples of this approach above. For example, we defined the ``list constructors'', which capture the idioms of list construction:
 \begin{lstlisting}[numbers=none]
@@ -257,7 +257,7 @@ Due to these limitations, VerseML does not inherit this mechanism from SML (the 
 
 
 \subsection{More General Syntax Definition Systems}\label{sec:syntax-dialects}
-Fixity declarations give their users no direct control over desugaring -- the desugaring is always the corresponding function application. More general syntax definition systems give users more direct control over the desugaring process. In this section, we will first review these more general syntax definition systems, then give two examples of syntax dialects, followed by a discussion of the difficulties that programmers can encounter if they try to adopt a dialect-oriented approach ``in the large'' (as a follow-up to the problems already introduced in Sec. \ref{sec:problems-with-dialects}.)
+Fixity declarations give their users no direct control over desugaring -- the desugaring is always the corresponding function application. More general syntax definition systems give users more direct control over desugaring. In this section, we first review these more general syntax definition systems, then give two examples that demonstrate the expressive power of these systems, followed by a discussion of the difficulties that programmers can expect to encounter if they  adopt these systems ``in the large'' (following up on the previous discussion in Sec. \ref{sec:problems-with-dialects}.)
 
 \subsubsection{Mixfix Notational Definitions}
 Some languages, including many popular type-theoretic proof assistants like Coq \cite{Coq:manual}, support ``mixfix'' notational definitions. These generalize SML-style fixity declarations, in that newly defined forms can contain any fixed number of sub-terms (rather than just two). Their desugarings are determined by a user-defined rewriting rule. Griffin gives a formal account of such systems \cite{5134}, and Taha and Johann incorporate Griffin's account into a more general and  well-behaved account of \emph{staged notational definitions} \cite{Taha2003}.
@@ -267,11 +267,12 @@ Although more expressive than fixity declarations, these syntax definition syste
 \subsubsection{Grammar-Based Syntax Definition Systems}
 Many syntax definition systems are oriented around \emph{formal grammars} \cite{hopcroft1979introduction}. Formal grammars have been studied since at least the time of P\~anini, who developed a grammar for Sanskrit in or around the 4th century BCE \cite{Ingerman:1967:LFS:363162.363165}. 
 
-\emph{Context-free grammars (CFGs)} were first used to define the textual syntax of a major programming language -- Algol 60 -- by Backus \cite{naur1963revised}. Since then, countless other syntax definition systems oriented around CFGs have emerged -- we will only summarize the systems that are particularly relevant to this work. In these systems a syntax definition consists of a CFG (perhaps from some restricted class of CFGs) equipped with various auxiliary definitions (e.g. a lexer/scanner definition in some systems) and logic for computing an output value (e.g. a tree) based on the determined form of the input. 
+\emph{Context-free grammars (CFGs)} were first used to define the textual syntax of a major programming language -- Algol 60 -- by Backus \cite{naur1963revised}. Since then, countless other syntax definition systems oriented around CFGs have emerged -- we will only summarize the systems that are particularly relevant to our work here. In these systems a syntax definition consists of a CFG (perhaps from some restricted class of CFGs) equipped with various auxiliary definitions (e.g. a scanner/lexer definition in some systems) and logic for computing an output value (e.g. a tree) based on the determined form of the input. A \emph{parser generator} is an implementation of a grammar-based syntax definition system.
 
-Perhaps the most established systems in the ML ecosystem are ML-Lex + ML-Yacc, which is distributed with SML/NJ \cite{TarditiDR:mly}, and Camlp4, which was (until recently)  integrated into  the OCaml system (in recent releases of the OCaml system, it has been deprecated in favor of a simpler system, \li{ppx}, that we discuss in the next section) \cite{ocaml-manual}. In these systems, output is  computed by ML functions that appear associated with each production in the grammar (these functions are referred to as the \emph{semantic actions}.) 
 
-The \emph{syntax definition formalism  (SDF)}  \cite{journals/sigplan/HeeringHKR89} is a syntactic formalism for describing CFGs. SDF is used by a number of syntax definition systems, e.g. the Spoofax ``language workbench'' \cite{kats2010spoofax}. These systems commonly use Stratego, a rule-based rewriting language, as the language that output logic is written in \cite{Visser-RTA01}. SugarJ is an extension of Java that allows programmers to define and combine fragments of SDF+Stratego-based syntax definitions directly from within the program text \cite{erdweg2011sugarj}. SugarHaskell is a similar system based on Haskell \cite{erdweg2012layout} and Sugar* simplifies the task of defining such extensions of other languages \cite{erdweg2013framework}. SoundExt and SugarFOmega add the requirement that new derived forms must come equipped with corresponding derived typing rules \cite{conf/icfp/LorenzenE13}. The system must be able to verify that the rewrite logic is sound with respect to these rules (their verification system is written in, and defers to the facilities of, PLT-Redex \cite{Felleisen-Findler-Flatt09}.) SoundX generalizes this idea to support other base languages, and also adds the ability to define type-dependent rewritings \cite{conf/popl/LorenzenE16}.
+Perhaps the most established syntax definition systems within the ML ecosystem are ML-Lex  and ML-Yacc, which are distributed with SML/NJ \cite{TarditiDR:mly}, and Camlp4, which was (until recently)  integrated into  the OCaml system (in recent releases of the OCaml system, it has been deprecated in favor of a simpler system, \li{ppx}, that we discuss in the next section) \cite{ocaml-manual}. In these systems, output is  computed by ML functions that appear associated with each production in the grammar (these functions are referred to as the \emph{semantic actions}.) 
+
+The \emph{syntax definition formalism  (SDF)}  \cite{journals/sigplan/HeeringHKR89} is a syntactic formalism for describing CFGs. SDF is used by a number of syntax definition systems, e.g. the Spoofax ``language workbench'' \cite{kats2010spoofax}. These systems commonly use Stratego, a rule-based rewriting language, as the language that output logic is written in \cite{Visser-RTA01}. SugarJ is an extension of Java that allows programmers to define and combine fragments of SDF+Stratego-based syntax definitions directly from within the program text \cite{erdweg2011sugarj}. SugarHaskell is a similar system based on Haskell \cite{erdweg2012layout} and Sugar* simplifies the task of defining such extensions of other languages \cite{erdweg2013framework}. SoundExt and SugarFOmega add the requirement that new derived forms must come equipped with corresponding derived typing rules \cite{conf/icfp/LorenzenE13}. The system must be able to verify that the rewrite logic is sound with respect to these rules (their verification system defers to the proof search facilities of PLT-Redex \cite{Felleisen-Findler-Flatt09}.) SoundX generalizes this idea to support other base languages, and also adds the ability to define type-dependent rewritings \cite{conf/popl/LorenzenE16}. We will say more about SoundExt/SugarFOmega and SoundX below.
 
  %Erdweg et al. have developed many non-trivial examples, including . \to
 
@@ -281,7 +282,7 @@ Copper implements a CFG-based syntax definition system that uses a context-aware
 Some other syntax definition systems are instead oriented  around \emph{parsing expression grammars} (PEGs) \cite{Ford04a}. PEGs are similar to CFGs, distinguished mainly in that they are deterministic by construction (by allowing only for explicitly prioritized choice between alternative parses.)
 
 \subsubsection{Parser Combinator Systems}
-\emph{Parser combinator systems} define a functional interface for defining a parser, together with various functions that generate new parsers from given parsers and other values (these functions are referred to as the \emph{parser combinators}) \cite{Hutton1992d}. In some cases, it is acceptable to take an expression that involves parser combinators as definitional (as opposed to the usual view, where a parser is an \emph{implementation} of a separate syntax definition.) 
+\emph{Parser combinator systems} define a functional interface for defining a parser, together with various functions that generate new parsers from given parsers and other values (these functions are referred to as the \emph{parser combinators}) \cite{Hutton1992d}. 
 
 For example, Hutton describes a system where parsers are functions of some type in the following type family:% \li{'char 'tree parser}, bound in VerseML's syntax:
 \begin{lstlisting}[numbers=none]
@@ -295,10 +296,22 @@ combines the two input parsers by applying them both to the input and appending 
 
 Various alternative formulations of this concept that better control dynamic cost or have other useful properties have also been described. For example, Hutton and Meijer describe a parser combinator in monadic style \cite{hutton1998monadic}. Okasaki has described an alternative design that uses continuations to control cost \cite{Okasaki98b}.
 
+In some cases, it is acceptable to take a composition of parser combinators as definitional (as opposed to the usual view, where a parser is an \emph{implementation} of a separate syntax definition.)
+
+Syntax dialects implemented using parser combinators or by a {parser generator} usually operate as language-external \emph{preprocessors}, transforming source text into a well-formed program. Some compilers integrate preprocessing into the build process, e.g. the OCaml compiler \cite{ocaml-manual}. Other systems use directives placed in source text to invoke a preprocessor. For example, using Racket's reader macro system, the programmer can direct the lexer (called the ``reader'') to shift control to a given parser when a certain directive or token is seen \cite{Flatt:2012:CLR:2063176.2063195}.
+
 %The most minimal syntax definition systems, e.g. Racket's dialect preprocessor \cite{Flatt:2012:CLR:2063176.2063195}, take any function of a type like \li{string -> exp}, where \li{exp} is a system-defined encoding of the syntax of expressions (enriched perhaps with source code locations and other ``metadata''), as a syntax definition. Programmers using these systems are free to use an implementation of some other syntax definition system to define this function.
 
 \subsubsection{Example 1: $\mathcal{V}_\texttt{rx}$}
-Let us now consider a dialect of VerseML's textual syntax called $\mathcal{V}_\texttt{rx}$, defined using some suitably expressive syntax definition system like those just described, that  builds in derived forms related to the recursive type \li{rx} that was defined in Figure \ref{fig:datatype-rx}.\footnote{Technically, $\mathcal{V}_\texttt{rx}$ must be a dialect of the textual syntax of VerseML's expansion language; cf. Chap. \ref{chap:uetsms}.}
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+val ssn = SURL/\d\d\d-\d\d-\d\d\d\d/EURL
+fun lookup_rx(name : string) => SURL/@EURLnameSURL: %EURLssnSURL/EURL
+\end{lstlisting}
+\caption{Derived regex expression forms in $\mathcal{V}_\texttt{rx}$}
+\label{fig:derived-spliced-subexpressions}
+\end{figure}
+Let us now consider a dialect of VerseML's textual syntax called $\mathcal{V}_\texttt{rx}$, defined using some syntax definition system like those just described, that  builds in derived forms related to the recursive type \li{rx} that was defined in Figure \ref{fig:datatype-rx}.\footnote{Technically, $\mathcal{V}_\texttt{rx}$ must be a dialect of the textual syntax of VerseML's expansion language; cf. Chap. \ref{chap:uetsms}.}
 
 $\mathcal{V}_\texttt{rx}$ extends the syntax of expressions with  \emph{derived regex literals}, which are delimited by forward slashes, e.g.:
 \begin{lstlisting}[numbers=none]
@@ -310,32 +323,7 @@ Or(Str "SSTRAESTR", Or (Str "SSTRTESTR", Or (Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 It is not reasonable to assume that \li{Or} and \li{Str} are bound appropriately at every use site. In order to maintain \emph{context independence}, the desugaring applies the explicit \li{fold} and \li{inj} operators as discussed in Sec. \ref{sec:lists}.\footnote{In SML, where datatypes are generative and the constructors values are necessary, we would need to use a technique like the one described for $\mathcal{V}_\text{RX}$, next.}
 
-\begin{figure}
-\begin{lstlisting}[numbers=none]
-val ssn = SURL/\d\d\d-\d\d-\d\d\d\d/EURL
-fun lookup_rx(name : string) => SURL/@EURLnameSURL: %EURLssnSURL/EURL
-\end{lstlisting}
-\caption{Derived regex expression forms in $\mathcal{V}_\texttt{rx}$}
-\label{fig:derived-spliced-subexpressions}
-\end{figure}
-\begin{figure}
-\begin{lstlisting}[numbers=none]
-fun is_dna_rx(r : rx) : boolean => 
-  match r with 
-  | SURL/A/EURL => True
-  | SURL/T/EURL => True
-  | SURL/G/EURL => True
-  | SURL/C/EURL => True
-  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
-  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
-  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
-  | _ => False
-  end
-\end{lstlisting}
-\vspace{-5px}
-\caption{Derived regex pattern forms in $\mathcal{V}_\texttt{rx}$}
-\label{fig:derived-pattern-syntax}
-\end{figure}
+
 
 $\mathcal{V}_\texttt{rx}$ also supports regex literals that contain {subexpressions}, to capture the idioms that arise when constructing regexes compositionally. For example, the definition of \li{lookup_rx} in Figure \ref{fig:derived-spliced-subexpressions} is equivalent to the definition of \li{lookup_rx} that was given in Figure \ref{fig:lookup_rx}, i.e. it constructs a regex from a string, \li{name}, and another regex, \li{ssn}. The prefix \li{SURL@EURL} followed by the identifier \li{name} causes the expression \lstinline{name} to appear in the desugaring as if it was wrapped in the \li{Str} constructor, and the prefix \li{SURL%EURL} 
 followed by the identifier \li{ssn} causes \lstinline{ssn} to appear in the desugaring directly. We refer to the subexpressions that appear inside literal forms as \emph{spliced subexpressions}. 
@@ -356,6 +344,24 @@ To splice in an expression that is not of variable form, e.g. a function applica
 Finally, $\mathcal{V}_\texttt{rx}$ extends the syntax of patterns with analagous \emph{derived regex pattern literals}. For example, the definition of \li{is_dna_rx} in Figure \ref{fig:derived-pattern-syntax} is equivalent to the definition of \li{is_dna_rx} that was given in Figure \ref{fig:is_dna_rx}. Notice that the variables bound by the patterns in Figure \ref{fig:derived-pattern-syntax} appear inside \emph{spliced sub-patterns}.
 
 \subsubsection{Example 2: $\mathcal{V}_\text{RX}$}
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+fun is_dna_rx(r : rx) : boolean => 
+  match r with 
+  | SURL/A/EURL => True
+  | SURL/T/EURL => True
+  | SURL/G/EURL => True
+  | SURL/C/EURL => True
+  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
+  | _ => False
+  end
+\end{lstlisting}
+\vspace{-5px}
+\caption{Derived regex pattern forms in $\mathcal{V}_\texttt{rx}$}
+\label{fig:derived-pattern-syntax}
+\end{figure}
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx'(r : R.t) : boolean => 
@@ -545,7 +551,7 @@ Due to the problems of syntactic conflict and the reasoning difficulties enumera
 \subsection{Rewriting Systems}\label{sec:term-rewriting}
 Another approach is to leave the textual syntax of the language fixed, but repurpose it for novel ends using a \emph{term rewriting system}.
 
-\subsubsection{Language-External Term Rewriting}
+\subsubsection{Language-External Term Rewriting Systems}
 Language-external rewriting systems operate as \emph{preprocessors}, transforming well-formed program fragments to produce other well-formed program fragments.
 
 For example, one could define a preprocessor that rewrites every string literal that is followed by the comment \li{(*rx*)} to the corresponding expression (or pattern) of type \li{rx}, following the approach discussed in the previous section. For example, the following expression would be rewritten to a regex expression, with \li{dna} treated as a spliced subexpression as described in the previous section:
@@ -564,10 +570,20 @@ Lwt.bind f (fun (x, y) -> x + y)
 \end{lstlisting}
 The OCaml system is distributed with a library called \li{ppx_tools} that simplifies the task of writing  preprocessors that operate on terms annotated with extension points.
 
-These systems have nearly all of the same conceptual problems as dialect-oriented systems do. \todo{elaborate on this}
+These systems present conceptual problems that are directly analagous to those that dialect-oriented systems present:
+\begin{enumerate}
+\item \textbf{Conflict:} Different preprocessors may recognize the same markers.
+\item \textbf{Search:} It is not always clear which preprocessor handles each marked form.
+\item \textbf{Segmentation:} It is not always clear where spliced sub-terms appear inside marked forms (particularly string literals).
+\item \textbf{Shadowing:} The rewriting of a marked form might place terms under binders that shadow bindings visible in the program text.
+\item \textbf{Context Dependence:} The rewriting of a marked form might assume that certain identifiers are bonud at the use site, making it difficult to reason about refactoring.
+\item \textbf{Typing:} It is not always clear what type the rewriting of a marked form will have.
+\end{enumerate}  
+
+\todo{Astar macros? Extensible compilers that give you pattern matching?}
 
 \subsubsection{Macro Systems}
-Macro systems allow programmers to designate functions that operate over term encodings as macros, and then apply these macros directly to terms. \todo{search is solved. delimitation is solved. conflict is solved.}
+Macro systems allow programmers to designate functions that operate over term encodings as macros, and then apply these macros directly to terms as rewritings. \todo{search is solved. delimitation is solved. conflict is solved.}
 
 The LISP macro system \cite{Hart63a} is perhaps the most prominent example of such a system. Early variants of this system suffered from the problem of hygiene described earlier \todo{elaborate}, but  later variants, notably in the Scheme dialect of LISP, brought support for enforcing hygiene \cite{Kohlbecker86a}. 
 
