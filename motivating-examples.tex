@@ -7,7 +7,7 @@ One way to operationalize cognitive cost is by reducing it to a simpler notion o
 
 A related property of interest to human programmers in practice is \emph{edit cost}, measured relative to a program editor as the minimum number of primitive edit actions that must be performed to produce a drawing. For example, when using a text editor (as most professional programmers do), drawings in textual forms typically have lower edit cost, as measured by the minimum number of keystrokes necessary to draw them, than operational or stylized forms (in fact, some stylized forms may not be expressible at all with a text editor alone, in which case they can be understood to have infinite edit cost.) Edit cost can be modeled using, for example, \emph{keystroke-level models} (KLMs) as introduced by Card, Moran and Newell \cite{journals/cacm/CardMN80}.%which, for software developers, is their primary mode of interaction with a programming language.%Our choice might also be influenced (or determined) by the tool that we are using to write the program. In particular, stylized forms are suitable for use when typesetting a program, whereas textual forms are necessary for writing programs using a text editor for consumption by an implementation of the semantics on a computer. 
 
-One can also analyze cognitive cost using qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are popular heuristic frameworks. Using Green's cognitive dimensions framework, for example, it could be argued that the derived list forms described in Chapter \ref{chap:intro} \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad.) They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. Finally, the derived forms have lower \emph{viscosity} because adding a new item to the middle of a list drawn in derived form requires only a local edit, whereas for a list drawn in primitive form, one needs also to add a closing parenthesis to the end of the term.
+One can also analyze cognitive cost using qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are popular heuristic frameworks. Using Green's cognitive dimensions framework, for example, it could be argued that the derived list forms described in Chapter \ref{chap:intro} \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad.) They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. The derived list forms also have lower \emph{viscosity} because adding a new item to the middle of a list drawn in derived form requires only a local edit, whereas for a list drawn in primitive form, one needs also to add a closing parenthesis to the end of the term.
 
 Finally, one might consider cognitive cost comparatively using empirical methods, e.g. by conducting randomized control trials to compare forms with respect to task completion time or error rate (or the derivative of error rate, which can be plotted as a {learning curve}.) Stefik et al. have performed many such studies, mainly focused on novice programmers (summarized, along with other studies, in \cite{journals/jeric/StefikS13}.)
 
@@ -17,22 +17,22 @@ Finally, one might consider cognitive cost comparatively using empirical methods
 
 
 \section{Motivating Definitions}\label{sec:motivating-examples}
-In this section, we will define a number of VerseML data structures that we will use as examples in the remainder of this document. This section also serves to introduce the textual syntax and semantics of VerseML.
+In this section, we will give a number of VerseML definitions that we will refer to in examples in the remainder of this document. This section also serves to introduce the textual syntax and semantics of VerseML.
 
 \subsection{Lists}\label{sec:lists}
 In VerseML, lists are defined by the following \emph{type function}:
 \begin{lstlisting}[numbers=none]
 type 'a list = rec(self => [Nil + Cons of 'a * self])
 \end{lstlisting}
-Here, \li{list} is a {type function} binding its type argument to the type variable \li{'a}. Types are applied to type functions in prefix position. For example, the type of integer lists is \li{int list}, which is equal to:
+Here, \li{list} is a {type function} binding its type argument to the type variable \li{'a}. Types are applied to type functions in prefix position. For example, the type of integer lists is \li{int list}, which is equal to the following \emph{recursive type}:
 \begin{lstlisting}[numbers=none]
 rec(self => [Nil + Cons of int * self])
 \end{lstlisting}
-This is a \emph{recursive type}, binding the type variable \li{self} for use as a \emph{self reference}. Values of a recursive type \li{T} are introduced as \li{(fold e) : T}, where the type of \li{e} must be the \emph{unfolding} of \li{T}, computed by substituting \li{T} for \li{self}. For example, the unfolding of \li{int list} is the following type:
+This {recursive type} binds the type variable \li{self} for use as a \emph{self reference} in the type body. Values of a recursive type \li{T} are introduced as \li{(fold e) : T}, where  \li{e} must check against the \emph{unfolding} of \li{T}, computed by substituting \li{T} for \li{self} in the type body. For example, the unfolding of \li{int list} is the following \emph{labeled sum type}:
 \begin{lstlisting}[numbers=none]
 [Nil + Cons of int * int list]
 \end{lstlisting}
-This \emph{labeled sum type} specifies two \emph{variants}. One, labeled \li{Nil}, specifies a trivial payload, and the other, labeled \li{Cons}, specifies a payload of product type, \li{int * int list}. Values of a labeled sum type \li{T} are introduced as \li{(inj[lbl] e) : T}, where \li{lbl} is one of the labels that \li{T} specifies, and \li{e} is a value of the corresponding payload type. Values of product type are introduced as tuples.
+This {labeled sum type} specifies two \emph{variants}. One, labeled \li{Nil}, specifies a trivial payload, and the other, labeled \li{Cons}, specifies a payload of product type, \li{int * int list}. Values of a labeled sum type \li{T} are introduced as \li{(inj[lbl] e) : T}, where \li{lbl} is one of the labels that \li{T} specifies, and \li{e} is a value of the corresponding payload type. Values of product type are introduced as tuples.
 
 When introducing a value of recursive type or labeled sum type, the type ascription can be omitted if it can be inferred. For example, the empty integer list is:
 \begin{lstlisting}[numbers=none]
@@ -56,7 +56,7 @@ val nil_int : int list = Nil
 val one_int : int list = Cons (0, Nil)
 \end{lstlisting}
 
-Values of recursive type, labeled sum type and product type are deconstructed by pattern matching. For example, we can write the polymorphic map function, which constructs a new list by applying a function to each element of a given list, as follows:
+Values of recursive type, labeled sum type and product type are deconstructed by pattern matching. For example, we can write the polymorphic map function, which constructs a  list by applying a given function to each element of a given list, as follows:
 \begin{lstlisting}[numbers=none]
 fun map (f : 'a -> 'b) (xs : 'a list) : 'b list => 
   match xs with 
