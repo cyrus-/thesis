@@ -1,62 +1,75 @@
 % !TEX root = omar-thesis.tex
 
 \section{Cognitive Cost}\label{sec:syntactic-properties}
-The notion of \emph{cognitive cost} is central to the motivation of this work (though it does not enter into any of the technical material directly.) Ultimately, this notion must be understood intuitively, relating as it does to the complexities of the human mind. Cognitive cost is also fundamentally a \emph{subjective} notion. Nevertheless, it is often useful to operationalize this notion in various ways. 
+The notion of \emph{cognitive cost} is central to the motivation of this work (though it does not enter into any of the technical material directly.) Ultimately, this broad notion must be understood intuitively, relating as it does to the complexities of the human mind. Cognitive cost is also fundamentally a \emph{subjective} and \emph{situational} notion. Though there is no comprehensive framework for analyzing cognitive cost, a number of more limited, but nevertheless useful, frameworks have been developed. %These can serve as satisfying proxies in many circumstances. %In order to ground this concept, it is common for researchers to  operationalize this notion in order to simplify the arguments that they are making. 
 
-One way to operationalize cognitive cost is by reducing it to a simpler notion of \emph{syntactic cost}, measured, for example, by counting glyphs. This is often a satisfying proxy for cognitive cost, in that smaller drawings are usually easier to comprehend and produce. For example, the drawing \li{[1, 2, 3, 4, 5]} has lower syntactic cost than its desugaring, as discussed in the previous chapter. There is a limit to this approximation, of course. For example, one might argue that the syntax for K shown in the previous chapter, though it has low syntactic cost, nevertheless has high cognitive cost, at least until one is well-experienced with its use. In other words, the relationship between syntactic cost and cognitive cost depends on the subject's progression on a \emph{learning curve}.
+The simplest quantitative framework reduces cognitive cost to \emph{syntactic cost}, which is measured by counting characters (or glyphs, more generally.) This is often a satisfying proxy for cognitive cost, in that smaller drawings are usually easier to comprehend and produce. For example, the drawing \li{[1, 2, 3, 4, 5]} has lower syntactic cost than its desugaring, as discussed in the previous chapter. There is a limit to this approximation, of course. For example, one might argue that the drawings involving the syntax of K, like the drawing shown in Sec. \ref{sec:problems-with-dialects}, have high cognitive cost, despite their low syntactic cost, until one is well-experienced with the syntax of K. In other words, the relationship between syntactic cost and cognitive cost depends on the subject's progression on a \emph{learning curve}.
 
-A related property of interest to human programmers in practice is \emph{edit cost}, measured relative to a program editor as the minimum number of primitive edit actions that must be performed to produce a drawing. For example, when using a text editor (as most professional programmers do), drawings in textual forms typically have lower edit cost, as measured by the minimum number of keystrokes necessary to draw them, than operational or stylized forms (in fact, some stylized forms may not be expressible at all with a text editor alone, in which case they can be understood to have infinite edit cost.) Edit cost can be modeled using, for example, \emph{keystroke-level models} (KLMs) as introduced by Card, Moran and Newell \cite{journals/cacm/CardMN80}.%which, for software developers, is their primary mode of interaction with a programming language.%Our choice might also be influenced (or determined) by the tool that we are using to write the program. In particular, stylized forms are suitable for use when typesetting a program, whereas textual forms are necessary for writing programs using a text editor for consumption by an implementation of the semantics on a computer. 
+A related property of interest to human programmers is \emph{edit cost}, measured relative to a program editor as the minimum number of primitive edit actions that must be performed to produce a drawing. For example, when using a text editor (as most professional programmers do), drawings in textual forms typically have lower edit cost, as measured by the minimum number of keystrokes necessary to draw them, than operational or stylized forms (in fact, some stylized forms may not be expressible at all with a text editor alone, in which case they can be understood to have infinite edit cost.) Edit cost can be modeled using, for example, \emph{keystroke-level models} (KLMs) as introduced by Card, Moran and Newell \cite{journals/cacm/CardMN80}.%which, for software developers, is their primary mode of interaction with a programming language.%Our choice might also be influenced (or determined) by the tool that we are using to write the program. In particular, stylized forms are suitable for use when typesetting a program, whereas textual forms are necessary for writing programs using a text editor for consumption by an implementation of the semantics on a computer. 
 
-One can also analyze cognitive cost using qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are popular heuristic frameworks. Using Green's cognitive dimensions framework, for example, it could be argued that the derived list forms described in Chapter \ref{chap:intro} \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad.) They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. The derived list forms also have lower \emph{viscosity} because adding a new item to the middle of a list drawn in derived form requires only a local edit, whereas for a list drawn in primitive form, one needs also to add a closing parenthesis to the end of the term.
+One can also analyze cognitive cost using disciplined qualitative methods. For example, Green's \emph{Cognitive Dimensions of Notations} \cite{Green89,green1996usability} and Pane and Myers' \emph{Usability Issues} \cite{pane1996usability} (both of which synthesized much of the earlier work in the area) are widely cited heuristic frameworks. For example, we might argue using Green's cognitive dimensions framework that the derived list forms described in Chapter \ref{chap:intro} \emph{map more closely} to other notations used for sequences of elements (e.g. in typeset mathematics, or on a physical notepad) than the primitive list forms. They also make the elements of the list more clearly \emph{visible}, in that the identifier \li{Cons} is not interspersed throughout the term. The derived list forms also have lower \emph{viscosity} because adding a new item to the middle of a list drawn in derived form requires only a local edit, whereas for a list drawn in primitive form, one needs also to add a closing parenthesis to the end of the term.
 
-Finally, one might consider cognitive cost comparatively using empirical methods, e.g. by conducting randomized control trials to compare forms with respect to task completion time or error rate (or the derivative of error rate, which can be plotted as a {learning curve}.) Stefik et al. have performed many such studies, mainly focused on novice programmers (summarized, along with other studies, in \cite{journals/jeric/StefikS13}.)
+Finally, one might consider cognitive cost comparatively using empirical methods, e.g. by conducting randomized control trials to compare forms with respect to task completion time or error rate (for satisfyingly representative tasks.) Stefik et al. have performed many such studies, mainly on novice programmers (these are summarized, along with other studies, in \cite{journals/jeric/StefikS13}.)
 
-%There is much remaining work to be done in the area of rigorously characterizing programming language usability, particularly for experienced programmers, and on using this knowledge to find ``sweet spots'' in the language design space. % Our contributions, however, are not directly in this area, so we will stop here. 
+There is much that remains to be understood about cognitive cost, particularly as it relates to experienced programmers using functional languages. For our purposes, however, all that must be believed is that some drawings of a tree have meaningfully lower cognitive cost than others,  and that mechanisms that lower cognitive cost have value. Many of the difficulties that we will confront have to do with the fact that allowing programmers to add new derived forms unconstrained to a syntax definition can decrease cognitive cost ``in the small'', i.e. for subjects who understand all of the details of the newly introduced desugaring transformations, while drastically increasing cognitive cost ``in the large''. Our aim is to control cognitive cost at all scales. % (Indeed, many of challenges of programming language design might be said to have this flavor.)% Our contributions, however, are not directly in this area, so we will stop here. 
 
 %Put another way, the stylized and textual forms are preferrable when designing a \emph{user interface} of our programming language.
 
 
 \section{Motivating Definitions}\label{sec:motivating-examples}
-In this section, we will give a number of VerseML definitions that we will refer to in examples in the remainder of this document. This section also serves to introduce the textual syntax and semantics of VerseML.
+In this section, we will state and describe a number of VerseML definitions that we will refer to in subsequent examples throughout this work. This section also serves as an introduction to the textual syntax and semantics of VerseML.
 
 \subsection{Lists}\label{sec:lists}
-In VerseML, lists are defined by the following \emph{type function}:
+In Standard ML, lists are defined by the following parameterized recursive datatype:
 \begin{lstlisting}[numbers=none]
-type 'a list = rec(self => [Nil + Cons of 'a * self])
+datatype 'a list = Nil | Cons of 'a * 'a list
 \end{lstlisting}
-Here, \li{list} is a {type function} binding its type argument to the type variable \li{'a}. Types are applied to type functions in prefix position. For example, the type of integer lists is \li{int list}, which is equal to the following \emph{recursive type}:
-\begin{lstlisting}[numbers=none]
-rec(self => [Nil + Cons of int * self])
-\end{lstlisting}
-This {recursive type} binds the type variable \li{self} for use as a \emph{self reference} in the type body. Values of a recursive type \li{T} are introduced as \li{(fold e) : T}, where  \li{e} must check against the \emph{unfolding} of \li{T}, computed by substituting \li{T} for \li{self} in the type body. For example, the unfolding of \li{int list} is the following \emph{labeled sum type}:
-\begin{lstlisting}[numbers=none]
-[Nil + Cons of int * int list]
-\end{lstlisting}
-This {labeled sum type} specifies two \emph{variants}. One, labeled \li{Nil}, specifies a trivial payload, and the other, labeled \li{Cons}, specifies a payload of product type, \li{int * int list}. Values of a labeled sum type \li{T} are introduced as \li{(inj[lbl] e) : T}, where \li{lbl} is one of the labels that \li{T} specifies, and \li{e} is a value of the corresponding payload type. Values of product type are introduced as tuples.
+This declaration is semantically dense, in that it generates 1) a new type function \li{list} taking a single type parameter, \li{'a}; 2) the list value constructors \li{Nil : 'a list} and \li{Cons : 'a * 'a list -> 'a list}; and 3) the list pattern constructors \li{Nil} and \li{Cons}.
 
-When introducing a value of recursive type or labeled sum type, the type ascription can be omitted if it can be inferred. For example, the empty integer list is:
+VerseML does not support SML-style datatype declarations. Instead, type functions, recursive types, sum types, product types, value constructors, pattern constructors and type generativity arise orthogonally. This is mainly for pedagogical purposes -- it will take until Chapter \ref{chap:ptsms} to build up all of the machinery that would be necessary to integrate TSMs into a language with SML-style datatype declarations. By exposing more granular primitives, we can define sub-languages of VerseML in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms} that communicate certain fundamental ideas more clearly and generally.
+
+In VerseML lists are defined as follows:
+\begin{lstlisting}[numbers=none]
+type 'a list = rec(self => Nil + Cons of 'a * self)
+\end{lstlisting}
+Here, \li{list} is a {type function} binding its type parameter to the type variable \li{'a}. Parameters are applied in prefix position, as in SML. For example, the type of integer lists is \li{int list}, which is equivalent, by substitution, to the following \emph{recursive type}:
+\begin{lstlisting}[numbers=none]
+rec(self => Nil + Cons of int * self)
+\end{lstlisting}
+%Here, the type variable \li{self} is bound as a \emph{self reference} in the type body. 
+The \emph{unfolding} of a recursive type is determined by substituting the recursive type itself for the self reference, here \li{self}, in the type body. For example, the unfolding of \li{int list} is equivalent to the following:
+\begin{lstlisting}[numbers=none]
+Nil + Cons of int * int list
+\end{lstlisting}
+This \emph{labeled sum type} specifies two \emph{variants}. One, labeled \li{Nil}, specifies a payload of unit type (we could have written \li{Nil of unit}, but unit payload types can be omitted for brevity.) The other, labeled \li{Cons}, specifies a payload of product type, \li{int * int list}.
+
+The values of a recursive type \li{T} are \li{(fold e) : T}, where \li{e} is a value of the unfolding of \li{T}. The values of a labeled sum type \li{T} are \li{(inj[lbl] e) : T}, where \li{lbl} is a label specified by one of the variants that \li{T} specifies, and \li{e} is a value of the corresponding payload type. In both cases, the type ascription can be omitted from the program text when it can be inferred. The values of unlabeled product types like \li{int * int list} are tuples, as in Standard ML. 
+
+For example, we can define the empty integer list and bind it to \li{nil_int} as follows:
 \begin{lstlisting}[numbers=none]
 val nil_int : int list = fold(inj[Nil] ())
 \end{lstlisting}
-and a list containing a single integer, \li{0}, is:
+We can introduce a list containing a single integer, \li{0}, and bind it to \li{one_int} as follows:
 \begin{lstlisting}[numbers=none]
 val one_int : int list = fold(inj[Cons] (0, nil_int))
 \end{lstlisting}
 
-To lower syntactic cost, we can define the following polymorphic values, which we call the \emph{list constructors}, that apply the fold and injection operators for us:
+These examples have high syntactic cost. 
+One way to lower syntactic cost is to define the following polymorphic values, called the \emph{list value constructors}, which abstract away the fold and injection operations:
 \begin{lstlisting}[numbers=none]
 val Nil : 'a list = fold(inj[Nil] ())
-fun Cons (x : 'a * 'a list) : 'a list => 
-  fold(inj[Cons] x)
+fun Cons(x : 'a * 'a list) : 'a list => fold(inj[Cons] x)
 \end{lstlisting}
-In fact, VerseML generates constructors like these automatically. %We also assume that type variables are implicitly quantified over, and t
-Using these constructors, we can write \li{nil_int} and \li{one_int} at lower syntactic cost as follows:
+In fact, VerseML generates constructors like these automatically.\footnote{The mechanism for automatically generating value constructors from type bindings of a certain form must be built primitively into VerseML. In languages where it is possible for a library provider to generate such bindings completely implicitly, it becomes difficult to reason about shadowing, as we will discuss.}
+Using these constructors, we can equivalently express the bindings of \li{nil_int} and \li{one_int} as follows:
 \begin{lstlisting}[numbers=none]
 val nil_int : int list = Nil
-val one_int : int list = Cons (0, Nil)
+val one_int = Cons (0, Nil)
 \end{lstlisting}
 
-Values of recursive type, labeled sum type and product type are deconstructed by pattern matching. For example, we can write the polymorphic map function, which constructs a  list by applying a given function to each element of a given list, as follows:
+In SML, automatically generated constructors are the only means by which a value of a datatype can be introduced. Folding and injection operators are not exposed directly to programmers. As such, it is not possible to construct a value of a type like \li{int list} in a context-independent manner, i.e. in contexts where \li{Nil} and \li{Cons} have been shadowed or are not bound. This will be relevant in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms}. In Chapter \ref{chap:ptsms}, we will introduce the machinery that would be necessary to take the SML-style approach and suppress mention of these operators entirely.
+
+Values of recursive type, labeled sum type and product type are deconstructed by pattern matching.\footnote{Readers who are not familiar with structural pattern matching may wish to consult the introduction to Chapter \ref{chap:uptsms} for a somewhat more detailed description.} For example, we can write the polymorphic map function, which constructs a  list by applying a given function over a given list, as follows:
 \begin{lstlisting}[numbers=none]
 fun map (f : 'a -> 'b) (xs : 'a list) : 'b list => 
   match xs with 
@@ -64,9 +77,9 @@ fun map (f : 'a -> 'b) (xs : 'a list) : 'b list =>
   | fold(inj[Cons] (y, ys)) => Cons (f y, map f ys)
   end
 \end{lstlisting}
-Readers who are not familiar with structural pattern matching may wish to consult the introduction to Chapter \ref{chap:uptsms} for a somewhat more detailed description.
 
-To lower syntactic cost, VerseML automatically inserts the folds, injections and trivial arguments into patterns of constructor form:
+
+The pattern forms above follow the value forms (though keep in mind that patterns and expressions are distinct sorts of trees.) To lower syntactic cost, VerseML automatically inserts folds, injections and trivial arguments into patterns of constructor form, i.e. those of the form \li{Lbl} and \li{Lbl(p)} where \li{Lbl} is a capitalized label and \li{p} is another pattern:\footnote{Pattern TSMs, introduced in Chapter \ref{chap:uptsms}, could be used to manually achieve a similar syntax for any particular type, or in Chapter \ref{chap:ptsms}, across a particular family of types, but because this syntactic sugar is useful for all recursive labeled sum types, we build it primitively into VerseML.}
 \begin{lstlisting}[numbers=none]
 fun map (f : 'a -> 'b) (xs : 'a list) : 'b list => 
   match xs with 
@@ -74,13 +87,15 @@ fun map (f : 'a -> 'b) (xs : 'a list) : 'b list =>
   | Cons (y, ys) => Cons (f y, map f ys)
   end
 \end{lstlisting}
-To avoid syntactic ambiguity, patterns can only bind variables whose identifiers begin with a lowercase letter, and the labels in a labeled sum type must begin with an uppercase letter. 
+%To avoid syntactic ambiguity, variables must not begin with an uppercase letter.
 
-We package the definitions above (as well as some other standard utility functions) into a module \li{List : LIST}, where \li{LIST} is a signature that is defined as follows:
+We group the definitions above, as well as some other standard utility functions like \li{append}, into a module \li{List : LIST}, where \li{LIST} is the signature defined in Figure \ref{fig:LIST}. These definitions are not privileged in any way by the language definition. In particular, there are no list-specific derived forms built in to the textual syntax of VerseML. We will show how TSMs allow programmers to express a similar syntax for lists over the next several chapters.
+
+\begin{figure}
 \begin{lstlisting}[numbers=none]
 signature LIST = 
 sig 
-  type 'a list = rec(self => [Nil + Cons of 'a * self])
+  type 'a list = rec(self => Nil + Cons of 'a * self)
   val Nil : 'a list
   val Cons : 'a * 'a list -> 'a list
   val map : ('a -> 'b) -> 'a list -> 'b list
@@ -88,31 +103,32 @@ sig
   (* ... *)
 end
 \end{lstlisting}
-
-The textual syntax of VerseML does not build in derived list forms. In subsequent chapters, we will show how they can be approximated as a mode of use of TSMs.
+\caption{Definition of the \li{LIST} signature.}
+\label{fig:LIST}
+\end{figure}
 
 \subsection{Regular Expressions}\label{sec:syntax-examples-regexps}
-Regular expressions, or \emph{regexes}, are the expressions of a structural query language that operates over strings \cite{Thompson:1968:PTR:363347.363387}. Regexes are particularly prevalent in domains like natural language processing and bioinformatics.
+A regular expression, or \emph{regex}, is a description of a \emph{regular language} \cite{Thompson:1968:PTR:363347.363387}. Regexes arise in domains like natural language processing and bioinformatics.
 
 \paragraph{Recursive Sums}
-One simple way to encode regular expressions within VerseML is by defining a recursive labeled sum type:
+One simple way to encode a regular expression within VerseML is as a value of the recursive labeled sum type abbreviated \li{rx} in Figure \ref{fig:datatype-rx}.
 
 \begin{figure}[ht]
 \begin{lstlisting}[numbers=none]
-type rx = rec(rx => [Empty + Str of string + Seq of rx * rx +
-                     Or of rx * rx + Star of rx])
+type rx = rec(rx => Empty + Str of string + Seq of rx * rx +
+                    Or of rx * rx + Star of rx)
 \end{lstlisting}
 \caption{Definition of the recursive labeled sum type \li{rx}}
 \label{fig:datatype-rx}
 \end{figure}
-Assuming the automatically generated constructors as in Sec. \ref{sec:lists}, we can construct a regex that matches the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} or \li{"SSTRCESTR"} (i.e. DNA bases) as follows:
+Assuming the automatically generated value constructors as in Sec. \ref{sec:lists}, we can construct a regex that matches the strings \li{"SSTRAESTR"}, \li{"SSTRTESTR"}, \li{"SSTRGESTR"} or \li{"SSTRCESTR"} (i.e. DNA bases) as follows:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 
-Given a value of type \li{rx}, we can deconstruct it by pattern matching. For example, the function \li{is_dna_rx} defined in Figure \ref{fig:is_dna_rx} detects regular expressions that match DNA sequences:
+Given a value of type \li{rx}, we can deconstruct it by pattern matching. For example, the function \li{is_dna_rx} defined in Figure \ref{fig:is_dna_rx} detects regular expressions that match DNA sequences.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx(r : rx) : boolean => 
   match r with 
@@ -126,28 +142,28 @@ fun is_dna_rx(r : rx) : boolean =>
   | _ => False 
   end
 \end{lstlisting}
-\caption{Pattern matching in VerseML}
+\caption{Pattern matching over regexes in VerseML}
 \label{fig:is_dna_rx}
 \end{figure}
 
 
 \paragraph{Abstract Types} Encoding regexes as values of type \li{rx} is straightforward, but there are reasons why one might not wish to expose this encoding to clients directly. 
 
-First, regexes are usually identified up to their reduction to a normal form. For example, \li{Seq(Empty, Str "SSTRAESTR")} has normal form \li{Str("SSTRAESTR")}. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. 
+First, regexes are usually identified up to their reduction to a normal form. For example, \li{Seq(Empty, Str "SSTRAESTR")} has normal form \li{Str("SSTRAESTR")}. It can be useful for regexes with the same normal form to be  indistinguishable from the perspective of client code. (The details of regex normalization are not important for our purposes, so omit them.)
 
-Second, it can be useful for performance reasons to maintain additional data alongside regexes (e.g. a corresponding finite automaton), while hiding this ``implementation detail'' from clients. In fact, there may be many ways to represent regular expression patterns, each with different performance trade-offs. This suggests that we would like to provide clients with a choice of implementations. 
+Second, it can be useful for performance reasons to maintain additional data alongside each regex (e.g. a corresponding finite automaton.) In fact, there may be many ways to represent regexes, each with different performance trade-offs, so we would like to provide a choice of implementations behind a common interface.
 
-For these reasons, another approach in VerseML, as in SML, is to abstract over the choice of representation using  the module system. In particular, we define the {signature} \li{RX}, shown in Figure \ref{fig:signature-RX}, where the representation type of patterns, \lstinline{t}, is held abstract.
+To achieve these goals, we turn to the VerseML module system, which is based directly on the SML module system \cite{MacQueen:1984:MSM:800055.802036}. In particular, we define the {signature} abbreviated \li{RX} in Figure \ref{fig:signature-RX}.
 %Notice that it exposes an interface otherwise  to the one available using a case type:
 
 \begin{figure}[ht]
-\begin{lstlisting}[deletekeywords={case},numbers=none]
-type 'a u = [UEmpty + UStr of string + USeq of 'a * 'a + 
-             UOr of 'a * 'a + UStar of 'a]
+\begin{lstlisting}[deletekeywords={case}]
+type 'a u = UEmpty + UStr of string + USeq of 'a * 'a + 
+            UOr of 'a * 'a + UStar of 'a
 
 signature RX = 
 sig
-  type t
+  type t (* abstract *)
 
   val Empty : t
   val Str : string -> t
@@ -158,20 +174,22 @@ sig
   val unfold_norm : t -> t u
 end
 
-module R1 : Rx = struct (* ... *) end
-module R2 : Rx = struct (* ... *) end
+module R1 : RX = struct (* ... *) end
+module R2 : RX = struct (* ... *) end
 \end{lstlisting}
 \vspace{-5px}
 \caption{Definition of the \lstinline{RX} signature and two example implementations.}
 \label{fig:signature-RX}
 \end{figure}
 
-Clients of any module \lstinline{R} that has been sealed against \lstinline{RX}, e.g. \li{R1} and \li{R2}  in Figure \ref{fig:signature-RX}, manipulate regexes as values of type \li{R.t} using the interface specified by this signature. Because the identity of \lstinline{R.t} is held abstract by the signature, the only way for clients to construct values of this type is by using the operations that \li{RX} specifies. Consequently, \li{R} can  choose (and evolve) its internal representation freely and need only establish any internal representation invariants locally. As such, \li{R.t} is an \emph{abstract data type} (ADT) \cite{liskov1974programming}.
-
-For example, we can construct a regex matching DNA bases as follows:
+The clients of any module \lstinline{R} that has been sealed by \lstinline{RX}, e.g. \li{R1} or \li{R2}  in Figure \ref{fig:signature-RX}, manipulate regexes as values of type \li{R.t} using the interface specified by this signature. For example, a client can construct a regex matching DNA bases by applying the value constructors as follows:
 \begin{lstlisting}[numbers=none]
 R.Or(R.Str "SSTRAESTR", R.Or(R.Str "SSTRTESTR", R.Or (R.Str "SSTRGESTR", R.Str "SSTRCESTR")))
 \end{lstlisting}
+
+Because the identity of the representation type \lstinline{R.t} is held abstract by the signature, the only way for a client to construct a value of this type is through the values that \li{RX} specifies (i.e. we have defined an \emph{abstract data type} (ADT) \cite{liskov1974programming}.) Consequently, representation invariants need only be established locally within each module.
+
+
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
@@ -196,7 +214,7 @@ end
 \label{fig:RXUtil}
 \end{figure}
 
-Because the representation type is held abstract, we cannot interrogate the structure of a value \li{r : R.t} directly. Instead, the signature specifies a function \li{unfold_norm} that produces the \emph{normal unfolding}\footnote{This sense of the word ``unfolding'' is conceptually related to, but technically distinct, from the sense in which it is used for recursive types discussed above.} of the given regex, i.e. a value of type \li{t u} that exposes the outermost form of the regex after it has been normalized (the details of regex normalization are not important for our purposes.) The client can pattern match over the {normal unfolding} in the familiar manner:
+Clients cannot interrogate the structure of a value \li{r : R.t} directly. Instead, the signature specifies a function \li{unfold_norm} that produces the \emph{normal unfolding}\footnote{This sense of the word ``unfolding'' is conceptually related to, but technically distinct, from the sense in which it is used for recursive types discussed above.} of a given regex, i.e. a value of type \li{R.t u} that exposes only the outermost form of the regex, after it has been normalized (though this invariant is not expressed in the type.) Clients can pattern match over the {normal unfolding} in the familiar manner, e.g. as follows:
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx'(r : R.t) : boolean => 
   match R.unfold_norm r with 
@@ -211,9 +229,11 @@ fun is_dna_rx'(r : R.t) : boolean =>
   end
 \end{lstlisting}
 
-The function above only needed to examine the outermost structure of \li{r}. However, in general, we may want to pattern match more deeply into a regex. To do so, we must first construct the $n$-deep unfolding of \li{r}, where $n$ is the depth of the deepest pattern. For example, it is easy to define a function \li{unfold_norm2 : R.t -> R.t u u} in terms of \li{R.unfold_norm} that allows pattern matching to depth $2$.\footnote{Defining an unfolding \emph{generic} in $n$ is a more subtle problem that is beyond the scope of this work.} 
+The normal unfolding suffices in situations where a client needs to examine only the outermost structure of a regex. However, in general, a client may want to pattern match more deeply into a regex. There are various ways to approach this problem. 
 
-Alternatively, we might completely unfold a value of type \li{t} to produce a value of the type \li{rx} that was defined previously. We can compute the complete unfolding (also called the \emph{view}) by applying a utility function \li{view : R.t -> rx}, also defined in terms of \li{R.unfold_norm}.
+One approach is to define auxiliary functions that construct $n$-deep unfoldings of \li{r}, where $n$ is the deepest level at which the client might wishes to expose the structure of the regex. For example, it is easy to define a function \li{unfold_norm2 : R.t -> R.t u u} in terms of \li{R.unfold_norm} that allows pattern matching to depth $2$.\footnote{Defining an unfolding \emph{generic} in $n$ is a more subtle problem that is beyond the scope of this work.} 
+
+Another approach is to \emph{completely unfold} a value of type \li{t} by applying a function \li{view : R.t -> rx} that recursively applies \li{R.unfold_norm} to exhaustion. The type \li{rx} was defined in Figure \ref{fig:datatype-rx}.  Computing the complete unfolding (also called the \emph{view}) can have higher dynamic cost, in some circumstances, than computing an incomplete unfolding of appropriate depth, but it is also a simpler approach (i.e. it has lower cognitive cost.)
 
 Typically, utility functions like \li{unfold_norm2} and \li{view} are defined in a functor (i.e. a function at the level of modules) like \li{RXUtil} in Figure \ref{fig:RXUtil}, so that they need only be defined once, rather than separately for each module \li{R : RX}. The client can instantiate the functor by applying it to any such module as follows:
 \begin{lstlisting}[numbers=none]

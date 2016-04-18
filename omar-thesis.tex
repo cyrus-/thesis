@@ -232,10 +232,10 @@ Eric Van Wyk, University of Minnesota}
 
 \begin{abstract}
 \noindent
-When designing a human-facing textual syntax for a programming language, it is common to define ``library-specific syntactic sugar'', i.e. {derived forms} that decrease the cognitive cost of working with select library constructs. 
-For example, the textual syntax of Standard ML defines derived forms for introducing and pattern matching on lists. Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
+When designing a human-facing textual syntax for a programming language, it is common to define ``library-specific syntactic sugar'', i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
+For example, the textual syntax of Standard ML defines derived forms for introducing and pattern matching on lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
 
-Defining derived forms for working with third-party library constructs, e.g. ordered finite maps, HTML elements or regular expressions, requires defining ``library-specific'' (a.k.a. ``domain-specific'') dialects of the textual syntax. Unfortunately, combining such syntax dialects, when possible at all, is not guaranteed to conserve \emph{determinism}, i.e. syntactic ambiguities can be introduced. Moreover, it becomes difficult for programmers to reason in a disciplined manner about types and binding given only the text of a program that uses many unfamiliar derived forms. In short, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+Defining derived forms for working with third-party library constructs, e.g. ordered finite maps, HTML elements or regular expressions, requires defining ``library-specific'' (a.k.a. ``domain-specific'') dialects of the textual syntax. Unfortunately, combining such syntax dialects, when possible at all, is not guaranteed to conserve \emph{determinism}, i.e. syntactic ambiguities can be introduced. Moreover, it is difficult for programmers to reason in a disciplined manner about types and binding given only the text of a program that uses many unfamiliar derived forms. In short, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
 In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for \emph{ad hoc} derived forms and library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of (generalized) literal form. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflicts between them, and the language validates each expansion that a TSM generates in order to maintain:
 \begin{itemize}
@@ -243,19 +243,30 @@ In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}
 \item a \emph{hygienic binding discipline}, meaning that 
   \begin{enumerate}
     \item literal expansions cannot (accidentally or intentionally) shadow bindings that appear at the application site; and 
-  \item literal expansions cannot make any assumptions about the application site typing context. Instead, all interactions with the application site bindings are \emph{parametric}.
+  \item literal expansions cannot make any assumptions about the application site context. Instead, all interactions with the  application site bindings are \emph{parametric}.
   \end{enumerate}
 \end{itemize}
 \noindent
-Support for partial parameter application in TSM abbreviations reduces the syntactic cost of this explicit parameter-passing style.
-
 In short, we describe a programming language (in the ML tradition) with a \emph{reasonably} programmable syntax.
 
 %We discuss both explicit application of TSMs (with support for partial parameter application) and implicit, type-directed application of TSMs, which further reduces cognitive cost.
 \end{abstract}
 
 \begin{acknowledgments}
-\todo{Acknowledgments}
+\todo{acknowledgments}
+% Mom, dad, other family
+% Jonathan
+% Bob
+% Karl
+% Eric
+% Dan and his family
+% Tommy, Sanna
+% Other friends:
+% POP group friends
+% SE friends
+% Twitter friends
+% CSGF friends
+% Funding: CSGF, NSF, ask Jonathan for grant information
 \end{acknowledgments}
 
 
