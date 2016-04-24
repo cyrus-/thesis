@@ -20,40 +20,31 @@
 
 There are many ways to draw a tree. For example, consider these three drawings:
 
-
 \begin{subequations}
-\begin{equation}\label{simple-example-txt-form}
-\texttt{1 / 2\textasciicircum3}
-\end{equation}
-\begin{equation}\label{simple-example-sty-form}
-\frac{\numintro{1}}{{\numintro{2}^{\numintro{3}}}}
-\end{equation}
-
 \begin{equation}\label{simple-example-op-form}\adiv{\anumintro{1}}{
 	\apow{\anumintro{2}}{\anumintro{3}}
 }\end{equation}
+\begin{equation}\label{simple-example-sty-form}
+\frac{\numintro{1}}{{\numintro{2}^{\numintro{3}}}}
+\end{equation}
+\begin{equation}\label{simple-example-txt-form}
+\texttt{1 / 2\textasciicircum3}
+\end{equation}
 \end{subequations}
-
 \noindent
-These are different drawings of a single \emph{abstract syntax tree (AST)} of the sort defined by the syntax chart in Figure \ref{fig:simple-example}.\footnote{Some familiarity with ASTs and inductively defined judgements is preliminary to this work. See Sec. \ref{sec:preliminaries} for citations and a more thorough discussion of necessary preliminaries.} ASTs of this sort are the expressions of a simple arithmetic programming language, $\simplelang$. 
-%\footnote{...after the now archaic word \emph{algorism}: a rule-based system for performing arithmetic calculations with Arabic numerals. This word, like the modern word \emph{algorithm}, derives from the name of the 9th century Persian mathematician Al-Khw\={a}rizm\=\i.} 
-As the syntax chart suggests, every $\simplelang$ expression can be drawn in \emph{textual form}, like Drawing (\ref{simple-example-txt-form}), \emph{stylized form}, like Drawing (\ref{simple-example-sty-form}), or \emph{operational form}, like Drawing (\ref{simple-example-op-form}).
-
-
+According to the syntax chart in Figure \ref{fig:simple-example}, these are drawings of an \emph{abstract syntax tree (AST)} of sort $\mathsf{Exp}$,\footnote{Some exposure to abstract syntax trees and inference rules is preliminary to this work. See Sec. \ref{sec:preliminaries} for citations and a more thorough discussion of necessary preliminaries.} differing only in that Drawing (\ref*{simple-example-op-form}) is in \emph{operational form}, Drawing (\ref*{simple-example-sty-form}) is in \emph{stylized form} and Drawing (\ref*{simple-example-txt-form}) is in \emph{textual form}. 
 % In particular, let us consider a simple programming language, $\simplelang$, for performing arithmetic calculations with numbers. The expressions of $\simplelang$ are \emph{abstract syntax trees (ASTs)} of a sort defined by the syntax chart in Figure \ref{fig:simple-example}.\footnote{Familiarity with abstract syntax trees is preliminary to this work (see Sec. \ref{sec:preliminaries} for other preliminaries.)}  For example, the following expression is drawn in stylized form:
 % The same expression is drawn in textual form as follows:
-
-
 % \noindent
 % and in operational form as follows:
 
- The semantics of $\simplelang$ identifies ASTs {structurally}, i.e. independently of how they are drawn. Consider, for instance, the semantic judgement $\isvalU{e}$, which characterizes $e$ as a \emph{value} (as distinct from an expression that can be arithmetically simplified.) This judgement is defined by a single inference rule, which establishes that all and only the number expressions are values:
-\begin{mathpar}
+ASTs of this sort are the expressions of an arithmetic programming language, $\simplelang$. The semantics of $\simplelang$ identifies expressions {structurally}, i.e. only the rows of the syntax chart in Figure \ref{fig:simple-example} are semantically relevant. For example, consider the  judgement $\isvalU{e}$, which establishes certain expressions as \emph{values} (as distinct from expressions that can be arithmetically simplified.) This judgement is defined by a single inference rule, which establishes that every number expressions is a value:
+\begin{equation}\label{rule:num-val}
 \inferrule{ }{
 	\isvalU{\anumintro{n}}
 }
-\end{mathpar}
-Though this rule is drawn using the operational form for number expressions, we can apply it to derive that $\isvalU{\numintro{2}}$, because $\numintro{2}$ and $\anumintro{2}$ identify the same AST. In other words, ``syntax doesn't matter'' from the perspective of the semantics of $\simplelang$.
+\end{equation}
+Although Rule (\ref*{rule:num-val}) is drawn using the operational form for number expressions, we can apply it to derive that $\isvalU{\numintro{2}}$, because $\numintro{2}$ and $\anumintro{2}$ identify the same tree. In short, ``syntax doesn't matter'' from the perspective of the semantics of $\simplelang$.
 
 
 \begin{figure}
@@ -70,13 +61,13 @@ Though this rule is drawn using the operational form for number expressions, we 
 \label{fig:simple-example}
 \end{figure}
 
-From the perspective of a human programmer, of course, different drawings of an AST are not interchangeable. For example, a human programmer (particularly a novice programmer) might distinguish drawings in stylized form as more ``readable'' than those in operational or textual form, because stylized forms follow the widely taught arithmetic conventions. On the other hand, drawings in textual form can be drawn more easily using a text editor, while drawings in operational form are pleasingly uniform and dispense with the many complexities of operator precedence and associativity (which can be useful for humans as they reason  about the language, or implement it.) %Mistakes may also be less frequent when producing drawings in stylized or textual form (for $\simplelang$ expressions, perhaps only because operational forms use more parentheses). 
-In short, different drawings of a tree can and must be distinguished by the \emph{cognitive costs}  that human programmers incur when drawing or examining them in various circumstances. We will return to consider more precise operationalizations of this necessarily broad notion of cognitive cost in Sec. \ref{sec:syntactic-properties}. %Regardless, it is  apparent that although syntax doesn't matter (semantically), different drawings of .  %that the popular refrain amongst language researchers that syntax ``doesn't matter'' is of rather limited.   %that intuitively,  drawings in stylized or textual form are of lower syntactic cost than those in operational form. This is important not only because aesthetics, but also because syntactic cost relates to measures of programmer productivity and other quantities and qualities of extrinsic interest (we discuss these and other measures in more detail in Sec. \ref{sec:syntactic-properties}). 
+From the perspective of a human programmer, of course, syntax \emph{does} matter, i.e. different drawings of a tree are far from indistinguishable. For example, a human might distinguish drawings in stylized form as more ``readable'' than those in operational or textual form, because the stylized forms follow  widely taught arithmetic conventions. Drawings in textual or operational form are distinguished in that they can be drawn using a simple text editor. And drawings in operational form dispense with various syntactic complexities (e.g. related to operator precedence and associativity), which simplifies metatheoretic reasoning and implementation efforts. %Mistakes may also be less frequent when producing drawings in stylized or textual form (for $\simplelang$ expressions, perhaps only because operational forms use more parentheses). 
+In short, different drawings of a tree, though semantically indistinguishable, can and must be distinguished by the \emph{cognitive costs}  that human programmers incur as they produce or examine them (we will consider various operationalizations of this necessarily broad notion in Sec. \ref{sec:syntactic-properties}.) %Regardless, it is  apparent that although syntax doesn't matter (semantically), different drawings of .  %that the popular refrain amongst language researchers that syntax ``doesn't matter'' is of rather limited.   %that intuitively,  drawings in stylized or textual form are of lower syntactic cost than those in operational form. This is important not only because aesthetics, but also because syntactic cost relates to measures of programmer productivity and other quantities and qualities of extrinsic interest (we discuss these and other measures in more detail in Sec. \ref{sec:syntactic-properties}). 
 
 %The forms defined by the syntax chart in Figure \ref{fig:simple-example} suffice to allow programmers to draw any $\simplelang$ expression. However, 
-In seeking to reduce the cognitive costs associated with drawings of idiomatic trees, syntax designers  often  include additional \emph{derived forms} (colloquially, ``syntactic sugar'') in a syntax definition. Unlike the \emph{primitive forms} defined in Figure \ref{fig:simple-example}, which identify a tree directly, derived forms identify a tree indirectly, via a context-independent \emph{desugaring transformation}.
-
-One simple way to define a desugaring transformation is by stating a rewrite rule. For example, the following rewrite rule defines a derived stylized form for calculating the square root of a $\simplelang$ expression:
+In seeking to reduce cognitive cost, syntax designers  often  include additional \emph{derived forms}  in a syntax definition. Unlike the \emph{primitive forms}  defined in Figure \ref{fig:simple-example}, which identify trees immediately, a derived form identifies a tree via a context-independent \emph{desugaring transformation}. 
+%We can define a desugaring transformation by stating a rewrite rule. 
+For example, the following rewrite rule defines a derived stylized form for calculating the square root of a $\simplelang$ expression:
 % \begin{subequations}
 \begin{equation}\label{rule:simplelang-sqrt}
 \sqrt{e} \rightarrowtriangle e^{\frac{\numintro{1}}{\numintro{2}}}
@@ -87,28 +78,49 @@ One simple way to define a desugaring transformation is by stating a rewrite rul
 % \end{equation}
 % \end{subequations}
 % \noindent 
-When we encounter a drawing of a $\simplelang$ expression, we desugar  it by first recursively desugaring its subexpressions. If the drawing is in primitive form, desugaring is complete.  If the drawing is in derived form, we apply the corresponding desugaring transformation (here, we only have one choice.) The resulting drawing will identify an AST directly, i.e. it will consist only of the primitive forms defined in Figure \ref{fig:simple-example}.
+Desugaring a drawing of a tree involves first recursively desugaring the drawings of its subtrees. If the drawing is in primitive form, desugaring is complete.  If the drawing is in derived form, we apply the corresponding desugaring transformation (here, we  have only one choice, stated as a rewrite rule.) The desugared drawing will identify a tree immediately, i.e. it will consist only of primitive forms. As such, the semantics need not be modified to give meaning to derived forms.
 %Similarly, we might define a derived form for taking an arbitrary root of an expression as follows:
 % \begin{align*}
 % \sqrt[e']{e} & \rightarrowtriangle e^{\frac{\numintro{1}}{e'}}
 % \end{align*}
 
-$\simplelang$ expressions are rather limited -- they can express only simple computations of a single type -- so we should not expect to need more than a few more derived forms  to satisfyingly capture the  idioms that would arise in common human usage of $\simplelang$. %Consequently, there is little opportunity to go beyond simple derived forms like these. 
-But the study of programming languages has revealed many other sorts of trees, suitable for expressing substantially richer types of computations.  As humans have used and evolved these languages to solve problems across a variety of problem domains, more idioms -- and with them, more derived forms -- have, naturally, emerged.  For example, Standard ML (a ``general-purpose''  language in the functional tradition \cite{mthm97-for-dart,harper1997programming}) defines derived textual forms for working with lists. In SML, \lstinline{[1, 2, 3, 4, 5]} is the same as: 
+$\simplelang$ is semantically limited -- we can express only simple computations of a single type -- so we should not expect to need many more derived forms to satisfyingly capture the  idioms that would arise in common human usage of the language (a few standard arithmetic notations should suffice.) %Consequently, there is little opportunity to go beyond simple derived forms like these. 
+Modern programming languages, in contrast, have substantially richer semantic structure, and they have found application across a wide variety of human problem domains, so it is natural that many more idioms -- and with them, many more derived forms -- have emerged over time.\footnote{The same dynamic is apparent in the progression of ``pen-and-paper'' mathematics.}  
+For instance, the textual syntax of Standard ML (SML), a ``general-purpose''  language in the functional tradition, defines derived forms for constructing and pattern matching on lists \cite{mthm97-for-dart,harper1997programming}. In SML, the derived expression (also, pattern) form \lstinline{[1, 2, 3, 4, 5]} desugars to an expression (pattern) equivalent to:
 \begin{lstlisting}[numbers=none]
 Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
 \end{lstlisting}
-assuming that \li{Nil} and \li{Cons} stand for the list constructors defined in the SML Basis library (i.e. SML's ``standard library''.)\footnote{The desugaring actually uses unforgeable identifiers bound permanently to the list constructors, to ensure that the desugaring is context independent. We will return to the concept of context independence throughout this work.} Many other languages similarly define lists or list-like data structures in a designated standard library, and corresponding derived forms in their textual syntax.
+assuming \li{Nil} and \li{Cons} stand for the list constructors exported by the SML Basis library (i.e. SML's ``standard library''.)\footnote{The desugaring actually uses unforgeable identifiers bound permanently to the list constructors, to ensure that the desugaring is context independent. We will return to the concept of context independence throughout this work.} Other languages similarly privilege select standard library constructs with derived forms, for example:
 
-List computations arise across problem domains. Other types of computations arise only in specific problem domains, which are served not by the standard library but by various third-party libraries. Language designers cannot reasonably anticipate and accomodate idioms that are specific to these libraries, so  library providers (or other interested parties) often define new ``library-specific'' (a.k.a. ``domain-specific'') \emph{syntax dialects}, i.e. new syntax definitions constructed by extending the original syntax definition with new derived forms. For example, Ur/Web extends Ur's textual syntax with derived forms for SQL queries, XHTML elements and other datatypes defined in a  web programming library \cite{conf/popl/Chlipala15}. The  following program fragment shows how XHTML expressions that contain strings and other XHTML expressions can be drawn in Ur/Web: % Such dialects are sometimes qualitatively taxonomized as amongst the ``domain-specific language'' for this reason \cite{fowler2010domain}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
+\begin{itemize}
+\item OCaml defines derived forms for mutable arrays.
+\item Haskell defines derived forms for values of monadic type.
+\item Scala defines derived XML forms.
+\item F\#, Scala and various other languages define derived forms for encodings of the language's own syntax trees (these are often referred to as \emph{quasiquotation} forms.)
+\item Python defines derived forms for mutable sets and dictionaries.
+\item Perl defines derived regular expression forms.
+\end{itemize}
+
+This is, fundamentally, an \emph{ad hoc} design practice -- there are no clear semantic criteria that fundamentally distinguish standard library constructs from  those defined in third-party libraries. Indeed, the OCaml community has recently moved to de-emphasize the standard library in favor of competing bundles of third-party libraries (in particular, Batteries is an open source effort, and Core is a commercially maintained effort.) This suggests that the most parsimonious approach would be to remove the derived forms specific to standard library constructs from language definitions in favor of mechanisms that give more control over form to third-party library providers. 
+We will detail various such mechanisms in Section \ref{sec:existing-approaches}. 
+%For a language definition to make no mention of a standard library at all, leaving such efforts to one or more separate community processes.
+
+\section{Syntax Dialects}
+The most syntactically expressive of the mechanisms that we will detail in Section \ref{sec:existing-approaches} are syntax definition systems like Camlp4 \cite{ocaml-manual}, Copper \cite{conf/gpce/WykS07} and SugarJ/Sugar* \cite{erdweg2011sugarj,erdweg2013framework}. These enable the construction of  
+%library-specific (a.k.a. ``domain-specific'') 
+\emph{syntax dialects}, i.e. new syntax definitions that extend the original syntax definition with new derived forms. For example, Ur/Web extends Ur's textual syntax with derived forms for SQL queries, XHTML elements and other constructs defined by a  web programming library \cite{conf/popl/Chlipala15}. The program fragment drawn in Figure \ref{fig:urweb} demonstrates how XHTML expressions that contain strings and other XHTML expressions can be drawn in Ur/Web. % Such dialects are sometimes qualitatively taxonomized as amongst the ``domain-specific language'' for this reason \cite{fowler2010domain}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
+\begin{figure}
 \begin{lstlisting}[numbers=none]
 val p = SURL<xml><p>Hello, {EURLcase name of
                           None => SURL<xml>World</xml>EURL
                         | Some s => SURL<xml>{[EURLsSURL]}</xml>}!</p></xml>EURL
-\end{lstlisting}                              
-The desugaring of this drawing is substantially more verbose and, for programmers  acquainted with XHTML, substantially more obscure.
-
-We will consider other examples of data structures where syntactic cost becomes a legitimate concern for client programmers in Sec. \ref{sec:motivating-examples}. In Sec. \ref{sec:existing-approaches}, after first reviewing simpler approaches that can help library providers control syntactic cost, albeit only to a limited extent, we describe systems like Camlp4 \cite{ocaml-manual}, Copper \cite{conf/gpce/WykS07}, SugarJ/Sugar* \cite{erdweg2011sugarj,erdweg2013framework} and Racket's dialect system \cite{Flatt:2012:CLR:2063176.2063195} that have simplified the task of defining syntax dialects like Ur/Web, and thereby contributed to their ongoing proliferation.
+\end{lstlisting}
+\caption{Derived XHTML forms in Ur/Web}
+\label{fig:urweb}
+\end{figure}                           
+%The desugaring, not shown, is substantially more verbose and, for programmers who are familiar with XHTML forms, substantially more obscure than the drawing above. %We will consider other examples of data structures where syntactic cost becomes a legitimate concern for client programmers in Sec. \ref{sec:motivating-examples}. 
+%after first reviewing simpler approaches that also help library providers control syntactic cost, albeit to a more limited extent, 
+%Syntax definition systems  have simplified the task of defining library-specific (a.k.a ``domain-specific'') syntax dialects like Ur/Web, and thereby contributed to their ongoing proliferation.
 
 
 %Full-scale languages are also interesting objects of mathematical study. Uniquely, however, they are also designed for use by humans. Consequently, their designers  typically define both an abstract syntax and a textual syntax. This textual syntax serves as the primary interface between human programmers and the language, so it is common to define various \emph{derived forms}, i.e. forms defined by a context-independent \emph{desugaring} to a set of \emph{base forms}. These serve to decrease the \emph{syntactic cost} or \emph{cognitive cost} of selected idioms. 
@@ -132,26 +144,26 @@ We will consider other examples of data structures where syntactic cost becomes 
 %MLj builds in the type structure of the Java object system (motivated by a desire to interface safely and naturally with Java libraries) \cite{Benton:1999:IWW:317636.317791}. Other dialects do the same for other foreign languages, e.g. Furr and Foster describe a dialect of OCaml that builds in the type structure of C \cite{Furr:2005:CTS:1065010.1065019}. Tools like proof assistants and logical frameworks are used to specify and reason metatheoretically about dialects like these, and tools like compiler generators and language frameworks \cite{erdweg2013state} lower their implementation cost, again contributing to their proliferation. 
 
 % \vspace{-5px}
-\section{Problems with the Dialect-Oriented Approach}\label{sec:problems-with-dialects}
-Some researchers have characterized this proliferation of syntax dialects as harmless or even as desirable, arguing that programmers can simply choose the right dialect for each job at hand \cite{journals/stp/Ward94}. However, this ``dialect-oriented'' approach is difficult to reconcile with the best practices of ``programming in the large''  \cite{DeRemer76}, i.e. developing large programs ``consisting of many small programs (modules), possibly written by different people'' whose interactions are mediated by an expressive type and binding discipline. We will summarize the problems that tend to arise here; a more systematic treatment will follow in  Sec. \ref{sec:syntax-dialects}.
+\subsection{Problems with the Dialect-Oriented Approach}\label{sec:problems-with-dialects}
+Some have argued that a proliferation of syntax dialects is harmless or even desirable, because programmers can simply choose the right dialect for each job at hand \cite{journals/stp/Ward94}. However, this ``dialect-oriented approach'' is difficult to reconcile with the best practices of ``programming in the large''  \cite{DeRemer76}, i.e. developing large programs ``consisting of many small programs (modules), possibly written by different people'' whose interactions are mediated by a type and binding discipline. We will introduce the problems that tend to come up here; a more systematic treatment will follow in  Sec. \ref{sec:syntax-dialects}.
 
-\subsection{Conservatively Combining Syntax Dialects}
-The first problem with the dialect-oriented approach in the large is that programmers cannot always combine different syntax dialects when they want to use the derived forms that they define together within a single module.
+\subsubsection{Conservatively Combining Syntax Dialects}
+The first problem with the dialect-oriented approach is that programmers cannot always combine different syntax dialects when they want to use the derived forms that they define together within a single module. In other words, problem domains commonly (and increasingly) overlap with one another.
 
-For example, consider a syntax dialect, $\mathcal{H}$, defining derived forms for working with encodings of HTML elements, and another syntax dialect, $\mathcal{R}$,  defining derived forms for working with encodings of regular expressions. In domains like bioinformatics, both HTML elements and regular expressions are common, so it would be useful to construct a ``combined dialect'' where all of these derived forms are defined. 
+For example, consider a syntax dialect, $\mathcal{H}$, defining derived forms for working with encodings of HTML elements, and another syntax dialect, $\mathcal{R}$,  defining derived forms for working with encodings of regular expressions. In problem domains where both HTML elements and regular expressions are common (e.g. bioinformatics), it would be useful to construct a ``combined dialect'' where all of these derived forms are defined. 
 
 For this notion of ``dialect combination'' to be well-defined at all, we must first have that $\mathcal{H}$ and $\mathcal{R}$ are defined under the same syntax definition system. In practice, there are many well-developed syntax definition systems, each of which operate on subtly different classes or encodings of grammars, or that do not use grammars at all (we consider these in detail in Sec. \ref{sec:syntax-dialects}.) If the dialect designers  have not  picked the same syntax definition system, ``dialect combination'' remains a strictly informal notion.%$\mathcal{H} \cup \mathcal{R}$ is simply undefined.% (e.g. parser combinator libraries like Haskell's \li{parsec} \cite{parsec}.)
 
-If $\mathcal{H}$ and $\mathcal{R}$ are coincidentally defined under the same system, we must also have that this system operationalizes the notion of dialect combination. Under those systems that do not (e.g. Racket's dialect preprocessor \cite{Flatt:2012:CLR:2063176.2063195}), clients can only manually  ``copy-and-paste'' or factor out portions of the constituent dialect definitions to construct the ``combined'' dialect. This is not systematic and, in practice, tedious and error-prone.%In both this and the previous case, ``dialect combination'' is a strictly informal notion, left to library clients to operationalize through manual labor (hence the quotes).
+If $\mathcal{H}$ and $\mathcal{R}$ are coincidentally defined under the same system, we must also have that this system operationalizes the notion of dialect combination, i.e. we need some operation $\mathcal{H} \cup \mathcal{R}$ to be well-defined. Under systems that do not define such an operation (e.g. Racket's dialect preprocessor \cite{Flatt:2012:CLR:2063176.2063195}), clients can only manually  ``copy-and-paste'' or factor out portions of the constituent dialect definitions to construct the ``combined'' dialect. This is not systematic and, in practice, tedious and error-prone.%In both this and the previous case, ``dialect combination'' is a strictly informal notion, left to library clients to operationalize through manual labor (hence the quotes).
 
-If we further restrict our interest  to dialects specified using a single system that does operationalize some notion of dialect combination (or equivalently one that allows clients to systematically combine \emph{dialect fragments}), there is still a problem: these systems come with no guarantee that the combined dialect will conserve important properties that can be established about the constituent dialects in isolation (i.e. \emph{modularly}.) In other words, establishing $P(\mathcal{H})$ and $P(\mathcal{R})$ is not sufficient to establish $P(\mathcal{H} \cup \mathcal{R})$. Clients must re-establish such properties for each combined dialect that they construct.%In other words, any putative ``combined language'' must formally be considered a  distinct system for which one must derive essentially all metatheorems of interest anew, guided only informally by those derived for the dialects individually. %There is no well-defined mechanism for constructing such a ``combined language'' in general. 
+If we restrict our interest  to dialects specified using a single syntax definition system that does operationalize the notion of dialect combination (or equivalently one that allows clients to systematically combine \emph{dialect fragments}), there is still a problem: these systems do not guarantee that the combined dialect will conserve important properties that can be established about the constituent dialects in isolation (i.e. \emph{modularly}.) In other words, establishing $P(\mathcal{H})$ and $P(\mathcal{R})$ is not sufficient to establish $P(\mathcal{H} \cup \mathcal{R})$. Clients must re-establish such properties for each combined dialect that they construct.%In other words, any putative ``combined language'' must formally be considered a  distinct system for which one must derive essentially all metatheorems of interest anew, guided only informally by those derived for the dialects individually. %There is no well-defined mechanism for constructing such a ``combined language'' in general. 
 
 For example, consider two syntax dialects defined using a system like Camlp4: $\mathcal{D}_1$ defines derived forms for sets, and $\mathcal{D}_2$ defines derived forms for finite maps, both delimited by \verb~{|~ and \verb~|}~.\footnote{In OCaml, simple curly braces are already reserved by the language for record types and values.} Though each dialect defines a deterministic grammar, i.e. $\mathrm{det}(\mathcal{D}_1)$ and $\mathrm{det}(\mathcal{D}_2)$, when the grammars are na\"ively combined by Camlp4, it is not the case that $\mathrm{det}(\mathcal{D}_1 \cup \mathcal{D}_2)$ (i.e. syntactic ambiguities arise under the combined dialect.) In particular, the empty set and the empty dictionary are both drawn \verb~{||}~. %A third syntax dialect might come along that uses the same forms that $\mathcal{D}_2$ defines, but for ordered finite maps.
 
 Schwerdfeger and Van Wyk describe a modular analysis, implemented in Copper \cite{conf/gpce/WykS07}, that ``nearly'' guarantees that determinism is conserved when syntax dialects (of a certain restricted class) are combined \cite{conf/pldi/SchwerdfegerW09}, the caveat being that the constituent dialects must prefix all newly introduced forms with starting tokens drawn from disjoint sets. We will return to this requirement (and some other subtle requirements) in Sec. \ref{sec:syntax-dialects}.
 
 
-\subsection{Abstract Reasoning About Derived Forms}\label{sec:abs-reasoning-intro}
+\subsubsection{Abstract Reasoning About Derived Forms}\label{sec:abs-reasoning-intro}
 Even putting aside the difficulties of conservatively combining syntax dialects, there are questions about how \emph{reasonable}  sprinkling library-specific derived forms throughout a large software system might be. 
 For example, consider the perspective of a programmer attempting to comprehend (i.e. reason about) the following program fragment drawn under a syntax dialect constructed by combining SML's textual syntax with a large number of other syntax dialects:
 \begin{lstlisting}
@@ -218,12 +230,28 @@ In contrast, when a programmer encounters, for example, a function call like the
 %\vspace{-10px}
 \section{Contributions}\label{sec:contributions}
 %%Our broad aim in the work being proposed is to introduce primitive language mechanisms that give library providers the ability to  express new syntactic expansions as well as new types and operators in a safe and modularly composable manner. 
-This work introduces \textbf{typed syntax macros}, or \textbf{TSMs}. TSMs programmatically control the parsing and expansion of trees of \emph{generalized literal form}. Generalized literal forms syntactically subsume many other syntactic forms because the language only definitively delimits them, leaving a \emph{body} that is otherwise syntactically unconstrained. As such, TSMs diminish the need for library-specific syntax dialects. Syntactic conflict is not a concern because the syntax of the language is never directly extended, only contextually repurposed.
+To summarize our motivating argument: the widespread proliferation of syntax dialects and syntax definition systems suggests that programmers value library-specific (a.k.a. domain-specific) syntactic sugar. However, the dialect-oriented approach seems to be incompatible with the best practices of programming in the large.  
 
-TSMs are delegated control over the parsing and expansion of literal bodies during a semantic phase known as \emph{typed expansion}, which generalizes the usual typing phase. As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansions that TSMs generate to ensure that clients can maintain a reasonable type discipline and binding discipline. In other words, TSMs maintain a useful notion of syntactic abstraction. %More specifically, TSMs maintain a \emph{hygienic binding discipline}, meaning that questions Questions 4 and 5 above were concerned with are disallowed entirely. 
-We will, of course, make this notion more technically precise as we continue.
+Our aim is to develop a more reasonable approach to the problem of defining library-specific syntactic sugar. This approach is oriented around a new language construct -- the \textbf{typed syntax macro (TSM)}. Client programmers apply TSMs to trees of \emph{generalized literal form}. Four examples where a TSM (identified by a \li{#\dolla#}-prefixed name) is applied (in post-fix position) to a tree of generalized literal form are given in Figure \ref{fig:first-tsm-example}.
+\begin{figure}[h]
+\begin{lstlisting}
+[SURL1, 2, 3, 4, 5EURL] $intlist
+`SURL<p>Hello, <$name></p>EURL` $html
+/SURL\d\d\d-\d\d-\d\d\d\dEURL/ $rx
+{|SURL(!R)@&{&/x!/:2_!x}'!R}EURL|} $K
+\end{lstlisting}
+\caption{Four trees of TSM application form, each of which consists of a tree of generalized literal form and a TSM name.}
+\label{fig:first-tsm-example}
+\end{figure}
 
-We introduce TSMs first with a simple language of expressions and types in Chapter \ref{chap:uetsms}. We then add support for  structural pattern matching  in Chapter \ref{chap:uptsms}. In Chapter \ref{chap:ptsms}, we add an ML-style module system and introduce \emph{parametric TSMs}, i.e. TSMs that take type and module parameters. Parameters serve two purposes: 1) they allow the expansions that TSMs generate to interact with the surrounding context in a controlled and reasonable manner; and 2) they enable TSMs that operate not just at a single type, but over a type- and module-parameterized family of types. Support for partial parameter application in TSM abbreviations decreases the syntactic cost of this explicit parameter passing style.
+Generalized literal forms subsume many common syntactic forms in that they are only definitively delimited by the context-free syntax of the language -- their \emph{bodies} (in blue above) are otherwise syntactically unconstrained. The context-free syntax cannot be extended by library providers, so syntactic conflicts between libraries are simply not a concern. Instead, the available generalized literal forms are contextually repurposed. In particular, the applied TSM is delegated control over the parsing and expansion of the literal body during a semantic phase known as \emph{typed expansion}, which generalizes the usual typing phase. As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TSM generates to ensure that clients are not forced to inspect the final expansion to answer questions like those enumerated in Section \ref{sec:abs-reasoning-intro}. In other words, TSMs come equipped with useful abstract reasoning principles. We will, of course, more precisely characterize these reasoning principles as we proceed.
+
+% There is also no ambiguity with regard to which TSM has control over each form, and searching for the definition of a TSM is no more difficult than searching for any other binding, i.e. there are well-defined scoping rules.
+
+% In other words, TSMs maintain a useful notion of syntactic abstraction. %More specifically, TSMs maintain a \emph{hygienic binding discipline}, meaning that questions Questions 4 and 5 above were concerned with are disallowed entirely. 
+% We will, of course, make this notion more technically precise as we continue.
+
+We will begin by integrating TSMs into a simple language of expressions and types in Chapter \ref{chap:uetsms}. We will then add support for  structural pattern matching  in Chapter \ref{chap:uptsms}. In Chapter \ref{chap:ptsms}, we add an ML-style module system and introduce \emph{parametric TSMs}, i.e. TSMs that take type and module parameters. Parameters serve two purposes: 1) they allow the expansions that TSMs generate to interact with the surrounding context in a controlled and reasonable manner; and 2) they enable TSMs that operate not just at a single type, but over a type- and module-parameterized family of types. Support for partial parameter application in TSM abbreviations decreases the syntactic cost of this explicit parameter passing style.
 
 We make a simplifying assumption in these first chapters: that each TSM definition is self-contained, needing no access to libraries beyond the standard library. This allows us to focus on more fundamental issues, but it is, of course, an impractical assumption. We relax this assumption in Chapter \ref{chap:static-eval}, introducing the notion of a \emph{static environment} shared between TSM definitions.
 
