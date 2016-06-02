@@ -441,13 +441,13 @@ fun is_dna_rx'(r : R.t) : boolean =>
 
 \subsubsection{Abstract Reasoning About Derived Forms}
 In addition to the difficulties of conservatively combining syntax dialects, there are a  number of other difficulties related to the fact that there is often no useful notion of syntactic abstraction that a programmer can rely on to reason about an unfamiliar derived form. The programmer may need to examine the desugaring, the desugaring logic or even the definitions of all of the constituent dialects, to definitively answer the questions given in Sec. \ref{sec:abs-reasoning-intro}. These questions were stated relative to a particular example involving the query processing language K.  
-Here, we generalize from that example to develop an informal classification of the difficulties that programmers might encounter in analagous situations. In each case, we will discuss exceptional systems where these difficulties are ameliorated or avoided.% We discuss some exceptions from amongst the related work above:
+Here, we generalize from that example to develop an informal classification of the difficulties that programmers might encounter in analagous situations. In each case, we will discuss exceptional systems where these difficulties are ameliorated or avoided entirely.% We discuss some exceptions from amongst the related work above:
 
 \begin{enumerate}
 \item \textbf{Search:} It is not always straightforward to determine which constituent dialect is responsible for any particular derived form.
 
 The system implemented by Copper \cite{conf/pldi/SchwerdfegerW09} is an exception, in that the marking terminal (and the grammar name, if necessary) allows clients to search across the constituent dialect definitions for the corresponding declaration without needing to understand any of them deeply.
-\item \textbf{Segmentation:} It is not always possible to segment a derived form such that each segment consists either of a spliced base language term (which we have drawn in black in the examples in this document) or a sequence of characters that are parsed otherwise (which we have drawn in color.) When it is possible, determining the segmentation is not always straightforward.
+\item \textbf{Segmentation:} It is not always possible to segment a derived form such that each segment consists either of a spliced base language term (which we have drawn in black in the examples in this document) or a sequence of characters that are parsed otherwise (which we have drawn in color.) Even when a segmentation exists, determining it is not always straightforward.
 
 For example, consider a production in a grammar that looks like this: 
 \begin{lstlisting}[numbers=none]
@@ -596,14 +596,14 @@ These systems present conceptual problems that are directly analagous to those t
 \item \textbf{Typing:} It is not always clear what type the rewriting of a marked form will have.
 \end{enumerate}  
 
-\todo{Astar macros? Extensible compilers that give you pattern matching?}
+%\todo{Astar macros? Extensible compilers that give you pattern matching?}
 
 \subsubsection{Macro Systems}
-Macro systems allow programmers to designate functions that operate over term encodings as macros, and then apply these macros directly to terms as rewritings. \todo{search is solved. delimitation is solved. conflict is solved.}
+Macro systems allow programmers to designate functions that operate over term encodings as macros, and then apply these macros directly to terms as rewritings. %\todo{search is solved. delimitation is solved. conflict is solved.}
 
 The LISP macro system \cite{Hart63a} is perhaps the most prominent example of such a system. Early variants of this system suffered from the problem of hygiene described earlier \todo{elaborate}, but  later variants, notably in the Scheme dialect of LISP, brought support for enforcing hygiene \cite{Kohlbecker86a}. 
 
-In languages with a richer static type discipline, variants of macros that restrict rewriting to a particular type and perform the rewriting statically have also been studied \cite{Herman10:Theory,ganz2001macros} and integrated into languages, e.g. MacroML \cite{ganz2001macros} and Scala \cite{ScalaMacros2013}. \todo{actually MacroML isn't a term rewriting system; just a staging system. write about this.} \todo{typing is sort of solved...}
+In languages with a richer static type discipline, variants of macros that restrict rewriting to a particular type and perform the rewriting statically have also been studied \cite{Herman10:Theory,ganz2001macros} and integrated into languages, e.g. MacroML \cite{ganz2001macros} and Scala \cite{ScalaMacros2013}. \todo{actually MacroML isn't a term rewriting system; just a staging system. write about this.} %\todo{typing is sort of solved...}
 
 The most immediate problem with using these for our example is that we are not aware of any such statically-typed macro system that integrates cleanly with an ML-style module system. In other words, macros cannot be parameterized by modules. However, let us imagine such a macro system. We could use it to repurpose string syntax  as follows:
 \begin{lstlisting}[numbers=none]

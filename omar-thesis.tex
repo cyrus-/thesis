@@ -201,7 +201,7 @@ deletestring=[d]{"},
 %initialize page style, so contents come out right (see bot) -mjz
 \pagestyle{empty}
 
-\title{\textbf{Reasonably Programmable Syntax}}
+\title{\textbf{Modularly Programmable Syntax}}
 \author{Cyrus Omar}
 \date{\today}
 \Year{2016}
@@ -236,19 +236,19 @@ When designing a human-facing textual syntax for a programming language, it is c
 %, i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
 For example, the textual syntax of Standard ML (SML) defines derived forms for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
 
-Third-party library providers are, justifiably, envious of this arrangement. The problem is that while it is straightforward to define other useful derived forms (e.g. for maps, HTML elements or regular expressions) in separately developed ``domain-specific'' dialects of the textual syntax, combining these syntax dialects, when possible at all, is not guaranteed to conserve syntactic {determinism} (i.e. syntactic conflicts can arise.) Moreover, it can become difficult for programmers to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar derived forms. In short, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+Third-party library providers are, justifiably, envious of this arrangement -- although it is straightforward to define other useful derived forms (e.g. for finite maps, HTML elements or regular expressions) in separately developed ``domain-specific'' dialects of the textual syntax, combining these dialects, when possible at all, is not guaranteed to conserve syntactic {determinism} (i.e. syntactic conflicts can arise.) Moreover, it can become difficult for programmers to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar derived forms. %As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for \emph{ad hoc} derived forms and library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of (generalized) literal form. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict between them because the syntax of the language is never extended (only contextually repurposed.) The language validates each expansion that a TSM generates in order to maintain:
+In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for \emph{ad hoc} derived forms and domain-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of a generalized literal form. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict between them because the context-free syntax of the language is never extended (only contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain:
 \begin{itemize}
-\item a \emph{type discipline}, meaning that the programmer can reason about types without examining literal expansions; and 
+\item a \emph{type discipline}, meaning that the programmer can reason about types without examining the full literal expansion; and 
 \item a \emph{hygienic binding discipline}, meaning that 
   \begin{enumerate}
     \item literal expansions cannot (accidentally or intentionally) shadow bindings that appear at the application site; and 
-  \item literal expansions cannot refer to application site bindings directly. Instead, all interactions with  application site bindings go through \emph{spliced subterms} and \emph{parameters}. Partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+  \item literal expansions cannot refer to application site bindings directly. Instead, all interactions with  application site bindings go through either \emph{spliced subterms} and \emph{parameters}. %Partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
-In short, we describe a programming language in the ML tradition with a \emph{reasonably} programmable syntax.
+In short, we describe a programming language (in the ML tradition) with a \emph{reasonably} programmable syntax.
 
 %We discuss both explicit application of TSMs (with support for partial parameter application) and implicit, type-directed application of TSMs, which further reduces cognitive cost.
 \end{abstract}
@@ -296,7 +296,7 @@ In short, we describe a programming language in the ML tradition with a \emph{re
 
 \input{intro}
 
-\chapter{Background}
+\chapter{Background}\label{chap:background}
 %VerseML, like most contemporary full-scale programming languages, has a textual concrete syntax (we will consider the topic of non-textual display forms as future work in Sec. \ref{sec:non-textual-display-forms}).
 %\footnote{Although Wyvern specified a layout-sensitive concrete syntax, to avoid unnecessary distractions, we will describe a more conventional layout-insensitive concrete syntax for VerseML.} %We have chosen to specify a layout-sensitive textual concrete syntax (i.e. newlines and indentation are not ignored). This design choice is not  fundamental to our proposed contributions, but it will be useful for cleanly expressing a class of examples that we plan to discuss later. We plan to specify some novel aspects of VerseML's concrete syntax with an \emph{Adams grammar} \cite{Adams:2013:PPI:2429069.2429129} (such a specification for Wyvern, which has a very similar syntax, can be found in \cite{TSLs}), but for the purposes of this proposal, we will simply introduce VerseML's concrete syntax by example as we go on. %For constructs that have an obvious analog in ML, we will omit a detailed explanation.
 %Because the purpose of concrete syntax is to serve as the programmer-facing user interface to the language, it is common practice to build in  derived syntactic forms (colloquially, \emph{syntactic sugar}) that capture common idioms more concisely (i.e. at lower \emph{syntactic cost}) or ``naturally'' (i.e. at lower \emph{cognitive cost}, which is usually considered qualitatively \cite{green1996usability}). % (i.e. considering cognitive dimensions \cite{green1996usability}). 
@@ -314,15 +314,15 @@ In short, we describe a programming language in the ML tradition with a \emph{re
 \input{motivating-examples}
 \input{existing-approaches}
 
-\part{Simple TSMs}
+\part{Simple TSMs}\label{part:simple-tsms}
 \input{uetsms}
 \input{uptsms}
 
-\part{Parametric TSMs}
+\part{Parametric TSMs}\label{part:parametric-tsms}
 \input{ptsms}
 \input{static-language}
 
-\part{TSM Implicits}
+\part{TSM Implicits}\label{part:implicits}
 \input{tsls}
 
 \part{Conclusion}

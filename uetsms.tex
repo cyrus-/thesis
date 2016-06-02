@@ -9,7 +9,7 @@ We now introduce a new primitive -- the \textbf{typed syntax macro} (TSM). TSMs,
 We begin in this section with a ``tutorial-style'' introduction to ueTSMs in VerseML. In particular, we discuss a ueTSM for constructing values of the recursive labeled sum type \li{Rx} that was defined in Figure \ref{fig:datatype-rx}. We then formally specify ueTSMs with a reduced calculus, $\miniVerseUE$, in Sec. \ref{sec:tsms-minimal-formalism}. %We conclude in Sec. \ref{sec:uetsms-discussion} 
 
 \subsection{Usage}\label{sec:uetsms-usage}
-In the following concrete VerseML expression, we apply a TSM named \li{#\dolla#rx} to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}:
+In the following textual VerseML expression, we apply a TSM named \li{#\dolla#rx} to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}: \todo{make this post-fix}
 \begin{lstlisting}[numbers=none,mathescape=|]
 $rx /SURLA|T|G|CEURL/
 \end{lstlisting}
@@ -653,7 +653,7 @@ These rules validate the following lemmas. The Type Expansion Lemma establishes 
 \begin{lemma}[Type Expansion]\label{lemma:type-expansion-U} If $\expandsTU{\uDD{\uD}{\Delta}}{\utau}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:expandsTU}). In each case, we apply the IH to or over each premise, then apply the corresponding type formation rule in Rules (\ref{rules:istypeU}). \end{proof}
 
-The Type Expressibility Lemma establishes that every well-formed type, $\tau$, can be expressed as a well-formed unexpanded type, $\Uof{\tau}$. This requires defining the metafunction $\Uof{\Delta}$ which maps $\Delta$ onto a an unexpanded type formation context as follows:
+The Type Expressibility Lemma establishes that every well-formed type, $\tau$, can be expressed as a well-formed unexpanded type, $\Uof{\tau}$. This requires defining the metafunction $\Uof{\Delta}$ which maps $\Delta$ onto an unexpanded type formation context as follows:
 \begin{align*}
 \Uof{\emptyset} &= \uDD{\emptyset}{\emptyset}\\
 \Uof{\Delta, \Dhyp{t}} &= \Uof{\Delta}, \uDhyp{\sigilof{t}}{t}
