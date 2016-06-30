@@ -1,6 +1,6 @@
-# Reasonably Programmable Syntax
+# Modularly Programmable Syntax
 
-This repository contains my PhD thesis (in progress).
+This repository contains my PhD thesis (in preparation).
 
 ## Build instructions
 
@@ -13,7 +13,7 @@ $ make
 
 ## Bibliography
 
-Currently, I use the research.bib file in my "papers" repository. When I'm done, I'll archive the final .bib file here so that compilation is reproducible.
+Currently, I use the research.bib file from my "papers" repository. When I'm done, I'll archive the final .bib file here so that compilation is reproducible.
 
 ## Notes
 
