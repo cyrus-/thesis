@@ -359,20 +359,20 @@ In contrast, when a programmer encounters, for example, a function call like the
 %Viewed ``dually'', one might equivalently ask for a language that builds in a core that is as small as possible, but provides expressive power comparable to languages with much larger cores. This is our goal in the work being proposed. 
 
 \subsection{Term Rewriting Systems}
-An alternative approach is to leave the context-free syntax of the language fixed, and instead allow library providers to contextually repurpose existing forms using a \emph{term rewriting system}. We will review various term rewriting systems in Sec. \ref{sec:term-rewriting}. 
+An alternative approach is to leave the context-free syntax of the language fixed, and instead allow library providers to contextually repurpose existing forms using a \emph{term rewriting system}. We will review various term rewriting systems in Sec. \ref{sec:non-local-term-rewriting} and Sec. \ref{sec:macro-systems}. 
 
 Na\"ive term rewriting systems suffer from problems analagous to those that plague syntax definition systems. In particular, it is difficult to conserve determinism, i.e. separately defined rewriting rules might attempt to rewrite the same term differently. Moreover, it can be difficult to determine which rewriting rule, if any, is relevant to a particular term, and to reason about types and binding given a drawing of a program subject to a large number of rewriting rules (without examining the rewritten program directly.)
 
 Modern \emph{macro systems}, however, have made substantial progress toward addressing these problems. In particular:
 \begin{enumerate}
 \item Macro systems require the client to explicitly apply the intended rewriting (implemented by a macro) to the term that is to be rewritten. 
-\item Macro systems that enforce \emph{hygiene}, which we will return to in Sec. \ref{sec:term-rewriting}, address the problems of reasoning about binding. 
+\item Macro systems that enforce \emph{hygiene}, which we will return to in Sec. \ref{sec:macro-systems}, address the problems of reasoning about binding. 
 \item The problem of reasoning about types has been relatively understudied, because most research on macro systems has been for languages in the Lisp tradition that lack rich type structure \cite{mccarthy1978history}. That said, some progress has also been made on this front with the design of \emph{typed macro systems}, like Scala's macro system \cite{ScalaMacros2013}, where annotations constrain the macro arguments and the generated expansions.
 \end{enumerate}
 
 The main problem with this approach, then, is that it leaves library providers quite syntactically constrained -- they must find creative ways to repurpose existing forms. These existing forms normally serve other purposes, leading to confusion on the part of client programmers \cite{pane1996usability}.
 
-% \vspace{-10px}
+\vspace{-10px}
 \section{Contributions}\label{sec:contributions}
 %%Our broad aim in the work being proposed is to introduce primitive language mechanisms that give library providers the ability to  express new syntactic expansions as well as new types and operators in a safe and modularly composable manner. 
 %To summarize our motivating argument: the widespread proliferation of syntax dialects and syntax definition systems suggests that programmers value library-specific (a.k.a. domain-specific) syntactic sugar. However, the dialect-oriented approach seems to be incompatible with the best practices of programming in the large.  
@@ -382,15 +382,15 @@ In this work, we introduce a system of \textbf{typed syntax macros (TSMs)} that 
 Client programmers apply TSMs to \emph{generalized literal forms}. For example, in Figure \ref{fig:first-tsm-example} we apply a TSM named \li{#\dolla#html} to a generalized literal form delimited by backticks. TSM names must be prefixed by \li{#\dolla#} and TSMs are applied in post-fix position to clearly distinguish TSM application from function application.
 \begin{figure}[ht!]
 \begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[join " "$str [first, last]$strlist]}!</p>EURL`$html
+`SURL<p>Hello, {[join ' '$str [first, last]$strlist]}!</p>EURL`$html
 \end{lstlisting}
-\caption{An example of a TSM being applied to a generalized literal form. The literal body, in blue, is initially left unparsed.}
+\caption{An example of a TSM being applied to a generalized literal form. The literal body, in green, is initially left unparsed.}
 % \vspace{-5px}
 \label{fig:first-tsm-example}
 \end{figure}
 
 \newpage
-Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in blue in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained. We use an Ur/Web-inspired HTML syntax (see Figure \ref{fig:urweb}) in the literal body in Figure \ref{fig:first-tsm-example}.  
+Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in green in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained. We use an Ur/Web-inspired HTML syntax (see Figure \ref{fig:urweb}) in the literal body in Figure \ref{fig:first-tsm-example}.  
 % Because the context-free syntax is never extended, syntactic conflicts are not a concern.
 
 The semantics delegates control over the parsing and expansion of each literal body to the applied TSM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TSM programmatically generates to ensure that clients can answer critical questions related to types and binding, like those enumerated in Section \ref{sec:abs-reasoning-intro}, without having complete knowledge of the implementation of the TSM or the generated expansion.
@@ -404,13 +404,13 @@ Notice that both arguments to \li{join} are themselves of TSM application form -
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[EURLjoin " "$str [firstSURL,EURL last]$strlistSURL]}!</p>EURL`$html
+`SURL<p>Hello, {[EURLjoin ' '$str [firstSURL,EURL last]$strlistSURL]}!</p>EURL`$html
 \end{lstlisting}
 \caption{The segmentation of the example from Figure \ref{fig:first-tsm-example}.}
 \label{fig:first-tsm-example-marked}
 \end{figure}
 
-We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced subterms (in black) and characters parsed in some other way by the applied TSM (in blue), can always be automatically generated no matter how each applied TSM is implemented. 
+We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced subterms (in black) and characters parsed in some other way by the applied TSM (in green), can always be automatically generated no matter how each applied TSM is implemented. 
 
 In order to reason about types and binding, client programmers need only have knowledge of 1) the segmentation (e.g. by examining a figure like this presented by a code editor or pretty-printer) and 2) type annotations on the definitions of the applied TSMs. No other details about the applied TSMs or the generated expansions need to be revealed. In other words, TSMs come equipped with useful principles of syntactic abstraction. We will, of course, more precisely characterize these reasoning principles as we proceed.
 
@@ -451,7 +451,7 @@ In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TSM implicits} that 
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[EURLjoin " " [firstSURL,EURL last]SURL]}!</p>EURL`$html
+`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}!</p>EURL`$html
 \end{lstlisting}
 \caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TSM implicits.}
 \label{fig:first-tsm-example-implicit}

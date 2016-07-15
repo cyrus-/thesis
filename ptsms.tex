@@ -1516,6 +1516,17 @@ Synthetic typed expression expansion
   \esynP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{cand}}
 }
 \end{equation}
+
+The basic idea here is that we need to:
+\begin{enumerate}
+\item Expand the TSM expression $\epsilon$.
+\item Normalize the expansion of the TSM expression.
+\item Extract the TSM definition at the head, $a$.
+\item Call the corresponding parse function. The result is a parameterized candidate expansion expression, $\pce$.
+\item We then need to unwrap the candidate expansion under the binders, producing a substitution $\omega$ and a corresponding context, $\Omega_\text{params}$. This is necessary so that alpha-renaming works properly.
+\item Finally, we validate the unwrapped candidate expansion.
+\end{enumerate}
+
 % These rules are nearly identical to Rules (\ref{rule:expandsUP-syntax}) and (\ref{rule:expandsUP-tsmap}), differing only in that the typed expansion premises have been replaced by corresponding synthetic typed expansion premises. The premises of these rules can be understood as described in Sections \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. The body encoding judgement and candidate expansion expression decoding judgements were characterized in Sec. \ref{sec:typed-expansion-UP}. We discuss candidate expansion validation in Sec. \ref{sec:ce-validation-B} below.
 
 % To support ueTSM implicits, ueTSM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TSM naming contexts, $\uA$, and ueTSM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]

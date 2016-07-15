@@ -5,25 +5,6 @@
 \documentclass[12pt]{cmuthesis}
 %\usepackage[usenames,dvipsnames,svgnames]{xcolor}
 
-% This is a template for a CMU thesis.  It is 18 pages without any content :-)
-% The source for this is pulled from a variety of sources and people.
-% Here's a partial list of people who may or may have not contributed:
-%
-%        bnoble   = Brian Noble
-%        caruana  = Rich Caruana
-%        colohan  = Chris Colohan
-%        jab      = Justin Boyan
-%        josullvn = Joseph O'Sullivan
-%        jrs      = Jonathan Shewchuk
-%        kosak    = Corey Kosak
-%        mjz      = Matt Zekauskas (mattz@cs)
-%        pdinda   = Peter Dinda
-%        pfr      = Patrick Riley
-%        dkoes = David Koes (me)
-
-% My main contribution is putting everything into a single class files and small
-% template since I prefer this to some complicated sprawling directory tree with
-% makefiles.
 \newcommand{\todolater}[1]{{\color{magenta} TODO (Later): #1}}
 \newcommand{\todo}[1]{{\color{red} TODO: #1}}
 
@@ -42,6 +23,7 @@
 \usepackage{amsmath,amssymb, amsthm}
 %\usepackage{MnSymbol}
 \usepackage{fancyvrb}
+\usepackage{microtype}
 
 % Get just llangle and rrangle from MnSymbol
 \makeatletter
@@ -91,7 +73,7 @@
 
 \usepackage{ stmaryrd }
 \usepackage[numbers,sort]{natbib}
-\usepackage[colorlinks=true,allcolors=Green,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+\usepackage[colorlinks=true,allcolors=Blue,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
 pdfborder={0 0 0},  %removes outlines around hyper links in online display
 ]{hyperref}
 \usepackage{subfigure}
@@ -107,7 +89,7 @@ basicstyle=\ttfamily\fontsize{11pt}{1em}\selectfont,
 commentstyle=\itshape\ttfamily\color{gray}, 
 stringstyle=\ttfamily\color{red},
 mathescape=false,escapechar=\#,
-numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in,patterns,expressions,implicit,forall,rectype,fold,unfold,inj},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
+numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in,patterns,expressions,implicit,forall,rectype,fold,unfold,inj,by,spliced},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
 moredelim=**[is][\color{red}]{SSTR}{ESTR},
 moredelim=**[is][\color{Periwinkle}]{SHTML}{EHTML},
 moredelim=**[is][\color{purple}]{SCSS}{ECSS},
@@ -115,7 +97,7 @@ moredelim=**[is][\color{brown}]{SSQL}{ESQL},
 moredelim=**[is][\color{orange}]{SCOLOR}{ECOLOR},
 moredelim=**[is][\color{magenta}]{SPCT}{EPCT}, 
 moredelim=**[is][\color{gray}]{SNAT}{ENAT}, 
-moredelim=**[is][\color{blue}]{SURL}{EURL},
+moredelim=**[is][\color{Green}]{SURL}{EURL},
 moredelim=**[is][\color{SeaGreen}]{SQT}{EQT},
 moredelim=**[is][\color{Periwinkle}]{SGRM}{EGRM},
 moredelim=**[is][\color{YellowGreen}]{SID}{EID},
@@ -235,16 +217,15 @@ Eric Van Wyk, University of Minnesota}
 When designing a human-facing textual syntax for a programming language, it is common practice to define derived forms for  standard library constructs.   
 %, i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
 For example, the textual syntax of Standard ML (SML) defines derived forms for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
+Third-party library providers are, justifiably, envious of this arrangement. Although it is straightforward to define new derived forms (e.g. for finite maps, HTML elements or regular expressions) in separately developed ``domain-specific'' dialects of the textual syntax, combining these dialects, when possible at all, is not guaranteed to conserve syntactic {determinism} (i.e. syntactic conflicts can arise.) Moreover, it can become difficult for programmers to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar derived forms. %As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-Third-party library providers are, justifiably, envious of this arrangement -- although it is straightforward to define other useful derived forms (e.g. for finite maps, HTML elements or regular expressions) in separately developed ``domain-specific'' dialects of the textual syntax, combining these dialects, when possible at all, is not guaranteed to conserve syntactic {determinism} (i.e. syntactic conflicts can arise.) Moreover, it can become difficult for programmers to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar derived forms. %As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
-
-In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for \emph{ad hoc} derived forms and domain-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of a generalized literal form. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict between them because the context-free syntax of the language is never extended (only contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain:
+In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for \emph{ad hoc} derived forms and domain-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of various \emph{generalized literal forms}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict between them because the context-free syntax of the language is never extended (only contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain:
 \begin{itemize}
-\item a \emph{type discipline}, meaning that the programmer can reason about types without examining the full literal expansion; and 
+\item a \emph{type discipline}, meaning that the programmer can reason about types without examining literal expansions; and 
 \item a \emph{hygienic binding discipline}, meaning that 
   \begin{enumerate}
     \item literal expansions cannot (accidentally or intentionally) shadow bindings that appear at the application site; and 
-  \item literal expansions cannot refer to application site bindings directly. Instead, all interactions with  application site bindings go through either \emph{spliced subterms} and \emph{parameters}. %Partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+  \item literal expansions cannot refer to application site bindings directly. Instead, all interactions with  application site bindings go through either \emph{spliced subterms} or \emph{parameters}. %Partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
@@ -297,6 +278,12 @@ In short, we describe a programming language (in the ML tradition) with a \emph{
 \input{intro}
 
 \chapter{Background}\label{chap:background}
+\vspace{-6px}
+\begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
+and generality in language design is a serious unsolved 
+problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
+\end{quote}
+\vspace{-6px}
 %VerseML, like most contemporary full-scale programming languages, has a textual concrete syntax (we will consider the topic of non-textual display forms as future work in Sec. \ref{sec:non-textual-display-forms}).
 %\footnote{Although Wyvern specified a layout-sensitive concrete syntax, to avoid unnecessary distractions, we will describe a more conventional layout-insensitive concrete syntax for VerseML.} %We have chosen to specify a layout-sensitive textual concrete syntax (i.e. newlines and indentation are not ignored). This design choice is not  fundamental to our proposed contributions, but it will be useful for cleanly expressing a class of examples that we plan to discuss later. We plan to specify some novel aspects of VerseML's concrete syntax with an \emph{Adams grammar} \cite{Adams:2013:PPI:2429069.2429129} (such a specification for Wyvern, which has a very similar syntax, can be found in \cite{TSLs}), but for the purposes of this proposal, we will simply introduce VerseML's concrete syntax by example as we go on. %For constructs that have an obvious analog in ML, we will omit a detailed explanation.
 %Because the purpose of concrete syntax is to serve as the programmer-facing user interface to the language, it is common practice to build in  derived syntactic forms (colloquially, \emph{syntactic sugar}) that capture common idioms more concisely (i.e. at lower \emph{syntactic cost}) or ``naturally'' (i.e. at lower \emph{cognitive cost}, which is usually considered qualitatively \cite{green1996usability}). % (i.e. considering cognitive dimensions \cite{green1996usability}). 
@@ -328,17 +315,18 @@ In short, we describe a programming language (in the ML tradition) with a \emph{
 \part{Conclusion}
 \input{conclusion}
 
-\input{appendix}
-
-\backmatter
 
 %\renewcommand{\baselinestretch}{1.0}\normalsize
 % By default \bibsection is \chapter*, but we really want this to show
 % up in the table of contents and pdf bookmarks.
-\renewcommand{\bibsection}{\chapter{\bibname}}
+\renewcommand{\bibsection}{\chapter*{\bibname}\addcontentsline{toc}{chapter}{Bibliography}}
 \renewcommand{\bibpreamble}{\todolater{List conference abbreviations.}\\
 \todolater{Remove extraneous nonsense from entries.}}
 \bibliographystyle{plainnat}
 \bibliography{../papers/research} %your bib file
+
+
+
+\input{appendix}
 
 \end{document}

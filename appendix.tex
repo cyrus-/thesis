@@ -1,5 +1,430 @@
 % !TEX root = omar-thesis.tex
 \appendix
+\chapter{Conventions}
+\section{Typographic Conventions}\label{appendix:typographic-conventions}
+We adopt \emph{PFPL}'s typographic conventions for operational forms throughout the paper. In particular, the names of operators and indexed families of operators are written in $\texttt{typewriter font}$, indexed families of operators specify non-symbolic indices within $[\text{mathematical braces}]$ and symbolic indices within \texttt{[}textual braces\texttt{]}, and term arguments are grouped arbitrarily (roughly, by sort) using \texttt{\{}textual curly braces\texttt{\}} and \texttt{(}textual rounded braces\texttt{)} \cite{pfpl}. 
+
+Moreover, we write $\mapschema{\tau}{i}{\labelset}$ for a sequence of arguments $\tau_i$, one for each $i\in \labelset$, and similarly for arguments of other valences. Operations  that are parameterized by label sets, e.g. $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$, are identified up to mutual reordering of the label set and the corresponding argument sequence. 
+
+\chapter{\texorpdfstring{$\miniVerseUE$ and $\miniVersePat$}{miniVerseSE and miniVerseS}}\label{appendix:miniVerseSES}
+
+This section defines $\miniVerseUE$. The definition of $\miniVersePat$, given in Chapter \ref{chap:uptsms}, is a conservative extension of this system.
+
+\section{Expanded Language (XL)}\label{appendix:SES-XL}
+The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by the following rules:
+\begin{subequations}\label{rules:istypeU}
+\begin{equation}\label{rule:istypeU-var}
+\inferrule{ }{\istypeU{\Delta, \Dhyp{t}}{t}}
+\end{equation}
+\begin{equation}\label{rule:istypeU-parr}
+\inferrule{
+  \istypeU{\Delta}{\tau_1}\\
+  \istypeU{\Delta}{\tau_2}
+}{\istypeU{\Delta}{\aparr{\tau_1}{\tau_2}}}
+\end{equation}
+\begin{equation}\label{rule:istypeU-all}
+  \inferrule{
+    \istypeU{\Delta, \Dhyp{t}}{\tau}
+  }{
+    \istypeU{\Delta}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:istypeU-rec}
+  \inferrule{
+    \istypeU{\Delta, \Dhyp{t}}{\tau}
+  }{
+    \istypeU{\Delta}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:istypeU-prod}
+  \inferrule{
+    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
+  }{
+    \istypeU{\Delta}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:istypeU-sum}
+  \inferrule{
+    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
+  }{
+    \istypeU{\Delta}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\end{subequations}
+
+The typing judgement, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions. It is inductively defined by the following rules:
+\begin{subequations}\label{rules:hastypeU}
+\begin{equation}\label{rule:hastypeU-var}
+  \inferrule{ }{
+    \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-lam}
+  \inferrule{
+    \istypeU{\Delta}{\tau}\\
+    \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{e}{\tau'}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-ap}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau}{\tau'}}\\
+    \hastypeU{\Delta}{\Gamma}{e_2}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-tlam}
+  \inferrule{
+    \hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetlam{t}{e}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-tap}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\aall{t}{\tau}}\\
+    \istypeU{\Delta}{\tau'}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-fold}
+  \inferrule{\
+    \istypeU{\Delta, \Dhyp{t}}{\tau}\\
+    \hastypeU{\Delta}{\Gamma}{e}{[\arec{t}{\tau}/t]\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-unfold}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\arec{t}{\tau}}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-tpl}
+  \inferrule{
+    \{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-pr}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aepr{\ell}{e}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-in}
+  \inferrule{
+    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
+    \istypeU{\Delta}{\tau}\\
+    \hastypeU{\Delta}{\Gamma}{e}{\tau}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeU-case}
+  \inferrule{
+    \hastypeU{\Delta}{\Gamma}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
+    \istypeU{\Delta}{\tau}\\
+    \{\hastypeU{\Delta}{\Gamma, x_i : \tau_i}{e_i}{\tau}\}_{i \in \labelset}
+  }{
+    \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+  }
+\end{equation}
+\end{subequations}
+
+
+The Weakening Lemma establishes that extending either context with unnecessary hypotheses preserves well-formedness and typing.
+\begin{lemma}[Weakening]\label{lemma:weakening-U} All of the following hold: 
+\begin{enumerate} 
+\item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
+%\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch} For each part, by rule induction on the assumption. 
+%\begin{enumerate} 
+%\item By rule induction over Rules (\ref{rules:istypeU}).
+%\item By rule induction over Rules (\ref{rules:isctxU}).
+%\item By rule induction over Rules (\ref{rules:hastypeU}).
+%\item By rule induction over Rules (\ref{rules:hastypeU}).
+%\end{enumerate}
+\end{proof-sketch}
+
+We assume that renaming of bound variables, $\alpha$-equivalence and substitution are defined as in \emph{PFPL} \cite{pfpl}. The Substitution Lemma establishes that substitution of a well-formed type for a type variable, or an expanded expression of the appropriate type for an expanded expression variable, preserves well-formedness and typing. 
+\begin{lemma}[Substitution]\label{lemma:substitution-U} All of the following hold:
+\begin{enumerate}
+\item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
+%\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
+\item If $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
+\end{enumerate}\end{lemma}
+\begin{proof-sketch}
+For each part, by rule induction on the first assumption.
+\end{proof-sketch}
+
+The Decomposition Lemma is the converse of the Substitution Lemma.
+\begin{lemma}[Decomposition]\label{lemma:decomposition-U} All of the following hold:
+\begin{enumerate}
+\item If $\istypeU{\Delta}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
+%\item If $\isctxU{\Delta}{[\tau'/t]\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
+\item If $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
+\item If $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
+\end{enumerate}\end{lemma}
+\begin{proof-sketch}
+\begin{enumerate}
+\item By rule induction over Rules (\ref{rules:istypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
+%\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
+\item By rule induction over Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
+\item By rule induction over Rules (\ref{rules:hastypeU}) and case analysis on the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ does not depend on the form of $e'$.
+\end{enumerate}
+\end{proof-sketch}
+
+The Regularity Lemma establishes that the type assigned to an expanded expression under a well-formed typing context is always well-formed. 
+\begin{lemma}[Regularity]\label{lemma:regularity-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begin{proof-sketch}
+By rule induction over Rules (\ref{rules:hastypeU}) and application of Definition \ref{def:isctxU} and Lemma \ref{lemma:substitution-U}.
+\end{proof-sketch}
+
+\section{Unexpanded Expressions}\label{appendix:SES-uexps}
+The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by the following rules.
+\begin{subequations}\label{rules:expandsTU}
+\begin{equation}\label{rule:expandsTU-var}
+\inferrule{ }{\expandsTU{\uDelta, \uDhyp{\ut}{t}}{\ut}{t}}
+\end{equation}
+\begin{equation}\label{rule:expandsTU-parr}
+\inferrule{
+  \expandsTU{\uDelta}{\utau_1}{\tau_1}\\
+  \expandsTU{\uDelta}{\utau_2}{\tau_2}
+}{\expandsTU{\uDelta}{\auparr{\utau_1}{\utau_2}}{\aparr{\tau_1}{\tau_2}}}
+\end{equation}
+\begin{equation}\label{rule:expandsTU-all}
+  \inferrule{
+    \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
+  }{
+    \expandsTU{\uDelta}{\auall{\ut}{\utau}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-rec}
+  \inferrule{
+    \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
+  }{
+    \expandsTU{\uDelta}{\aurec{\ut}{\utau}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-prod}
+  \inferrule{
+    \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \expandsTU{\uDelta}{\auprod{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsTU-sum}
+  \inferrule{
+    \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \expandsTU{\uDelta}{\ausum{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\end{subequations}
+\emph{Unexpanded type formation contexts}, $\uDelta$, are of the form $\uDD{\uD}{\Delta}$, where $\uD$ is a \emph{type sigil expansion context}, and $\Delta$ is a type formation context. A type sigil expansion context, $\uD$, is a finite function that maps each type sigil $\ut \in \domof{\uD}$ to the hypothesis $\vExpands{\ut}{t}$, for some type variable $t$. We write $\ctxUpdate{\uD}{\ut}{t}$ for the type sigil expansion context that maps $\ut$ to $\vExpands{\ut}{t}$ and defers to $\uD$ for all other type sigils (i.e. the previous mapping, if it exists, is updated). 
+We define $\uDelta, \uDhyp{\ut}{t}$ when $\uDelta=\uDD{\uD}{\Delta}$ as an abbreviation of  \[\uDD{\ctxUpdate{\uD}{\ut}{t}}{\Delta, \Dhyp{t}}\]%type identifier expansion context is always extended/updated together with 
+%We write $\uDeltaOK{\uDelta}$ when $\uDelta=\uDD{\uD}{\Delta}$ and each type variable in $\uD$ also appears in $\Delta$.
+%\begin{definition}\label{def:uDeltaOK} $\uDeltaOK{\uDD{\uD}{\Delta}}$ iff for each $\vExpands{\ut}{t} \in \uD$, we have $\Dhyp{t} \in \Delta$.\end{definition}
+
+\begin{subequations}\label{rules:expandsU}
+Rules (\ref*{rule:expandsU-var}) through (\ref*{rule:expandsU-case}) handle unexpanded expressions of shared form. The first five of these rules are defined below:
+%Each of these rules is based on the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
+\begin{equation}\label{rule:expandsU-var}
+  \inferrule{ }{\expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\ux}{x}{\tau}}
+\end{equation}
+\begin{equation}\label{rule:expandsU-lam}
+  \inferrule{
+    \expandsTU{\uDelta}{\utau}{\tau}\\
+    \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\ue}{e}{\tau'}
+  }{\expandsUX{\aulam{\utau}{\ux}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
+\end{equation}
+\begin{equation}\label{rule:expandsU-ap}
+  \inferrule{
+    \expandsUX{\ue_1}{e_1}{\aparr{\tau}{\tau'}}\\
+    \expandsUX{\ue_2}{e_2}{\tau}
+  }{
+    \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsU-tlam}
+  \inferrule{
+    \expandsU{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\ue}{e}{\tau}
+  }{
+    \expandsUX{\autlam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsU-tap}
+  \inferrule{
+    \expandsUX{\ue}{e}{\aall{t}{\tau}}\\
+    \expandsTU{\uDelta}{\utau'}{\tau'}
+  }{
+    \expandsUX{\autap{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+  }
+\end{equation}
+Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTSM context, $\uPsi$, passes opaquely through these rules (we will define ueTSM contexts below). Rules (\ref{rules:expandsTU}) were similarly generated by mechanically transforming Rules (\ref{rules:istypeU}).
+
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
+\begin{mathpar}
+\refstepcounter{equation}
+% \label{rule:expandsU-tlam}
+% \refstepcounter{equation}
+% \label{rule:expandsU-tap}
+% \refstepcounter{equation}
+\label{rule:expandsU-fold}
+\refstepcounter{equation}
+\label{rule:expandsU-unfold}
+\refstepcounter{equation}
+\label{rule:expandsU-tpl}
+\refstepcounter{equation}
+\label{rule:expandsU-pr}
+\refstepcounter{equation}
+\label{rule:expandsU-in}
+\refstepcounter{equation}
+\label{rule:expandsU-case}
+\inferrule{J_1\\ \cdots \\ J_k}{J}
+\end{mathpar}
+the corresponding typed expansion rule is 
+\begin{mathpar}
+\inferrule{
+  \Uof{J_1} \\
+  \cdots\\
+  \Uof{J_k}
+}{
+  \Uof{J}
+}
+\end{mathpar}
+where
+\[\begin{split}
+\Uof{\istypeU{\Delta}{\tau}} & = \expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau} \\
+\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsU{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\Uof{e}}{e}{\tau}\\
+\Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
+\end{split}\]
+and where:
+\begin{itemize}
+\item $\Uof{\tau}$ is defined as follows:
+  \begin{itemize}
+  \item When $\tau$ is of definite form, $\Uof{\tau}$ is defined as in Sec. \ref{sec:syntax-U}.
+  \item When $\tau$ is of indefinite form, $\Uof{\tau}$ is a uniquely corresponding metavariable of sort $\mathsf{UTyp}$ also of indefinite form. For example, in Rule (\ref{rule:istypeU-parr}), $\tau_1$ and $\tau_2$ are of indefinite form, i.e. they match arbitrary types. The rule transformation simply ``hats'' them, i.e. $\Uof{\tau_1}=\utau_1$ and $\Uof{\tau_2}=\utau_2$.
+  \end{itemize}
+\item $\Uof{e}$ is defined as follows
+\begin{itemize}
+\item When $e$ is of definite form, $\Uof{e}$ is defined as in Sec. \ref{sec:syntax-U}. 
+\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metavariable of sort $\mathsf{UExp}$ also of indefinite form. For example, $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+\end{itemize}
+\item $\Uof{\Delta}$ is defined as follows:
+  \begin{itemize} 
+  \item When $\Delta$ is of definite form, $\Uof{\Delta}$ is defined as above.
+  \item When $\Delta$ is of indefinite form, $\Uof{\Delta}$ is a uniquely corresponding metavariable ranging over unexpanded type formation contexts. For example, $\Uof{\Delta} = \uDelta$.
+  \end{itemize}
+\item $\Uof{\Gamma}$ is defined as follows:
+  \begin{itemize}
+  \item When $\Gamma$ is of definite form, $\Uof{\Gamma}$ produces the corresponding unexpanded typing context as follows:
+\begin{align*}
+\Uof{\emptyset} & = \uGG{\emptyset}{\emptyset}\\
+\Uof{\Gamma, \Ghyp{x}{\tau}} & = \Uof{\Gamma}, \uGhyp{\sigilof{x}}{x}{\tau}
+\end{align*}
+  \item When $\Gamma$ is of indefinite form, $\Uof{\Gamma}$ is a uniquely corresponding metavariable ranging over unexpanded typing contexts. For example, $\Uof{\Gamma} = \uGamma$.
+\end{itemize}
+\end{itemize}
+
+It is instructive to use this rule transformation to generate Rules (\ref{rules:expandsTU}) and Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-fold}) through (\ref*{rule:expandsU-case}). By instead defining these rules solely by the rule transformation just described, we avoid having to write down a number of rules that are of limited marginal interest. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded types and expressions of shared form, so our exposition is somewhat ``robust'' to changes to the inner core. 
+
+\begin{equation}\label{rule:expandsU-syntax}
+\inferrule{
+  \expandsTU{\uDelta}{\utau}{\tau}\\
+  \hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultExp}}\\\\
+  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+}{
+  \expandsUX{\uesyntax{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
+}
+\end{equation}
+\begin{equation}\label{rule:expandsU-tsmap}
+\inferrule{
+  \encodeBody{b}{\ebody}\\
+  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+  \decodeCondE{\ecand}{\ce}\\\\
+  \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
+}{
+  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\utsmap{\tsmv}{b}}{e}{\tau}
+}
+\end{equation}
+
+
+
+\end{subequations}
+
+\section{Proto-Expansion Validation}
+Rules (\ref*{rule:cvalidT-U-tvar}) through (\ref*{rule:cvalidT-U-sum}), which validate ce-types of shared form, are defined below.
+%Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
+\begin{subequations}\label{rules:cvalidT-U}
+\begin{equation}\label{rule:cvalidT-U-tvar}
+\inferrule{ }{
+  \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{t}{t}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidT-U-parr}
+  \inferrule{
+    \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau_1}\\
+    \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau_2}
+  }{
+    \cvalidT{\Delta}{\tscenev}{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cvalidT-U-all}
+  \inferrule {
+    \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
+  }{
+    \cvalidT{\Delta}{\tscenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cvalidT-U-rec}
+  \inferrule{
+    \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
+  }{
+    \cvalidT{\Delta}{\tscenev}{\acerec{t}{\ctau}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cvalidT-U-prod}
+  \inferrule{
+    \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \cvalidT{\Delta}{\tscenev}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cvalidT-U-sum}
+  \inferrule{
+    \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \cvalidT{\Delta}{\tscenev}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+
+The only ce-type form that does not correspond to a type form is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced unexpanded type}, i.e. it indicates that an unexpanded type should be parsed out from the literal body, $b$, which appears in the type splicing scene, beginning at position $m$ and ending at position $n$. 
+
+Rule (\ref*{rule:cvalidT-U-splicedt}) governs this form:
+\begin{equation}\label{rule:cvalidT-U-splicedt}
+  \inferrule{
+    \parseUTyp{\bsubseq{b}{m}{n}}{\utau}\\
+    \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}\\
+    \Delta \cap \Delta_\text{app} = \emptyset
+  }{
+    \cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}
+  }
+\end{equation}
+\end{subequations}
 %\chapter{Dependent Labeled Product Kinds}
 % \begin{landscape}
 % \begin{equation}\label{rule:iskind-dlprod}
@@ -106,3 +531,98 @@
 % \end{equation}
 
 % \end{landscape}
+
+Proto-Expression Validation is similar:
+\begin{subequations}\label{rules:cvalidE-U}
+\begin{equation}\label{rule:cvalidE-U-var}
+\inferrule{ }{
+  \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidE-U-lam}
+\inferrule{
+  \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+  \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce}{e}{\tau'}
+}{
+  \cvalidE{\Delta}{\Gamma}{\escenev}{\acelam{\ctau}{x}{\ce}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidE-U-ap}
+  \inferrule{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_1}{e_1}{\aparr{\tau}{\tau'}}\\
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_2}{e_2}{\tau}
+  }{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+Observe that, in each of these rules, the proto-expression form and the expanded expression form in the conclusion correspond, and the premises correspond to those of the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively. The expression splicing scene, $\escenev$, passes opaquely through these rules.
+
+
+We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeU}),
+\begin{mathpar}\refstepcounter{equation}
+\label{rule:cvalidE-U-tlam}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-tap}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-fold}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-unfold}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-tpl}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-pr}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-in}
+\refstepcounter{equation}
+\label{rule:cvalidE-U-case}
+  \inferrule{
+    J_1\\
+    \cdots\\
+    J_k
+  }{
+    J
+  }
+\end{mathpar}
+the corresponding proto-expression validation rule is 
+\begin{mathpar}
+  \inferrule{
+    \Cof{J_1}\\
+    \cdots\\
+    \Cof{J_k}
+  }{
+    \Cof{J}
+  }
+\end{mathpar}
+where 
+\[\begin{split}
+  \Cof{\istypeU{\Delta}{\tau}} & = \cvalidT{\Delta}{\tsfrom{\escenev}}{\Cof{\tau}}{\tau}\\
+  \Cof{\hastypeU{\Delta}{\Gamma}{e}{\tau}} & = \cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}\\
+  \Cof{\{J_i\}_{i \in \labelset}} & = \{\Cof{J_i}\}_{i \in \labelset}
+\end{split}\]
+and where:
+\begin{itemize}
+\item $\Cof{\tau}$ is defined as follows:
+  \begin{itemize}
+  \item When $\tau$ is of definite form, $\Cof{\tau}$ is defined as in Sec. \ref{sec:ce-syntax-U}.
+  \item When $\tau$ is of indefinite form, $\Cof{\tau}$ is a uniquely corresponding metavariable of sort $\mathsf{CETyp}$ also of indefinite form. For example, $\Cof{\tau_1}=\ctau_1$ and $\Cof{\tau_2}=\ctau_2$.
+  \end{itemize}
+\item $\Cof{e}$ is defined as follows
+  \begin{itemize}
+  \item When $e$ is of definite form, $\Cof{e}$ is defined as in Sec. \ref{sec:ce-syntax-U}. 
+  \item When $e$ is of indefinite form, $\Cof{e}$ is a uniquely corresponding metavariable of sort $\mathsf{CEExp}$ also of indefinite form. For example, $\Cof{e_1}=\ce_1$ and $\Cof{e_2}=\ce_2$.
+  \end{itemize}
+\end{itemize}
+
+It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-ap}) above. We omit the remaining rules for shared forms, i.e. Rules (\ref*{rule:cvalidE-U-tlam}) through (\ref*{rule:cvalidE-U-case}).
+
+\begin{equation}\label{rule:cvalidE-U-splicede}
+\inferrule{
+  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
+  \expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}\\\\
+  \Delta \cap \Delta_\text{app} = \emptyset\\
+  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset
+}{
+  \cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}}{\acesplicede{m}{n}}{e}{\tau}
+}
+\end{equation}
+\end{subequations}
