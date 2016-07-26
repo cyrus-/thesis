@@ -7,7 +7,6 @@
 
 \newcommand{\todolater}[1]{{\color{magenta} TODO (Later): #1}}
 \newcommand{\todo}[1]{{\color{red} TODO: #1}}
-
 % some useful packages
 \usepackage{times}     % use times font for document
 %\usepackage{lmodern}
@@ -20,10 +19,12 @@
 \usepackage{fullpage}
 \usepackage{colortab}
 %\usepackage{graphicx}
-\usepackage{amsmath,amssymb, amsthm}
+
+% \usepackage{cleveref}
 %\usepackage{MnSymbol}
 \usepackage{fancyvrb}
 \usepackage{microtype}
+\usepackage[framemethod=tikz]{mdframed}
 
 % Get just llangle and rrangle from MnSymbol
 \makeatletter
@@ -57,8 +58,15 @@
                      {MnLargeSymbols}{'171}{MnLargeSymbols}{'171}
 \makeatother
 
-\usepackage{rotating}
-\usepackage{pdflscape}
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+\usepackage[colorlinks=true,allcolors=Blue,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+pdfborder={0 0 0},  %removes outlines around hyper links in online display
+]{hyperref}
+
+\usepackage{amsmath,amssymb, amsthm}
+
 \allowdisplaybreaks[1]
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -67,15 +75,50 @@
 \newtheorem{assumption}[theorem]{Assumption}
 \newtheorem{condition}[theorem]{Condition}
 
-\newenvironment{proof-sketch}{\noindent{\emph{Proof Sketch.}}}{\qed}
-
 \usepackage{pfsteps}
 
+\usepackage[noabbrev]{cleveref}
+
+\newenvironment{proof-sketch}{\noindent{\emph{Proof Sketch.}}}{\qed}
+
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+  \vspace{-\topsep}% remove the space after the theorem
+  \pushQED{\qed}%
+  \normalfont
+  \topsep0pt \partopsep0pt % no space before
+  \trivlist
+  \item[\hskip\labelsep
+        \itshape
+    #1\@addpunct{.}]\ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+  \addvspace{6pt plus 6pt} % some space after
+}
+\makeatother
+\makeatletter
+\renewenvironment{proof-sketch}[1][\proofname]{\par
+  \vspace{-\topsep}% remove the space after the theorem
+  \pushQED{\qed}%
+  \normalfont
+  \topsep0pt \partopsep0pt % no space before
+  \trivlist
+  \item[\hskip\labelsep
+        \itshape
+    Proof Sketch\@addpunct{.}]\ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+  \addvspace{6pt plus 6pt} % some space after
+}
+\makeatother
+
+
+
+
+\usepackage{mathtools}
 \usepackage{ stmaryrd }
 \usepackage[numbers,sort]{natbib}
-\usepackage[colorlinks=true,allcolors=Blue,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
-pdfborder={0 0 0},  %removes outlines around hyper links in online display
-]{hyperref}
+
 \usepackage{subfigure}
 
 % Approximately 1" margins, more space on binding side
@@ -126,56 +169,56 @@ deletestring=[d]{"},
 
 % allow interrupted equation numbering
 % taken from http://tex.stackexchange.com/questions/101002/interrupting-and-resuming-subequations
-\makeatletter
-\def\user@resume{resume}
-\def\user@intermezzo{intermezzo}
-%
-\newcounter{previousequation}
-\newcounter{lastsubequation}
-\newcounter{savedparentequation}
-\setcounter{savedparentequation}{1}
-% 
-\renewenvironment{subequations}[1][]{%
-      \def\user@decides{#1}%
-      \setcounter{previousequation}{\value{equation}}%
-      \ifx\user@decides\user@resume 
-           \setcounter{equation}{\value{savedparentequation}}%
-      \else  
-      \ifx\user@decides\user@intermezzo
-           \refstepcounter{equation}%
-      \else
-           \setcounter{lastsubequation}{0}%
-           \refstepcounter{equation}%
-      \fi\fi
-      \protected@edef\theHparentequation{%
-          \@ifundefined {theHequation}\theequation \theHequation}%
-      \protected@edef\theparentequation{\theequation}%
-      \setcounter{parentequation}{\value{equation}}%
-      \ifx\user@decides\user@resume 
-           \setcounter{equation}{\value{lastsubequation}}%
-         \else
-           \setcounter{equation}{0}%
-      \fi
-      \def\theequation  {\theparentequation  \alph{equation}}%
-      \def\theHequation {\theHparentequation \alph{equation}}%
-      \ignorespaces
-}{%
-%  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
-  \ifx\user@decides\user@resume
-       \setcounter{lastsubequation}{\value{equation}}%
-       \setcounter{equation}{\value{previousequation}}%
-  \else
-  \ifx\user@decides\user@intermezzo
-       \setcounter{equation}{\value{parentequation}}%
-  \else
-       \setcounter{lastsubequation}{\value{equation}}%
-       \setcounter{savedparentequation}{\value{parentequation}}%
-       \setcounter{equation}{\value{parentequation}}%
-  \fi\fi
-%  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
-  \ignorespacesafterend
-}
-\makeatother
+% \makeatletter
+% \def\user@resume{resume}
+% \def\user@intermezzo{intermezzo}
+% %
+% \newcounter{previousequation}
+% \newcounter{lastsubequation}
+% \newcounter{savedparentequation}
+% \setcounter{savedparentequation}{1}
+% % 
+% \renewenvironment{subequations}[1][]{%
+%       \def\user@decides{#1}%
+%       \setcounter{previousequation}{\value{equation}}%
+%       \ifx\user@decides\user@resume 
+%            \setcounter{equation}{\value{savedparentequation}}%
+%       \else  
+%       \ifx\user@decides\user@intermezzo
+%            \refstepcounter{equation}%
+%       \else
+%            \setcounter{lastsubequation}{0}%
+%            \refstepcounter{equation}%
+%       \fi\fi
+%       \protected@edef\theHparentequation{%
+%           \@ifundefined {theHequation}\theequation \theHequation}%
+%       \protected@edef\theparentequation{\theequation}%
+%       \setcounter{parentequation}{\value{equation}}%
+%       \ifx\user@decides\user@resume 
+%            \setcounter{equation}{\value{lastsubequation}}%
+%          \else
+%            \setcounter{equation}{0}%
+%       \fi
+%       \def\theequation  {\theparentequation  \alph{equation}}%
+%       \def\theHequation {\theHparentequation \alph{equation}}%
+%       \ignorespaces
+% }{%
+% %  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+%   \ifx\user@decides\user@resume
+%        \setcounter{lastsubequation}{\value{equation}}%
+%        \setcounter{equation}{\value{previousequation}}%
+%   \else
+%   \ifx\user@decides\user@intermezzo
+%        \setcounter{equation}{\value{parentequation}}%
+%   \else
+%        \setcounter{lastsubequation}{\value{equation}}%
+%        \setcounter{savedparentequation}{\value{parentequation}}%
+%        \setcounter{equation}{\value{parentequation}}%
+%   \fi\fi
+% %  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+%   \ignorespacesafterend
+% }
+% \makeatother
 
 \begin{document} 
 \frontmatter

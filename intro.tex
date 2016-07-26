@@ -379,10 +379,10 @@ The main problem with this approach, then, is that it leaves library providers q
 
 In this work, we introduce a system of \textbf{typed syntax macros (TSMs)} that gives library providers substantially more syntactic control than existing typed macro systems while maintaining the ability to reason abstractly about types and binding.% abstract reasoning principles. % comparable to the level of control they have when defining a syntax dialect.
 
-Client programmers apply TSMs to \emph{generalized literal forms}. For example, in Figure \ref{fig:first-tsm-example} we apply a TSM named \li{#\dolla#html} to a generalized literal form delimited by backticks. TSM names must be prefixed by \li{#\dolla#} and TSMs are applied in post-fix position to clearly distinguish TSM application from function application.
+Client programmers apply TSMs to \emph{generalized literal forms}. For example, in Figure \ref{fig:first-tsm-example} we apply a TSM named \li{#\dolla#html} to a generalized literal form delimited by backticks. TSM names must be prefixed by \li{#\dolla#} to clearly distinguish TSM application from function application.
 \begin{figure}[ht!]
-\begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[join ' '$str [first, last]$strlist]}!</p>EURL`$html
+\begin{lstlisting}[numbers=none,xleftmargin=0px]
+$html `SURL<p>Hello, {[join ($str ' ') ($strlist [first, last])]}</p>EURL`
 \end{lstlisting}
 \caption{An example of a TSM being applied to a generalized literal form. The literal body, in green, is initially left unparsed.}
 % \vspace{-5px}
@@ -403,8 +403,8 @@ Notice that both arguments to \li{join} are themselves of TSM application form -
  % We design our mechanism such that these locations can easily be determined from the output of the TSM. This is essential for our hygiene mechanism, and it is also useful in that this information can be presented to the user (e.g. as shown in Figure \ref{fig:first-tsm-example-marked}). %As such, we must develop a mechanism where 1) the positions of spliced subterms can be determined without examining the macro implementation (e.g. so that they can be presented to the user differently by an editor or pretty-printer, ;  and 2) the hygiene mechanism must give only portions of the expansion that correspond to these spliced subterms access to the application site context. 
 
 \begin{figure}[h]
-\begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[EURLjoin ' '$str [firstSURL,EURL last]$strlistSURL]}!</p>EURL`$html
+\begin{lstlisting}[numbers=none,xleftmargin=0px]
+$html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]}</p>EURL`
 \end{lstlisting}
 \caption{The segmentation of the example from Figure \ref{fig:first-tsm-example}.}
 \label{fig:first-tsm-example-marked}
@@ -451,7 +451,7 @@ In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TSM implicits} that 
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none]
-`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}!</p>EURL`$html
+$html`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}</p>EURL`
 \end{lstlisting}
 \caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TSM implicits.}
 \label{fig:first-tsm-example-implicit}

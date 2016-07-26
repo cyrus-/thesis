@@ -1,373 +1,337 @@
 % !TEX root = omar-thesis.tex
 \chapter{Simple Pattern TSMs (spTSMs)}\label{chap:uptsms}
-In Chapter \ref{chap:uetsms}, we considered situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value. In full-scale functional languages like ML and Haskell, values are deconstructed by \emph{pattern matching} over their structure. For example, recall the recursive labeled sum type \lstinline{Rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{Rx} using VerseML's \lstinline{match} construct:
+In Chapter \ref{chap:uetsms}, our interest was in situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value by pattern matching. For example, recall the recursive labeled sum type \lstinline{rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{rx} using VerseML's \lstinline{match} construct (as already discussed in Sec. \ref{sec:motivating-examples}): 
 \begin{lstlisting}
-fun read_example_rx(r : Rx) : (string * Rx) option => 
+fun f(r : rx) => 
   match r with 
     Seq(Str(name), Seq(Str "SSTR: ESTR", ssn)) => Some (name, ssn)
   | _ => None
 \end{lstlisting}
+% \begin{lstlisting}
+% fun is_dna_rx(r : rx) : boolean => 
+%   match r with 
+%   | Str "SSTRAESTR" => True
+%   | Str "SSTRTESTR" => True
+%   | Str "SSTRGESTR" => True
+%   | Str "SSTRCESTR" => True
+%   | Seq (r1, r2) => (is_dna_rx r1) andalso (is_dna_rx r2)
+%   | Or  (r1, r2) => (is_dna_rx r1) andalso (is_dna_rx r2)
+%   | Star(r') => is_dna_rx r'
+%   | _ => False 
+%   end
+% \end{lstlisting}
 
-Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the concrete syntax. When the {match} expression is evaluated, the value of the scrutinee is matched against each pattern sequentially. If the value matches, evaluation takes the corresponding branch. Variables in patterns match any value of the appropriate type. In the corresponding branch, the variable stands for that value. Variables can each appear only once in a pattern.  
-For example, on Line 3, the pattern \li{Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))} matches values of the form \li{Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))}, where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{Rx}. The variables \li{name} and \li{ssn} stand for the values of $e_1$ and $e_2$, respectively, in \li{Some (name, ssn)}. On Line 4, the pattern \li{_} is the \emph{wildcard pattern} -- it matches any value of the appropriate type and binds no variables.
+Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the concrete syntax. During evaluation, the value of the scrutinee is matched against each pattern sequentially. If a match occurs, evaluation takes the corresponding branch. 
 
-The behavior of the \li{match} construct when no pattern in the rule sequence matches a value is to raise an exception indicating \emph{match failure}. It is possible to statically determine whether match failure is possible (i.e. whether there exist values of the scrutinee that are not matched by any pattern in the rule sequence). In the example above, our use of the wildcard pattern ensures that match failure cannot occur. A rule sequence that cannot lead to match failure is said to be \emph{exhaustive}. Most compilers warn the programmer when a rule sequence is non-exhaustive.
+Variable patterns match any value. In the corresponding branch, the variable stands for that value. A variables can  appear only once in a pattern.  
+For example, on Line 3 above, the pattern 
+\begin{lstlisting}[numbers=none]
+Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
+\end{lstlisting}
+matches values with the following structure: 
+\begin{lstlisting}[numbers=none]
+Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))
+\end{lstlisting}
+where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{rx}. The variables \li{name} and \li{ssn} stand for the values of $e_1$ and $e_2$, respectively, in the corresponding branch expression, i.e. \li{Some (name, ssn)}. 
 
-It is also possible to statically decide when a rule is \emph{redundant} relative to the preceding rules, i.e. when there does not exist a value matched by that rule but not matched by any of the preceding rules. For example, if we add  another rule at the end of the match expression above, it will be redundant because all values match the wildcard pattern. Again, most compilers warn the programmer when a rule is redundant.
+On Line 4 above, the pattern \li{_} is the \emph{wildcard pattern} -- it matches any value of the appropriate type and binds no variables.
 
-Nested pattern matching generalizes the projection and case analysis operators (i.e. the \emph{eliminators}) for products and sums (cf. $\miniVerseUE$ from the previous section) and decreases syntactic cost in situations where eliminators would need to be nested. There remains room for improvement, however, because complex patterns sometimes    individually have high syntactic cost. In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of VerseML that built in derived syntax both for constructing and pattern matching over values of the recursive labeled sum type \li{rx}. In this dialect, we can express the example above at lower syntactic cost as follows:
+The behavior of the \li{match} construct when no pattern in the rule sequence matches a value is to raise an exception indicating \emph{match failure}. It is possible to statically determine whether match failure is possible (i.e. whether there exist values of the scrutinee that do not match any pattern in the rule sequence.) A rule sequence that cannot lead to match failure is said to be \emph{exhaustive}. Most compilers warn the programmer when a rule sequence is non-exhaustive. In the example above, our use of the wildcard pattern ensures that match failure cannot occur. 
+
+It is also possible to statically decide when a rule is \emph{redundant} relative to the preceding rules. For example, if we add  another rule at the end of the match expression above, it will be redundant because all values match the wildcard pattern. Again, most compilers warn the programmer when a rule is redundant.
+
+Nested pattern matching generalizes the projection and case analysis operators (i.e. the \emph{eliminators}) for products and sums (cf. $\miniVerseUE$ from the previous section.) 
+
+Complex patterns can individually have high syntactic cost. In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical syntactic dialect of VerseML called $\mathcal{V}_\texttt{rx}$ with derived regex pattern forms. In this dialect, we can express the example above at lower syntactic cost using standard POSIX syntax extended with pattern splicing forms:
 
 \begin{lstlisting}
-fun read_example_rx(r : rx) : (string * rx) option => 
+fun f(r : rx) => 
   match r with 
     /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
   | _ => None\end{lstlisting}
 \noindent
-Dialect formation is not a modular approach, for the reasons discussed in Chapter \ref{chap:intro}, so we seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns to a similar degree.
+Dialect formation is not a modular approach, for the reasons discussed in Chapter \ref{sec:problems-with-syntax-dialects}.
 
-Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value of a specified type. However, expressions are syntactically distinct from patterns, so we cannot simply apply an expression TSM to generate a pattern.\footnote{The fact that certain concrete expression and pattern forms overlap is immaterial to this fundamental distinction. There are many expression forms that the expansion generated by an expression TSM might use that have no corresponding pattern form, e.g.  lambda abstraction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
-For this reason, we need to introduce a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{simple pattern TSMs} (spTSMs), i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{Rx}. In Chapter \ref{chap:ptsms}, we will consider both expression and pattern TSMs that specify type and module parameters (peTSMs and ppTSMs). 
+% seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns to a similar degree.
 
-The organization of the remainder of this chapter mirrors that of Chapter \ref{chap:uetsms}. We begin in Sec. \ref{sec:ptsms-by-example} with a ``tutorial-style'' introduction to spTSMs in VerseML. In particular, we  discuss an spTSM for patterns matching values of type \li{rx}. In the subsequent section, we specify an extension of $\miniVerseUE$ called $\miniVersePat$ that makes the intuitions developed here mathematically precise.
+Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value of a  recursive labeled sum type like \li{rx}. However, expressions are syntactically distinct from patterns, so we cannot simply apply an expression TSM to generate a pattern.\footnote{The fact that certain concrete expression and pattern forms overlap is immaterial to this fundamental distinction. There are many expression forms that the expansion generated by an expression TSM might use that have no corresponding pattern form, e.g.  lambda abstraction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
+For this reason, we need to introduce a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{simple pattern TSMs} (spTSMs), i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{rx}. In Chapter \ref{chap:ptsms}, we will consider both expression and pattern TSMs that specify type and module parameters (peTSMs and ppTSMs). 
 
-\section{Pattern TSMs By Example}\label{sec:ptsms-by-example}
+The organization of the remainder of this chapter mirrors that of Chapter \ref{chap:uetsms}. We begin in Sec. \ref{sec:ptsms-by-example} with a ``tutorial-style'' introduction to spTSMs in VerseML. 
+%In particular, we  discuss an spTSM for patterns matching values of type \li{rx}. 
+Then, in Sec. \ref{sec:miniVerseUP}, we define an extension of $\miniVerseUE$ called $\miniVersePat$ that makes the intuitions developed in Sec. \ref{sec:ptsms-by-example} mathematically precise.
+
+\section{Simple Pattern TSMs By Example}\label{sec:ptsms-by-example}
 
 \subsection{Usage}\label{sec:ptsms-usage}
-The VerseML function \li{read_example_rx} defined at the beginning of this chapter can be concretely expressed at lower syntactic cost by applying a upTSM, \li{#\dolla#rx}, as follows:
+The VerseML function \li{f} defined at the beginning of this chapter can be expressed at lower syntactic cost by applying an spTSM named \li{#\dolla#rx} as follows:
 \begin{lstlisting}
-fun read_example_rx(r : rx) : (string * rx) option => 
+fun f(r : rx) => 
   match r with 
     $rx /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
   | _ => None
 \end{lstlisting}
-Like expression TSMs, pattern TSMs are applied to \emph{generalized literal forms} (see Figure \ref{fig:literal-forms}). Generalized literal forms are left unparsed when patterns are first parsed. During the subsequent \emph{typed expansion} process, the pattern TSM parses the body of the literal form to generate a \emph{candidate expansion}. The language validates the candidate expansion according to criteria that we will establish in Sec. \ref{sec:ptsms-validation}. If validation succeeds, the language generates the final expansion (or more concisely, simply the expansion) of the pattern. The expansion of the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} from the example above is the following pattern:
+Like expression TSMs, pattern TSMs are applied to \emph{generalized literal forms} (see Figure \ref{fig:literal-forms}.) During the  \emph{typed expansion} phase, the applied pattern TSM parses the body of the literal form to generate a \emph{proto-expansion}. The language validates the proto-expansion according to criteria that we will establish in Sec. \ref{sec:ptsms-validation}. If validation succeeds, the language generates the final expansion (or more concisely, simply the expansion) of the pattern. The expansion of the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} 
+from the example above is the following pattern:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
-The checks for exhaustiveness and redundancy can be performed post-expansion in the usual way, so we do not need to consider them further here. 
+The checks for exhaustiveness and redundancy are performed post-expansion in the usual manner.
+
+For convenience, the programmer can specify a TSM at the outset of a sequence of rules that is applied to every outermost generalized literal form. For example, the function \li{is_dna_rx} from Figure \ref{fig:is_dna_rx} and Figure \ref{fig:derived-pattern-syntax} can be expressed using the spTSM \li{#\dolla#rx} as follows:
+\begin{lstlisting}[morekeywords={using}]
+fun is_dna_rx(r : rx) : boolean => 
+  match r using $rx with 
+  | /SURLAEURL/ => True
+  | /SURLTEURL/ => True
+  | /SURLGEURL/ => True
+  | /SURLCEURL/ => True
+  | /SURL%(EURLr1SURL)%(EURLr2SURL)EURL/ => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | /SURL%(EURLr1SURL)|%(EURLr2SURL)EURL/ => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | /SURL%(EURLrSURL)*EURL/ => is_dna_rx r'
+  | _ => False
+  end
+\end{lstlisting}
+
 \subsection{Definition}\label{sec:ptsms-definition}
-The definition of the pattern TSM \li{#\dolla#rx} shown being applied in the example above has the following form:
+The definition of the pattern TSM \li{#\dolla#rx} shown being applied in the examples above takes the following form:
 \begin{lstlisting}[numbers=none]
-syntax $rx at rx for patterns {
-  static fn(body : Body) : CEPat ParseResult =>
+syntax $rx at rx for patterns by 
+  static fn(b : body) : proto_pat parse_result =>
     (* regex pattern parser here *)
-}
+end 
 \end{lstlisting}
-This definition first names the pattern TSM. Pattern TSM names, like expression TSM names, must begin with the dollar symbol (\li{#\dolla#}) to distinguish them from labels. Pattern TSM names and expression TSM names are tracked separately, i.e. an expression TSM and a pattern TSM can have the same name without conflict (as is the case here -- the expression TSM described in Sec. \ref{sec:uetsms-definition} is also named \li{#\dolla#rx}). The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM definition, rather than an expression TSM definition (the sort qualifier \li{for expressions} can be written for expression TSMs, though when the sort qualifier is omitted this is the default). Because defining both an expression TSM and a pattern TSM with the same name at the same type is a common idiom, VerseML provides a primitive derived form for combining their definitions:
-\begin{lstlisting}[numbers=none]
-syntax $rx at Rx for expressions {
-  static fn(body : Body) : CEExp ParseResult => 
+This definition first names the pattern TSM \li{#\dolla#rx}. Pattern TSM names, like expression TSM names, must begin with the dollar sign (\li{#\dolla#}) to distinguish them from labels. Pattern TSM names and expression TSM names are tracked separately, i.e. an expression TSM and a pattern TSM can have the same name without conflict (as is the case here -- the expression TSM that was described in Sec. \ref{sec:uetsms-definition} is also named \li{#\dolla#rx}.) 
+
+The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM definition, rather than an expression TSM definition (the sort qualifier \li{for expressions} can be written for expression TSMs, though when the sort qualifier is omitted this is the default.) Defining both an expression TSM and a pattern TSM with the same name at the same type is a common idiom, so VerseML defines a derived form for combining their definitions:
+\begin{lstlisting}[numbers=none,morekeywords={andfor}]
+syntax $rx at rx for expressions by
+  static fn(body : body) : proto_exp parse_result => 
     (* regex expression parser here *)
-} for patterns {
-  static fn(body : Body) : CEPat ParseResult => 
+andfor patterns by 
+  static fn(body : Body) : proto_pat parse_result => 
     (* regex pattern parser here *)
-}
+end
 \end{lstlisting}
 
-Pattern TSMs, like expression TSMs, must specify a static \emph{parse function}, delimited by curly braces in the concrete syntax. For a pattern TSM, the parse function must be of type \li{Body -> CEPat ParseResult}. The input type, \li{Body}, gives the parse function access to the body of the provided literal form, and is defined as in Sec. \ref{sec:uetsms-definition} as a synonym for the type \li{string}. The output type, \li{CEPat ParseResult}, is the parameterized type constructor \li{ParseResult}, defined in Figure \ref{fig:indexrange-and-parseresult}, applied to the type \li{CEPat} defined in Figure \ref{fig:CEPat}.  So if parsing succeeds, the pattern TSM returns a value of the form \li{Success #$\ecand$#} where $\ecand$ is a value of type \li{CEPat} that we call the \emph{encoding of the candidate expansion}. If parsing fails, then the pattern TSM returns a value constructed by \li{ParseError} and equipped with an error message and error location. 
+Pattern TSMs, like expression TSMs, must specify a static {parse function}. For pattern TSMs, the parse function must be of type \li{body -> proto_pat parse_result}, where \li{body} and \li{parse_result} are defined as in Figure \ref{fig:indexrange-and-parseresult}. 
 
-The type \li{CEPat} is analagous to the types \li{CEExp} and \li{CETyp} defined in Figure \ref{fig:candidate-exp-verseml}. It encodes the abstract syntax of VerseML patterns (in Figure \ref{fig:CEPat}, some constructors are elided for concision), with the exception of variable patterns (for reasons explained in Sec. \ref{sec:ptsms-hygiene} below), and includes an additional constructor, \li{Spliced}, for referring to spliced subpatterns by their position within the parse stream, discussed next.
+The type \li{proto_pat}, defined in Figure \ref{fig:CEPat}, is analagous to the types \li{proto_exp} and \li{proto_typ} defined in Figure \ref{fig:candidate-exp-verseml}. This type classifies \emph{encodings of proto-patterns}. Every pattern form has a corresponding proto-pattern form, with the exception of variable patterns (for reasons explained in Sec. \ref{sec:ptsms-hygiene} below.) There is also an additional constructor, \li{SplicedP}, to allow a proto-pattern to refer indirectly to spliced patterns by their location within the literal body. 
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
-type CEPat = Wild
-           | (* ... *)
-           | Spliced of IndexRange
+type proto_pat = (* no variable pattern form *) 
+               + Wild
+               + (* ... *)
+               + SplicedP of loc
 \end{lstlisting}
-\caption[Abbreviated definition of \li{CEPat} in VerseML]{Abbreviated definition of \li{CEPat} in the VerseML prelude.}
+\caption[Abbreviated definition of \li{proto_pat} in VerseML]{Abbreviated definition of \li{proto_pat} in the VerseML prelude.}
 \label{fig:CEPat}
 \end{figure}
 
 \subsection{Splicing}\label{sec:ptsms-splicing}
-Patterns that appear directly within the literal body of an unexpanded pattern are called \emph{spliced subpatterns}. For example, the patterns \li{name} and \li{ssn} appear within the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/}. 
-When the parse function determines that a subsequence of the literal body should be treated as a spliced subpatern (here, by recognizing the characters \li{@} or \li{%} followed by a variable or parenthesized pattern), 
-it can refer to it within the candidate expansion that it construct a reference to it for use within the candidate expansion it generates using the \li{Spliced} constructor of the \li{CEPat} type shown in Figure \ref{fig:CEPat}. The \li{Spliced} constructor requires a value of type \li{IndexRange} because spliced subpatterns are referred to indirectly by their position within the literal body. This prevents pattern TSMs from ``forging'' a spliced subpattern (i.e. claiming that some pattern is a spliced subpattern, even though it does not appear in the literal body).
+Spliced patterns are unexpanded patterns that appear directly within the literal body of another unexpanded pattern. For example, \li{name} and \li{ssn} appear within the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/}. 
+When the parse function determines that a subsequence of the literal body should be taken as a spliced pattern (here, by recognizing the characters \li{@} or \li{%} followed by a variable or parenthesized pattern), 
+it can refer to it within the proto-expansion that it computes using the \li{SplicedP} variant of the \li{proto_pat} type shown in Figure \ref{fig:CEPat}. This variant takes a value of type \li{loc} because proto-patterns refer to spliced patterns indirectly by their position within the literal body. This prevents pattern TSMs from ``forging'' a spliced pattern (i.e. claiming that some pattern is a spliced pattern, even though it does not appear in the literal body.)
 
-The candidate expansion generated by the pattern TSM \li{#\dolla#rx} for the example above, if written in a hypothetical concrete syntax where references to spliced subpatterns are written \li{spliced<startIdx, endIdx>}, is:
+The proto-expansion generated by the pattern TSM \li{#\dolla#rx} for the example above, if written in a hypothetical concrete syntax where references to spliced patterns are written \li{spliced<startIdx, endIdx>}, is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(spliced<1, 4>), Seq(Str "SSTR: ESTR", spliced<8, 10>))
 \end{lstlisting}
 Here, \li{spliced<1, 4>} refers to the subpattern \li{name} by position, and \li{spliced<8, 10>} refers to the subpattern \li{ssn} by position.
 
-\subsection{Typing}\label{sec:ptsms-validation}
-The language validates candidate expansion before a final expansion is generated. One aspect of candidate expansion validation is checking the candidate expansion against the type annotation specified by the pattern TSM, e.g. the type \li{Rx} in the example above.
+As with references to spliced expressions, the language checks that the references to spliced patterns in a proto-expansion are 1) within bounds of the literal body and 2) non-overlapping. The \emph{segmentation} of the literal body is the finite set of spliced pattern locations, e.g. here the following finite set:
+\[
+\{(1, 4), (8, 10)\}
+\]
+An editor or pretty-printer can convey this segmentation information using color, as shown in the examples above.
 
-\subsection{Hygiene}\label{sec:ptsms-hygiene}
-In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining expansions directly, the validation process allows variables (e.g. \lstinline{name} and \lstinline{ssn} above) to occur only in spliced subpatterns (just as variables bound at the use site can only appear in spliced subexpressions when using TSMs). Indeed, there is no constructor for the type \li{CEPat} corresponding to a variable pattern. This protection against ``hidden bindings'' is beneficial because it leaves variable naming entirely up to the client of the pattern TSM. A pattern TSM cannot inadvertently shadow a binding at the application site.
+\subsection{Proto-Expansion Validation}\label{sec:ptsms-validation}
+After the pattern TSM generates a proto-expansion, the language must validate it to generate a final expansion. This also serves to maintain a reasonable type and binding discipline.
+
+\subsubsection{Typing}
+To maintain a reasonable type discipline, proto-expansion validation  checks the  proto-pattern against the type annotation specified by the pattern TSM, e.g. the type \li{rx} above.
+
+\subsubsection{Binding}\label{sec:ptsms-hygiene}
+%In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). 
+To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining TSM expansions directly, the validation process restricts variable patterns (e.g. \lstinline{name} and \lstinline{ssn} above): variable patterns can occur only in spliced patterns (just as variables bound at the use site can only appear in spliced expressions when using an expression TSM.) Indeed, there is no constructor for the type \li{proto_pat} corresponding to a variable pattern. This prohibition on ``hidden bindings'' is beneficial because the client can rely on the fact that no variables other than those that appear directly within the pattern at the application site are bound in the corresponding branch expression. This prohibition on hidden bindings is analagous to the prohibition on shadowing discussed in Sec. \ref{sec:uetsms-validation} (differing in that it is concerned with the bindings visible to the corresponding branch expression, rather than to spliced expressions.)
+
+In VerseML, patterns are context-independent by construction (i.e. there is no way to refer to the surrounding bindings from within a pattern), so there is no need to consider the question of context independence. However, in languages that support, e.g., arbitrary expressions as \emph{guards} within patterns (e.g. OCaml \cite{ocaml-manual}), or in languages that support pattern synonyms, it would be necessary also to enforce context independence, following the approach taken with seTSMs (see Sec. \ref{sec:uetsms-validation}.) 
 
 \subsection{Final Expansion}\label{sec:ptsms-final-expansion}
-If validation succeeds, the semantics generates the \emph{final expansion} of the pattern from the candidate expansion by replacing the references to spliced subpatterns with their final expansions. For example, the final expansion of \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} is:
+If validation succeeds, the semantics generates the \emph{final expansion} of the pattern where the references to spliced patterns in the proto-pattern have been replaced by their respective final expansions. For example, the final expansion of \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 \section{\texorpdfstring{$\miniVersePat$}{miniVerseU}}\label{sec:miniVerseUP}
-To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a reduced language with support for both ueTSMs and upTSMs. Like $\miniVerseUE$, $\miniVersePat$ consists of an \emph{inner core} and an \emph{outer surface}.
+To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a reduced dialect of VerseML with support for both seTSMs and spTSMs. $\miniVersePat$ consists of an \emph{unexpanded language} (UL) defined by typed expansion to a standard \emph{expanded language} (XL), like $\miniVerseUE$. The full definition of $\miniVersePat$ is given in Appendix \ref{appendix:miniVerseSES} superimposed upon the definition of $\miniVerseUE$. We will focus on the rules specifically related to pattern matching and spTSMs below. 
 
-\subsection{Syntax of the Inner Core}\label{sec:UP-expanded-terms}\label{sec:inner-core-syntax-UP}
-The \emph{inner core} of $\miniVersePat$ consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. Their syntax is specified by the syntax chart in Figure \ref{fig:UP-expanded-terms}. The inner core of $\miniVersePat$ forms a pure language and differs from the inner core of $\miniVerseUE$  only in that the case analysis operator has been replaced by the pattern matching operator\footnote{We retain the projection operator because it has lower syntactic cost than pattern matching when only a single field from a labeled tuple is needed.}, so we will gloss some definitions that would be expressed identically to those in Sec. \ref{sec:miniVerseU}. The new constructs are highlighted in gray in Figure \ref{fig:UP-expanded-terms}. Our formulation of the semantics of pattern matching is based on Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
+Our formulation of pattern matching is adapted from  Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.
 
-\begin{figure}[p] 
-$\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{Typ} & \tau & ::= & t & t & \text{variable}\\
-&&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
-&&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
-&&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
-&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
-\mathsf{Exp} & e & ::= & x & x & \text{variable}\\
-&&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
-&&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
-&&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
-&&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
-&&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
-&&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
-&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
-&&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
-\LCC \lightgray & \lightgray & \lightgray & \lightgray & \lightgray & \lightgray \\
-&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
-\mathsf{Rule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
-\mathsf{Pat} & p & ::= & x & x & \text{variable pattern}\\
-&&& \aewildp & \wildp & \text{wildcard pattern}\\
-&&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
-&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
-&&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}\ECC
-\end{array}$
-\caption[Syntax of types and expanded expressions, rules and patterns in $\miniVersePat$]{Syntax of types and expanded expressions, rules and patterns (collectively, expanded terms) in $\miniVersePat$. We adopt the metatheoretic conventions established for our specification of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} without restating them. We write $\seqschemaX{r}$ for sequences of $n \geq 0$ rule arguments and $p.e$ for expressions binding the variables that appear in the pattern $p$. Types and expanded terms are identified up to $\alpha$-equivalence.}
+\subsection{Syntax of the Expanded Language}\label{sec:UP-expanded-terms}\label{sec:inner-core-syntax-UP}
+Figure \ref{sec:UP-expanded-terms} defines the syntax of the $\miniVersePat$ \emph{expanded language} (XL), which consists of \emph{types}, $\tau$, \emph{expanded expressions}, $e$, \emph{expanded rules}, $r$, and \emph{expanded patterns}, $p$. The $\miniVersePat$ XL differs from the $\miniVerseUE$ XL only by the addition of the pattern matching operator and related forms.\footnote{The projection and case analysis operators can be defined in terms of the match operator, but to simplify the appendix, we leave them in place.} %\footnote{The chapter on pattern matching has, of this writing, been removed from the draft second edition of \emph{PFPL}, but a copy of the first edition can be found online.}
+
+
+The main syntactic feature of note is that the rule form places a pattern, $p$, in the binder position:
+\[
+\aematchrule{p}{e}
+\]
+This can be understood as binding all of the variables in $p$ for use within $e$. A minor technical note: the ABT \emph{renaming} metaoperation (which underlies the notion of alpha-equivalence) requires that these variables appear as a sequence. Rather than redefining this metaoperation explicitly, we implicitly determine such a sequence by performing a depth-first traversal, with traversal of the labeled tuple pattern form, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, relying on some total ordering on labels, $\leq$.
+
+\begin{figure}
+\[\begin{array}{lllllll}
+\textbf{Sort} & & 
+& \textbf{Operational Form} 
+% & \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Typ} & \tau & ::= 
+& \cdots
+% & t 
+& \text{(see Figure \ref{fig:U-expanded-terms})}\\
+% &&& \aall{t}{\tau} & \forallt{t}{\tau} & \text{polymorphic}\\
+% &&& \arec{t}{\tau} & \rect{t}{\t au} & \text{recursive}\\
+% &&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
+% &&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
+\mathsf{Exp} & e & ::= 
+& \cdots 
+% & x 
+& \text{(see Figure \ref{fig:U-expanded-terms})}\\
+% &&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
+% &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
+% &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
+% &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
+% &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+% &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
+% &&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
+% &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
+% &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+% \LCC \lightgray & \lightgray & \lightgray 
+%& \lightgray 
+% & \lightgray & \lightgray \\
+&&
+& \aematchwith{n}{\tau}{e}{\seqschemaX{r}}
+% & \matchwith{e}{\seqschemaX{r}} 
+& \text{match}\\
+\mathsf{Rule} & r & ::= 
+& \aematchrule{p}{e} 
+%& \matchrule{p}{e} 
+& \text{rule}\\
+\mathsf{Pat} & p & ::= 
+& x  
+%& x 
+& \text{variable pattern}\\
+&&& \aewildp 
+%& \wildp 
+& \text{wildcard pattern}\\
+&&& \aefoldp{p} 
+%& \foldp{p} 
+& \text{fold pattern}\\
+&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} 
+%& \tplp{\mapschema{p}{i}{\labelset}} 
+& \text{labeled tuple pattern}\\
+&&& \aeinjp{\ell}{p} 
+%& \injp{\ell}{p} 
+& \text{injection pattern} %\ECC
+\end{array}\]
+\caption{Syntax of the $\miniVersePat$ expanded language (XL).}
 \label{fig:UP-expanded-terms}
 \end{figure}
 
 
-\subsection{Statics of the Inner Core}\label{sec:inner-core-statics-UP}
-The \emph{statics of the inner core} is specified by judgements of the following form:
+\subsection{Statics of the Expanded Language}\label{sec:inner-core-statics-UP}
+The \emph{statics of the XL} is defined by judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\istypeU{\Delta}{\tau} & \text{$\tau$ is a well-formed type assuming $\Delta$}\\
+\istypeU{\Delta}{\tau} & \text{$\tau$ is a well-formed type}\\
 %\isctxU{\Delta}{\Gamma} & \text{$\Gamma$ is a well-formed typing context assuming $\Delta$}\\
-\hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ is assigned type $\tau$ assuming $\Delta$ and $\Gamma$}\\
-\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'} & \text{$r$ takes values of type $\tau$ to values of type $\tau'$ assuming $\Delta$ and $\Gamma$}\\
-\patType{\pctx}{p}{\tau} & \text{$p$ matches values of type $\tau$ and generates hypotheses $\pctx$ assuming $\Delta$} 
+\hastypeU{\Delta}{\Gamma}{e}{\tau} & \text{$e$ is assigned type $\tau$}\\
+\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'} & \text{$r$ takes values of type $\tau$ to values of type $\tau'$}\\
+\patType{\pctx}{p}{\tau} & \text{$p$ matches values of type $\tau$ and generates hypotheses $\pctx$} 
 \end{array}\]
 
-The types of $\miniVersePat$ are exactly those of $\miniVerseUE$, described in Sec. \ref{sec:miniVerseU}, so the \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by Rules (\ref{rules:istypeU}). 
+The types of $\miniVersePat$ are exactly those of $\miniVerseUE$, described in Sec. \ref{sec:miniVerseU}, so the \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively defined by Rules (\ref{rules:istypeU}) as before.
 
-The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions and is inductively defined by Rules (\ref*{rules:hastypeUP}), which consist of:
-\begin{subequations}\label{rules:hastypeUP}
-\refstepcounter{equation}%
+The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types to expressions and is inductively defined by Rules (\ref{rules:hastypeU}), which consist of:
+% \begin{subequations}\label{rules:hastypeUP}
+% \refstepcounter{equation}%
 \begin{itemize}
-\label{rule:hastypeUP-var}
-\refstepcounter{equation}\label{rule:hastypeUP-lam}
-\refstepcounter{equation}\label{rule:hastypeUP-ap}
-\refstepcounter{equation}\label{rule:hastypeUP-tlam}
-\refstepcounter{equation}\label{rule:hastypeUP-tap}
-\refstepcounter{equation}\label{rule:hastypeUP-fold}
-\refstepcounter{equation}\label{rule:hastypeUP-unfold}
-\refstepcounter{equation}\label{rule:hastypeUP-tpl}
-\refstepcounter{equation}\label{rule:hastypeUP-pr}
-\refstepcounter{equation}\label{rule:hastypeUP-in}
-\item Rules written identically to Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-in}). We will refer to these rules as Rules (\ref*{rule:hastypeUP-var}) through (\ref*{rule:hastypeUP-in}). %Note that we cannot defer directly to the typing rules from Sec. \ref{sec:miniVerseU} because $e$ has been redefined here.
+% \label{rule:hastypeUP-var}
+% \refstepcounter{equation}\label{rule:hastypeUP-lam}
+% \refstepcounter{equation}\label{rule:hastypeUP-ap}
+% \refstepcounter{equation}\label{rule:hastypeUP-tlam}
+% \refstepcounter{equation}\label{rule:hastypeUP-tap}
+% \refstepcounter{equation}\label{rule:hastypeUP-fold}
+% \refstepcounter{equation}\label{rule:hastypeUP-unfold}
+% \refstepcounter{equation}\label{rule:hastypeUP-tpl}
+% \refstepcounter{equation}\label{rule:hastypeUP-pr}
+% \refstepcounter{equation}\label{rule:hastypeUP-in}
+\item The typing rules of $\miniVerseUE$, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}). %Note that we cannot defer directly to the typing rules from Sec. \ref{sec:miniVerseU} because $e$ has been redefined here.
 \item The following rule for match expressions: 
 \end{itemize}
-\begin{equation}\label{rule:hastypeUP-match}
+\begin{equation*}\tag{\ref{rule:hastypeUP-match}}
 \inferrule{
   \hastypeU{\Delta}{\Gamma}{e}{\tau}\\
   \istypeU{\Delta}{\tau'}\\
   \{\ruleType{\Delta}{\Gamma}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
-\end{equation}  
-\end{subequations}
-The first premise of Rule (\ref*{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{The second premise of Rule (\ref{rule:hastypeUP-match}), and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$, the type $\tau'$ is arbitrary. In all other cases, $\tau'$ can be determined by assigning types to the  branch expressions.} The third premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$. This is expressed by the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
-\begin{equation}\label{rule:ruleType}
+\end{equation*}  
+% \end{subequations}
+The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{The second premise of Rule (\ref{rule:hastypeUP-match}), and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$, the type $\tau'$ is arbitrary. In all other cases, $\tau'$ can be determined by assigning types to the  branch expressions.} The third premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$ according to the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
+\begin{equation*}\tag{\ref{rule:ruleType}}
 \inferrule{
-  \patType{\pctx}{p}{\tau}\\
-  \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}
+  \patType{\pctx'}{p}{\tau}\\
+  \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx'}}{e}{\tau'}
 }{\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}}
-\end{equation}
-The premises of Rule (\ref{rule:ruleType}) can be understood as follows, in order:
-\begin{enumerate}
-\item The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$ (defined assuming $\Delta$), and to gather the typing hypotheses that the pattern generates in a \emph{typing context}, $\pctx$. %Pattern typing contexts are typing contexts. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. 
-We use the metavariable $\pctx$ (i.e. ``upsilon'') rather than $\Gamma$ only to emphasize the distinct role of the typing context in the pattern typing judgement -- algorithmically, it is the ``output'' of the judgement.% The pattern typing judgement also does not obey weakening (discussed below).
+\end{equation*}
+The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$ (defined assuming $\Delta$), and to gather the typing hypotheses that the pattern generates in a {typing context}, $\pctx'$. (Algorithmically, the typing context is the ``output'' of the pattern typing judgement.) 
+The second premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.%Pattern typing contexts are typing contexts. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. 
 
-The pattern typing judgement is inductively defined by the following rules:
-\begin{subequations}\label{rules:patType}
-\begin{equation}\label{rule:patType-var}
+The pattern typing judgement is inductively defined by Rules (\ref{rules:patType}).
+Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, matches values of any type, $\tau$, and generates the hypothesis that $x$ has type $\tau$:
+\begin{equation*}\tag{\ref{rule:patType-var}}
 \inferrule{ }{\patType{\Ghyp{x}{\tau}}{x}{\tau}}
-\end{equation}
-\begin{equation}\label{rule:patType-wild}
+\end{equation*}
+Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern also matches values of any type, $\tau$, but wildcard patterns generate no hypotheses:
+\begin{equation*}\tag{\ref{rule:patType-wild}}
 \inferrule{ }{\patType{\emptyset}{\aewildp}{\tau}}
-\end{equation}
-\begin{equation}\label{rule:patType-fold}
+\end{equation*}
+Rule (\ref{rule:patType-fold}) specifies that a fold pattern, $\aefoldp{p}$, matches values of the recursive type $\arec{t}{\tau}$ and generates hypotheses $\pctx$ if $p$ matches values of a single unrolling of the recursive type, $[\arec{t}{\tau}/t]\tau$, and generates hypotheses $\pctx$:
+\begin{equation*}\tag{\ref{rule:patType-fold}}
 \inferrule{
   \patType{\pctx}{p}{[\arec{t}{\tau}/t]\tau}
 }{
   \patType{\pctx}{\aefoldp{p}}{\arec{t}{\tau}}
 }
-\end{equation}
-\begin{equation}\label{rule:patType-tpl}
+\end{equation*}
+Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. The premise checks each subpattern $p_i$ against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The conclusion of the rule gathers these hypotheses into a single pattern typing context, $\Gconsi{i \in \labelset}{\pctx_i}$:
+\begin{equation*}\tag{\ref{rule:patType-tpl}}
 \inferrule{
   \{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
   \patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 }
-\end{equation}
-\begin{equation}\label{rule:patType-inj}
+\end{equation*}
+The definition of typing context extension, applied iteratively here,  implicitly requires that the pattern typing contexts $\pctx_i$ be mutually disjoint, i.e. \[\{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
+Finally, Rule (\ref{rule:patType-inj}) specifies that an injection pattern,  $\aeinjp{\ell}{p}$, matches values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that define a case for the label $\ell$. The pattern $p$ must match value of type $\tau$ and generate hypotheses $\pctx$:
+\begin{equation*}\tag{\ref{rule:patType-inj}}
 \inferrule{
   \patType{\pctx}{p}{\tau}
 }{
   \patType{\pctx}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
 
-Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, matches values of any type, $\tau$, and generates the hypothesis that $x$ has the type $\tau$. 
 
-Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern also matches values of any type, $\tau$, but wildcard patterns generate no hypotheses.
+These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution, Decomposition and Regularity.
 
-Rule (\ref{rule:patType-fold}) specifies that a fold pattern, $\aefoldp{p}$, matches values of the recursive type $\arec{t}{\tau}$ and generates hypotheses $\pctx$ if $p$ matches values of a single unrolling of the recursive type, $[\arec{t}{\tau}/t]\tau$, and generates hypotheses $\pctx$.
 
-Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. The premise checks each subpattern $p_i$ against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The conclusion of the rule gathers these hypotheses into a single pattern typing context, $\Gconsi{i \in \labelset}{\pctx_i}$. The definition of typing context extension, applied iteratively here,  implicitly requires that the pattern typing contexts $\pctx_i$ be mutually disjoint, i.e. \[\{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
 
-Rule (\ref{rule:patType-inj}) specifies that an injection pattern,  $\aeinjp{\ell}{p}$, matches values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that define a case for the label $\ell$, generating hypotheses $\pctx$  if $p$ matches value of type $\tau$ and generates hypotheses $\pctx$. 
 
 
 %\item The second premise of Rule (\ref{rule:ruleType}) ensures that pattern typing of $p$ has generated hypotheses for all of the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for rules, $\matchrule{p}{e}$, the variables bound in $e$ are, implicitly, exactly those mentioned in p.% The bindings for $e$ would be extracted from the pattern implicitly. 
-\item The final premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.
-\end{enumerate}
 
-The rules above are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately or proving it explicitly. The following standard lemmas also hold.
-
-The Weakening Lemma establishes that extending the context with unnecessary hypotheses preserves well-formedness and typing.
-\begin{lemma}[Weakening]\label{lemma:weakening-UP} All of the following hold: 
-\begin{enumerate} 
-\item If $\istypeU{\Delta}{\tau}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
-%\item If $\isctxU{\Delta}{\Gamma}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
-  \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau'}$.
-  \end{enumerate}
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau''}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau''}}{e}{\tau}$.
-  \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau''}$ then $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau''}}{r}{\tau}{\tau'}$.
-  \end{enumerate}
-\item If $\patType{\pctx}{p}{\tau}$ then $\patTypeD{\Delta, \Dhyp{t}}{\pctx}{p}{\tau}$.
-\end{enumerate}
-\end{lemma}
-\begin{proof-sketch}
-\begin{enumerate}
-\item By rule induction over Rules (\ref{rules:istypeU}).
-%\item By rule induction over Rules (\ref{rules:isctxU}).
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and part 1.
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and part 1.
-\item By rule induction over Rules (\ref{rules:patType}).
-\end{enumerate}
-\end{proof-sketch}
-
-The {pattern typing judgement} is a \emph{linear} in the pattern typing context, i.e. it does \emph{not} obey weakening of the pattern typing context. This is to ensure that the pattern typing context captures exactly those hypotheses generated by a pattern, and no others.
-
-We assume that renaming of bound identifiers, $\alpha$-equivalence and substitution can be defined essentially as in \emph{PFPL} \cite{pfpl}, modified only so that binders involving patterns bind exactly those variables mentioned in the pattern in some arbitrary deterministic order. The Substitution Lemma establishes that substitution of a well-formed type for a type variable, or an expanded expression of the appropriate type for an expanded expression variable, preserves well-formedness and typing.
-\begin{lemma}[Substitution]\label{lemma:substitution-UP} All of the following hold:
-\begin{enumerate}
-\item If $\istypeU{\Delta, \Dhyp{t}}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta}{[\tau'/t]\tau}$.
-%\item If $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta}{[\tau'/t]\Gamma}$.
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$.
-  \item If $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau''}$ and $\istypeU{\Delta}{\tau'}$ then $\ruleType{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]r}{[\tau'/t]\tau}{[\tau'/t]\tau''}$.
-  \end{enumerate}
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$.
-  \item If $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{r}{\tau}{\tau''}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau''}$ then $\ruleType{\Delta}{\Gamma}{[e'/x]r}{\tau}{\tau''}$.
-  \end{enumerate}
-\end{enumerate}\end{lemma}
-\begin{proof-sketch}
-\begin{enumerate}
-\item By rule induction over Rules (\ref{rules:istypeU}).
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}).
-\end{enumerate}
-\end{proof-sketch}
-
-The Decomposition Lemma is the converse of the Substitution Lemma.
-\begin{lemma}[Decomposition]\label{lemma:decomposition-UP} All of the following hold:
-\begin{enumerate}
-\item If $\istypeU{\Delta}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\istypeU{\Delta, \Dhyp{t}}{\tau}$.
-%\item If $\isctxU{\Delta}{[\tau'/t]\Gamma}$ and $\istypeU{\Delta}{\tau'}$ then $\isctxU{\Delta, \Dhyp{t}}{\Gamma}$.
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ and $\istypeU{\Delta}{\tau'}$ then $\hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}$.
-  \item If $\ruleType{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]r}{[\tau'/t]\tau}{[\tau'/t]\tau''}$ and $\istypeU{\Delta}{\tau'}$ then $\ruleType{\Delta, \Dhyp{t}}{\Gamma}{r}{\tau}{\tau''}$.
-  \end{enumerate}
-\item \begin{enumerate}
-  \item If $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{e}{\tau}$.
-  \item If $\ruleType{\Delta}{\Gamma}{[e'/x]r}{\tau}{\tau''}$ and $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ then $\ruleType{\Delta}{\Gamma, \Ghyp{x}{\tau'}}{r}{\tau}{\tau''}$.
-  \end{enumerate}
-\end{enumerate}\end{lemma}
-\begin{proof-sketch}
-\begin{enumerate}
-\item By rule induction over Rules (\ref{rules:istypeU}) and case analysis over the definition of substitution. In all cases, the derivation of $\istypeU{\Delta}{[\tau'/t]\tau}$ does not depend on the form of $\tau'$.
-%\item Context formation of $[\tau'/t]\Gamma$ does not depend on the structure of $\tau'$.
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]e}{[\tau'/t]\tau}$ or $\ruleType{\Delta}{[\tau'/t]\Gamma}{[\tau'/t]r}{[\tau'/t]\tau}{[\tau'/t]\tau''}$ does not depend on the form of $\tau'$.
-\item By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) and case analysis over the definition of substitution. In all cases, the derivation of $\hastypeU{\Delta}{\Gamma}{[e'/x]e}{\tau}$ or $\ruleType{\Delta}{\Gamma}{[e'/x]r}{\tau}{\tau''}$ does not depend on the form of $e'$.
-\end{enumerate}
-\end{proof-sketch}
-
-The Pattern Regularity Lemma establishes that the hypotheses generated by checking a pattern against a well-formed type involve only well-formed types.
-\begin{lemma}[Pattern Regularity]\label{lemma:pattern-regularity-UP} 
-If $\patType{\pctx}{p}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\isctxU{\Delta}{\pctx}$.
-\end{lemma}
-\begin{proof} By rule induction over Rules (\ref{rules:patType}).
-\begin{byCases}
-\item[\text{(\ref{rule:patType-var})}] We have:
-\begin{pfsteps*}
-  \item $p=x$ \BY{assumption}
-  \item $\pctx=x : \tau$ \BY{assumption}
-  \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istypeU}
-  \item $\isctxU{\Delta}{\Ghyp{x}{\tau}}$ \BY{Definition \ref{def:isctxU} on \pfref{istypeU}}
- \end{pfsteps*}
- \resetpfcounter
-\item[\text{(\ref{rule:patType-wild})}] We have:
-\begin{pfsteps}
-\item \pctx=\emptyset \BY{assumption}
-\item \isctxU{\Delta}{\emptyset} \BY{Definition \ref{def:isctxU}}
-\end{pfsteps}
-\resetpfcounter
-
-\item[\text{(\ref{rule:patType-tpl})}] We have:
-\begin{pfsteps*}
-  \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
-  \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-  \item $\pctx=\cup_{i \in \labelset} \pctx_i$ \BY{assumption}
-  \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption}\pflabel{patType}
-  \item $\istypeU{\Delta}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{assumption} \pflabel{istypeU}
-  \item $\{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}$ \BY{Inversion of Rule (\ref{rule:istypeU-prod}) on \pfref{istypeU}}\pflabel{istypeU-each}
-  \item $\{\isctxU{\Delta}{\pctx_i}\}_{i \in \labelset}$ \BY{IH over \pfref{patType} and \pfref{istypeU-each}} \pflabel{biggy}
-  \item $\isctxU{\Delta}{\cup_{i \in \labelset} \pctx_i}$ \BY{Definition \ref{def:isctxU} on \pfref{biggy}, then Definition \ref{def:isctxU} again, using the definition of typing context union iteratively}
-\end{pfsteps*}
-\resetpfcounter
-
-\item[\text{(\ref{rule:patType-inj})}] We have:
-\begin{pfsteps*}
-  \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
-  \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
-  \item $\istypeU{\Delta}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{assumption} \pflabel{istype}
-  \item $\patType{\pctx}{p'}{\tau'}$ \BY{assumption} \pflabel{patType}
-  \item $\istypeU{\Delta}{\tau'}$ \BY{Inversion of Rule (\ref{rule:istypeU-sum}) on \pfref{istype}} \pflabel{istypeTwo} 
-  \item $\isctxU{\Delta}{\pctx}$ \BY{IH on \pfref{patType} and \pfref{istypeTwo}}
-\end{pfsteps*}
-\resetpfcounter
-\end{byCases}
-\end{proof}
-
-Finally, the Regularity Lemma establishes that the type assigned to an expression under a well-formed typing context is well-formed. 
-\begin{lemma}[Regularity]\label{lemma:regularity-UP} All of the following hold:
-\begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau}$.
-\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau'}$.
-\end{enumerate}
-\end{lemma}
-\begin{proof-sketch} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}), and Lemma \ref{lemma:substitution-UP} and Lemma \ref{lemma:pattern-regularity-UP}.
-\end{proof-sketch}
 \subsection{Structural Dynamics}\label{sec:dynamics-UP}
 The \emph{structural dynamics of }$\miniVersePat$ is specified as a transition system, and is organized around judgements of the following form:
 \[\begin{array}{ll}
@@ -378,484 +342,278 @@ The \emph{structural dynamics of }$\miniVersePat$ is specified as a transition s
 \end{array}\]
 We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
 
-\begin{definition}[Iterated Transition]\label{defn:iterated-transition-UP} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
+\begingroup
+\def\thetheorem{\ref{defn:iterated-transition-UP}}
+\begin{definition}[Iterated Transition] Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
-\begin{definition}[Evaluation]\label{defn:evaluation-UP}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+\begingroup
+\def\thetheorem{\ref{defn:evaluation-UP}}
+\begin{definition}[Evaluation] $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
-As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of judgements that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following conditions.
+As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following condition.
 
-The Canonical Forms condition characterizes well-typed values. Satisfying this condition requires an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. This condition is identical to Condition \ref{condition:canonical-forms-U}.
+The Canonical Forms condition, which characterizes well-typed values, is identical to the corresponding condition in the structural dynamics of $\miniVerseUE$, i.e. Condition \ref{condition:canonical-forms-UP}. 
 
-\begin{condition}[Canonical Forms]\label{condition:canonical-forms-UP} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
-\begin{enumerate}
-\item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
-\item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
-\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$ and $\isvalU{e'}$. 
-\item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$ for each $i \in \labelset$.
-\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau_\ell$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau_\ell}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau_\ell}{e'}$ and $\hastypeUC{e'}{\tau_\ell}$ and $\isvalU{e'}$.
-\end{enumerate}\end{condition}
+The Preservation condition ensures that evaluation preserves typing, and is again identical to the corresponding condition in the structural dynamics of $\miniVerseUE$.
+\begingroup
+\def\thetheorem{\ref{condition:preservation-UP}}
+\begin{condition}[Preservation] If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
-The Preservation condition ensures that evaluation preserves typing.
-\begin{condition}[Preservation]\label{condition:preservation-UP} If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
-The Progress condition ensures that evaluation of a well-typed expanded expression cannot ``get stuck''.
-\begin{condition}[Progress]\label{condition:progress-UP} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or $\matchfail{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
- 
+The Progress condition ensures that evaluation of a well-typed expanded expression cannot ``get stuck''. We must consider the possibility of match failure in this condition.
+\begingroup
+\def\thetheorem{\ref{condition:progress-UP}}
+\begin{condition}[Progress] If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or $\matchfail{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+% \addtocounter{theorem}{-1}
+\endgroup
+
 Together, these two conditions constitute the Type Safety Condition.
 %\noindent
 %Condition \ref{condition:preservation-UP} is identical to Condition \ref{condition:preservation-U}, while Condition \ref{condition:progress-UP} modifies Condition \ref{condition:progress-U} to allow for match failure. 
 
-We do not define exhaustiveness and redundancy properties here, because these can be checked post-expansion and so are also not relevant to our subsequent developments (but see \cite{pfple1} for a formal account).
+We do not define the semantics of exhaustiveness and redundancy checking here, because these can be checked post-expansion (but see \cite{pfple1} for a formal account.)
 
-\begin{figure}
-\hspace{-8px}$\arraycolsep=4pt\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{UTyp} & \utau & ::= & \ut & \ut & \text{sigil}\\
-&&& \auparr{\utau}{\utau} & \parr{\utau}{\utau} & \text{partial function}\\
-&&& \auall{\ut}{\utau} & \forallt{\ut}{\utau} & \text{polymorphic}\\
-&&& \aurec{\ut}{\utau} & \rect{\ut}{\utau} & \text{recursive}\\
-&&& \auprod{\labelset}{\mapschema{\utau}{i}{\labelset}} & \prodt{\mapschema{\utau}{i}{\labelset}} & \text{labeled product}\\
-&&& \ausum{\labelset}{\mapschema{\utau}{i}{\labelset}} & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
-\mathsf{UExp} & \ue & ::= & \ux & \ux & \text{sigil}\\
-&&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
-&&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
-&&& \autlam{\ut}{\ue} & \Lam{\ut}{\ue} & \text{type abstraction}\\
-&&& \autap{\ue}{\utau} & \App{\ue}{\utau} & \text{type application}\\
-&&& \aufold{\ut}{\utau}{\ue} & \fold{\ue} & \text{fold}\\
-&&& \auunfold{\ue} & \unfold{\ue} & \text{unfold}\\
-&&& \autpl{\labelset}{\mapschema{\ue}{i}{\labelset}} & \tpl{\mapschema{\ue}{i}{\labelset}} & \text{labeled tuple}\\
-&&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
-&&& \auin{\labelset}{\ell}{\mapschema{\utau}{i}{\labelset}}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
-&&& \aumatchwith{n}{\utau}{\ue}{\seqschemaX{\urv}} & \matchwith{\ue}{\seqschemaX{\urv}} & \text{match}\\
-%\LCC &&& \gray & \gray & \gray \\
-&&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTSM definition}\\
-&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
-&&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\\%\ECC
-\LCC &&& \lightgray & \lightgray & \lightgray\\
-&&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTSM definition}\\
-&&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\\ECC
-\mathsf{URule} & \urv & ::= & \aumatchrule{\upv}{\ue} & \matchrule{\upv}{\ue} & \text{match rule}\\
-\mathsf{UPat} & \upv & ::= & \ux & \ux & \text{sigil pattern}\\
-&&& \auwildp & \wildp & \text{wildcard pattern}\\
-&&& \aufoldp{\upv} & \foldp{\upv} & \text{fold pattern}\\
-&&& \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}} & \tplp{\mapschema{\upv}{i}{\labelset}} & \text{labeled tuple pattern}\\
-&&& \auinjp{\ell}{\upv} & \injp{\ell}{\upv} & \text{injection pattern}\\
-\LCC &&& \lightgray & \lightgray & \lightgray\\
-&&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTSM application}\ECC
-\end{array}$
-\caption[Syntax of unexpanded types, expressions, rules and patterns in $\miniVersePat$]{Abstract syntax of unexpanded types, expressions, rules and patterns in $\miniVersePat$. Metavariable $\ut$ ranges over type sigils, $\ux$ ranges over expression sigils, $\tsmv$  over TSM names and $b$ over textual sequences, which, when they appear in an unexpanded term, are called literal bodies. Literal bodies might contain spliced subterms that are only ``surfaced'' during typed expansion, so renaming of bound identifiers and substitution are not defined over unexpanded types and terms.}
+
+\subsection{Syntax of the Unexpanded Language}\label{sec:syntax-UP}
+The syntax of the $\miniVersePat$ unexpanded language (UL) extends the syntax of the $\miniVerseUE$ unexpanded language as shown in Figure \ref{fig:UP-unexpanded-terms}.
+
+\begin{figure}[h!]
+\[\arraycolsep=4pt\begin{array}{lllllll}
+\textbf{Sort} & & 
+%& \textbf{Operational Form} 
+& \textbf{Stylized Form} & \textbf{Description}\\
+\mathsf{UTyp} & \utau & ::= 
+% & ... 
+& \cdots & \text{(see Figure \ref{fig:U-unexpanded-terms})}\\
+\mathsf{UExp} & \ue & ::= 
+%& \ux 
+& \cdots 
+& \text{(see Figure \ref{fig:U-unexpanded-terms})}\\
+&&
+%& \aumatchwith{n}{\utau}{\ue}{\seqschemaX{\urv}} 
+& \matchwith{\ue}{\seqschemaX{\urv}} & \text{match}\\
+% %\LCC &&& \gray & \gray & \gray \\
+% &&
+%& \audefuetsm{\utau}{e}{\tsmv}{\ue}
+%& \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{seTSM definition}\\
+% &&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
+% &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{seTSM application}\\%\ECC
+\LCC &&& \color{Yellow} & \color{Yellow}\\
+&&
+%& \audefuptsm{\utau}{e}{\tsmv}{\ue} 
+& \usyntaxup{\tsmv}{\utau}{e}{\ue}
+& \text{spTSM definition}\ECC\\
+% &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\\ECC
+\mathsf{URule} & \urv & ::= 
+%& \aumatchrule{\upv}{\ue} 
+& \matchrule{\upv}{\ue} & \text{match rule}\\
+\mathsf{UPat} & \upv & ::= 
+%& \ux 
+& \ux & \text{identifier pattern}\\
+&&
+%& \auwildp 
+& \wildp & \text{wildcard pattern}\\
+&&
+%& \aufoldp{\upv} 
+& \foldp{\upv} & \text{fold pattern}\\
+&&
+%& \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}} 
+& \tplp{\mapschema{\upv}{i}{\labelset}} & \text{labeled tuple pattern}\\
+&&
+%& \auinjp{\ell}{\upv} 
+& \injp{\ell}{\upv} & \text{injection pattern}\\
+\LCC &&& \color{Yellow} & \color{Yellow}\\
+&&
+%& \auapuptsm{b}{\tsmv} 
+& \utsmap{\tsmv}{b} & \text{spTSM application}\ECC
+\end{array}\]
+\caption[Syntax of the $\miniVersePat$ unexpanded language.]{Syntax of the $\miniVersePat$ unexpanded language.}
 \label{fig:UP-unexpanded-terms}
 \end{figure}
 
-\subsection{Syntax of the Outer Surface}\label{sec:syntax-UP}
-A $\miniVersePat$ program ultimately evaluates as an expanded expression. However, the programmer does not write the expanded expression directly. Instead, the programmer writes a textual sequence, $b$, consisting of characters in some suitable alphabet (e.g. in practice, \texttt{ASCII} or \texttt{Unicode}), which is parsed by some partial metafunction $\mathsf{parseUExp}(b)$ to produce an \emph{unex\-panded expression}, $\ue$. Unexpanded expressions can contain \emph{unexpanded types}, $\utau$, \emph{unexpanded rules}, $\urv$, and \emph{unexpanded patterns}, $\upv$, so we also need partial metafunctions $\mathsf{parseUTyp}(b)$, $\mathsf{parseURule}(b)$ and $\mathsf{parseUPat}(b)$. The abstract syntax of unexpanded types, expressions, rules and patterns, which form  the \emph{outer surface} of $\miniVersePat$, is defined in Figure \ref{fig:UP-unexpanded-terms}. The full definition of the textual syntax of $\miniVersePat$ is not important for our purposes, so we simply give the following condition, which states that there is some way to textually represent every unexpanded type, expression, rule and pattern. %We also assume a metafunction $\mathsf{parseUTyp}(b)$ for parsing unexpanded types, and impose an analagous condition.
+As in $\miniVerseUE$, each expanded form has a corresponding unexpanded form. We refer to these as the \emph{common forms}. The correspondence is defined in Appendix \ref{appendix:SES-shared-forms}. There are also two forms related specifically to spTSMs, highlighted in yellow above: the spTSM definition form and the spTSM application form.
+
+In addition to the stylized syntax given in Figure \ref{fig:U-unexpanded-terms}, there is also a context-free textual syntax for the UL. Again, we need only posit the existence of partial metafunctions $\parseUTypF{b}$, $\parseUExpF{b}$ and $\parseUPatF{b}$ that go from character sequences, $b$, to unexpanded types, expressions and patterns, respectively. 
+\begingroup
+\def\thetheorem{\ref{condition:textual-representability-SES}}
 \begin{condition}[Textual Representability] All of the following must hold:
 \begin{enumerate}
 \item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
 \item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
-\item For each $\urv$, there exists $b$ such that $\parseURule{b}{\urv}$.
 \item For each $\upv$, there exists $b$ such that $\parseUPat{b}{\upv}$.
 \end{enumerate}
 \end{condition}
-
-As in $\miniVerseUE$, unexpanded types and expressions bind \emph{type sigils}, $\ut$, \emph{expression sigils}, $\ux$, and \emph{TSM names}, $\tsmv$. Sigils are given meaning by expansion to variables during typed expansion. We \textbf{cannot} adopt the usual definition of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below.
-
-Each inner core form (defined in Figure \ref{fig:UP-expanded-terms}) maps onto an outer surface form. We refer to these as the \emph{shared forms}. In particular:
-\begin{itemize}
-\item Each type variable, $t$, maps onto a unique {type sigil}, written $\sigilof{t}$ (pronounced ``sigil of $t$''). Notice the distinction between $\ut$, which is a metavariable ranging over type sigils, and $\sigilof{t}$, which is a metafunction, written in stylized form, applied to a type variable to produce a type sigil.
-\item Each type form, $\tau$, maps onto an unexpanded type form, $\Uof{\tau}$, according to the definition of $\Uof{\tau}$ in Sec. \ref{sec:syntax-U}.
-\item Each expression variable, $x$, maps onto a unique expression sigil, written $\sigilof{x}$. Again, notice the distinction between $\ux$ and $\sigilof{x}$.
-\item Each expanded expression form, $e$, maps onto an unexpanded expression form $\Uof{e}$ as follows:
-\begin{align*}
-\Uof{x} & = \sigilof{x}\\
-\Uof{\aelam{\tau}{x}{e}} & = \aulam{\Uof{\tau}}{\sigilof{x}}{\Uof{e}}\\
-\Uof{\aeap{e_1}{e_2}} & = \auap{\Uof{e_1}}{\Uof{e_2}}\\
-\Uof{\aetlam{t}{e}} & = \autlam{\sigilof{t}}{\Uof{e}}\\
-\Uof{\aetap{e}{\tau}} & = \autap{\Uof{e}}{\Uof{\tau}}\\
-\Uof{\aefold{t}{\tau}{e}} & = \aufold{\sigilof{t}}{\Uof\tau}{\Uof e}\\
-\Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
-\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
-\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auin{\labelset}{\ell}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}{\Uof{e}}\\
-\Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} &= \aumatchwith{n}{\Uof{\tau}}{\Uof{e}}{\seqschemaXx{\Uofv}{r}}\\
-\end{align*}
-\item The expanded rule form maps onto the unexpanded rule form as follows:
-\begin{align*}
-\Uof{\aematchrule{p}{e}} & = \aumatchrule{\Uof{p}}{\Uof{e}}
-\end{align*}
-\item Each expanded pattern form, $p$, maps onto the unexpanded pattern form $\Uof{p}$ as follows:
-\begin{align*}
-\Uof{x} & = \sigilof{x}\\
-\Uof{\aewildp} &= \auwildp\\
-\Uof{\aefoldp{p}} &= \aufoldp{\Uof{p}}\\
-\Uof{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}} & = \autplp{\labelset}{\mapschemax{\Uofv}{p}{i}{\labelset}}\\
-\Uof{\aeinjp{\ell}{p}} & = \auinjp{\ell}{\Uof{p}}
-\end{align*}
-\end{itemize}
-
-The only unexpanded forms that do not correspond to expanded forms are the unexpanded expression forms for ueTSM definition, ueTSM application and upTSM definition, and the unexpanded pattern form for upTSM application. The forms related to upTSMs are highlighted in gray in Figure \ref{fig:UP-unexpanded-terms}.
+\endgroup
 
 \subsection{Typed Expansion}\label{sec:typed-expansion-UP}
 Unexpanded terms are checked and expanded simultaneously according to the \emph{typed expansion judgements}:
-\[\begin{array}{ll}
+
+\vspace{10px}
+\noindent$\arraycolsep=2pt\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ is well-formed and has expansion $\tau$ assuming $\uDelta$}\\
-\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under ueTSM context $\uPsi$}\\
-& \text{and upTSM context $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
-\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
-& \text{type $\tau'$ under $\uPsi$ and $\uPhi$ assuming $\uDelta$ and $\uGamma$}\\
-\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau} & \text{$\upv$ has expansion $p$ and type $\tau$ and generates hypotheses $\pctx$ }\\
-& \text{under upTSM context $\uPhi$ assuming $\Delta$}
-\end{array}\]
+\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ has well-formed expansion $\tau$}\\
+\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ of type $\tau$}\\
+\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'} & \text{$\urv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$}\\
+\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau} & \text{$\upv$ has expansion $p$ matching against $\tau$ generating hypotheses $\upctx$}
+% & \text{hypotheses $\upctx$}\\
+\end{array}$
 
 \subsubsection{Type Expansion}
-\emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}).
+{Unexpanded type formation contexts}, $\uDelta$, consist of a {type identifier expansion context}, $\uD$, and a type formation context, $\Delta$. These were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}) as before.
 
 \subsubsection{Typed Expression, Rule and Pattern Expansion}
-\emph{Unexpanded typing contexts}, $\uGamma$, were defined in Sec. \ref{sec:typed-expansion-U}. \emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). % and the definition of ueTSM definition contexts is reproduced below. \emph{upTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
+{Unexpanded typing contexts}, $\uGamma$, consist of an expression identifier expansion context, $\uG$, and a typing context, $\Gamma$. {seTSM contexts}, $\uPsi$, consist of a TSM identifier expansion context, $\uA$, and an seTSM definition context, $\Psi$. These were all defined in Sec. \ref{sec:typed-expansion-U}. We will define \emph{spTSM contexts}, $\uPhi$, below.
+%\emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). % and the definition of seTSM definition contexts is reproduced below. \emph{spTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
 
-The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref*{rules:expandsUP}) and Rule (\ref*{rule:ruleExpands}), respectively, and the \emph{typed pattern expansion judgement}, $\patExpands{\pctx}{\Phi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref*{rules:patExpands}) as follows.
+The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref{rules:expandsU}) and Rule (\ref{rule:ruleExpands}). The \emph{typed pattern expansion judgement}, $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref{rules:patExpands}).
 
-\paragraph{Shared Forms} Rules (\ref*{rule:expandsUP-var}) through (\ref*{rule:expandsUP-match}) define typed expansion of  unexpanded expressions of shared form. The first five of these rules are shown below:
-\begin{subequations}\label{rules:expandsUP}
-\begin{equation}\label{rule:expandsUP-var}
-  \inferrule{ }{\expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}}
-\end{equation}
-\begin{equation}\label{rule:expandsUP-lam}
-  \inferrule{
-    \expandsTU{\uDelta}{\utau}{\tau}\\
-    \expandsUP{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
-  }{\expandsUPX{\aulam{\utau}{\ux}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
-\end{equation}
-\begin{equation}\label{rule:expandsUP-ap}
-  \inferrule{
-    \expandsUPX{\ue_1}{e_1}{\aparr{\tau}{\tau'}}\\
-    \expandsUPX{\ue_2}{e_2}{\tau}
-  }{
-    \expandsUPX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-tlam}
-  \inferrule{
-    \expandsUP{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
-  }{
-    \expandsUPX{\autlam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:expandsUP-tap}
-  \inferrule{
-    \expandsUPX{\ue}{e}{\aall{t}{\tau}}\\
-    \expandsTU{\uDelta}{\utau'}{\tau'}
-  }{
-    \expandsUPX{\autap{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
-  }
-\end{equation}
-% \begin{equation}\label{rule:expandsUP-tlam}
-%   \inferrule{
-%     \expandsUP{\Delta, \Dhyp{t}}{\Gamma}{\uPsi}{\Phi}{\ue}{e}{\tau}
-%   }{
-%     \expandsUPX{\autlam{t}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-tap}
-%   \inferrule{
-%     \expandsUPX{\ue}{e}{\aall{t}{\tau}}\\
-%     \istypeU{\Delta}{\tau'}
-%   }{
-%     \expandsUPX{\autap{\ue}{\tau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-fold}
-%   \inferrule{
-%     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
-%     \expandsUPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
-%   }{
-%     \expandsUPX{\aufold{t}{\tau}{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-unfold}
-%   \inferrule{
-%     \expandsUPX{\ue}{e}{\arec{t}{\tau}}
-%   }{
-%     \expandsUPX{\auunfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-tpl}
-%   \inferrule{
-%     \{\expandsUPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
-%   }{
-%     \expandsUPX{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-pr}
-%   \inferrule{
-%     \expandsUPX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-%   }{
-%     \expandsUPX{\aupr{\ell}{\ue}}{\aepr{\ell}{e}}{\tau}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsUP-in}
-%   \inferrule{
-%     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
-%     \istypeU{\Delta}{\tau}\\
-%     \expandsUPX{\ue}{e}{\tau}
-%   }{
-%     \left\{\shortstack{$\Delta~\Gamma \vdash_{\uPsi;\,\Phi} \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
-%   }
-% \end{equation}
-These rules are similar to Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}). In particular, in both sets of rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form -- here, Rules (\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTSM context, $\uPsi$, and now also the upTSM context, $\uPhi$, pass opaquely through these rules.
-% \refstepcounter{equation}
-% \label{rule:expandsUP-tlam}
-% \refstepcounter{equation}
-% \label{rule:expandsUP-tap}
-\refstepcounter{equation}
-\label{rule:expandsUP-fold}
-\refstepcounter{equation}
-\label{rule:expandsUP-unfold}
-\refstepcounter{equation}
-\label{rule:expandsUP-tpl}
-\refstepcounter{equation}
-\label{rule:expandsUP-pr}
-\refstepcounter{equation}
-\label{rule:expandsUP-in}
+Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tsmap}) are adapted directly from $\miniVerseUE$, differing only in that the {spTSM context}, $\uPhi$, passes opaquely through them. 
 
-Rule (\ref*{rule:expandsUP-match}), below, handles unexpanded match expressions and corresponds in the same way to Rule (\ref{rule:hastypeUP-match}).% The typed rule expansion premise corresponds to the rule typing premise of Rule (\ref{rule:ruleType}).
-\begin{equation}\label{rule:expandsUP-match}
+There is one new common unexpanded expression form in $\miniVersePat$: the unexpanded match form. Rule (\ref{rule:expandsU-match}) governs this form:
+\begin{equation*}\tag{\ref{rule:expandsU-match}}
 \inferrule{
-  \expandsUPX{\ue}{e}{\tau}\\
-  \expandsTU{\uDelta}{\utau'}{\tau'}\\
-  \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-}{\expandsUPX{\aumatchwith{n}{\utau'}{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
-\end{equation}  
-
-
-We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeUP}),
-\begin{mathpar}
-%\refstepcounter{equation}
-%\label{rule:expandsU-case}
-\inferrule{J_1\\ \cdots \\ J_k}{J}
-\end{mathpar}
-the corresponding typed expansion rule is 
-\begin{mathpar}
-\inferrule{
-  \Uof{J_1} \\
-  \cdots\\
-  \Uof{J_k}
+  \expandsUP{\uDelta}{\uGamma}{\uPhi}{\uPsi}{\ue}{e}{\tau}\\
+  \istypeU{\Delta}{\tau'}\\
+  \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{
-  \Uof{J}
+  \expandsUP
+    {\uDelta}{\uGamma}{\uPsi}{\uPhi}
+    {\matchwith
+      {\ue}
+      {\seqschemaX{\urv}}
+    }{\aematchwith
+      {n}
+      {\tau'}
+      {e}
+      {\seqschemaX{r}}
+    }{\tau'}
 }
-\end{mathpar}
-where
-\[\begin{split}
-\Uof{\istypeU{\Delta}{\tau}} & = \expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau} \\
-\Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsUP{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}\\
-\Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}\\
-\Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
-\end{split}\]
-and where $\Uof{\Delta}$, $\Uof{\Gamma}$ and $\Uof{\tau}$ are defined as in Sec. \ref{sec:typed-expansion-U} and:
-\begin{itemize}
-\item $\Uof{e}$ is defined as follows
-\begin{itemize}
-\item When $e$ is of definite form, $\Uof{e}$ is defined as in Sec. \ref{sec:syntax-UP}. 
-\item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metavariable of sort $\mathsf{UExp}$ also of indefinite form. For example, $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
-\end{itemize}
-\item $\Uof{r}$ is defined as follows:
-\begin{itemize}
-\item When $r$ is of definite form, $\Uof{r}$ is defined as in Sec. \ref{sec:syntax-UP}.
-\item When $e$ is of indefinite form, $\Uof{r}$ is a uniquely corresponding metavariable of sort $\mathsf{URule}$ also of indefinite form.
-\end{itemize}
-\end{itemize}
+\end{equation*}  
 
-It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsUP-var}) through (\ref{rule:expandsUP-tap}) and Rule (\ref{rule:expandsUP-match}) above. We omit the remaining rules generated by this transformation, i.e. Rules (\ref*{rule:expandsUP-tlam}) through (\ref*{rule:expandsUP-in}). 
+% We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:hastypeUP}),
+% \begin{mathpar}
+% %\refstepcounter{equation}
+% %\label{rule:expandsU-case}
+% \inferrule{J_1\\ \cdots \\ J_k}{J}
+% \end{mathpar}
+% the corresponding typed expansion rule is 
+% \begin{mathpar}
+% \inferrule{
+%   \Uof{J_1} \\
+%   \cdots\\
+%   \Uof{J_k}
+% }{
+%   \Uof{J}
+% }
+% \end{mathpar}
+% where
+% \[\begin{split}
+% \Uof{\istypeU{\Delta}{\tau}} & = \expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau} \\
+% \Uof{\hastypeU{\Gamma}{\Delta}{e}{\tau}} & = \expandsUP{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}\\
+% \Uof{\ruleType{\Gamma}{\Delta}{r}{\tau}{\tau'}} & = \ruleExpands{\Uof{\Gamma}}{\Uof{\Delta}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}\\
+% \Uof{\{J_i\}_{i \in \labelset}} & = \{\Uof{J_i}\}_{i \in \labelset}
+% \end{split}\]
+% and where $\Uof{\Delta}$, $\Uof{\Gamma}$ and $\Uof{\tau}$ are defined as in Sec. \ref{sec:typed-expansion-U} and:
+% \begin{itemize}
+% \item $\Uof{e}$ is defined as follows
+% \begin{itemize}
+% \item When $e$ is of definite form, $\Uof{e}$ is defined as in Sec. \ref{sec:syntax-UP}. 
+% \item When $e$ is of indefinite form, $\Uof{e}$ is a uniquely corresponding metavariable of sort $\mathsf{UExp}$ also of indefinite form. For example, $\Uof{e_1}=\ue_1$ and $\Uof{e_2}=\ue_2$.
+% \end{itemize}
+% \item $\Uof{r}$ is defined as follows:
+% \begin{itemize}
+% \item When $r$ is of definite form, $\Uof{r}$ is defined as in Sec. \ref{sec:syntax-UP}.
+% \item When $e$ is of indefinite form, $\Uof{r}$ is a uniquely corresponding metavariable of sort $\mathsf{URule}$ also of indefinite form.
+% \end{itemize}
+% \end{itemize}
 
-The typed rule expansion judgement is defined by Rule (\ref*{rule:ruleExpands}), below.
-\end{subequations}
-\begin{equation}\label{rule:ruleExpands}
+% It is instructive to use this rule transformation to generate Rules (\ref{rule:expandsUP-var}) through (\ref{rule:expandsUP-tap}) and Rule (\ref{rule:expandsUP-match}) above. We omit the remaining rules generated by this transformation, i.e. Rules (\ref*{rule:expandsUP-tlam}) through (\ref*{rule:expandsUP-in}). 
+
+The typed rule expansion judgement is defined by Rule (\ref{rule:ruleExpands}), below:
+\begin{equation*}\tag{\ref{rule:ruleExpands}}
 \inferrule{
-  \patExpands{\uAS{\uG'}{\pctx}}{\uPhi}{\upv}{p}{\tau}\\
-  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
+  \patExpands{\uAS{\uG'}{\pctx'}}{\uPhi}{\upv}{p}{\tau}\\
+  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
 }{
   \ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
-\end{equation}
-As in the typed expression expansion judgements, the unexpanded and expanded forms in the conclusion of the rule above correspond. The premises correspond to those of Rule (\ref{rule:ruleType}). In particular, the typed pattern expansion premise in the rule above corresponds to the pattern typing premise of Rule (\ref{rule:ruleType}) and the typed expression expansion premise in the rule above corresponds to the typing premise of Rule (\ref{rule:ruleType}). Because unexpanded terms bind expression sigils, which are given meaning by expansion to variables, the pattern typing rules must generate both a sigil expansion context, $\uG'$, and a pattern typing context, $\pctx$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
-In the second premise, we update the ``incoming'' sigil expansion context, $\uG$, with the new sigil expansions, $\uG'$, and correspondingly, extend the ``incoming'' typing context, $\Gamma$, with the new hypotheses, $\pctx$. 
+\end{equation*}
+Because unexpanded terms mention only expression identifiers, which are given meaning by expansion to variables, the pattern typing rules must generate both a identifier expansion context, $\uG'$, and a typing context, $\pctx'$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
+In the second premise of the rule above, we update the ``incoming'' identifier expansion context, $\uG$, with the new identifier expansions, $\uG'$, and correspondingly, extend the ``incoming'' typing context, $\Gamma$, with the new typing hypotheses, $\pctx'$. 
 
-Rules (\ref*{rule:patExpands-var}) through (\ref*{rule:patExpands-in}), below, define typed expansion  of unexpanded patterns of shared form.
-\begin{subequations}[intermezzo]\label{rules:patExpands}
-\begin{equation}\label{rule:patExpands-var}
-\inferrule{ }{
+Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}), reproduced below, define typed expansion  of unexpanded patterns of common form.
+\begin{equation*}\tag{\ref{rule:patExpands-var}}
+{\inferrule{ }{
   \patExpands{\uGG{\vExpands{\ux}{x}}{\Ghyp{x}{\tau}}}{\uPhi}{\ux}{x}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpands-wild}
-\inferrule{ }{
-  \patExpands{\uGG{\emptyset}{\emptyset}}{\uPhi}{\auwildp}{\aewildp}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpands-fold}
-\inferrule{ 
+}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:patExpands-wild}}
+{\inferrule{ }{
+  \patExpands{\uGG{\emptyset}{\emptyset}}{\uPhi}{\wildp}{\aewildp}{\tau}
+}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:patExpands-fold}}
+{\inferrule{ 
   \patExpands{\upctx}{\uPhi}{\upv}{p}{[\arec{t}{\tau}/t]\tau}
 }{
-  \patExpands{\upctx}{\uPhi}{\aufoldp{\upv}}{\aefoldp{p}}{\arec{t}{\tau}}
+  \patExpands{\upctx}{\uPhi}{\foldp{\upv}}{\aefoldp{p}}{\arec{t}{\tau}}
+}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:patExpands-tpl}}
+{
+  \inferrule{
+    \{\patExpands{{\upctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \patExpands{\Gconsi{i \in \labelset}{\pctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
 }
-\end{equation}
-\begin{equation}\label{rule:patExpands-tpl}
-\inferrule{
-  \{\patExpands{{\upctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
-}{
-  % \patExpands{\Gconsi{i \in \labelset}{\pctx_i}}{\Phi}{
-  %   \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}
-  % }{
-  %   \aetplp{\labelset}{\mapschema{p}{i}{\labelset}}
-  % }{
-  %   \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}
-  % } %{\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema}{p}{i}{\labelset}}{...}
-  \left(\shortstack{$\Delta \vdash_{\uPhi} \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} \dashV \Gconsi{i \in \labelset}{\upctx_i}$\vspace{-1.2em}}\right)
-}
-\end{equation}
-\begin{equation}\label{rule:patExpands-in}
-\inferrule{
+% \graybox{\inferrule{
+%   \{\patExpands{{\upctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
+% }{
+%   % \patExpands{\Gconsi{i \in \labelset}{\pctx_i}}{\Phi}{
+%   %   \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}
+%   % }{
+%   %   \aetplp{\labelset}{\mapschema{p}{i}{\labelset}}
+%   % }{
+%   %   \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}
+%   % } %{\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema}{p}{i}{\labelset}}{...}
+%   \left(\shortstack{$\Delta \vdash_{\uPhi} \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} \dashV \Gconsi{i \in \labelset}{\upctx_i}$\vspace{-1.2em}}\right)
+% }}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:patExpands-in}}
+{\inferrule{
   \patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}
 }{
-  \patExpands{\upctx}{\uPhi}{\auinjp{\ell}{\upv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-}
-\end{equation}
-\end{subequations}
-Again, the unexpanded and expanded pattern forms in the conclusion correspond and the premises correspond to those of the corresponding pattern typing rule, i.e. Rules (\ref{rule:patType-var}) through (\ref{rule:patType-inj}), respectively. The upTSM context, $\uPhi$, passes through these rules opaquely. In Rule (\ref{rule:patExpands-tpl}), the conclusion of the rule collects all of the sigil expansions and hypotheses generated by the subpatterns. We define $\upctx_i$ as shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\Gconsi{i \in \labelset}{\upctx_i}$ as shorthand for \[\uGG{\Gconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] By the definition of iterated extension of finite functions, we implicitly have that no sigils or variables can be duplicated, i.e. that 
+  \patExpands{\upctx}{\uPhi}{\injp{\ell}{\upv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+}}
+\end{equation*}
+Again, the unexpanded and expanded pattern forms in the conclusion correspond and the premises correspond to those of the corresponding pattern typing rule, i.e. Rules (\ref{rule:patType-var}) through (\ref{rule:patType-inj}), respectively. The spTSM context, $\uPhi$, passes through these rules opaquely. In Rule (\ref{rule:patExpands-tpl}), the conclusion of the rule collects all of the identifier expansions and hypotheses generated by the subpatterns. We define $\upctx_i$ as shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\Gconsi{i \in \labelset}{\upctx_i}$ as shorthand for \[\uGG{\Gconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] By the definition of iterated extension of finite functions, we implicitly have that no identifiers or variables can be duplicated, i.e. that 
 \[\{\{\domof{\uG_i} \cap \domof{\uG_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
 and
 \[\{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
 %By instead defining these rules by the rule transformation just described, we avoid having to list a number of rules that are individually uninteresting. Moreover, this approach makes our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).
 
-The following lemma establishes that each well-typed expanded pattern can be expressed as an unexpanded pattern matching values of the same type and generating the same hypotheses and corresponding sigil updates. The metafunction $\Uof{\pctx}$ maps $\pctx$ to an unexpanded typing context as follows:
-\begin{align*}
-\Uof{\emptyset} & = \uGG{\emptyset}{\emptyset}\\
-\Uof{\pctx, x : \tau} & = \Uof{\pctx}, \uGhyp{\sigilof{x}}{x}{\tau}\\
-\Uof{\Gconsi{i \in \labelset}{\pctx_i}} & = \Gconsi{i \in \labelset}{\Uof{\pctx_i}}
-\end{align*}
-\begin{lemma}[Pattern Expressibility]\label{lemma:pattern-expressibility} If $\patType{\pctx}{p}{\tau}$ then $\patExpands{\Uof{\pctx}}{\uPhi}{\Uof{p}}{p}{\tau}$.\end{lemma}
-\begin{proof} By rule induction over Rules (\ref{rules:patType}), using the definitions of $\Uof{\pctx}$ and $\Uof{p}$ given above. In each case, we can apply the IH to or over each premise, then apply the corresponding rule in Rules (\ref{rules:patExpands}).\end{proof}
-
-We can now establish the Expressibility Theorem -- that each well-typed expanded expression, $e$, can be expressed as an unexpanded expression, $\ue$, and assigned the same type under the corresponding contexts.
-
-\begin{theorem}[Expressibility] Both of the following hold:
-\begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsUP{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}$.
-\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleExpands{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}$.
-\end{enumerate}
-\end{theorem}
-\begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
-
-For part 1, we induct on the assumption. The rule transformation defined above guarantees that this part holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH (part 1) to or over each typing premise, the IH (part 2) over each rule typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsUP}).
-
-For part 2, we induct on the assumption. There is only one case:
-\begin{byCases}
-\item[(\ref{rule:ruleType})] We have:
-\begin{pfsteps*}
-\item $r = \aematchrule{p}{e}$ \BY{assumption}
-\item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
-\item $\hastypeU{\Delta}{\Gamma \cup \pctx}{e}{\tau'}$ \BY{assumption} \pflabel{hasType}
-\item $\Uof{\Gamma}=\uGG{\uG}{\Gamma}$, for some $\uG$ \BY{definition of $\Uof{\Gamma}$}
-\item $\Uof{\pctx} =\uGG{\uG'}{\pctx}$, for some $\uG'$ \BY{definition of $\Uof{\pctx}$}
-\item $\Uof{\Gamma \cup \pctx} = \uGG{\uG \uplus \uG'}{\Gamma \cup \pctx}$ \BY{definition of $\Uof{\pctx}$}
-\item $\Uof{r} = \aumatchrule{\Uof{p}}{\Uof{e}}$ \BY{definition of $\Uof{r}$}
-\item $\patExpands{\uGG{\uG'}{\pctx}}{\uPhi}{\Uof{p}}{p}{\tau}$ \BY{Lemma \ref{lemma:pattern-expressibility} on \pfref{patType}} \pflabel{patExpands}
-\item $\expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau'}$ \BY{IH, part 1 on \pfref{hasType}} \pflabel{expandsUP}
-\item $\ruleExpands{\Uof{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\Uof{p}}{\Uof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleExpands}) on \pfref{patExpands} and \pfref{expandsUP}}
-\end{pfsteps*}
-\resetpfcounter
-\end{byCases}
-\end{proof}
-
-
-\paragraph{ueTSM Definition and Application} Rules (\ref*{rule:expandsUP-syntax}) and (\ref*{rule:expandsUP-tsmap}) define typed expansion of ueTSM definitions and ueTSM application, respectively.  
-\begin{subequations}[resume]
-\begin{equation}\label{rule:expandsUP-syntax}
-\inferrule{
-  \expandsTU{\uDelta}{\utau}{\tau}\\
-  \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\ue}{e}{\tau'}
-}{
-  \expandsUPX{\usyntaxueP{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
-}
-\end{equation}
-\begin{equation}\label{rule:expandsUP-tsmap}
-\inferrule{
-  \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
-  \decodeCondE{\ecand}{\ce}\\\\
-  \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}
-}{
-  \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}
-}
-\end{equation}
-\end{subequations}
-These rules are nearly identical to Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), respectively, differing only in that the upTSM context, $\uPhi$, passes through them opaquely. The premises of these rules, and the following auxiliary definitions and conditions, can be understood as described in Sec. \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. 
-
-\emph{ueTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM naming context} and $\Psi$ is a \emph{ueTSM definition context}. TSM naming contexts were defined in Sec. \ref{sec:U-uetsm-definition}. A \emph{ueTSM definition context}, $\Psi$, is a finite function mapping each symbol $a \in \domof{\Psi}$ to an \emph{expanded ueTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the ueTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of type $\parr{\tBody}{\tParseResultExp}$.
-
-\begin{definition}[ueTSM Definition Context Formation]\label{def:ueTSM-def-ctx-formation-UP} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{\tsmv}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultExp}}$.\end{definition}
-
-We define $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPsi=\uAS{\uA}{\Psi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}\]
-
-The type abbreviated $\tBody$ classifies encodings of literal bodies, $b$. The mapping from literal bodies to values of type $\tBody$ is defined by the \emph{body encoding judgement} $\encodeBody{b}{\ebody}$. An inverse mapping is defined   by the \emph{body decoding judgement} $\decodeBody{\ebody}{b}$.
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\encodeBody{b}{e} & \text{$b$ has encoding $e$}\\
-\decodeBody{e}{b} & \text{$e$ has decoding $b$}
-\end{array}\]
-The following condition establishes an isomorphism between literal bodies and values of type $\tBody$ mediated by the judgements above.
-\begin{condition}[Body Isomorphism] All of the following must hold:
-\begin{enumerate}
-\item For every literal body $b$, we have that $\encodeBody{b}{\ebody}$ for some $\ebody$ such that $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$.
-\item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ then $\decodeBody{\ebody}{b}$ for some $b$.
-\item If $\encodeBody{b}{\ebody}$ then $\decodeBody{\ebody}{b}$.
-\item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ and $\decodeBody{\ebody}{b}$ then $\encodeBody{b}{\ebody}$. 
-\item If $\encodeBody{b}{\ebody}$ and $\encodeBody{b}{\ebody'}$ then $\ebody = \ebody'$.
-\item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ and $\decodeBody{\ebody}{b}$ and $\decodeBody{\ebody}{b'}$ then $b=b'$.
-\end{enumerate}
-\end{condition}
-
-$\tParseResultExp$ abbreviates a labeled sum type that distinguishes successful parses from parse errors:
-\[\tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]\] 
-
-The type abbreviated $\tCEExp$ classifies encodings of \emph{candidate expansion expressions} (or \emph{ce-expressions}), $\ce$ (pronounced ``grave $e$''). The syntax of ce-expressions will be described in Sec. \ref{sec:ce-syntax-UP}. The mapping from ce-expressions to values of type $\tCEExp$ is defined by the \emph{ce-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{ce-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
-
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\encodeCondE{\ce}{e} & \text{$\ce$ has encoding $e$}\\
-\decodeCondE{e}{\ce} & \text{$e$ has decoding $\ce$}
-\end{array}\]
-
-The following condition establishes an isomorphism between values of type $\tCEExp$ and ce-expressions.
-
-\begin{condition}[Candidate Expansion Expression Isomorphism] All of the following hold:
-\begin{enumerate}
-\item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
-\item If $\encodeCondE{\ce}{\ecand}$ then $\decodeCondE{\ecand}{\ce}$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ then $\encodeCondE{\ce}{\ecand}$.
-\item If $\encodeCondE{\ce}{\ecand}$ and $\encodeCondE{\ce}{\ecand'}$ then $\ecand=\ecand'$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ and $\decodeCondE{\ecand}{\ce'}$ then $\ce=\ce'$.
-\end{enumerate}
-\end{condition}
-
-\paragraph{upTSM Definition and Application}
-Rules (\ref{rule:expandsUP-defuptsm}) and (\ref{rule:patExpands-apuptsm}) define upTSM definition and application, and are defined in the next two subsections, respectively.
+\paragraph{spTSM Definition and Application}
+Two rules remain: Rules (\ref{rule:expandsU-defuptsm}) and (\ref{rule:patExpands-apuptsm}), which define spTSM definition and application, respectively. These rules are  defined in the next two subsections, respectively.
 
 
 
 
 
-\subsection{upTSM Definition}\label{sec:uptsm-definition}
+\subsection{spTSM Definition}\label{sec:uptsm-definition}
 
-The stylized upTSM definition form is \[\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}\] 
+The stylized spTSM definition form is \[\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}\] 
 %The operational form corresponding to this stylized form is \[\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}\]
-An unexpanded expression of this form defines a {upTSM} named $\tsmv$ with \emph{unexpanded type annotation} $\utau$ and \emph{parse function} $\eparse$ for use within $\ue$. 
+An unexpanded expression of this form defines a {spTSM} identified as $\tsmv$ with \emph{unexpanded type annotation} $\utau$ and \emph{parse function} $\eparse$ for use within $\ue$. 
 
-%The parse function is an expanded expression because parse functions are applied statically (i.e. during typed expansion of $\ue$), as we will discuss when describing ueTSM application below, and evaluation is defined only for closed expanded expressions. This construction simplifies our exposition, though it is not entirely practical because it provides no way for TSM providers to share values between parse functions, nor any way to use TSMs when defining other TSMs. We discuss enriching the language to eliminate these limitations in Sec. \ref{sec:uetsms-static-language}, but it is pedagogically simpler to leave the necessary machinery out of our calculus for now.%$\miniVerseUE$.
+%The parse function is an expanded expression because parse functions are applied statically (i.e. during typed expansion of $\ue$), as we will discuss when describing seTSM application below, and evaluation is defined only for closed expanded expressions. This construction simplifies our exposition, though it is not entirely practical because it provides no way for TSM providers to share values between parse functions, nor any way to use TSMs when defining other TSMs. We discuss enriching the language to eliminate these limitations in Sec. \ref{sec:uetsms-static-language}, but it is pedagogically simpler to leave the necessary machinery out of our calculus for now.%$\miniVerseUE$.
 
-Rule (\ref*{rule:expandsUP-defuptsm}) defines typed expansion of upTSM definitions:
-\begin{subequations}[resume]
+Rule (\ref{rule:expandsU-defuptsm}) defines typed expansion of spTSM definitions:
 % \begin{equation}\label{rule:expandsU-syntax}
 % \inferrule{
 %   \istypeU{\Delta}{\tau}\\
@@ -865,30 +623,35 @@ Rule (\ref*{rule:expandsUP-defuptsm}) defines typed expansion of upTSM definitio
 %   \expandsUX{\audefuetsm{\tau}{\ueparse}{\tsmv}{\ue}}{e}{\tau'}
 % }
 % \end{equation}
-\begin{equation}\label{rule:expandsUP-defuptsm}
+\begin{equation*}\tag{\ref{rule:expandsU-defuptsm}}
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
-  \hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultPat}}\\\\
+  \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}\\\\
   \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
 }{
   \expandsUPX{\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
-\end{equation}
-\end{subequations}
-This rule is similar to Rule (\ref{rule:expandsUP-syntax}), which governs ueTSM definitions. The premises of this rule can be understood as follows, in order:
+\end{equation*}
+This rule is similar to Rule (\ref{rule:expandsU-syntax}), which governs seTSM definitions. The premises of this rule can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise ensures that the unexpanded type annotation is well-formed and expands it to produce the \emph{type annotation}, $\tau$.
+\item The first premise expands the unexpanded type annotation.
 
-\item The second premise checks that the parse function, $\eparse$, is closed and of type \[\parr{\tBody}{\tParseResultExp}\] %to generate the \emph{expanded parse function}, $\eparse$. 
+\item The second premise checks that the parse function, $\eparse$, is a closed expanded function of the following type: \[\aparr{\tBody}{\tParseResultExp}\] %to generate the \emph{expanded parse function}, $\eparse$. 
  %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
 %The parse function must be of type $\aparr{\tBody}{\tParseResultExp}$ where the type abbreviations $\tBody$ and $\tParseResultExp$ are defined as follows.
 
-The type abbreviated $\tBody$ is characterized above.
+The assumed type $\tBody$ is characterized as before by Condition \ref{condition:body-isomorphism}.
 
-$\tParseResultPat$, like $\tParseResultExp$ above, abbreviates a labeled sum type that distinguishes successful parses from parse errors:
-\[\tParseResultPat \triangleq [\mapitem{\lbltxt{Success}}{\tCEPat}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]\] 
+$\tParseResultPat$, like $\tParseResultExp$, abbreviates a labeled sum type that distinguishes parse errors from successful parses:
+\begin{align*}
+L_\mathtt{SP} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessP}\\
+\tParseResultPat & \defeq \asum{L_\mathtt{SP}}{
+  \mapitem{\lbltxt{ParseError}}{\prodt{}}, 
+  \mapitem{\lbltxt{SuccessP}}{\tCEPat}
+}
+\end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 
-The type abbreviated $\tCEPat$ classifies encodings of \emph{candidate expansion patterns} (or \emph{ce-patterns}), $\cpv$. The syntax of ce-patterns will be described in Sec. \ref{sec:ce-syntax-UP}. The mapping from ce-patterns to values of type $\tCEPat$ is defined by the \emph{ce-pattern encoding judgement}, $\encodeCEPat{\cpv}{e}$. An inverse mapping is defined by the \emph{ce-pattern decoding judgement}, $\decodeCEPat{e}{\cpv}$.
+The type abbreviated $\tCEPat$ classifies encodings of \emph{proto-patterns}, $\cpv$. The syntax of proto-patterns, defined in Figure \ref{fig:UP-candidate-terms}, will be described when we describe proto-expansion validation in Sec. \ref{sec:ce-syntax-UP}. The mapping from proto-patterns to values of type $\tCEPat$ is defined by the \emph{proto-pattern encoding judgement}, $\encodeCEPat{\cpv}{e}$. An inverse mapping is defined by the \emph{proto-pattern decoding judgement}, $\decodeCEPat{e}{\cpv}$.
 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
@@ -896,9 +659,11 @@ The type abbreviated $\tCEPat$ classifies encodings of \emph{candidate expansion
 \decodeCEPat{e}{\cpv} & \text{$e$ has decoding $\cpv$}
 \end{array}\]
 
-Again, rather than picking a particular definition of $\tCEPat$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEPat$ and ce-patterns.
+Again, rather than picking a particular definition of $\tCEPat$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEPat$ and proto-patterns.
 
-\begin{condition}[Candidate Expansion Pattern Isomorphism] All of the following must hold:
+\begingroup
+\def\thetheorem{\ref{condition:proto-pattern-isomorphism}}
+\begin{condition}[Proto-Pattern Isomorphism] All of the following must hold:
 \begin{enumerate}
 \item For every $\cpv$, we have $\encodeCEPat{\cpv}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$.
 \item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ then $\decodeCEPat{\ecand}{\cpv}$ for some $\cpv$.
@@ -908,185 +673,128 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 \item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ and $\decodeCEPat{\ecand}{\cpv}$ and $\decodeCEPat{\ecand}{\cpv'}$ then $\cpv=\cpv'$.
 \end{enumerate}
 \end{condition}
+\endgroup
+
+\item The final premise of Rule (\ref{rule:expandsU-defuptsm}) extends the spTSM context, $\uPhi$, with the newly determined {spTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsU-defuptsm}) assigns this type and expansion to the spTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 
 
-\item The final premise of Rule (\ref{rule:expandsUP-defuptsm}) extends the upTSM context, $\uPhi$, with the newly determined {upTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsUP-defuptsm}) assigns this type and expansion to the upTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 
+\emph{spTSM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a {TSM identifier expansion context}, defined previously, and $\Phi$ is a \emph{spTSM definition context}. 
 
+%A \emph{TSM naming context}, $\uA$, is a finite function mapping each TSM name $\tsmv \in \domof{\uA}$ to the \emph{TSM name-symbol mapping}, $\vExpands{\tsmv}{a}$, for some \emph{symbol}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the seTSM naming context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM names (i.e. the previous mapping, if it exists, is updated).
 
-\emph{upTSM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a {TSM naming context}, defined previously, and $\Phi$ is a \emph{upTSM definition context}. 
+An \emph{spTSM definition context}, $\Phi$, is a finite function mapping each TSM name $a \in \domof{\Phi}$ to an \emph{expanded spTSM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. %We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of type $\parr{\tBody}{\tParseResultPat}$.
 
-%A \emph{TSM naming context}, $\uA$, is a finite function mapping each TSM name $\tsmv \in \domof{\uA}$ to the \emph{TSM name-symbol mapping}, $\vExpands{\tsmv}{a}$, for some \emph{symbol}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the ueTSM naming context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM names (i.e. the previous mapping, if it exists, is updated).
-
-A \emph{upTSM definition context}, $\Phi$, is a finite function mapping each symbol $a \in \domof{\Phi}$ to an \emph{expanded upTSM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the upTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of type $\parr{\tBody}{\tParseResultPat}$.
-
-\begin{definition}[upTSM Definition Context Formation]\label{def:upTSM-def-ctx-formation} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultPat}}$.\end{definition}
+%\begin{definition}[spTSM Definition Context Formation]\label{def:spTSM-def-ctx-formation} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultPat}}$.\end{definition}
 
 We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}\]
-and $\uPhi \cup \uPhi'$ when $\uPhi=\uAS{\uA}{\Phi}$ and $\uPhi'=\uAS{\uA'}{\Phi'}$ as an abbreviation of \[\uAS{\uA \cup \uA'}{\Phi \cup \Phi'}\]
+% and $\uPhi \cup \uPhi'$ when $\uPhi=\uAS{\uA}{\Phi}$ and $\uPhi'=\uAS{\uA'}{\Phi'}$ as an abbreviation of \[\uAS{\uA \cup \uA'}{\Phi \cup \Phi'}\]
 \end{enumerate}
-\subsection{upTSM Application}\label{sec:uptsm-application}
-The stylized unexpanded pattern form for applying a upTSM named $\tsmv$ to a literal form with literal body $b$ is:
+\subsection{spTSM Application}\label{sec:uptsm-application}
+The unexpanded pattern form for applying an spTSM named $\tsmv$ to a literal form with literal body $b$ is:
 \[
 \utsmap{\tsmv}{b}
 \] 
-This stylized form is identical to the stylized form for ueTSM application, differing in that appears within the syntax of unexpanded patterns, $\upv$, rather than unexpanded expressions, $\ue$. %It uses forward slashes as delimiters, though stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} would be straightforward to add to the syntax table in Figure \ref{fig:UP-unexpanded-terms} (we omit them for simplicity). 
-The corresponding operational form is $\auapuptsm{b}{\tsmv}$.%, i.e. there is an operator $\texttt{uapuptsm}[b]$ for each literal body $b$ indexed by the TSM name $\tsmv$ and taking no arguments.
+This stylized form is identical to the stylized form for seTSM application, differing in that appears within the syntax of unexpanded patterns, $\upv$, rather than unexpanded expressions, $\ue$. %It uses forward slashes as delimiters, though stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} would be straightforward to add to the syntax table in Figure \ref{fig:UP-unexpanded-terms} (we omit them for simplicity). 
+% The corresponding operatio?nal form is $\auapuptsm{b}{\tsmv}$.%, i.e. there is an operator $\texttt{uapuptsm}[b]$ for each literal body $b$ indexed by the TSM name $\tsmv$ and taking no arguments.
 
-Rule (\ref*{rule:patExpands-apuptsm}), below, governs upTSM application. 
-\addtocounter{equation}{-1}
-\begin{subequations}
-\addtocounter{equation}{5}
-\begin{equation}\label{rule:patExpands-apuptsm}
+Rule (\ref{rule:patExpands-apuptsm}), below, governs spTSM application. 
+\begin{equation*}\tag{\ref{rule:patExpands-apuptsm}}
 \inferrule{
+  \uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
-  \cvalidP{\upctx}{\pscene{\Delta}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\cpv}{p}{\tau}
+  \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
 }{
-  \patExpands{\upctx}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\utsmap{\tsmv}{b}}{p}{\tau}
+  \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
+where:
+\[
+\lbltxt{SuccessP}\cdot e \defeq \aein{L_\mathtt{SP}}{\mathtt{SuccessP}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessP}}{\tCEPat}}{e}
+\]
 
 \noindent
-This rule is similar to Rule (\ref{rule:expandsUP-tsmap}), which governs ueTSM application. Its premises can be understood as follows, in order:
+This rule is similar to Rule (\ref{rule:expandsU-tsmap}), which governs seTSM application. Its premises can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise determines the encoding of the literal body, $\ebody$.
-\item The second premise applies the parse function $\eparse$ to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEPat$ (assuming a well-formed upTSM context, by application of Assumption \ref{condition:preservation-UP}). We call $\ecand$ the \emph{encoding of the candidate expansion}.
-\item The third premise decodes the encoding of the candidate expansion to produce \emph{candidate expansion}, $\cpv$.
-\item The final premise \emph{validates} the candidate expansion and simultaneously generates the final expansion, $p$, and assumptions, $\pctx$. This is the topic of Sec. \ref{sec:ce-validation-UP}.
+\item The first premise ensures that $\tsmv$ has been defined and extracts the type annotation and parse function.
+\item The second premise determines the encoding of the literal body, $\ebody$.
+\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. If parsing succeeds, i.e. a value of the form abbreviated $\lbltxt{SuccessP}\cdot\ecand$ (as shown) results from evaluation, then $\ecand$ will be a value of type $\tCEPat$ (assuming a well-formed spTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
+
+If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
+
+\item The fourth premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\cpv$, itself.
+
+\item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$, and generates hypotheses $\uGamma$, which appear in the conclusion of the rule. The proto-pattern validation judgement is discussed next.
 \end{enumerate}
 
-\begin{figure}[p]
+\subsection{Syntax of Proto-Expansions}\label{sec:ce-syntax-UP}
+
+\begin{figure}[h!]
 \hspace{-5px}$\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{CETyp} & \ctau & ::= & t & t & \text{variable}\\
-&&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
-&&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
-&&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
-&&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
-&&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
-%\LCC &&& \gray & \gray & \gray\\
-&&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\%\ECC
-\mathsf{CEExp} & \ce & ::= & x & x & \text{variable}\\
-&&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
-&&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
-&&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
-&&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
-&&& \acefold{t}{\ctau}{\ce} & \fold{\ce} & \text{fold}\\
-&&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
-&&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
-&&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
-&&& \acein{\labelset}{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
+\mathsf{PrTyp} & \ctau & ::= & \cdots & \cdots & \text{(see Figure \ref{fig:U-candidate-terms})}\\
+\mathsf{PrExp} & \ce & ::= & \cdots & \cdots &\text{(see Figure \ref{fig:U-candidate-terms})}\\
 &&& \acematchwith{n}{\ctau}{\ce}{\seqschemaX{\crv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\
 %\LCC &&& \gray & \gray & \gray\\
-&&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\%\ECC
-\mathsf{CERule} & \crv & ::= & \acematchrule{p}{\ce} & \matchrule{p}{\ce} & \text{rule}\\
-\mathsf{CEPat} & \cpv & ::= & \acewildp & \wildp & \text{wildcard pattern}\\
+\mathsf{PrRule} & \crv & ::= & \acematchrule{p}{\ce} & \matchrule{p}{\ce} & \text{rule}\\
+\mathsf{PrPat} & \cpv & ::= & \acewildp & \wildp & \text{wildcard pattern}\\
 &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
 &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
 &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
-\LCC &&& \lightgray & \lightgray & \lightgray\\
+\LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced}\ECC
 \end{array}$
-\caption[Syntax of candidate expansion terms in $\miniVersePat$]{Abstract syntax of candidate expansion types, expressions, rules and patterns in $\miniVersePat$. Candidate expansion terms are identified up to $\alpha$-equivalence.}
+\caption{Syntax of proto-expansion terms in $\miniVersePat$.}
 \label{fig:UP-candidate-terms}
 \end{figure}
 
-\subsection{Syntax of Candidate Expansions}\label{sec:ce-syntax-UP}
-Figure \ref{fig:UP-candidate-terms} defines the syntax of candidate expansion types (or \emph{ce-types}), $\ctau$, candidate expansion expressions (or \emph{ce-expressions}), $\ce$, candidate expansion rules (or \emph{ce-rules}), $\crv$, and candidate expansion patterns (or \emph{ce-patterns}), $\cpv$. %The syntax of ce-types is identical to that given in Figure \ref{fig:U-candidate-terms}, which was described in Sec. \ref{sec:ce-syntax-U}. 
-Candidate expansion terms are identified up to $\alpha$-equivalence in the usual manner.
+Figure \ref{fig:UP-candidate-terms} defines the syntax of proto-types, $\ctau$, proto-expressions, $\ce$, proto-rules, $\crv$, and proto-patterns, $\cpv$. %The syntax of ce-types is identical to that given in Figure \ref{fig:U-candidate-terms}, which was described in Sec. \ref{sec:ce-syntax-U}. 
+Proto-expansion terms are identified up to $\alpha$-equivalence in the usual manner.
 
-Each inner core form, except for the variable pattern form, maps onto a candidate expansion form. We refer to these as the \emph{shared forms}. In particular:
+Each expanded form, with the exception of the variable pattern form, maps onto a proto-expansion form. We refer to these collectively as the \emph{common proto-expansion forms}. The mapping is given explicitly in Appendix \ref{appendix:proto-expansions-SES}. 
 
-\begin{itemize}
-  \item Each type form maps onto a ce-type form according to the metafunction $\Cof{\tau}$, defined in Sec. \ref{sec:ce-syntax-U}.
-  \item Each expanded expression form maps onto a ce-expression form according to the metafunction $\Cof{e}$, defined as follows:
-  \begin{align*}
-  \Cof{x} & = x\\
-  \Cof{\aelam{\tau}{x}{e}} & = \acelam{\Cof{\tau}}{x}{\Cof{e}}\\
-  \Cof{\aeap{e_1}{e_2}} & = \aceap{\Cof{e_1}}{\Cof{e_2}}\\
-  \Cof{\aetlam{t}{e}} & = \acetlam{t}{\Cof{e}}\\
-  \Cof{\aetap{e}{\tau}} & = \acetap{\Cof{e}}{\Cof{\tau}}\\
-  \Cof{\aefold{t}{\tau}{e}} & = \acefold{t}{\Cof\tau}{\Cof e}\\
-  \Cof{\aeunfold{e}} & = \aceunfold{\Cof{e}}\\
-  \Cof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\Cofv}{e}{i}{\labelset}}\\
-  \Cof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \acein{\labelset}{\ell}{\mapschemax{\Cofv}{\tau}{i}{\labelset}}{\Cof{e}}\\
-  \Cof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \acematchwith{n}{\Cof{\tau}}{\Cof{e}}{\seqschemaXx{\Cofv}{r}}
-\end{align*}
-  \item The expanded rule form maps onto the ce-rule form according to the metafunction $\Cof{r}$, defined as follows:
-  \begin{align*}
-  \Cof{\aematchrule{p}{e}} & = \acematchrule{p}{\Cof{e}}
-  \end{align*}
-  Notice that ce-rules bind expanded patterns, not ce-patterns. This is because ce-rules appear in ce-expressions, which are generated by ueTSMs. It would not be sensible for a ueTSM to splice a pattern out of a literal body.
-  \item Each expanded pattern form, except for the variable pattern form, maps onto a ce-pattern form according to the metafunction $\Cof{p}$, defined as follows:
-  \begin{align*}
-  \Cof{\aewildp} & = \acewildp\\
-  \Cof{\aefoldp{p}} & = \acefoldp{\Cof{p}}\\
-  \Cof{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}} & = \acetplp{\labelset}{\mapschemax{\Cofv}{p}{i}{\labelset}}\\
-  \Cof{\aeinjp{\ell}{p}} & = \aceinjp{\ell}{\Cof{p}}
-  \end{align*}
-\end{itemize}
+The main proto-expansion form of interest here, highlighted in yellow, is the proto-pattern form for \emph{references to spliced unexpanded patterns}.
 
-There are three other candidate expansion forms: a ce-type form for \emph{references to spliced unexpanded types}, $\acesplicedt{m}{n}$, a ce-expression form for \emph{references to spliced unexpanded expressions}, $\acesplicede{m}{n}$, and, highlighted in gray in Figure \ref{fig:UP-candidate-terms}, a ce-pattern form for \emph{references to spliced unexpanded patterns}, $\acesplicedp{m}{n}$. %TSM utilize these to splice types and unexpanded expressions out of literal bodies.
+% Notice that patterns, $p$, rather than proto-patterns, $\upv$, appear in the match proto-expression form. This is because proto-expressions arise by the action of seTSMs. It would not be sensible for an seTSM to spliced a pattern out of a literal body.
 
-\subsection{Candidate Expansion Validation}\label{sec:ce-validation-UP}
-The \emph{candidate expansion validation judgements} validate ce-terms and simultaneously generate their final expansions.
-\[\begin{array}{ll}
+\subsection{Proto-Expansion Validation}\label{sec:ce-validation-UP}
+The \emph{proto-expansion validation judgements} validate proto-expansion terms and simultaneously generate their final expansions.
+\[\arraycolsep=2pt\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ is well-formed and has expansion $\tau$ assuming $\Delta$ and type}\\
-& \text{splicing scene $\tscenev$}\\
-\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ and type $\tau$ assuming $\Delta$ and $\Gamma$ and expression}\\
-& \text{splicing scene $\escenev$}\\
-\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ and takes values of type $\tau$ to values of type $\tau'$}\\
-& \text{assuming $\Delta$ and $\Gamma$ and expression splicing scene $\escenev$}\\
-\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ expands to $p$ and matches values of type $\tau$ generating}\\
-& \text{assumptions $\upctx$ assuming pattern splicing scene $\pscenev$}
+\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ has well-formed expansion $\tau$}\\
+\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ of type $\tau$}\\
+\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$}\\
+\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ has expansion $p$ matching against $\tau$ generating assumptions $\upctx$}
 \end{array}\]
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$, \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$. Their purpose is to ``remember'', during candidate expansion validation, the contexts, TSM environments and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsUP-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and TSM environments from $\escenev$:
+\emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$. \emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$. \emph{Pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$. As in $\miniVerseUE$, their purpose is to ``remember'', during proto-expansion validation, the contexts and the literal body from the TSM application site (cf. Rules (\ref{rule:expandsU-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping unnecessary contexts from $\escenev$:
 \[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
 
-\subsubsection{Candidate Expansion Type Validation}
-The \emph{ce-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{sec:ce-validation-U}.
+\subsubsection{Proto-Type Validation}
+The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were already described in Sec. \ref{sec:SE-proto-type-validation}.
 
-\subsubsection{Candidate Expansion Expression and Rule Validation}
-\begin{subequations}\label{rules:cvalidE-UP}
-The \emph{ce-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, and the \emph{ce-rule validation judgement}, $\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$, are defined mutually inductively with Rules (\ref{rules:expandsUP}) and Rule (\ref{rule:ruleExpands}) by Rules (\ref*{rules:cvalidE-UP}) and Rule (\ref*{rule:cvalidR-UP}), respectively, as follows.
+\subsubsection{Proto-Expansion Expression and Rule Validation}
+The \emph{proto-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, and the \emph{proto-rule validation judgement}, $\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$, are defined mutually inductively with Rules (\ref{rules:expandsU}) and Rule (\ref{rule:ruleExpands}) by Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}), respectively.
 
-Rules (\ref*{rules:cvalidE-UP}) define ce-expression validation and consist of the following rules:
-\begin{itemize}
-  \item \refstepcounter{equation}\label{rule:cvalidE-UP-var}
-\refstepcounter{equation}\label{rule:cvalidE-UP-lam}
-\refstepcounter{equation}\label{rule:cvalidE-UP-ap}
-\refstepcounter{equation}\label{rule:cvalidE-UP-tlam}
-\refstepcounter{equation}\label{rule:cvalidE-UP-tap}
-\refstepcounter{equation}\label{rule:cvalidE-UP-fold}
-\refstepcounter{equation}\label{rule:cvalidE-UP-unfold}
-\refstepcounter{equation}\label{rule:cvalidE-UP-tpl}
-\refstepcounter{equation}\label{rule:cvalidE-UP-prj}
-\refstepcounter{equation}\label{rule:cvalidE-UP-in}
-Rules written identically to Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-in}). We will refer to these as Rules (\ref*{rule:cvalidE-UP-var}) through (\ref*{rule:cvalidE-UP-in}).
-  \item The following rule for match ce-expressions:
-  \begin{equation}\label{rule:cvalidE-UP-match}
+Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-splicede}) were described in Sec. \ref{sec:ce-validation-U}. There is one new common proto-expression form, for match proto-expressions, which is governed by Rule (\ref{rule:cvalidE-U-match}):
+\begin{equation*}\tag{\ref{rule:cvalidE-U-match}}
 \inferrule{
   \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}\\
   \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}\\\\
-  \{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+  \{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{\cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\ctau'}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
-\end{equation}
-\item The following rule for references to spliced unexpanded expressions, which can be understood as described in Sec. \ref{sec:ce-validation-U}.
-\begin{equation}\label{rule:cvalidE-UP-splicede}
+\end{equation*}
+Rule (\ref{rule:cvalidR-UP}) governs proto-rules:
+\begin{equation*}\tag{\ref{rule:cvalidR-UP}}
 \inferrule{
-  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \expandsUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
-    \Delta \cap \Delta_\text{app} = \emptyset\\
-  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset\\
+  \patType{\pctx}{p}{\tau}\\
+  \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
 }{
-  \cvalidE{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}
+  \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
-\end{equation}
-\end{itemize}
+\end{equation*}
+Notice that proto-rules bind expanded patterns, rather than proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by seTSMs. It would not be sensible for an seTSM to splice patterns out of a literal body.
 
 % \begin{equation}\label{rule:cvalidE-UP-var}
 % \inferrule{ }{
@@ -1170,272 +878,176 @@ Rules written identically to Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule
 %     \cvalidEX{\acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
 % \end{equation}
-\end{subequations}
+% \end{subequations}
 %The \emph{ce-rule validation judgement}, $\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$, is defined mutually inductively with Rules (\ref{rules:cvalidE-UP}) by 
-Rule (\ref*{rule:cvalidR-UP}) defines ce-rule validation and is defined as follows:
-\begin{equation}\label{rule:cvalidR-UP}
-\inferrule{
-  \patType{\pctx}{p}{\tau}\\
-  \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
-}{
-  \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
-%Notice that expanded patterns, $p$, not ce-patterns, $\cpv$, appear in ce-rules. This is because ce-expressions are generated only by ueTSMs. It would not be sensible for a ueTSM to extract a spliced subpattern from a literal body.
 
-The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that is assigned the same type under any expression splicing scene.
-\begin{theorem}[Candidate Expansion Expression Expressibility]\label{lemma:ce-expressions-expressibility-UP} Both of the following hold:
-\begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.
-\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\cvalidR{\Delta}{\Gamma}{\escenev}{\Cof{r}}{r}{\tau}{\tau'}$.
-\end{enumerate}
-\end{theorem}
-\begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
 
-For part 1, we induct on the assumption. 
-\begin{byCases}
-\item[\text{(\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in})}] In each of these cases, we apply Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise, the IH (part 1) to or over each typing premise, then apply the corresponding ce-expression validation rule in Rules (\ref{rule:cvalidE-UP-var}) through (\ref{rule:cvalidE-UP-in}).
-\item[\text{(\ref{rule:hastypeUP-match})}] We have:
-  \begin{pfsteps}
-  \item e = \aematchwith{n}{\tau}{e'}{\seqschemaX{r}} \BY{assumption}
-  \item \Cof{e} = \acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}} \BY{definition of $\Cof{e}$}
-  \item \hastypeU{\Delta}{\Gamma}{e'}{\tau'} \BY{assumption} \pflabel{hasType}
-  \item \istypeU{\Delta}{\tau} \BY{assumption} \pflabel{isType}
-  \item \{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n} \BY{assumption} \pflabel{ruleType}
-  \item \cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e'}}{e'}{\tau'} \BY{IH, part 1 on \pfref{hasType}} \pflabel{cvalidE}
-  \item \cvalidT{\Delta}{\tsfrom{\escenev}}{\Cof{\tau}}{\tau} \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{isType}} \pflabel{cvalidT}
-  \item \{\cvalidR{\Delta}{\Gamma}{\escenev}{\Cof{r_i}}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n} \BY{IH, part 2 over \pfref{ruleType}} \pflabel{cvalidR}
-  \item \cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}}}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau} \BY{Rule (\ref{rule:cvalidE-UP-match}) on \pfref{cvalidE}, \pfref{cvalidT} and \pfref{cvalidR}}
-  \end{pfsteps}
-\end{byCases}
-\resetpfcounter
+\subsubsection{Proto-Pattern Validation}
+spTSMs generate candidate expansions of proto-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{proto-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:patExpands-apuptsm}), validates proto-patterns by checking that the pattern matches values of type $\tau$, and simultaneously generates the final expansion, $p$, and the hypotheses $\upctx$. Hypotheses can be generated only by spliced subpatterns, so there is no proto-pattern form corresponding to variable patterns (this is also why $\upctx$ appears as a superscript.)
 
-For part 2, we induct on the assumption. There is only one case.
-\begin{byCases}
-\item[\text{(\ref{rule:ruleType})}] We have:
-  \begin{pfsteps}
-    \item r = \aematchrule{p}{e} \BY{assumption}
-    \item \Cof{r} = \acematchrule{p}{\Cof{e}} \BY{definition of $\Cof{r}$}
-    \item \patType{\pctx}{p}{\tau} \BY{assumption} \pflabel{patType}
-    \item \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'} \BY{assumption} \pflabel{hasType}
-    \item \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\Cof{e}}{e}{\tau'} \BY{IH, part 1 on \pfref{hasType}} \pflabel{cvalidE}
-    \item \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\Cof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'} \BY{Rule (\ref{rule:cvalidR-UP}) on \pfref{patType} and \pfref{cvalidE}}
-  \end{pfsteps}
-  \resetpfcounter
-\end{byCases}
-\end{proof}
-
-\subsubsection{Candidate Expansion Pattern Validation}
-upTSMs generate candidate expansions of ce-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{ce-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:expandsUP-tsmap}), validates ce-patterns by checking that the pattern matches values of type $\tau$, and simultaneously generates the final expansion, $p$, and the hypotheses $\upctx$. Hypotheses can be generated only by spliced subpatterns, so there is no ce-pattern form corresponding to variable patterns (this is also why $\upctx$ appears as a superscript). The pattern splicing scene, $\pscenev$, is used to ``remember'' the upTSM context and literal body from the upTSM application site (cf. Rule (\ref{rule:patExpands-apuptsm})).
-
-The ce-pattern validation judgement is defined mutually inductively with Rules (\ref{rules:patExpands}) by the following rules.
-\begin{subequations}\label{rules:cvalidP-UP}
-\begin{equation}\label{rule:cvalidP-UP-wild}
+The proto-pattern validation judgement is defined mutually inductively with Rules (\ref{rules:patExpands}) by Rules (\ref{rules:cvalidP-UP}), reproduced below.
+\begin{equation*}\tag{\ref{rule:cvalidP-UP-wild}}
 \inferrule{ }{
   \cvalidP{\uGG{\emptyset}{\emptyset}}{\pscenev}{\acewildp}{\aewildp}{\tau}
 }
-\end{equation}
-\begin{equation}\label{rule:cvalidP-UP-fold}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidP-UP-fold}}
 \inferrule{
   \cvalidP{\upctx}{\pscenev}{\cpv}{p}{[\arec{t}{\tau}/t]\tau}
 }{
   \cvalidP{\upctx}{\pscenev}{\acefoldp{\cpv}}{\aefoldp{p}}{\arec{t}{\tau}}
 }
-\end{equation}
-\begin{equation}\label{rule:cvalidP-UP-tpl}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidP-UP-tpl}}
 \inferrule{
   \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
 \left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
 }
-\end{equation}
-\begin{equation}\label{rule:cvalidP-UP-in}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidP-UP-in}}
 \inferrule{
   \cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}
 }{
   \cvalidP{\upctx}{\pscenev}{\aceinjp{\ell}{\cpv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 }
-\end{equation}
-\begin{equation}\label{rule:cvalidP-UP-spliced}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidP-UP-spliced}}
 \inferrule{
   \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
   \patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}
 }{
   \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\acesplicedp{m}{n}}{p}{\tau}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
 
-Rules (\ref{rule:cvalidP-UP-wild}) through (\ref{rule:cvalidP-UP-in}) handle ce-patterns of shared form, and correspond to Rules (\ref{rule:patType-wild}) through (\ref{rule:patType-inj}). Rule (\ref{rule:cvalidP-UP-spliced}) handles references to spliced unexpanded patterns. The first premise parses the indicated subsequence of the literal body, $b$, to produce the referenced unexpanded pattern, $\upv$, and the second premise types and expands $\upv$ under the upTSM context $\Phi$ from the upTSM application site, producing the hypotheses $\pctx$. These are the hypotheses generated in the conclusion of the rule.
+Rules (\ref{rule:cvalidP-UP-wild}) through (\ref{rule:cvalidP-UP-in}) govern proto-patterns of common form, and behave like the corresponding pattern typing rules, i.e. Rules (\ref{rule:patType-wild}) through (\ref{rule:patType-inj}). Rule (\ref{rule:cvalidP-UP-spliced}) governs references to spliced unexpanded patterns. The first premise parses the indicated subsequence of the literal body, $b$, to produce the referenced unexpanded pattern, $\upv$, and the second premise types and expands $\upv$ under the spTSM context $\Phi$ from the spTSM application site, generating the hypotheses $\upctx$. These are the hypotheses generated in the conclusion of the rule.
 
-Notice that none of these rules explicitly add any hypotheses to the pattern typing context, so upTSMs cannot introduce any hypotheses other than those that come from such spliced subpatterns. This achieves the ``no hidden assumptions'' hygiene property described in Sec. \ref{sec:ptsms-hygiene}.
-
-The following lemma establishes that every well-typed expanded pattern that generates no hypotheses can be expressed as a ce-pattern.
-\begin{lemma}[Candidate Expansion Pattern Expressibility]\label{lemma:ce-pattern-expressibility-U} If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
-\begin{proof} By rule induction over Rules (\ref{rules:patType}).
-\begin{byCases}
-\item[\text{(\ref{rule:patType-var})}] This case does not apply.
-\item[\text{(\ref{rule:patType-wild})}] We have:
-  \begin{pfsteps*}
-    \item $p=\aewildp$ \BY{assumption}
-    \item $\Cof{p}=\acewildp$ \BY{definition of $\Cof{p}$}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\acewildp}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:cvalidP-UP-wild})}
-  \end{pfsteps*}
-  \resetpfcounter
-\item[\text{(\ref{rule:patType-fold})}] We have:
-  \begin{pfsteps*}
-    \item $p=\aefoldp{p'}$ \BY{assumption}
-    \item $\Cof{p}=\acefoldp{\Cof{p'}}$ \BY{definition of $\Cof{p}$}
-    \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
-    \item $\patType{\emptyset}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{patType}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p'}}{p}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH on \pfref{patType}} \pflabel{cvalidP}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\acefoldp{\Cof{p'}}}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:cvalidP-UP-fold}) on \pfref{cvalidP}}
-  \end{pfsteps*}
-  \resetpfcounter
-\item[\text{(\ref{rule:patType-tpl})}] We have:
-  \begin{pfsteps*}
-    \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
-    \item $\Cof{p}=\acetpl{\labelset}{\mapschemax{\Cofv}{p}{i}{\labelset}}$ \BY{definition of $\Cof{p}$}
-    \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-    \item $\{\patType{\emptyset}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{patType}
-    \item $\{\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p_i}}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH over \pfref{patType}} \pflabel{cvalidP}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\acetpl{\labelset}{\mapschemax{\Cofv}{p}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:cvalidP-UP-tpl}) on \pfref{cvalidP}}
-  \end{pfsteps*}
-  \resetpfcounter
-\item[\text{(\ref{rule:patType-inj})}] We have:
-  \begin{pfsteps*}
-    \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
-    \item $\Cof{p}=\aceinjp{\ell}{\Cof{p'}}$ \BY{definition of $\Cof{p}$}
-    \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
-    \item $\patType{\emptyset}{p'}{\tau'}$ \BY{assumption}\pflabel{patType}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p'}}{p'}{\tau'}$ \BY{IH on \pfref{patType}}\pflabel{cvalidP}
-    \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\aceinjp{\ell}{\Cof{p'}}}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:cvalidP-UP-in}) on \pfref{cvalidP}}
-  \end{pfsteps*}
-  \resetpfcounter
-\end{byCases}
-\end{proof}
+Notice that none of these rules explicitly add any hypotheses to the pattern typing context, so spTSMs cannot introduce any hypotheses other than those that come from spliced patterns. This achieves the binding discipline described in Sec. \ref{sec:ptsms-hygiene}.
 
 \subsection{Metatheory}
-The following theorem establishes that typed pattern expansion produces an expanded pattern that matches values of the specified type and generates the same hypotheses. It must be stated mutually with the corresponding theorem about candidate expansion patterns, because the judgements are mutually defined.
-\begin{theorem}[Typed Pattern Expansion]\label{thm:typed-pattern-expansion} Both of the following hold:
+The following theorem establishes that typed pattern expansion produces an expanded pattern that matches values of the specified type and generates the same hypotheses. It must mutually state the corresponding proposition about proto-patterns, because the relevant judgements are mutually defined.
+\begingroup
+\def\thetheorem{\ref{thm:typed-pattern-expansion}}
+\begin{theorem}[Typed Pattern Expansion] Both of the following hold:
 \begin{enumerate}
   \item If $\patExpands{\uGG{\uG}{\pctx}}{\uAP{\uA}{\Phi}}{\upv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
   \item If $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\Delta}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-  By mutual rule induction on Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}).
+  By mutual rule induction on Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}). The full proof is given in Appendix \ref{appendix:SES-typed-pattern-expansion}. We will reproduce only the interesting cases below.
   \begin{enumerate}
-  \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
+  \item The only interesting case in the proof of part 1 is the case for spTSM application. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
-    \item[\text{(\ref{rule:patExpands-var})}] We have:
+%     \item[\text{(\ref{rule:patExpands-var})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\ux$ \BY{assumption}
+%         \item $p=x$ \BY{assumption}
+%         \item $\pctx=\Ghyp{x}{\tau}$ \BY{assumption}
+%         \item $\patType{\Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:patType-var})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-wild})}] ~
+%       \begin{pfsteps*}
+%         \item $p=\aewildp$ \BY{assumption}
+%         \item $\pctx = \emptyset$ \BY{assumption}
+%         \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-fold})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\foldp{\upv'}$ \BY{assumption}
+%         \item $p=\aefoldp{p'}$ \BY{assumption}
+%         \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{patExpands}
+%         \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-tpl})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\tplp{\mapschema{\upv}{i}{\labelset}}$ \BY{assumption}
+%         \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
+%         \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+%         \item $\{\patExpands{\uGG{\uG_i}{\pctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{patExpands}
+%         \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 1 over \pfref{patExpands}}\pflabel{patType}
+%         \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-in})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\injp{\ell}{\upv'}$ \BY{assumption}
+%         \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+%         \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+%         \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{\tau'}$ \BY{assumption} \pflabel{patExpands}
+% %        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+    \item[\text{(\ref{rule:patExpands-apuptsm})}] ~
       \begin{pfsteps*}
-        \item $\upv=\ux$ \BY{assumption}
-        \item $p=x$ \BY{assumption}
-        \item $\pctx=\Ghyp{x}{\tau}$ \BY{assumption}
-        \item $\patType{\Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:patType-var})}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:patExpands-wild})}] We have:
-      \begin{pfsteps*}
-        \item $p=\aewildp$ \BY{assumption}
-        \item $\pctx = \emptyset$ \BY{assumption}
-        \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:patExpands-fold})}] We have:
-      \begin{pfsteps*}
-        \item $\upv=\aufoldp{\upv'}$ \BY{assumption}
-        \item $p=\aefoldp{p'}$ \BY{assumption}
-        \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
-        %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{patExpands}
-        \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
-        \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:patExpands-tpl})}] We have:
-      \begin{pfsteps*}
-        \item $\upv=\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}$ \BY{assumption}
-        \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
-        \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-        \item $\{\patExpands{\uGG{\uG_i}{\pctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{patExpands}
-        \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
-        %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 1 over \pfref{patExpands}}\pflabel{patType}
-        \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:patExpands-in})}] We have:
-      \begin{pfsteps*}
-        \item $\upv=\auinjp{\ell}{\upv'}$ \BY{assumption}
-        \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
-        \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
-        \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{\tau'}$ \BY{assumption} \pflabel{patExpands}
-%        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
-        \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:patExpands-apuptsm})}] We have:
-      \begin{pfsteps*}
-        \item $\upv=\auapuptsm{b}{\tsmv}$ \BY{assumption}
+        \item $\upv=\utsmap{\tsmv}{b}$ \BY{assumption}
         \item $\uA=\uA', \vExpands{\tsmv}{a}$ \BY{assumption}
         \item $\Phi=\Phi', \xuptsmbnd{a}{\tau}{\eparse}$ \BY{assumption}
         \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-        \item $\evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
+        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption}
         \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
-        \item $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\Delta}{\uAP{\uA', \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
+        \item $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\Delta}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
 %        \item $\uptsmenv{\Delta}{\Phi', \xuptsmbnd{a}{\tau}{\eparse}}$ \BY{assumption} \pflabel{env}
         \item $\patType{\pctx}{p}{\tau}$ \BY{IH, part 2 on \pfref{cvalidP}}
       \end{pfsteps*}
       \resetpfcounter
   \end{byCases}
 
-  \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
+  \item The only interesting case in the proof of part 2 is the case for spliced patterns. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
-    \item[\text{(\ref{rule:cvalidP-UP-wild})}] We have:
-      \begin{pfsteps*}
-        \item $p=\aewildp$ \BY{assumption}
-        \item $\pctx=\emptyset$ \BY{assumption}
-        \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:cvalidP-UP-fold})}] We have:
-      \begin{pfsteps*}
-        \item $\cpv=\acefoldp{\cpv'}$ \BY{assumption}
-        \item $p=\aefoldp{p'}$ \BY{assumption}
-        \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
-        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{cvalidP}
-        \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 2 on \pfref{cvalidP} and \pfref{env}} \pflabel{patType}
-        \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:cvalidP-UP-tpl})}] We have:
-      \begin{pfsteps*}
-        \item $\cpv=\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$ \BY{assumption}
-        \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
-        \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-        \item $\{\cvalidP{\uGG{\uG_i}{\pctx_i}}{\pscene{\Delta}{\uPhi}{b}}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidP}
-        \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
-        %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 2 over \pfref{cvalidP}}\pflabel{patType}
-        \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:cvalidP-UP-in})}] We have:
-      \begin{pfsteps*}
-        \item $\cpv=\aceinjp{\ell}{\cpv'}$ \BY{assumption}
-        \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
-        \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
-        \item $\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv'}{p'}{\tau'}$ \BY{assumption} \pflabel{cvalidP}
-%        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
-        \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 2 on \pfref{cvalidP}} \pflabel{patType}
-        \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
-      \end{pfsteps*}
-      \resetpfcounter
-    \item[\text{(\ref{rule:cvalidP-UP-spliced})}] We have:
+%     \item[\text{(\ref{rule:cvalidP-UP-wild})}] ~
+%       \begin{pfsteps*}
+%         \item $p=\aewildp$ \BY{assumption}
+%         \item $\pctx=\emptyset$ \BY{assumption}
+%         \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-fold})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\acefoldp{\cpv'}$ \BY{assumption}
+%         \item $p=\aefoldp{p'}$ \BY{assumption}
+%         \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+%         % \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{cvalidP}
+%         \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 2 on \pfref{cvalidP}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-tpl})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$ \BY{assumption}
+%         \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
+%         \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+%         \item $\{\cvalidP{\uGG{\uG_i}{\pctx_i}}{\pscene{\Delta}{\uPhi}{b}}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidP}
+%         \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 2 over \pfref{cvalidP}}\pflabel{patType}
+%         \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-in})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\aceinjp{\ell}{\cpv'}$ \BY{assumption}
+%         \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+%         \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+%         \item $\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv'}{p'}{\tau'}$ \BY{assumption} \pflabel{cvalidP}
+% %        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 2 on \pfref{cvalidP}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+    \item[\text{(\ref{rule:cvalidP-UP-spliced})}] ~
       \begin{pfsteps*}
         \item $\cpv=\acesplicedp{m}{n}$ \BY{assumption}
         \item $\parseUExp{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption}
@@ -1450,18 +1062,11 @@ The mutual induction can be shown to be well-founded by showing that the followi
 \sizeof{\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}} & = \sizeof{\upv}\\
 \sizeof{{\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}}} & = \sizeof{b}
 \end{align*}
-where $\sizeof{b}$ is the length of $b$ and $\sizeof{\upv}$ is the sum of the lengths of the literal bodies in $\upv$,
-\begin{align*}
-\sizeof{\ux} & = 0\\
-\sizeof{\aufoldp{\upv}} & = \sizeof{\upv}\\
-\sizeof{\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\upv_i}\\
-\sizeof{\auinjp{\ell}{\upv}} & = \sizeof{\upv}\\
-\sizeof{\auapuptsm{b}{\tsmv}} & = \sizeof{b}
-\end{align*}
+where $\sizeof{b}$ is the length of $b$ and $\sizeof{\upv}$ is the sum of the lengths of the literal bodies in $\upv$ (see Appendix \ref{appendix:SES-body-lengths}.)
 
 The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:patExpands-apuptsm}). There, we have that the metric remains stable: \begin{align*}
- & \sizeof{\patExpands{\upctx}{\uPhi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\auapuptsm{b}{\tsmv}}{p}{\tau}}\\
-=& \sizeof{{\cvalidP{\upctx}{\pscene{\Delta}{\uPhi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\cpv}{p}{\tau}}}\\
+ & \sizeof{\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}}\\
+=& \sizeof{{\cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}}}\\
 =&\sizeof{b}\end{align*}
 
 The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidP-UP-spliced}). There, we have that $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ and the IH is applied to the judgement $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
@@ -1470,10 +1075,14 @@ i.e. by the definitions above,
 \[\sizeof{\upv} < \sizeof{b}\]
 
 This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body.
-\begin{condition}[Pattern Parsing Monotonicity]\label{condition:pattern-parsing} If $\parseUPat{b}{\upv}$ then $\sizeof{\upv} < \sizeof{b}$.\end{condition}
+\begingroup
+\def\thetheorem{\ref{condition:pattern-parsing}}
+\begin{condition}[Pattern Parsing Monotonicity] If $\parseUPat{b}{\upv}$ then $\sizeof{\upv} < \sizeof{b}$.\end{condition}
+\endgroup
 
 Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
+\endgroup
 
 Finally, the following theorem establishes that typed expression and rule expansion produces expanded expressions and rules of the same type under the same contexts. Again, it must be stated mutually with the corresponding theorem about candidate expansion expressions and rules because the judgements are mutually defined.
 \begin{theorem}[Typed Expansion] All of the following hold:
@@ -1489,88 +1098,59 @@ Finally, the following theorem establishes that typed expression and rule expans
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleExpands}), Rules (\ref{rules:cvalidE-UP}) and Rule (\ref{rule:cvalidR-UP}).
+By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleExpands}), Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}). The full proof is given in Appendix \ref{appendix:SES-typed-expression-expansion}. We will reproduce only the cases that have to do with pattern matching below.
 
 \begin{enumerate}
-\item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
+\item In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
   \begin{enumerate}
-  \item We induct on the premise.
+  \item The only  cases in the proof of part 1(a) that have to do with pattern matching are the cases involving the unexpanded match expression and spTSM definition. 
   \begin{byCases}
-    \item[\text{(\ref{rule:expandsUP-var}) through (\ref{rule:expandsUP-in})}] These cases follow like the corresponding cases in the proof of Theorem \ref{thm:typed-expansion-U}, i.e. we apply Lemma \ref{lemma:type-expansion-U} to or over the type expansion premises and the IH, part 1(a), to or over the typed expression expansion premises and then apply the corresponding typing rule in Rules (\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in}).
-    \item[\text{(\ref{rule:expandsUP-match})}] We have:
+    \item[\text{(\ref{rule:expandsU-match})}] ~
       \begin{pfsteps*}
-        \item $\ue=\aumatchwith{n}{\utau}{\ue'}{\seqschemaX{\urv}}$ \BY{assumption}
+        \item $\ue=\matchwith{\ue'}{\seqschemaX{\urv}}$ \BY{assumption}
         \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
         \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-        \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption} \pflabel{expandsTU}
+        \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istype}
+        % \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption} \pflabel{expandsTU}
         \item $\{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption}\pflabel{ruleExpands}
         \item $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}}\pflabel{hasType}
-        \item $\istypeU{\Delta}{\tau}$ \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{expandsTU}}\pflabel{istype}
         \item $\{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{IH, part 1(b) over \pfref{ruleExpands}}\pflabel{ruleType}
         \item $\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hasType}, \pfref{istype} and \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
-    \item[\text{(\ref{rule:expandsUP-syntax})}] We have:
-      \begin{pfsteps}
-        \item \ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
-        \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
-      %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-        \item \expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
-      %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-      %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-      %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-        \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
-      \end{pfsteps}
-      \resetpfcounter 
 
-    \item[\text{(\ref{rule:expandsUP-tsmap})}] We have:
+    \item[\text{(\ref{rule:expandsU-defuptsm})}] ~
       \begin{pfsteps}
-        \item \ue=\autsmap{b}{\tsmv} \BY{assumption}
-        \item \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse} \BY{assumption}
-        \item \encodeBody{b}{\ebody} \BY{assumption}
-        \item \evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}} \BY{assumption}
-        \item \decodeCondE{\ecand}{\ce} \BY{assumption}
-        \item \cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
-      %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-        \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
-        \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
-        \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-        \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set and finite function union over \pfref{penultimate}}
-      \end{pfsteps}
-      \resetpfcounter
-    \item[\text{(\ref{rule:expandsUP-defuptsm})}] We have:
-      \begin{pfsteps}
-          \item \ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
+          \item \ue=\usyntaxup{\tsmv}{\utau'}{\eparse}{\ue'} \BY{assumption}
           \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
-        %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
+         \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}} \BY{assumption}\pflabel{eparse}
           \item \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
         %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-        %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-        %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+         \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+        %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
           \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
         \end{pfsteps}
         \resetpfcounter 
   \end{byCases}
-  \item We induct on the premise. There is only one case.
+  \item There is only one case.
   \begin{byCases}
-    \item[\text{(\ref{rule:ruleExpands})}] We have:
+    \item[\text{(\ref{rule:ruleExpands})}] ~
       \begin{pfsteps*}
-        \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
+        \item $\urv=\matchrule{\upv}{\ue}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
-        \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
-        \item $\expandsUP{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-        \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion}, part 1 on \pfref{patExpands}}\pflabel{patType}
-        \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}} \pflabel{hasType}
+        \item $\patExpands{\uGG{\uA'}{\pctx'}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+        \item $\expandsUP{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
+        \item $\patType{\pctx'}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion}, part 1 on \pfref{patExpands}}\pflabel{patType}
+        \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx'}}{e}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}} \pflabel{hasType}
         \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
       \end{pfsteps*}
       \resetpfcounter
   \end{byCases}
   \end{enumerate}
 \item In the following, let $\uDelta=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma=\uGG{\uG}{\Gamma_\text{app}}$. \begin{enumerate}
-  \item We induct on the premise.
+  \item The only case in the proof of part 2(a) that has to do with pattern matching is the case involving the match proto-expression. 
   \begin{byCases}
-    \item[\text{(\ref{rule:cvalidE-UP-var}) through (\ref{rule:cvalidE-UP-in})}] These cases follow like the analagous cases in the proof of Theorem \ref{thm:typed-expansion-U}, i.e. we apply the IH, part 2(a) to all ce-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all ce-type validation judgements, the identification convention to ensure that extended contexts remain disjoint, weakening and exchange as needed, and conclude by applying the corresponding typing rule in Rules (\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in}).
-    \item[\text{(\ref{rule:cvalidE-UP-match})}] We have:
+    \item[\text{(\ref{rule:cvalidE-U-match})}] ~
       \begin{pfsteps*}
         \item $\ce=\acematchwith{n}{\ctau}{\ce'}{\seqschemaX{\crv}}$ \BY{assumption}
         \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
@@ -1585,23 +1165,23 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
         \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hastype}, \pfref{istype}, \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
-    \item[\text{(\ref{rule:cvalidE-UP-splicede})}] We have:
-      \begin{pfsteps*}
-        \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
-        \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
-        \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
-      %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-        \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-        \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-        \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a) on \pfref{expands}} \pflabel{hastype}
-        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
-      \end{pfsteps*}
-      \resetpfcounter
+    % \item[\text{(\ref{rule:cvalidE-U-splicede})}] ~
+    %   \begin{pfsteps*}
+    %     \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
+    %     \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
+    %     \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+    %   %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+    %     \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+    %     \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+    %     \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a) on \pfref{expands}} \pflabel{hastype}
+    %     \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
+    %   \end{pfsteps*}
+    %   \resetpfcounter
 
   \end{byCases}
-  \item We induct on the premise. There is only one case.
+  \item There is only one case.
   \begin{byCases}
-     \item[\text{(\ref{rule:cvalidR-UP})}] We have:
+     \item[\text{(\ref{rule:cvalidR-UP})}] ~
       \begin{pfsteps*}
         \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
@@ -1621,48 +1201,5 @@ By mutual rule induction on Rules (\ref{rules:expandsUP}), Rule (\ref{rule:ruleE
 \end{enumerate}
 \end{enumerate}
 
-The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct on is decreasing:
-\begin{align*}
-\sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
-\end{align*}
-where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
-\begin{align*}
-\sizeof{\ux} & = 0\\
-\sizeof{\aulam{\utau}{\ux}{\ue}} &= \sizeof{\ue}\\
-\sizeof{\auap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
-\sizeof{\autlam{\ut}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autap{\ue}{\utau}} & = \sizeof{\ue}\\
-\sizeof{\aufold{\ut}{\utau}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
-%\end{align*}
-%\begin{align*}
-\sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auin{\labelset}{\ell}{\mapschema{\utau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
-%\sizeof{\aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\aumatchwith{n}{\utau}{\ue}{\seqschemaX{\urv}}} & = \sizeof{\ue} + \sum_{1 \leq i \leq n} \sizeof{r_i}\\
-\sizeof{\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autsmap{b}{\tsmv}} & = \sizeof{b}\\
-\sizeof{\audefuptsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}
-\end{align*}
-and $\sizeof{r}$ is defined as follows:
-\begin{align*}
-\sizeof{\aumatchrule{\upv}{\ue}} & = \sizeof{\ue}
-\end{align*}
-
-The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsUP-tsmap}). There, we have that the metric remains stable: \begin{align*}
- & \sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
-=& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{b}}{\ce}{e}{\tau}}\\
-=&\sizeof{b}\end{align*}
-
-The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidE-UP-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgement $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
-\[\sizeof{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}}\]
-i.e. by the definitions above, 
-\[\sizeof{\ue} < \sizeof{b}\]
-
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply a TSM and delimit each literal body.
-\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-UP} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
-
-Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-UP}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
+The mutual induction can be shown to be well-founded essentially as described in Sec. \ref{sec:SE-metatheory}. Appendix \ref{appendix:SES-typed-expression-expansion} gives the complete details.
 \end{proof}

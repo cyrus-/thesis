@@ -5,7 +5,7 @@ This chapter introduces \emph{simple expression TSMs (seTSMs)}, which will serve
 This chapter is organized as follows:%In particular, we will consider pattern matching in Chapter \ref{chap:uptsms}, then add support for TSM parameters in Chapter \ref{chap:ptsms} and a \emph{static environment} accessible by  TSM definitions in Chapter \ref{chap:static-eval}. Finally, in Chapter \ref{chap:tsls}, we will define a bidirectional type system (rather than a simple type assignment system) and introduce a mechanism of TSM implicits. 
 %Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
 \begin{itemize}
-\item Sec. \ref{sec:tsms-by-example} gives a ``tutorial-style'' introduction to seTSMs in VerseML. %In particular, we will define a seTSM for constructing values of the recursive labeled sum type \li{rx} that was defined in Figure \ref{fig:datatype-rx}. 
+\item Sec. \ref{sec:tsms-by-example} gives a ``tutorial-style'' introduction to seTSMs in VerseML. %In particular, we will define an seTSM for constructing values of the recursive labeled sum type \li{rx} that was defined in Figure \ref{fig:datatype-rx}. 
 \item Sec. \ref{sec:tsms-minimal-formalism} then formally defines a reduced dialect of VerseML called $\miniVerseUE$. This will serve as a ``conceptually minimal'' core calculus of TSMs, in the style of the simply typed lambda calculus.   %We conclude in Sec. \ref{sec:uetsms-discussion} 
 \end{itemize}
 
@@ -15,9 +15,9 @@ This chapter is organized as follows:%In particular, we will consider pattern ma
 \subsection{TSM Application}\label{sec:uetsms-usage}
 The following VerseML expression, drawn textually, is of \emph{TSM application} form: a TSM named \li{#\dolla#rx} is being applied to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}:
 \begin{lstlisting}[numbers=none,mathescape=|]
-/SURLA|T|G|CEURL/$rx 
+$rx  /SURLA|T|G|CEURL/
 \end{lstlisting}
-The context-free syntax of VerseML defines several generalized literal forms, summarized in Figure \ref{fig:literal-forms}. The client is free to choose any of these for use with any TSM, as long as the \emph{literal body} (shown in green above) satisfies the requirements stated in Figure \ref{fig:literal-forms}. For example, we could have equivalently written the example above as \li{`SURLA|T|G|CEURL`#\dolla#rx}. (In fact, this would have been convenient if we had wanted to express a regex containing forward slashes but not backticks.) 
+The context-free syntax of VerseML defines several generalized literal forms, summarized in Figure \ref{fig:literal-forms}. The client is free to choose any of these for use with any TSM, as long as the \emph{literal body} (shown in green above) satisfies the requirements stated in Figure \ref{fig:literal-forms}. For example, we could have equivalently written the example above as \li{#\dolla#rx `SURLA|T|G|CEURL`}. (In fact, this would have been convenient if we had wanted to express a regex containing forward slashes but not backticks.) 
 
 Generalized literal forms are left unparsed according to the context-free syntax. It is only during the subsequent \emph{typed expansion} phase that the applied TSM parses the {body} of the literal form to generate a \emph{proto-expansion}. The language then \emph{validates} this proto-expansion according to criteria that we will describe in Sec. \ref{sec:uetsms-validation}. If proto-expansion validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the TSM application. The program operates as if the expansion had appeared in place of the TSM application. 
 
@@ -79,7 +79,9 @@ type 'a parse_result = ParseError of {
 \begin{lstlisting}[numbers=none]
 inj[ParseError]({msg=#$e_\text{msg}$#, loc=#$e_\text{loc}$#})
 \end{lstlisting}
-where $e_\text{msg}$ is an error message and $e_\text{loc}$ is a value of type \li{loc}, defined in Figure \ref{fig:indexrange-and-parseresult}, that designates a subsequence of the literal body as the location of the error. This information is for use by VerseML compilers when reporting the error to the programmer (but it otherwise has no semantic significance.)% In languages where the surface syntax is not textual, the definition of \li{loc} would need to designate 
+where $e_\text{msg}$ is an error message and $e_\text{loc}$ is a value of type \li{loc}, defined in Figure \ref{fig:indexrange-and-parseresult}, that designates a subsequence of the literal body as the location of the error \cite{DBLP:journals/jsc/DeursenKT93}. This information is for use by VerseML compilers when reporting the error to the programmer (but it otherwise has no semantic significance.)
+
+% In languages where the surface syntax is not textual, the definition of \li{loc} would need to designate 
 
 
 \paragraph{Successful Parses} If parsing succeeds, the parse function returns 
@@ -134,8 +136,8 @@ type proto_expr = rec(proto_expr =>
 \subsection{Splicing}\label{sec:splicing-and-hygiene}
 As described thusfar, TSMs operate just like term-rewriting macros over string literals. As such, TSMs do not create the problems of \textbf{Conflict}, \textbf{Search} and \textbf{Non-Locality}, for exactly the reasons discussed in Sec. \ref{sec:macro-systems}. TSMs differ from term-rewriting macros in that they support \emph{splicing out arbitrary types and expressions} (including those that may themselves involve TSM applications) from within literal bodies in a reasonable manner. For example, the program fragment from Figure \ref{fig:derived-spliced-subexpressions} can be expressed using the \li{#\dolla#rx} TSM as follows:
 \begin{lstlisting}[numbers=none]
-val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/$rx 
-fun lookup_rx(name: string) => /SURL@name: %ssnEURL/$rx 
+val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/ 
+fun lookup_rx(name: string) => $rx /SURL@name: %ssnEURL/ 
 \end{lstlisting}
 The expressions \lstinline{name} and \lstinline{ssn} on the second line appear spliced within the literal body, so we call them \emph{spliced expressions}. When \li{#\dolla#rx}'s parse function determines that a subsequence of the literal body should be taken as a spliced expression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), 
 it can refer to it within the computed encoding of the proto-expansion using the \li{SplicedE} variant of \li{proto_expr}. This variant takes a value of type \li{loc} because the proto-expansion must refer to spliced expressions by their zero-indexed location relative to the start of the literal body. This prevents TSMs from ``forging'' a spliced expression (i.e. claiming that an expression is a spliced expression when it does not appear in the literal body.) 
@@ -157,8 +159,8 @@ The semantics checks that all of the locations of spliced expressions and types 
 \[\{(1, 4), (8, 10)\}\]
 This resolves the problem of \textbf{Segmentation} described in Secs. \ref{sec:non-local-term-rewriting}-\ref{sec:macro-systems}, i.e. every literal body in a well-typed program has a well-defined segmentation. A program editor or pretty-printer can communicate this segmentation information to the programmer, e.g. by coloring non-spliced segments green as is our convention in this document:
 \begin{lstlisting}[numbers=none]
-val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/$rx 
-fun lookup_rx(name: string) => /SURL@EURLnameSURL: %EURLssn/$rx 
+val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
+fun lookup_rx(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/ 
 \end{lstlisting}
 
 \subsection{Proto-Expansion Validation}\label{sec:uetsms-validation}
@@ -166,7 +168,7 @@ Three potential problems described in Secs. \ref{sec:non-local-term-rewriting}-\
 
 
 \subsubsection{Shadowing}
-Proto-expansion validation ensures that spliced terms have access \emph{only} to the bindings that appear at the application site. In other words, TSM cannot introduce new bindings into spliced terms. For example, suppose that  \li{#\dolla#rx} generated a proto-expansions of the following essential form (drawn as above):
+Proto-expansion validation ensures that spliced terms have access \emph{only} to the bindings that appear at the application site. In other words, TSM cannot introduce new bindings into spliced terms. For example, suppose that  \li{#\dolla#rx} generated proto-expansions of the following essential form (drawn as above):
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... expansion tmp ... *) in 
 Seq(tmp, spliced<1, 3>)
@@ -174,9 +176,9 @@ Seq(tmp, spliced<1, 3>)
 Na\"ively, the binding of the variable \li{tmp} here could shadow bindings of \li{tmp} that appear at the application site within the indicated spliced expression. For example, consider the following application site:
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... application site tmp ... *) in 
-/SURL%EURLtmpSURL*EURL/$rx
+$rx /SURL%EURLtmpSURL*EURL/
 \end{lstlisting}
-Here, the application site binding of \li{tmp} on the first line above would be shadowed by the binding of \li{tmp} in the expansion of the second line. This complicates reasoning abstractly about binding. As such, proto-expansion validation ensures that shadowing does not occur. This prohibition on shadowing can be straightforwardly enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
+Here, the application site binding of \li{tmp} would be shadowed by the binding of \li{tmp} in the expansion of the TSM application. This complicates reasoning abstractly about binding. As such, proto-expansion validation ensures that shadowing does not occur. This prohibition on shadowing can be straightforwardly enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... application site tmp ... *) in 
 let tmp' = (* ... expansion tmp ... *) in 
@@ -202,7 +204,7 @@ end
 \end{lstlisting}
 The proto-expansion this TSM generates (for every literal body) refers to a variable \li{x} that is not bound within the expansion. If proto-expansion validation permitted such a proto-expansion, it would be well-typed only under application site typing contexts where \li{x} is bound. This ``hidden assumption'' makes reasoning about binding and renaming especially difficult, so this proto-expansion is deemed invalid (even when \li{#\dolla#bad1} is applied where \li{x} happens to be bound.)
 
-Of course, this prohibition does not extend into the spliced terms in a proto-expansion -- spliced terms appear at the application site, so they can justifiably refer to application site bindings. We saw examples of spliced terms that referred to variables bound at the application site  -- \li{name} and \li{ssn} -- in Sec. \ref{sec:splicing-and-hygiene}. Because proto-expansions refer to spliced terms indirectly, enforcing context independence is straightforward -- we need only that the proto-expansion itself be closed.% In the next section, we will formalize this intuition. % The TSM provider can only refer to them opaquely.
+Of course, this prohibition does not extend into the spliced terms in a proto-expansion -- spliced terms appear at the application site, so they can justifiably refer to application site bindings. We saw examples of spliced terms that referred to variables bound at the application site  -- \li{name} and \li{ssn} -- in Sec. \ref{sec:splicing-and-hygiene}. Because proto-expansions refer to spliced terms indirectly, enforcing context independence is straightforward -- we need only that the proto-expansion itself be closed, without considering the spliced terms.% In the next section, we will formalize this intuition. % The TSM provider can only refer to them opaquely.
 
 This prohibition on context dependence explains why the expansion generated by the TSM application in Sec. \ref{sec:uetsms-usage} cannot make use of the regex value constructors, e.g. \li{Str} and \li{Or}, directly. (In Chapter \ref{chap:ptsms}, we will relax this restriction to allow proto-expansions to access explicit parameters.)
 
@@ -224,7 +226,7 @@ Finally, proto-expansion validation maintains a reasonable \emph{typing discipli
 % %These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the locations of spliced subexpressions within all the literal forms for which the variable being renamed is in scope; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, like we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
 
 \subsection{Final Expansion}
-The result of proto-expansion validation is the \emph{final expansion}, which is simply the proto-expansion with  references to spliced terms replaced with their own final expansions. For example, the final expansion of the body of \li{lookup_rx} is equivalent to the following:
+The result of proto-expansion validation is the \emph{final expansion}, which is simply the proto-expansion with  references to spliced terms replaced with their own final expansions. For example, the final expansion of the body of \li{lookup_rx} is equivalent to the following, under an environment where the regex value constructors are available:
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
@@ -236,7 +238,7 @@ A benefit of specifying TSMs as a language primitive, rather than relying on ext
 For example, we can define a TSM that is visible only to a single expression like this:
 \begin{lstlisting}[numbers=none]
 let x = 
-  let syntax $rx at rx by (* ... *) end in 
+  syntax $rx at rx by (* ... *) end in 
     (* $rx is in scope here *) 
 in (* $rx is no longer in scope *)
 \end{lstlisting}
@@ -256,7 +258,7 @@ The benefit of the TSM-based approach is that we can easily define other TSMs to
 val a = get_a()
 val w = get_w()
 val x = read_data(a)
-val y = {|SURL(!R)@&{&/EURLxSURL!/:2_!EURLxSURL}'!R}EURL|}$k
+val y = $k {|SURL(!R)@&{&/EURLxSURL!/:2_!EURLxSURL}'!R}EURL|}
 \end{lstlisting}
 \caption{The example from Figure \ref{fig:K-dialect}, written using a TSM.}
 \label{fig:K-tsms}
@@ -270,9 +272,7 @@ To underline this point, consider the program fragment in Figure \ref{fig:K-tsms
 \item The TSM application on Line 4 must be context-independent, so it cannot have referred to \li{w}.
 \item We need only look at the type annotation on \li{#\dolla#k} to determine the type of \li{y}. For example, if that declaration takes the following form, we know definitively that \li{y} has type \li{kquery} (without examining the elided parse function):
 \begin{lstlisting}[numbers=none]
-syntax $k at kquery by 
-  static fn(b) => (* ... *)
-end
+syntax $k at kquery by (* ... *) end
 \end{lstlisting}
 \end{enumerate}
 
@@ -320,9 +320,8 @@ end
 % \label{fig:lambda-tsm-syntax}
 % \end{figure}
 
-
 To make the intuitions developed in the previous section mathematically precise, we will now introduce a reduced dialect of VerseML called $\miniVerseUE$ that supports seTSMs. 
-The full definition of $\miniVerseUE$ is given in Appendix \ref{appendix:miniVerseSES} for reference. In the exposition below, we will reproduce only particularly noteworthy rules and proof cases. The rule numbers below refer to the corresponding rules in the appendix.
+The full definition of $\miniVerseUE$ is given in Appendix \ref{appendix:miniVerseSES} for reference. In the exposition below, we will reproduce only particularly noteworthy rules and proof cases. The rule numbers below link to the corresponding rules in the appendix.
 %For reference, the syntax of $\miniVerseUE$ is specified in Figure \ref{fig:lambda-tsm-syntax}. We will reproduce relevant portions of this specification inline (in tabular form) as we continue. 
 %We specify all formal systems in this document within the metatheoretic framework detailed in \emph{PFPL} \cite{pfpl}, and assume familiarity of fundamental background concepts (e.g. abstract binding trees, substitution, implicit identification of terms up to $\alpha$-equivalence, structural induction and rule induction) covered therein. %Familiarity with other accounts of typed lambda calculi should also suffice to understand the formal systems in this document. 
 
@@ -396,7 +395,7 @@ $\miniVerseUE$ consists of a language of \emph{unexpanded expressions} (the \emp
 \label{fig:U-expanded-terms}
 \end{figure}
 
-\noindent The syntax chart in Figure \ref{fig:U-expanded-terms} defines the syntax of \emph{types}, $\tau$, and \emph{(expanded) expressions}, $e$. Metavariables $x$ range over variables, $t$ over type variables, $\ell$ over labels and $\labelset$ over finite sets of labels. Types and expanded expressions are ABTs identified up to $\alpha$-equivalence. Our typographic conventions are adapted from \emph{PFPL}, and summarized in Appendix \ref{appendix:typographic-conventions}. To emphasize that programmers never draw expanded terms directly, and to clearly distinguish expanded terms from unexpanded terms, we do not define stylized forms for expanded terms.
+\noindent The syntax chart in Figure \ref{fig:U-expanded-terms} defines the syntax of \emph{types}, $\tau$, and \emph{(expanded) expressions}, $e$. Metavariables $x$ range over variables, $t$ over type variables, $\ell$ over labels and $\labelset$ over finite sets of labels. Types and expanded expressions are ABTs identified up to $\alpha$-equivalence. Our typographic conventions are adapted from \emph{PFPL}, and summarized in Appendix \ref{appendix:typographic-conventions}. To emphasize that programmers never draw expanded terms directly, and to clearly distinguish expanded terms from unexpanded terms, we do not define a stylized or textual syntax for expanded terms.
 
 The {XL} forms a standard pure functional language with support for partial functions, quantification over types, recursive types, labeled product types and labeled sum types.  The reader is directed to \emph{PFPL} \cite{pfpl} (or another text on type systems, e.g. \emph{TAPL} \cite{tapl}) for a detailed introductory account of these standard constructs. We will tersely summarize the statics and dynamics of the XL in the next two subsections, respectively.
 
@@ -415,118 +414,118 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively de
 \emph{Type formation contexts}, $\Delta$, are finite sets of hypotheses of the form $\Dhyp{t}$. Empty finite sets are written $\emptyset$, or omitted entirely within judgements, and non-empty finite sets are written as comma-separated finite sequences identified up to exchange and contraction. We write $\Delta, \Dhyp{t}$ when $\Dhyp{t} \notin \Delta$ for $\Delta$ extended with the hypothesis $\Dhyp{t}$. %Finite sets are written as finite sequences identified up to exchange.% We write $\Dcons{\Delta}{\Delta'}$ for the union of $\Delta$ and $\Delta'$.
 
 % \begin{subequations}\label{rules:istypeU}
-% \begin{equation}\label{rule:istypeU-var}
+% \begin{equation*}\label{rule:istypeU-var}
 % \inferrule{ }{\istypeU{\Delta, \Dhyp{t}}{t}}
-% \end{equation}
-% \begin{equation}\label{rule:istypeU-parr}
+% \end{equation*}
+% \begin{equation*}\label{rule:istypeU-parr}
 % \inferrule{
 %   \istypeU{\Delta}{\tau_1}\\
 %   \istypeU{\Delta}{\tau_2}
 % }{\istypeU{\Delta}{\aparr{\tau_1}{\tau_2}}}
-% \end{equation}
-% \begin{equation}\label{rule:istypeU-all}
+% \end{equation*}
+% \begin{equation*}\label{rule:istypeU-all}
 %   \inferrule{
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}
 %   }{
 %     \istypeU{\Delta}{\aall{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:istypeU-rec}
+% \end{equation*}
+% \begin{equation*}\label{rule:istypeU-rec}
 %   \inferrule{
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}
 %   }{
 %     \istypeU{\Delta}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:istypeU-prod}
+% \end{equation*}
+% \begin{equation*}\label{rule:istypeU-prod}
 %   \inferrule{
 %     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \istypeU{\Delta}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:istypeU-sum}
+% \end{equation*}
+% \begin{equation*}\label{rule:istypeU-sum}
 %   \inferrule{
 %     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \istypeU{\Delta}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
+% \end{equation*}
 % \end{subequations}
 % Premises of the form $\{{J}_i\}_{i \in \labelset}$ mean that for each $i \in \labelset$, the judgement ${J}_i$ must hold. 
 
-\emph{Typing contexts}, $\Gamma$, are finite functions that map each variable $x \in \domof{\Gamma}$, where $\domof{\Gamma}$ is a finite set of variables, to the hypothesis $\Ghyp{x}{\tau}$, for some $\tau$. Empty typing contexts are written $\emptyset$, or omitted entirely within judgements, and non-empty typing contexts are written as finite sequences of hypotheses identified up to exchange and contraction. We write $\Gamma, \Ghyp{x}{\tau}$, when $x \notin \domof{\Gamma}$, for the extension of $\Gamma$ with a mapping from $x$ to $\Ghyp{x}{\tau}$, and $\Gcons{\Gamma}{\Gamma'}$ when $\domof{\Gamma} \cap \domof{\Gamma'} = \emptyset$ for the typing context mapping each $x \in \domof{\Gamma} \cup \domof{\Gamma'}$ to $x : \tau$ if $x : \tau \in \Gamma$ or $x : \tau \in \Gamma'$. We write $\isctxU{\Delta}{\Gamma}$ if every type in $\Gamma$ is well-formed relative to $\Delta$.
-\begin{definition}[Typing Context Formation] \label{def:isctxU}
-$\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have $\istypeU{\Delta}{\tau}$.
-\end{definition}
+\emph{Typing contexts}, $\Gamma$, are finite functions that map each variable $x \in \domof{\Gamma}$, where $\domof{\Gamma}$ is a finite set of variables, to the hypothesis $\Ghyp{x}{\tau}$, for some $\tau$. Empty typing contexts are written $\emptyset$, or omitted entirely within judgements, and non-empty typing contexts are written as finite sequences of hypotheses identified up to exchange and contraction. We write $\Gamma, \Ghyp{x}{\tau}$, when $x \notin \domof{\Gamma}$, for the extension of $\Gamma$ with a mapping from $x$ to $\Ghyp{x}{\tau}$, and $\Gcons{\Gamma}{\Gamma'}$ when $\domof{\Gamma} \cap \domof{\Gamma'} = \emptyset$ for the typing context mapping each $x \in \domof{\Gamma} \cup \domof{\Gamma'}$ to $x : \tau$ if $x : \tau \in \Gamma$ or $x : \tau \in \Gamma'$. % We write $\isctxU{\Delta}{\Gamma}$ if every type in $\Gamma$ is well-formed relative to $\Delta$.
+% \begin{definition}[Typing Context Formation] \label{def:isctxU}
+% $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have $\istypeU{\Delta}{\tau}$.
+% \end{definition}
 
 % \begin{subequations}\label{rules:hastypeU}
-% \begin{equation}\label{rule:hastypeU-var}
+% \begin{equation*}\label{rule:hastypeU-var}
 %   \inferrule{ }{
 %     \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{x}{\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-lam}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-lam}
 %   \inferrule{
 %     \istypeU{\Delta}{\tau}\\
 %     \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau}}{e}{\tau'}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-ap}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-ap}
 %   \inferrule{
 %     \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau}{\tau'}}\\
 %     \hastypeU{\Delta}{\Gamma}{e_2}{\tau}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aeap{e_1}{e_2}}{\tau'}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-tlam}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-tlam}
 %   \inferrule{
 %     \hastypeU{\Delta, \Dhyp{t}}{\Gamma}{e}{\tau}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aetlam{t}{e}}{\aall{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-tap}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-tap}
 %   \inferrule{
 %     \hastypeU{\Delta}{\Gamma}{e}{\aall{t}{\tau}}\\
 %     \istypeU{\Delta}{\tau'}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-fold}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-fold}
 %   \inferrule{\
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
 %     \hastypeU{\Delta}{\Gamma}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-unfold}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-unfold}
 %   \inferrule{
 %     \hastypeU{\Delta}{\Gamma}{e}{\arec{t}{\tau}}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-tpl}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-tpl}
 %   \inferrule{
 %     \{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-pr}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-pr}
 %   \inferrule{
 %     \hastypeU{\Delta}{\Gamma}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aepr{\ell}{e}}{\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-in}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-in}
 %   \inferrule{
 %     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
 %     \istypeU{\Delta}{\tau}\\
@@ -534,8 +533,8 @@ $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:hastypeU-case}
+% \end{equation*}
+% \begin{equation*}\label{rule:hastypeU-case}
 %   \inferrule{
 %     \hastypeU{\Delta}{\Gamma}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
 %     \istypeU{\Delta}{\tau}\\
@@ -543,7 +542,7 @@ $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have
 %   }{
 %     \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
-% \end{equation}
+% \end{equation*}
 % \end{subequations}
 
 %Rules (\ref{rules:istypeU}) and (\ref{rules:hastypeU}) are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately. 
@@ -560,14 +559,24 @@ The \emph{structural dynamics of }$\miniVerseUE$ is specified as a transition sy
 \end{array}\]
 We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$.
 
-\begin{definition}[Iterated Transition]\label{defn:iterated-transition-U} $\multistepU{e}{e'}$ is the reflexive, transitive closure of $\stepsU{e}{e'}$.\end{definition}
+\begingroup
+\def\thetheorem{\ref{defn:iterated-transition-UP}}
+\begin{definition}[Iterated Transition] Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
-\begin{definition}[Evaluation]\label{defn:evaluation-U}  $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+\begingroup
+\def\thetheorem{\ref{defn:evaluation-UP}}
+\begin{definition}[Evaluation] $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
 Our subsequent developments do not require making reference to particular rules in the structural dynamics (because TSMs operate statically), so we do not reproduce the rules here. Instead, it suffices to state the following conditions.
 
 The Canonical Forms condition characterizes well-typed values. Satisfying this condition requires an \emph{eager} (i.e. \emph{by-value}) formulation of the dynamics. 
-\begin{condition}[Canonical Forms]\label{condition:canonical-forms-U} If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
+\begingroup
+\def\thetheorem{\ref{condition:canonical-forms-UP}}
+\begin{condition}[Canonical Forms] If $\hastypeUC{e}{\tau}$ and $\isvalU{e}$ then:
 \begin{enumerate}
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
 \item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
@@ -575,22 +584,31 @@ The Canonical Forms condition characterizes well-typed values. Satisfying this c
 \item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$ for each $i \in \labelset$.
 \item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau'}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
 \end{enumerate}\end{condition}
+\endgroup
 
-The Preservation condition ensures that transitions preserve typing.  
-\begin{condition}[Preservation]\label{condition:preservation-U} If $\hastypeUC{e}{\tau}$ and $\multistepU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
-The Progress condition ensures that evaluating a well-typed expanded expression cannot ``get stuck'' :
-\begin{condition}[Progress]\label{condition:progress-U} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+The Preservation condition ensures that evaluation preserve typing.  
+
+\begingroup
+\def\thetheorem{\ref{condition:preservation-UP}}
+\begin{condition}[Preservation] If $\hastypeUC{e}{\tau}$ and $\multistepU{e}{e'}$ then $\hastypeUC{e'}{\tau}$. \end{condition}
+\endgroup
+The Progress condition ensures that evaluating a well-typed expanded expression cannot ``get stuck'':
+\begingroup
+\def\thetheorem{\ref{condition:progress-UP}}
+\begin{condition}[Progress] If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
+\endgroup
  Together, these two conditions constitute the Type Safety Condition.
 
+\vspace{-5px}
 \subsection{Syntax of the Unexpanded Language}\label{sec:syntax-U}
-\begin{figure}
-\[\arraycolsep=3.5pt\begin{array}{lllllll}
+\begin{figure}[h!]
+\[\begin{array}{lllllll}
 \textbf{Sort} & &  
 %&\textbf{Operational Form} 
 & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{UTyp} & \utau & ::= 
 % &\ut 
-& \ut & \text{sigil}\\
+& \ut & \text{identifier}\\
 && 
 %& \auparr{\utau}{\utau} 
 & \parr{\utau}{\utau} & \text{partial function}\\
@@ -608,7 +626,7 @@ The Progress condition ensures that evaluating a well-typed expanded expression 
 & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
 \mathsf{UExp} & \ue & ::= 
 %& \ux 
-& \ux & \text{sigil}\\
+& \ux & \text{identifier}\\
 &&
 %& \aulam{\utau}{\ux}{\ue} 
 & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
@@ -641,59 +659,28 @@ The Progress condition ensures that evaluating a well-typed expanded expression 
 & \caseof{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}} & \text{case analysis}\\
 \LCC  &  & 
 %& \lightgray 
-& \lightgray & \lightgray \\
+& \color{Yellow} & \color{Yellow} \\
 &&
 %& \audefuetsm{\utau}{e}{\tsmv}{\ue} 
 & \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{seTSM definition}\\ 
 &&
 %& \autsmap{b}{\tsmv} 
 & \utsmap{\tsmv}{b} & \text{seTSM application}\ECC
-\end{array}\]
-\caption[Syntax of unexpanded types and expressions in $\miniVerseUE$]{Syntax of unexpanded types and expressions in $\miniVerseUE$. Metavariable $\ut$ ranges over type sigils, $\ux$ ranges over expression sigils, $\tsmv$  over TSM names and $b$ over character sequences, which, when they appear in an unexpanded expression, are called literal bodies.}
+\end{array}\]\vspace{-10px}
+\caption[Syntax of the $\miniVerseUE$ unexpanded language (UL)]{Syntax of the $\miniVerseUE$ unexpanded language (UL).% Metavariable $\ut$ ranges over type identifiers, $\ux$ ranges over expression identifiers, $\tsmv$  over TSM names and $b$ over character sequences, which, when they appear in an unexpanded expression, are called literal bodies.
+}
 \label{fig:U-unexpanded-terms}
 \end{figure}
-A $\miniVerseUE$ program ultimately evaluates as a well-typed expanded expression. However, the programmer does not construct this expanded expression directly. Instead, the programmer constructs a sequence of characters, $b$, drawn from some alphabet $\mathcal{B}$ (e.g. in practice, \texttt{ASCII} or \texttt{Unicode} -- the particular choice of alphabet is not important, so we leave it abstract.) This sequence of characters must be well-formed according to the context-free textual syntax of \emph{unexpanded expressions}, $\ue$. Figure \ref{fig:U-unexpanded-terms} defines the stylized syntax for unexpanded expressions and the \emph{unexpanded types}, $\utau$, that they can contain.
 
-Rather than defining the context-free textual syntax with, e.g., a context-free grammar, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$  that go from character sequences to unexpanded types and expressions, respectively. 
-\begin{condition}[Textual Representability] Both of the following must hold:
-\begin{enumerate}
-\item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
-\item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
-\end{enumerate}
-\end{condition}
+A $\miniVerseUE$ program ultimately evaluates as a well-typed expanded expression. However, the programmer does not construct this expanded expression directly. Instead, the programmer constructs an \emph{unexpanded expression}, $\ue$, which might contain \emph{unexpanded types}, $\utau$. Figure \ref{fig:U-unexpanded-terms} defines the relevant forms.
 
-Unexpanded types and expressions are not abstract binding trees -- we do \textbf{not} define notions of bound variable renaming or alpha-equivalence (because unexpanded expressions remain ``partially parsed'' due to the presence of literal bodies.) In fact, unexpanded types and expressions do not mention variables at all, but rather \emph{type sigils}, $\ut$, and \emph{expression sigils}, $\ux$. Sigils will be given meaning by expansion to variables during typed expansion. The distinction between sigils and variables will be technically crucial. %We \textbf{cannot} adopt the usual definitions of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below. %Sigils are given meaning by expansion to variables. %In other words, unexpanded expressions are not abstract binding trees, nor sequences of characters, but a ``transitional'' structure with some characteristics of each of these. 
-%For this reason, we will need to handle generating fresh variables explicitly at binding sites in our semantics. %To do so, we distinguish \emph{type sigils}, $\ut$, and \emph{expression sigils}, $\ux$, from type variables, $t$, and expression variables, $x$. Sigils will be given meaning by expansion to variables (which, in turn, are given meaning by substitution, as described above). 
+Unexpanded types and expressions are \textbf{not} abstract binding trees -- we do \textbf{not} define notions of renaming, alpha-equivalence or substitution (because unexpanded expressions remain ``partially parsed'' due to the presence of literal bodies, $b$, from which spliced terms might be extracted during typed expansion.) In fact, unexpanded types and expressions do not mention variables at all, but rather \emph{type identifiers}, $\ut$, and \emph{expression identifiers}, $\ux$. Identifiers will be given meaning by expansion to variables during typed expansion. The distinction between identifiers and variables will be technically crucial. %We \textbf{cannot} adopt the usual definitions of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below. %identifiers are given meaning by expansion to variables. %In other words, unexpanded expressions are not abstract binding trees, nor sequences of characters, but a ``transitional'' structure with some characteristics of each of these. 
+%For this reason, we will need to handle generating fresh variables explicitly at binding sites in our semantics. %To do so, we distinguish \emph{type identifiers}, $\ut$, and \emph{expression identifiers}, $\ux$, from type variables, $t$, and expression variables, $x$. identifiers will be given meaning by expansion to variables (which, in turn, are given meaning by substitution, as described above). 
 
-Each expanded form (defined in Figure \ref{fig:U-expanded-terms}) maps onto a corresponding unexpanded form. We refer to these as the \emph{shared forms}. In particular:
-\begin{itemize}
-\item Each type variable, $t$, maps uniquely onto a {type sigil}, written $\sigilof{t}$.
-\item Each type, $\tau$, maps onto an unexpanded type, $\Uof{\tau}$, as follows: 
-  \begin{align*}
-  \Uof{t} &= \sigilof{t}\\
-  \Uof{\aparr{\tau_1}{\tau_2}} & = \parr{\Uof{\tau_1}}{\Uof{\tau_2}}\\
-  \Uof{\aall{t}{\tau}} & = \forallt{\sigilof{t}}{\Uof{\tau}}\\
-  \Uof{\arec{t}{\tau}} & = \rect{\sigilof{t}}{\Uof{\tau}}\\
-  \Uof{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \prodt{\mapschemax{\Uofv}{\tau}{i}{\labelset}}\\
-  \Uof{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \sumt{\mapschemax{\Uofv}{\tau}{i}{\labelset}}
-  \end{align*}
-\item Each expression variable, $x$, maps onto a unique expression sigil, $\sigilof{x}$.
-\item Each expanded expression, $e$, maps onto an unexpanded expression, $\Uof{e}$, as follows:
-\begin{align*}
-\Uof{x} & = \sigilof{x}\\
-\Uof{\aelam{\tau}{x}{e}} & = \lam{\sigilof{x}}{\Uof{\tau}}{\Uof{e}}\\
-\Uof{\aeap{e_1}{e_2}} & = \ap{\Uof{e_1}}{\Uof{e_2}}\\
-\Uof{\aetlam{t}{e}} & = \Lam{\sigilof{t}}{\Uof{e}}\\
-\Uof{\aetap{e}{\tau}} & = \App{\Uof{e}}{\Uof{\tau}}\\
-\Uof{\aefold{t}{\tau}{e}} & = \foldt{\sigilof{t}.\Uof\tau}{\Uof e}\\
-\Uof{\aeunfold{e}} & = \unfold{\Uof{e}}\\
-\Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \tpl{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
-\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \inj{\ell}{\Uof{e}}\\
-\Uof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \caseof{\Uof{e}}{\mapschemabx{\Uofv}{x}{e}{i}{\labelset}}
-\end{align*}
-\end{itemize}
 
-There are only two unexpanded expression forms, highlighted in gray in Figure \ref{fig:U-unexpanded-terms}, that do not correspond to expanded expression forms -- the seTSM definition form and the seTSM application form. %These are the ``interesting'' forms. % These are the ``interesting'' forms. % Let us define this correspondence by the metafunction $\Uof{e}$:
+All of the unexpanded forms in Figure \ref{fig:U-unexpanded-terms} except the two TSM-related forms highlighted in yellow map onto expanded forms. We refer to these as the \emph{common forms}. The mapping is given explicitly in Appendix \ref{appendix:SES-shared-forms}.
+
+% There are only two unexpanded expression forms, highlighted in gray in Figure \ref{fig:U-unexpanded-terms}, that do not correspond to expanded expression forms -- the seTSM definition form and the seTSM application form. %These are the ``interesting'' forms. % These are the ``interesting'' forms. % Let us define this correspondence by the metafunction $\Uof{e}$:
 %\[
 %\begin{split}
 %\Uof{x} & = x\\
@@ -703,137 +690,153 @@ There are only two unexpanded expression forms, highlighted in gray in Figure \r
 %\] and so on for the remaining expanded expression forms.
 
 
+In addition to the stylized syntax given in Figure \ref{fig:U-unexpanded-terms}, there is also a context-free textual syntax for the UL. 
+Giving a complete definition of the context-free textual syntax as, e.g., a context-free grammar, risks digression into details that are not critical to our purposes here. Our paper on Wyvern defines a textual syntax for a similar system \cite{TSLs}. Instead, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$  that go from character sequences, $b$, to unexpanded types and expressions, respectively. 
+\begingroup
+\def\thetheorem{\ref{condition:textual-representability-SES}}
+\begin{condition}[Textual Representability] Both of the following must hold:
+\begin{enumerate}
+\item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
+\item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
+\end{enumerate}
+\end{condition}
+\endgroup
+
 \subsection{Typed Expansion}\label{sec:typed-expansion-U}
 Unexpanded expressions, and the unexpanded types therein, are checked and expanded simultaneously according to the \emph{typed expansion judgements}:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ is well-formed and has expansion $\tau$ assuming $\uDelta$}\\
-\expandsUX{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ and type $\tau$ under seTSM context $\uPsi$}\\
-& \text{assuming $\uDelta$ and $\uGamma$}
-\end{array}\]
+\expandsTU{\uDelta}{\utau}{\tau} & \text{$\utau$ has well-formed expansion $\tau$}\\
+\expandsUX{\ue}{e}{\tau} & \text{$\ue$ has expansion $e$ of type $\tau$}\end{array}\]
 %\newcommand{\gray}[1]{{\color{gray} #1}}
 
 \subsubsection{Type Expansion}
-\emph{Unexpanded type formation contexts}, $\uDelta$, are of the form $\uDD{\uD}{\Delta}$, i.e. they consist of a \emph{type sigil expansion context}, $\uD$, and a type formation context, $\Delta$. A type sigil expansion context, $\uD$, is a finite function that maps each type sigil $\ut \in \domof{\uD}$ to the hypothesis $\vExpands{\ut}{t}$, for some type variable $t$. We write $\ctxUpdate{\uD}{\ut}{t}$ for the type sigil expansion context that maps $\ut$ to $\vExpands{\ut}{t}$ and defers to $\uD$ for all other type sigils (i.e. the previous mapping, if it exists, is updated.) We define $\uDelta, \uDhyp{\ut}{t}$ when $\uDelta=\uDD{\uD}{\Delta}$ as an abbreviation of  \[\uDD{\ctxUpdate{\uD}{\ut}{t}}{\Delta, \Dhyp{t}}\]%type identifier expansion context is always extended/updated together with 
+\emph{Unexpanded type formation contexts}, $\uDelta$, are of the form $\uDD{\uD}{\Delta}$, i.e. they consist of a \emph{type identifier expansion context}, $\uD$, paired with a standard type formation context, $\Delta$. 
+
+A \emph{type identifier expansion context}, $\uD$, is a finite function that maps each type identifier $\ut \in \domof{\uD}$ to the hypothesis $\vExpands{\ut}{t}$, for some type variable $t$. We write $\ctxUpdate{\uD}{\ut}{t}$ for the type identifier expansion context that maps $\ut$ to $\vExpands{\ut}{t}$ and defers to $\uD$ for all other type identifiers (i.e. the previous mapping is \emph{updated}.) 
+
+We define $\uDelta, \uDhyp{\ut}{t}$ when $\uDelta=\uDD{\uD}{\Delta}$ as an abbreviation of  \[\uDD{\ctxUpdate{\uD}{\ut}{t}}{\Delta, \Dhyp{t}}\]%type identifier expansion context is always extended/updated together with 
 
 The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}). The first three of these rules are reproduced below:
-\begin{subequations}%\label{rules:expandsTU}
-\begin{equation}\tag{\ref{rule:expandsTU-var}}
+% \begin{subequations}%\label{rules:expandsTU}
+\begin{equation*}\tag{\ref{rule:expandsTU-var}}
 \inferrule{ }{\expandsTU{\uDelta, \uDhyp{\ut}{t}}{\ut}{t}}
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsTU-parr}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsTU-parr}}
 \inferrule{
   \expandsTU{\uDelta}{\utau_1}{\tau_1}\\
   \expandsTU{\uDelta}{\utau_2}{\tau_2}
 }{\expandsTU{\uDelta}{\parr{\utau_1}{\utau_2}}{\aparr{\tau_1}{\tau_2}}}
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsTU-all}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsTU-all}}
   \inferrule{
     \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
   }{
     \expandsTU{\uDelta}{\forallt{\ut}{\utau}}{\aall{t}{\tau}}
   }
-\end{equation}
-% \begin{equation}\label{rule:expandsTU-rec}
+\end{equation*}
+% \begin{equation*}\label{rule:expandsTU-rec}
 %   \inferrule{
 %     \expandsTU{\uDelta, \uDhyp{\ut}{t}}{\utau}{\tau}
 %   }{
 %     \expandsTU{\uDelta}{\aurec{\ut}{\utau}}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsTU-prod}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsTU-prod}
 %   \inferrule{
 %     \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \expandsTU{\uDelta}{\auprod{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsTU-sum}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsTU-sum}
 %   \inferrule{
 %     \{\expandsTU{\uDelta}{\utau_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \expandsTU{\uDelta}{\ausum{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-\end{subequations}
+% \end{equation*}
+% \end{subequations}
 %We write $\uDeltaOK{\uDelta}$ when $\uDelta=\uDD{\uD}{\Delta}$ and each type variable in $\uD$ also appears in $\Delta$.
 %\begin{definition}\label{def:uDeltaOK} $\uDeltaOK{\uDD{\uD}{\Delta}}$ iff for each $\vExpands{\ut}{t} \in \uD$, we have $\Dhyp{t} \in \Delta$.\end{definition}
 
-To understand how type sigil expansion contexts operate, it is instructive to derive an expansion for the unexpanded type $\forallt{\ut}{\forallt{\ut}{\ut}}$:
+To develop an intuition for how type identifier expansion context update operates, it is instructive to derive an expansion for the unexpanded type $\forallt{\ut}{\forallt{\ut}{\ut}}$:
 \begin{mathpar}
 \inferrule{
   \inferrule{
     \inferrule{ }{
-      \expandsTU{\uDD{\vExpands{\ut}{t'}}{{\Dhyp{t}}, {\Dhyp{t'}}}}{\ut}{t'}
+      \expandsTU{\uDD{\vExpands{\ut}{t_2}}{{\Dhyp{t_1}}, {\Dhyp{t_2}}}}{\ut}{t_2}
     }~\text{(\ref*{rule:expandsTU-var})}
   }{
-    \expandsTU{\uDD{\vExpands{\ut}{t}}{\Dhyp{t}}}{\forallt{\ut}{\ut}}{\aall{t'}{t'}}
+    \expandsTU{\uDD{\vExpands{\ut}{t_1}}{\Dhyp{t_1}}}{\forallt{\ut}{\ut}}{\aall{t_2}{t_2}}
   }~\text{(\ref*{rule:expandsTU-all})}
 }{
-  \expandsTU{\uDD{\emptyset}{\emptyset}}{\forallt{\ut}{\forallt{\ut}{\ut}}}{\aall{t}{\aall{t'}{t'}}}
+  \expandsTU{\uDD{\emptyset}{\emptyset}}{\forallt{\ut}{\forallt{\ut}{\ut}}}{\aall{t_1}{\aall{t_2}{t_2}}}
 }~\text{(\ref*{rule:expandsTU-all})}
 \end{mathpar}
-Notice that when a type sigil is bound, a fresh type variable is generated. The type sigil expansion context is extended (when the outermost binding is encountered) or updated (at all inner bindings) and the type formation context is simultaneously extended at each binding. Had we used type variables in the syntax and type formation contexts in the rules above, rather than type sigils and type sigil expansion contexts, derivations for unexpanded types where an inner binding shadows an outer binding would not exist, because by definition we cannot extend a type formation context with a variable it already mentions nor implicitly $\alpha$-vary the unexpanded type to sidestep this problem. 
+Notice that whenever a type identifier is bound, the type identifier expansion context is extended (when the outermost binding is encountered) or updated (at all inner bindings) and the type formation context is simultaneously extended with a fresh hypothesis. Without this mechanism, expansions for unexpanded types where an inner binding shadows an outer binding, like this minimal example, would not exist, because by definition we cannot extend a type formation context with a variable it already mentions, nor implicitly $\alpha$-vary the unexpanded type to sidestep this problem in the usual manner.
 
-These rules validate the following lemmas. The Type Expansion Lemma establishes that the expansion of an unexpanded type is a well-formed type.
+The Type Expansion Lemma establishes that the expansion of an unexpanded type is a well-formed type.
 
-\begin{lemma}[Type Expansion]\label{lemma:type-expansion-U} If $\expandsTU{\uDD{\uD}{\Delta}}{\utau}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
+\begingroup
+\def\thetheorem{\ref{lemma:type-expansion-U}}
+\begin{lemma}[Type Expansion] If $\expandsTU{\uDD{\uD}{\Delta}}{\utau}{\tau}$ then $\istypeU{\Delta}{\tau}$.\end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:expandsTU}). In each case, we apply the IH to or over each premise, then apply the corresponding type formation rule in Rules (\ref{rules:istypeU}). \end{proof}
-
-The Type Expressibility Lemma establishes that every well-formed type, $\tau$, can be expressed as a well-formed unexpanded type, $\Uof{\tau}$. This requires defining the metafunction $\Uof{\Delta}$ which maps $\Delta$ onto an unexpanded type formation context as follows:
-\begin{align*}
-\Uof{\emptyset} &= \uDD{\emptyset}{\emptyset}\\
-\Uof{\Delta, \Dhyp{t}} &= \Uof{\Delta}, \uDhyp{\sigilof{t}}{t}
-\end{align*}
-\begin{lemma}[Type Expressibility]\label{lemma:type-expressibility} If $\istypeU{\Delta}{\tau}$ then $\expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau}$.\end{lemma}
-\begin{proof} By rule induction over Rules (\ref{rules:istypeU}) using the definitions of $\Uof{\tau}$ and $\Uof{\Delta}$ above. In each case, we apply the IH to or over each premise, then apply the corresponding type expansion rule in Rules (\ref{rules:expandsTU}).\end{proof}
+\endgroup
 
 \subsubsection{Typed Expression Expansion}
-\begin{subequations}\label{rules:expandsU}
-\emph{Unexpanded typing contexts}, $\uGamma$, are of the form $\uGG{\uG}{\Gamma}$, where $\uG$ is an \emph{expression sigil expansion context}, and $\Gamma$ is a typing context. An expression sigil expansion context, $\uG$, is a finite function that maps each expression sigil $\ux \in \domof{\uG}$ to the hypothesis $\vExpands{\ux}{x}$, for some expression variable, $x$. We write $\ctxUpdate{\uG}{\ux}{x}$ for the expression sigil expansion context that maps $\ux$ to $\vExpands{\ux}{x}$ and defers to $\uG$ for all other expression sigils (i.e. the previous mapping, if it exists, is updated). %We write $\uGammaOK{\uGamma}$ when $\uGamma=\uGG{\uG}{\Gamma}$ and each expression variable in $\uG$ is assigned a type by $\Gamma$.
+% \begin{subequations}\label{rules:expandsU}
+\emph{Unexpanded typing contexts}, $\uGamma$, are, similarly, of the form $\uGG{\uG}{\Gamma}$, where $\uG$ is an \emph{expression identifier expansion context}, and $\Gamma$ is a typing context. An expression identifier expansion context, $\uG$, is a finite function that maps each expression identifier $\ux \in \domof{\uG}$ to the hypothesis $\vExpands{\ux}{x}$, for some expression variable, $x$. We write $\ctxUpdate{\uG}{\ux}{x}$ for the expression identifier expansion context that maps $\ux$ to $\vExpands{\ux}{x}$ and defers to $\uG$ for all other expression identifiers (i.e. the previous mapping is updated.) %We write $\uGammaOK{\uGamma}$ when $\uGamma=\uGG{\uG}{\Gamma}$ and each expression variable in $\uG$ is assigned a type by $\Gamma$.
 %\begin{definition} $\uGammaOK{\uGG{\uG}{\Gamma}}$ iff for each $\vExpands{\ux}{x} \in \uG$, we have $\Ghyp{x}{\tau} \in \Gamma$ for some $\tau$.\end{definition}
 %\noindent 
 We define $\uGamma, \uGhyp{\ux}{x}{\tau}$ when $\uGamma = \uGG{\uG}{\Gamma}$ as an abbreviation of \[\uGG{\uG, \vExpands{\ux}{x}}{\Gamma, \Ghyp{x}{\tau}}\]
 
-The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is inductively defined by Rules (\ref*{rules:expandsU}) as follows. %These rules validate the following theorem, which establishes that typed expansion produces an expansion of the assigned type. 
+The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is inductively defined by Rules (\ref{rules:expandsU}). Before covering these rules, let us state the main theorem of interest: that typed expansion results in a well-typed expanded expression.
+\begingroup
+\def\thetheorem{\ref{thm:typed-expansion-short-U}}
+\begin{theorem}[Typed Expression Expansion] \hspace{-3px}If $\expandsU{\uDD{\uD}{\Delta}\hspace{-3px}}{\uGG{\uG}{\Gamma}\hspace{-3px}}{\uPsi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+\end{theorem}
+\endgroup
+%These rules validate the following theorem, which establishes that typed expansion produces an expansion of the assigned type. 
 %\begin{theorem}[Typed Expression Expansion] If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\uPsi}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.\end{theorem}
 %\begin{proof} This is the first part of Theorem \ref{thm:typed-expansion-U}, defined and proven below.\end{proof}
 
-\paragraph{Shared Forms} Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-case}) handle unexpanded expressions of shared form. The first five of these rules are reproduced below:
+\paragraph{Common Forms} Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-case}) handle unexpanded expressions of common form. The first five of these rules are reproduced below:
 %Each of these rules is based on the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
-\begin{equation}\tag{\ref{rule:expandsU-var}}
+\begin{equation*}\tag{\ref{rule:expandsU-var}}
   \inferrule{ }{\expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\ux}{x}{\tau}}
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-lam}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-lam}}
   \inferrule{
     \expandsTU{\uDelta}{\utau}{\tau}\\
     \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\ue}{e}{\tau'}
-  }{\expandsUX{\aulam{\utau}{\ux}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-ap}}
+  }{\expandsUX{\lam{\ux}{\utau}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-ap}}
   \inferrule{
     \expandsUX{\ue_1}{e_1}{\aparr{\tau}{\tau'}}\\
     \expandsUX{\ue_2}{e_2}{\tau}
   }{
-    \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
+    \expandsUX{\ap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-tlam}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-tlam}}
   \inferrule{
     \expandsU{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\ue}{e}{\tau}
   }{
-    \expandsUX{\autlam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+    \expandsUX{\Lam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
   }
-\end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-tap}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-tap}}
   \inferrule{
     \expandsUX{\ue}{e}{\aall{t}{\tau}}\\
     \expandsTU{\uDelta}{\utau'}{\tau'}
   }{
-    \expandsUX{\autap{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+    \expandsUX{\App{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
   }
-\end{equation}
-Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The seTSM context, $\uPsi$, passes opaquely through these rules (we will define seTSM contexts below). Rules (\ref{rules:expandsTU}) were similarly generated by mechanically transforming Rules (\ref{rules:istypeU}).
+\end{equation*}
+These rules are entirely straightforward, mirroring the corresponding typing rules, i.e. Rules (\ref{rules:hastypeU}). In particular, observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and each premise corresponds to a premise of the corresponding typing rule. %Type formation premises in the typing rule give rise to  type expansion premises in the corresponding typed expansion rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. 
+The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The seTSM context, $\uPsi$, passes opaquely through these rules (we will define seTSM contexts below.) As such, the corresponding cases in the proof of Theorem \ref{thm:typed-expansion-short-U} are by straightforward induction and application of the corresponding typing rule. %Rules (\ref{rules:expandsTU}) could similarly have been generated by mechanically transforming Rules (\ref{rules:istypeU}).
 
 % We can express this scheme more precisely with the rule transformation given in Appendix \ref{appendix:SES-uexps}. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
 % \begin{mathpar}
@@ -893,82 +896,77 @@ Observe that, in each of these rules, the unexpanded and expanded expression for
 %   \item When $\Gamma$ is of definite form, $\Uof{\Gamma}$ produces the corresponding unexpanded typing context as follows:
 % \begin{align*}
 % \Uof{\emptyset} & = \uGG{\emptyset}{\emptyset}\\
-% \Uof{\Gamma, \Ghyp{x}{\tau}} & = \Uof{\Gamma}, \uGhyp{\sigilof{x}}{x}{\tau}
+% \Uof{\Gamma, \Ghyp{x}{\tau}} & = \Uof{\Gamma}, \uGhyp{\identifierof{x}}{x}{\tau}
 % \end{align*}
 %   \item When $\Gamma$ is of indefinite form, $\Uof{\Gamma}$ is a uniquely corresponding metavariable ranging over unexpanded typing contexts. For example, $\Uof{\Gamma} = \uGamma$.
 % \end{itemize}
 % \end{itemize}
 
-% It is instructive to use this rule transformation to generate Rules (\ref{rules:expandsTU}) and Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-fold}) through (\ref*{rule:expandsU-case}). By instead defining these rules solely by the rule transformation just described, we avoid having to write down a number of rules that are of limited marginal interest. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded types and expressions of shared form, so our exposition is somewhat ``robust'' to changes to the inner core. 
-
-These rules collectively obey the Expressibility Theorem -- each well-typed expanded expression, $e$, can be expressed as an unexpanded expression, $\ue$, and assigned the same type under the corresponding contexts.
-
-\begin{theorem}[Expressibility] If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsU{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\Uof{e}}{e}{\tau}$.\end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:hastypeU}). The above rule transformation guarantees that this theorem holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH to or over each typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsU}).\end{proof}
+% It is instructive to use this rule transformation to generate Rules (\ref{rules:expandsTU}) and Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tap}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:expandsU-fold}) through (\ref*{rule:expandsU-case}). By instead defining these rules solely by the rule transformation just described, we avoid having to write down a number of rules that are of limited marginal interest. Moreover, this demonstrates the general technique for generating typed expansion rules for unexpanded types and expressions of common form, so our exposition is somewhat ``robust'' to changes to the inner core. 
 %o that when the inner core changes,  typed expansion rules  our exposition somewhat robust to changes to the inner core (though not to changes to the judgement forms in the statics of the inner core).% Even if changes to the judgement forms in the statics of the inner core are needed (e.g. the addition of a symbol context), it is easy to see would correspond to changes in the generic specification above.
 % \begin{subequations}\label{rules:expandsU}
-% \begin{equation}\label{rule:expandsU-var}
+% \begin{equation*}\label{rule:expandsU-var}
 %   \inferrule{ }{\expandsU{\Delta}{\Gamma, x : \tau}{\uPsi}{x}{x}{\tau}}
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-lam}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-lam}
 %   \inferrule{
 %     \istypeU{\Delta}{\tau}\\
 %     \expandsU{\Delta}{\Gamma, x : \tau}{\uPsi}{\ue}{e}{\tau'}
 %   }{\expandsUX{\aulam{\tau}{x}{\ue}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}}
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-ap}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-ap}
 %   \inferrule{
 %     \expandsUX{\ue_1}{e_1}{\aparr{\tau}{\tau'}}\\
 %     \expandsUX{\ue_2}{e_2}{\tau}
 %   }{
 %     \expandsUX{\auap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-tlam}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-tlam}
 %   \inferrule{
 %     \expandsU{\Delta, \Dhyp{t}}{\Gamma}{\uPsi}{\ue}{e}{\tau}
 %   }{
 %     \expandsUX{\autlam{t}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-tap}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-tap}
 %   \inferrule{
 %     \expandsUX{\ue}{e}{\aall{t}{\tau}}\\
 %     \istypeU{\Delta}{\tau'}
 %   }{
 %     \expandsUX{\autap{\ue}{\tau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-fold}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-fold}
 %   \inferrule{
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
 %     \expandsUX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
 %     \expandsUX{\aufold{t}{\tau}{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-unfold}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-unfold}
 %   \inferrule{
 %     \expandsUX{\ue}{e}{\arec{t}{\tau}}
 %   }{
 %     \expandsUX{\auunfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-tpl}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-tpl}
 %   \inferrule{
 %     \{\expandsUX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \expandsUX{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-pr}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-pr}
 %   \inferrule{
 %     \expandsUX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 %   }{
 %     \expandsUX{\aupr{\ell}{\ue}}{\aepr{\ell}{e}}{\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-in}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-in}
 %   \inferrule{
 %     \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
 %     \istypeU{\Delta}{\tau}\\
@@ -976,19 +974,19 @@ These rules collectively obey the Expressibility Theorem -- each well-typed expa
 %   }{
 %     \left\{\shortstack{$\Delta~\Gamma \vdash_\uPsi \auin{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{\ue}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-case}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-case}
 %   \inferrule{
 %     \expandsUX{\ue}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
 %     \{\expandsU{\Delta}{\Gamma, \Ghyp{x_i}{\tau_i}}{\uPsi}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
 %   }{
 %     \expandsUX{\aucase{\labelset}{\ue}{\mapschemab{x}{\ue}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
-% \end{equation}
-\end{subequations}
-\paragraph{seTSM Definition and Application} The two remaining typed expansion rules, Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), govern the seTSM definition and application forms, and are defined in the next two subsections, respectively. 
+% \end{equation*}
+% \end{subequations}
+\paragraph{seTSM Definition and Application} The two remaining typed expansion rules, Rules (\ref{rule:expandsU-syntax}) and (\ref{rule:expandsU-tsmap}), govern the seTSM definition and application forms. They are defined in the next two subsections, respectively. 
 
-% \begin{equation}\label{rule:expandsU-syntax}
+% \begin{equation*}\label{rule:expandsU-syntax}
 % \inferrule{
 %   \istypeU{\Delta}{\tau}\\
 %   \expandsU{\emptyset}{\emptyset}{\emptyset}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
@@ -997,17 +995,17 @@ These rules collectively obey the Expressibility Theorem -- each well-typed expa
 % }{
 %   \expandsUX{\audefuetsm{\tau}{\ueparse}{\tsmv}{\ue}}{e}{\tau'}
 % }
-% \end{equation}
-% \begin{equation}\label{rule:expandsU-tsmap}
+% \end{equation*}
+% \begin{equation*}\label{rule:expandsU-tsmap}
 % \inferrule{
 %   \encodeBody{b}{\ebody}\\
-%   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+%   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{SuccessE}}{\ecand}}\\
 %   \decodeCondE{\ecand}{\ce}\\\\
 %   \cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
 % }{
 %   \expandsU{\Delta}{\Gamma}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{\autsmap{b}{\tsmv}}{e}{\tau}
 % }
-% \end{equation}
+% \end{equation*}
 %\end{subequations}
 
 %Notice that each form of expanded expression (Figure \ref{fig:U-expanded-terms}) corresponds to a form of unexpanded expression (Figure \ref{fig:U-unexpanded-terms}). For each typing rule in Rules (\ref{rules:hastypeU}), there is a corresponding typed expansion rule -- Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-case}) -- where the unexpanded and expanded forms correspond. The premises also correspond -- if a typing judgement appears as a premise of a typing rule, then the corresponding premise in the corresponding typed expansion rule is the corresponding typed expansion judgement. The seTSM context is not extended or inspected by these rules (it is only ``threaded through'' them opaquely).
@@ -1015,15 +1013,13 @@ These rules collectively obey the Expressibility Theorem -- each well-typed expa
 %There are two unexpanded expression forms that do not correspond to an expanded expression form: the seTSM definition form, and the seTSM application form. The rules governing these two forms interact with the seTSM context, and are the topics of the next two subsections, respectively.
 
 \subsection{seTSM Definitions}\label{sec:U-uetsm-definition}
-The stylized seTSM definition form is \[\uesyntax{\tsmv}{\utau}{\eparse}{\ue}\] 
+The seTSM definition form is \[\uesyntax{\tsmv}{\utau}{\eparse}{\ue}\] 
 %The operational form corresponding to this stylized form is \[\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}\]
-An unexpanded expression of this form defines a {seTSM} named $\tsmv$ with \emph{unexpanded type annotation} $\utau$ and \emph{parse function} $\eparse$ for use within $\ue$. 
+An unexpanded expression of this form defines an {seTSM} identified as $\tsmv$ with \emph{unexpanded type annotation} $\utau$ and \emph{parse function} $\eparse$ for use within $\ue$. 
 
-The parse function is an expanded expression because parse functions are applied statically (i.e. during typed expansion of $\ue$), as we will discuss when describing seTSM application below, and evaluation is defined only for closed expanded expressions. This construction simplifies our exposition, though it is not entirely practical because it provides no way for TSM providers to share values between parse functions, nor any way to use TSMs when defining other TSMs. We discuss enriching the language to eliminate these limitations in Sec. \ref{sec:uetsms-static-language}, but it is pedagogically simpler to leave the necessary machinery out of our calculus for now.%$\miniVerseUE$.
-
-Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of seTSM definitions:
-\begin{subequations}[resume]
-% \begin{equation}\label{rule:expandsU-syntax}
+Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of this form:
+% \begin{subequations}[resume]
+% \begin{equation*}\label{rule:expandsU-syntax}
 % \inferrule{
 %   \istypeU{\Delta}{\tau}\\
 %   \expandsU{\emptyset}{\emptyset}{\emptyset}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
@@ -1031,22 +1027,24 @@ Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of seTSM definitions:
 % }{
 %   \expandsUX{\audefuetsm{\tau}{\ueparse}{\tsmv}{\ue}}{e}{\tau'}
 % }
-% \end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-syntax}}
+% \end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-syntax}}
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
-  \hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultExp}}\\\\
+  \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
   \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
 }{
   \expandsUX{\uesyntax{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
+% \end{subequations}
 The premises of this rule can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise ensures that the unexpanded type annotation is well-formed and expands it to produce the \emph{type annotation}, $\tau$.
+\item The first premise expands the unexpanded type annotation.
 
-\item The second premise checks that the parse function, $\eparse$, is closed and of type \[\parr{\tBody}{\tParseResultExp}\] %to generate the \emph{expanded parse function}, $\eparse$. 
+\item The second premise checks that the parse function, $\eparse$, is a closed expanded function\footnote{In Chapter \ref{chap:static-eval}, we add the machinery necessary for parse functions that are neither closed nor yet expanded.} of the following type: \[\aparr{\tBody}{\tParseResultExp}\] 
+
+%$\miniVerseUE$.%to generate the \emph{expanded parse function}, $\eparse$. 
  %Notice that this occurs under empty contexts, i.e. parse functions cannot refer to the surrounding bindings. 
 %The parse function must be of type $\aparr{\tBody}{\tParseResultExp}$ where the type abbreviations $\tBody$ and $\tParseResultExp$ are defined as follows.
 
@@ -1057,6 +1055,9 @@ The type abbreviated $\tBody$ classifies encodings of literal bodies, $b$. The m
 \decodeBody{e}{b} & \text{$e$ has decoding $b$}
 \end{array}\]
 Rather than defining $\tBody$ explicitly, and these judgements inductively against that definition (which would be tedious and uninteresting), it suffices to define the following condition, which establishes an isomorphism between literal bodies and values of type $\tBody$ mediated by the judgements above.
+
+\begingroup
+\def\thetheorem{\ref{condition:body-isomorphism}}
 \begin{condition}[Body Isomorphism] All of the following must hold:
 \begin{enumerate}
 \item For every literal body $b$, we have that $\encodeBody{b}{\ebody}$ for some $\ebody$ such that $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$.
@@ -1067,11 +1068,19 @@ Rather than defining $\tBody$ explicitly, and these judgements inductively again
 \item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ and $\decodeBody{\ebody}{b}$ and $\decodeBody{\ebody}{b'}$ then $b=b'$.
 \end{enumerate}
 \end{condition}
+\endgroup
 
-$\tParseResultExp$ abbreviates a labeled sum type that distinguishes successful parses from parse errors\footnote{In VerseML, the \li{ParseError} constructor of \li{ParseResult} required an error message and an error location, but we omit these in our formalization for simplicity}:
-\[\tParseResultExp \triangleq [\mapitem{\lbltxt{Success}}{\tCEExp}, \mapitem{\lbltxt{ParseError}}{\prodt{}}]\] 
+$\tParseResultExp$ abbreviates a labeled sum type that distinguishes parse errors from successful parses:\footnote{In VerseML, the \li{ParseError} constructor of \li{parse_result} required an error message and an error location, but we omit these in our formalization for simplicity.}
+\begin{align*}
+L_\mathtt{SE} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessE}\\
+\tParseResultExp & \defeq \asum{\labelset_\mathtt{SE}}{
+  \mapitem{\lbltxt{ParseError}}{\prodt{}}, 
+  \mapitem{\lbltxt{SuccessE}}{\tCEExp}
+}
+\end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
+% \] 
 
-The type abbreviated $\tCEExp$ classifies encodings of \emph{proto-expressions}, $\ce$ (pronounced ``grave $e$''). The syntax of proto-expressions will be described in Sec. \ref{sec:ce-syntax-U}. The mapping from proto-expressions to values of type $\tCEExp$ is defined by the \emph{proto-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
+The type abbreviated $\tCEExp$ classifies encodings of \emph{proto-expressions}, $\ce$ (pronounced ``grave $e$''.) The syntax of proto-expressions, defined in Figure \ref{fig:U-candidate-terms}, will be described when we describe proto-expansion validation in Sec. \ref{sec:ce-syntax-U}. The mapping from proto-expressions to values of type $\tCEExp$ is defined by the \emph{proto-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
 
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
@@ -1081,6 +1090,8 @@ The type abbreviated $\tCEExp$ classifies encodings of \emph{proto-expressions},
 
 Again, rather than picking a particular definition of $\tCEExp$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEExp$ and proto-expressions.
 
+\begingroup 
+\def\thetheorem{\ref{condition:proto-expression-isomorphism}}
 \begin{condition}[Proto-Expression Isomorphism] All of the following must hold:
 \begin{enumerate}
 \item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
@@ -1091,35 +1102,34 @@ Again, rather than picking a particular definition of $\tCEExp$ and defining the
 \item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ and $\decodeCondE{\ecand}{\ce'}$ then $\ce=\ce'$.
 \end{enumerate}
 \end{condition}
-
+\endgroup
 
 \item The final premise of Rule (\ref{rule:expandsU-syntax}) extends the seTSM context, $\uPsi$, with the newly determined {seTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsU-syntax}) assigns this type and expansion to the seTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 
 
 
-\emph{seTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM naming context} and $\Psi$ is a \emph{seTSM definition context}. 
+\emph{seTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM identifier expansion context} and $\Psi$ is a \emph{seTSM definition context}. 
 
-A \emph{TSM naming context}, $\uA$, is a finite function mapping each TSM name $\tsmv \in \domof{\uA}$ to the \emph{TSM name-symbol mapping}, $\vExpands{\tsmv}{a}$, for some \emph{symbol}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the seTSM naming context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM names (i.e. the previous mapping, if it exists, is updated).
+A \emph{TSM identifier expansion context}, $\uA$, is a finite function mapping each TSM identifier $\tsmv \in \domof{\uA}$ to the \emph{TSM identifier expansion}, $\vExpands{\tsmv}{a}$, for some \emph{TSM name}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the TSM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM identifiers (i.e. the previous mapping is \emph{updated}.)
 
-A \emph{seTSM definition context}, $\Psi$, is a finite function mapping each symbol $a \in \domof{\Psi}$ to an \emph{expanded seTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of type $\parr{\tBody}{\tParseResultExp}$.
-
-\begin{definition}[seTSM Definition Context Formation]\label{def:seTSM-def-ctx-formation} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{\tsmv}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultExp}}$.\end{definition}
+An \emph{seTSM definition context}, $\Psi$, is a finite function mapping each TSM name $a \in \domof{\Psi}$ to an \emph{expanded seTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. % We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of type $\parr{\tBody}{\tParseResultExp}$.
 
 We define $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPsi=\uAS{\uA}{\Psi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}\]
 
+We distinguish TSM identifiers, $\tsmv$, from TSM names, $a$, for much the same reason that we distinguish type and expression identifiers from type and expression variables: in order to support TSM definitions identified in the same way as a previously defined TSM definition, without an implicit renaming convention. %Moreover, this distinction will be crucial in the semantics of TSM abbreviations in Chapter \ref{chap:ptsms}. 
+
 \end{enumerate}
 
-The reason we distinguish TSM names, $\tsmv$, from symbols, $a$, is in order to support TSM abbreviations, which we defer discussion of until  Chapter \ref{chap:ptsms}. 
 
 % \[\begin{array}{ll}
 % \textbf{Judgement Form} & \textbf{Description}\\
 % \uetsmenv{\Delta}{\uPsi} & \text{$\uPsi$ is well-formed assuming $\Delta$}\end{array}\]
 % This judgement is inductively defined by the following rules:
 % \begin{subequations}[intermezzo]\label{rules:uetsmenv-U}
-% \begin{equation}\label{rule:uetsmenv-empty}
+% \begin{equation*}\label{rule:uetsmenv-empty}
 % \inferrule{ }{\uetsmenv{\Delta}{\emptyset}}
-% \end{equation}
-% \begin{equation}\label{rule:uetsmenv-ext}
+% \end{equation*}
+% \begin{equation*}\label{rule:uetsmenv-ext}
 % \inferrule{
 %   \uetsmenv{\Delta}{\uPsi}\\
 %   \istypeU{\Delta}{\tau}\\
@@ -1127,67 +1137,70 @@ The reason we distinguish TSM names, $\tsmv$, from symbols, $a$, is in order to 
 % }{
 %   \uetsmenv{\Delta}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}
 % }
-% \end{equation}
+% \end{equation*}
 % \end{subequations}
 
 \subsection{seTSM Application}\label{sec:U-uetsm-application}
-The stylized unexpanded expression form for applying a seTSM named $\tsmv$ to a literal form with literal body $b$ is:
+The unexpanded expression form for applying an seTSM named $\tsmv$ to a literal form with literal body $b$ is:
 \[
 \utsmap{\tsmv}{b}
 \] 
-This stylized form uses forward slashes to delimit the literal body, but stylized variants of any of the literal forms specified in Figure \ref{fig:literal-forms} could also be added to Figure \ref{fig:U-unexpanded-terms}. % (we omit them for simplicity).
+This stylized form uses forward slashes to delimit the literal body, but other generalized literal forms, like those described in Figure \ref{fig:literal-forms}, could also be included as derived forms in the textual syntax. % (we omit them for simplicity).
 %The corresponding operational form is $\autsmap{b}{\tsmv}$. %i.e. for each literal body $b$, the operator $\texttt{uapuetsm}[b]$ is indexed by the TSM name $\tsmv$ and takes no arguments. %\footnote{This is in following the conventions in \emph{PFPL} \cite{pfpl}, where operators parameters allow for the use of metatheoretic objects that are not syntax trees or binding trees, e.g. $\mathsf{str}[s]$ and $\mathsf{num}[n]$.} This operator is indexed by the TSM name $\tsmv$ and takes no arguments. 
 
 The typed expansion rule governing seTSM application is below:
-\begin{subequations}[resume]
-% \begin{equation}\label{rule:expandsU-tsmap}
+% \begin{subequations}[resume]
+% \begin{equation*}\label{rule:expandsU-tsmap}
 % \inferrule{
 %   \encodeBody{b}{\ebody}\\
-%   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+%   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{SuccessE}}{\ecand}}\\
 %   \decodeCondE{\ecand}{\ce}\\\\
 %   \cvalidE{\emptyset}{\emptyset}{\esceneU{\Delta}{\Gamma}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
 % }{
 %   \expandsU{\Delta}{\Gamma}{\uPsi, \xuetsmbnd{\tsmv}{\tau}{\eparse}}{\autsmap{b}{\tsmv}}{e}{\tau}
 % }
-% \end{equation}
-\begin{equation}\tag{\ref{rule:expandsU-tsmap}}
+% \end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-tsmap}}
 \inferrule{
+  \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
   \decodeCondE{\ecand}{\ce}\\\\
-  \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}
+  \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}
 }{
-  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\utsmap{\tsmv}{b}}{e}{\tau}
+  \expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
+where:
+\[
+\lbltxt{SuccessE}\cdot e \defeq \aein{L_\mathtt{SE}}{\mathtt{SuccessE}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessE}}{\tCEExp}}{e}
+\]
+% \end{subequations}
 The premises of Rule (\ref{rule:expandsU-tsmap}) can be understood as follows, in order:
 \begin{enumerate}
-\item The first premise determines the encoding of the literal body, $\ebody$ (see above).
-\item The second premise applies the parse function $\eparse$, which appears in the seTSM context associated with $\tsmv$, to $\ebody$. If parsing succeeds, i.e. a value of the (stylized) form $\inj{\lbltxt{Success}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed seTSM context, by application of Assumption \ref{condition:preservation-U}). We call $\ecand$ the \emph{encoding of the proto-expansion}.
+\item The first premise ensures that $\tsmv$ has been defined and extracts the type annotation and parse function.
+\item The second premise determines the encoding of the literal body, $\ebody$.
+\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. If parsing succeeds, i.e. a value of the form abbreviated $\lbltxt{SuccessE}\cdot\ecand$ (as shown) results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed seTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
 
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
-\item The third premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\ce$ (see above).
+\item The fourth premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\ce$, itself.
 
-
-
-
-\item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$. This is the topic of Sec. \ref{sec:ce-validation-U}.
+\item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$, which appears in the conclusion of the rule. The proto-expression validation judgement is discussed next.
 \end{enumerate}
 \subsection{Syntax of Proto-Expansions}\label{sec:ce-syntax-U}
 \begin{figure}
 \hspace{-5px}$\arraycolsep=3.5pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{CETyp} & \ctau & ::= & t & t & \text{variable}\\
+\mathsf{PrTyp} & \ctau & ::= & t & t & \text{variable}\\
 &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
 &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
 &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
 &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
 &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
-\LCC &&& \lightgray & \lightgray & \lightgray\\
+\LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\\ECC
-\mathsf{CEExp} & \ce & ::= & x & x & \text{variable}\\
+\mathsf{PrExp} & \ce & ::= & x & x & \text{variable}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
 &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
@@ -1198,44 +1211,18 @@ If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed
 &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
 &&& \acein{\labelset}{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
 &&& \acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
-\LCC &&& \lightgray & \lightgray & \lightgray\\
+\LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\ECC
 \end{array}$
-\caption[Syntax of proto-types and expressions in $\miniVerseUE$]{Abstract syntax of proto-types and expressions in $\miniVerseUE$. Metavariables $m$ and $n$ range over natural numbers. Proto-types and -expressions are identified up to $\alpha$-equivalence.}
+\caption[Syntax of $\miniVerseUE$ proto-types and proto-expressions]{Syntax of $\miniVerseUE$ proto-types and proto-expressions.}
 \label{fig:U-candidate-terms}
 \end{figure}
 
-Figure \ref{fig:U-candidate-terms} defines the syntax of proto-types, $\ctau$, and proto-expressions, $\ce$. Proto-types and -expressions are identified up to $\alpha$-equivalence in the usual manner.
+Figure \ref{fig:U-candidate-terms} defines the syntax of proto-types, $\ctau$, and proto-expressions, $\ce$. Proto-types and -expressions are ABTs identified up to $\alpha$-equivalence in the usual manner.
 
-Each form maps onto a proto-expansion form. We refer to these as the \emph{shared forms}. In particular:
+Each expanded form maps onto a proto-expansion form. We refer to these as the \emph{common proto-expansion forms}. The mapping is given explicitly in Appendix \ref{appendix:proto-expansions-SES}.
 
-\begin{itemize}
-  \item Each type form maps onto a proto-type form according to the metafunction $\Cof{\tau}$, defined as follows:
-  \begin{align*}
-  \Cof{t} & = t\\
-  \Cof{\aparr{\tau_1}{\tau_2}} & = \aceparr{\Cof{\tau_1}}{\Cof{\tau_2}}\\
-  \Cof{\aall{t}{\tau}} & = \aceall{t}{\Cof{\tau}}\\
-  \Cof{\arec{t}{\tau}} & = \acerec{t}{\Cof{\tau}}\\
-  \Cof{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \aceprod{\labelset}{\mapschemax{\Cofv}{\ctau}{i}{\labelset}}\\
-  \Cof{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}} & = \acesum{\labelset}{\mapschemax{\Cofv}{\ctau}{i}{\labelset}}
-  \end{align*}
-  \item Each expanded expression form maps onto a proto-expression form according to the metafunction $\Cof{e}$, defined as follows:
-  \begin{align*}
-  \Cof{x} & = x\\
-  \Cof{\aelam{\tau}{x}{e}} & = \acelam{\Cof{\tau}}{x}{\Cof{e}}\\
-  \Cof{\aeap{e_1}{e_2}} & = \aceap{\Cof{e_1}}{\Cof{e_2}}\\
-  \Cof{\aetlam{t}{e}} & = \acetlam{t}{\Cof{e}}\\
-  \Cof{\aetap{e}{\tau}} & = \acetap{\Cof{e}}{\Cof{\tau}}\\
-  \Cof{\aefold{t}{\tau}{e}} & = \acefold{t}{\Cof\tau}{\Cof e}\\
-  \Cof{\aeunfold{e}} & = \aceunfold{\Cof{e}}\\
-  \Cof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\Cofv}{e}{i}{\labelset}}\\
-  \Cof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \acein{\labelset}{\ell}{\mapschemax{\Cofv}{\tau}{i}{\labelset}}{\Cof{e}}\\
-  \Cof{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}} & = \acecase{\labelset}{\Cof\tau}{\Cof{e}}{\mapschemacx{\Cofv}{x}{e}{i}{\labelset}}
-\end{align*}
-
-\end{itemize}
-
-There are two other proto-expansion forms, highlighted in gray in Figure \ref{fig:U-candidate-terms}: a proto-type form for \emph{references to spliced unexpanded types}, $\acesplicedt{m}{n}$, and a proto-expression form for \emph{references to spliced unexpanded expressions}, $\acesplicede{m}{n}$. %TSM utilize these to splice types and unexpanded expressions out of literal bodies.
+There are two ``interesting'' proto-expansion forms, highlighted in yellow in Figure \ref{fig:U-candidate-terms}: a proto-type form for \emph{references to spliced unexpanded types}, $\acesplicedt{m}{n}$, and a proto-expression form for \emph{references to spliced unexpanded expressions}, $\acesplicede{m}{n}$, where $m$ and $n$ are natural numbers.%TSM utilize these to splice types and unexpanded expressions out of literal bodies.
 
 \subsection{Proto-Expansion Validation}\label{sec:ce-validation-U}
 
@@ -1244,70 +1231,62 @@ There are two other proto-expansion forms, highlighted in gray in Figure \ref{fi
 The \emph{proto-expansion validation judgements} validate proto-types and proto-expressions and simultaneously generate their final expansions.% are types and expanded expressions, respectively.
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{Candidate expansion type $\ctau$ is well-formed and has expansion $\tau$}\\
-& \text{assuming $\Delta$ and type splicing scene $\tscenev$.}\\
-\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{Candidate expansion expression $\ce$ has expansion $e$ and type $\tau$}\\
-& \text{assuming $\Delta$ and $\Gamma$ and expression splicing scene $\escenev$.}
+\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ has well-formed expansion $\tau$}\\
+\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ of type $\tau$}
 \end{array}\]
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneU{\uDelta}{\uGamma}{\uPsi}{b}$, and \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneU{\Delta}{b}$. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and seTSM context from $\escenev$:
+\emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneU{\uDelta}{b}$ and \emph{expression splicing scenes}, $\escenev$, are of the form $\esceneU{\uDelta}{\uGamma}{\uPsi}{b}$. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and seTSM context from $\escenev$:
 \[\tsfrom{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}} = \tsceneU{\uDelta}{b}\]
+The purpose of splicing scenes is to ``remember'', during the proto-expansion validation process, the unexpanded type formation context, $\uDelta$, unexpanded typing context, $\uGamma$, seTSM context, $\uPsi$, and the literal body, $b$, from the seTSM application site (cf. Rule (\ref{rule:expandsU-tsmap}) above). These structures will be necessary to validate the references to spliced unexpanded types and expressions that appear within a proto-expansion.
 
-The purpose of splicing scenes is to ``remember'', during the proto-expansion validation process, the unexpanded type formation context, $\uDelta$, unexpanded typing context, $\uGamma$, seTSM context, $\uPsi$, and the literal body, $b$, from the seTSM application site (cf. Rule (\ref{rule:expandsU-tsmap})), because these are necessary to validate references to spliced unexpanded types and expressions that appear within a proto-expansion.
+\subsubsection{Proto-Type Validation}\label{sec:SE-proto-type-validation}
+The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}).
 
-\subsubsection{Proto-Expansion Type Validation}
-The \emph{proto-types validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref*{rules:cvalidT-U}) as follows.
-
-\paragraph{Shared Forms} Rules (\ref*{rule:cvalidT-U-tvar}) through (\ref*{rule:cvalidT-U-sum}) validate proto-types of shared form. The first three of these are reproduced below.
+\paragraph{Common Forms} Rules (\ref{rule:cvalidT-U-tvar}) through (\ref{rule:cvalidT-U-sum}) validate proto-types of common form. The first three of these are reproduced below.
 %Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following proto-types validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
-\begin{subequations}%\label{rules:cvalidT-U}
-\begin{equation}\tag{\ref{rule:cvalidT-U-tvar}}
+% \begin{subequations}%\label{rules:cvalidT-U}
+\begin{equation*}\tag{\ref{rule:cvalidT-U-tvar}}
 \inferrule{ }{
   \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{t}{t}
 }
-\end{equation}
-\begin{equation}\tag{\ref{rule:cvalidT-U-parr}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidT-U-parr}}
   \inferrule{
     \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau_1}\\
     \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau_2}
   }{
     \cvalidT{\Delta}{\tscenev}{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}
   }
-\end{equation}
-\begin{equation}\tag{\ref{rule:cvalidT-U-all}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidT-U-all}}
   \inferrule {
     \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
   }{
     \cvalidT{\Delta}{\tscenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
   }
-\end{equation}
-% \begin{equation}\label{rule:cvalidT-U-rec}
+\end{equation*}
+% \begin{equation*}\label{rule:cvalidT-U-rec}
 %   \inferrule{
 %     \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
 %   }{
 %     \cvalidT{\Delta}{\tscenev}{\acerec{t}{\ctau}}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-prod}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidT-U-prod}
 %   \inferrule{
 %     \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \cvalidT{\Delta}{\tscenev}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-sum}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidT-U-sum}
 %   \inferrule{
 %     \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \cvalidT{\Delta}{\tscenev}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
+% \end{equation*}
 
-Observe that, in each of these rules, the proto-type form and the type form in the conclusion correspond, and the premises correspond to those of the corresponding type formation rule, i.e. Rules (\ref{rules:istypeU}). The type splicing scene, $\tscenev$, passes opaquely through these rules. 
-The following lemma establishes that each type can be expressed as a well-formed proto-type, under the same type formation context and any type splicing scene.
-\begin{lemma}[Proto-Expansion Type Expressibility]\label{lemma:proto-type-expressibility-U} If $\istypeU{\Delta}{\tau}$ then $\cvalidT{\Delta}{\tscenev}{\Cof{\tau}}{\tau}$. \end{lemma}
-\begin{proof}
-By rule induction over Rules (\ref{rules:istypeU}). In each case, we apply the IH on or over each premise, then apply the corresponding proto-type validation rule in Rules (\ref{rules:cvalidT-U}).
-\end{proof}
+These rules, like the rules for common unexpanded type forms,  mirror the corresponding type formation rules, i.e. Rules (\ref{rules:istypeU}). The type splicing scene, $\tscenev$, passes opaquely through these rules. 
 % We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:istypeU}), 
 % \begin{mathpar}
 % % \refstepcounter{equation}
@@ -1349,12 +1328,10 @@ By rule induction over Rules (\ref{rules:istypeU}). In each case, we apply the I
 
 % It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidT-U-tvar}) through (\ref{rule:cvalidT-U-all}) above. We omit the remaining rules, i.e. Rules (\ref*{rule:cvalidT-U-rec}) through (\ref*{rule:cvalidT-U-sum}). 
 
-Notice that in Rule (\ref{rule:cvalidT-U-tvar}), only type variables tracked by the proto-types formation context, $\Delta$, are validated. Type variables in the application site unexpanded type formation context, which appears within the type splicing scene, $\tscenev$, are not validated. Indeed, $\tscenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- seTSMs cannot impose ``hidden constraints'' on the application site unexpanded type formation context, because the type variables bound at the application site are simply not directly available to proto-types.
+Notice that in Rule (\ref{rule:cvalidT-U-tvar}), only type variables tracked by $\Delta$, the expansion's local type validation context, are well-formed. Type variables tracked by the application site unexpanded type formation context, which is a component of the type splicing scene, $\tscenev$, are not validated. Indeed, $\tscenev$ passes opaquely through the rules above. %This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- seTSMs cannot impose ``hidden constraints'' on the application site unexpanded type formation context, because the type variables bound at the application site are simply not directly available to proto-types.
 
-\paragraph{References to Spliced Types} The only proto-type form that does not correspond to a type form is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced unexpanded type}, i.e. it indicates that an unexpanded type should be parsed out from the literal body, $b$, which appears in the type splicing scene, beginning at position $m$ and ending at position $n$. 
-
-Rule (\ref{rule:cvalidT-U-splicedt}) governs this form:
-\begin{equation}\tag{\ref{rule:cvalidT-U-splicedt}}
+\paragraph{References to Spliced Types} The only proto-type form that does not correspond to a type form is $\acesplicedt{m}{n}$, which is a \emph{reference to a spliced unexpanded type}, i.e. it indicates that an unexpanded type should be parsed out from the literal body, $b$, which appears in the type splicing scene $\tscenev$, beginning at position $m$ and ending at position $n$, where $m$ and $n$ are natural numbers. Rule (\ref{rule:cvalidT-U-splicedt}) governs this form:
+\begin{equation*}\tag{\ref{rule:cvalidT-U-splicedt}}
   \inferrule{
     \parseUTyp{\bsubseq{b}{m}{n}}{\utau}\\
     \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}\\
@@ -1362,184 +1339,57 @@ Rule (\ref{rule:cvalidT-U-splicedt}) governs this form:
   }{
     \cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}
   }
-\end{equation}
-The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseUTyp}(b)$, described in Sec. \ref{sec:syntax-U}, to produce the spliced unexpanded type itself, $\utau$.
+\end{equation*}
+The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseUTyp}(b)$, characterized in Sec. \ref{sec:syntax-U}, to produce the spliced unexpanded type itself, $\utau$.
 
-The second premise of Rule (\ref{rule:cvalidT-U-splicedt}) performs type expansion of $\utau$ under the application site unexpanded type formation context, $\uDD{\uD}{\Delta_\text{app}}$, which appears in the type splicing scene. The hypotheses in the proto-types formation context, $\Delta$, are not made available to $\tau$. %This enforces \emph{expansion independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables that appear in proto-types. 
+The second premise of Rule (\ref{rule:cvalidT-U-splicedt}) performs type expansion of $\utau$ under the application site unexpanded type formation context, $\uDD{\uD}{\Delta_\text{app}}$, which is a component of the type splicing scene. The hypotheses in the expansion's local type formation context, $\Delta$, are not made available to $\tau$. %This enforces the injunction on shadowing as described in Sec. \ref{sec:splicing-and-hygiene} for type variables that appear in proto-types. 
 
 The third premise of Rule (\ref{rule:cvalidT-U-splicedt}) imposes the constraint that the proto-expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_\text{app}$. This premise can always be discharged by $\alpha$-varying the proto-expansion that the reference to the spliced type appears within. 
 
-This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} for type variables -- the TSM provider can choose type variable names freely within a proto-expansion, because the language prevents them from shadowing type variables at the application site (by $\alpha$-varying the proto-expansion as needed).%Such a change in bound variable names is possible again because variables bound by the seTSM provider in a proto-expansion cannot ``leak into'' spliced terms because the hypotheses in $\Delta$ are not made available to the spliced type, $\tau$. 
+Together, these two premises enforce the injunction on {shadowing} of type variables as described in Sec. \ref{sec:uetsms-validation} -- the TSM provider can choose type variable names freely within a proto-expansion.%, because the language prevents them from shadowing type variables at the application site (by $\alpha$-varying the proto-expansion as needed.)%Such a change in bound variable names is possible again because variables bound by the seTSM provider in a proto-expansion cannot ``leak into'' spliced terms because the hypotheses in $\Delta$ are not made available to the spliced type, $\tau$. 
 
 Rules (\ref{rules:cvalidT-U}) validate the following lemma, which establishes that the final expansion of a valid proto-type is a well-formed type under the combined type formation context.
-\begin{lemma}[Proto-Expansion Type Validation]\label{lemma:candidate-expansion-type-validation}
-If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ then $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau}$.
+\begingroup
+\def\thetheorem{\ref{lemma:candidate-expansion-type-validation}}
+\begin{lemma}[Proto-Expansion Type Validation]
+If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ then $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau}$.
 \end{lemma}
-\begin{proof} By rule induction over Rules (\ref{rules:cvalidT-U}).
-\begin{byCases}
-\item[\text{(\ref{rule:cvalidT-U-tvar})}] We have 
-\begin{pfsteps*}
-   \item $\Delta=\Delta', \Dhyp{t}$ \BY{assumption}
-   \item $\ctau=t$ \BY{assumption}
-   \item $\tau=t$ \BY{assumption}
-   \item $\istypeU{\Delta', \Dhyp{t}}{t}$ \BY{Rule (\ref{rule:istypeU-var})} \pflabel{istype}
-   \item $\istypeU{\Dcons{\Delta', \Dhyp{t}}{\Delta_\text{app}}}{t}$ \BY{Lemma \ref{lemma:weakening-U} over $\Delta_\text{app}$ to \pfref{istype}}
- \end{pfsteps*} 
-\resetpfcounter
+\endgroup
 
-\item[\text{(\ref{rule:cvalidT-U-parr})}] We have
-\begin{pfsteps*}
-  \item $\ctau=\aceparr{\ctau_1}{\ctau_2}$ \BY{assumption}
-  \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
-  \item $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalid-ctau1}
-  \item $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau_2}{\tau_2}$ \BY{assumption} \pflabel{cvalid-ctau2}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_1}$ \BY{IH on \pfref{cvalid-ctau1}} \pflabel{istype1}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_2}$ \BY{IH on \pfref{cvalid-ctau2}} \pflabel{istype2}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:istypeU-parr}) on \pfref{istype1} and \pfref{istype2}}
-\end{pfsteps*}
-\resetpfcounter
-
-\item[\text{(\ref{rule:cvalidT-U-all})}] We have
-\begin{pfsteps*}
-  \item $\ctau=\aceall{t}{\ctau'}$ \BY{assumption}
-  \item $\tau=\aall{t}{\tau'}$ \BY{assumption}
-  \item $\cvalidT{\Delta, \Dhyp{t}}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
-  \item $\istypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\tau'}$ \BY{IH on \pfref{cvalidT}} \pflabel{istypeU1}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}, \Dhyp{t}}{\tau'}$ \BY{exchange over $\Delta_\text{app}$ on \pfref{istypeU1}} \pflabel{istypeU2}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\aall{t}{\tau'}}$ \BY{Rule (\ref{rule:istypeU-all}) on \pfref{istypeU2}}
-\end{pfsteps*}
-\resetpfcounter
-
-\item[{\text{(\ref{rule:cvalidT-U-rec})}}~\text{through}~{\text{(\ref{rule:cvalidT-U-sum})}}] These cases follow analagously, i.e. we apply the IH to or over all proto-type validation premises, apply exchange as needed, and then apply the corresponding type formation rule.
-\\
-% \item[\text{(\ref{rule:cvalidT-U-rec})}] We have
-% \begin{pfsteps*}
-%   \item $\ctau=\acerec{t}{\ctau'}$ \BY{assumption}
-%   \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
-%   \item $\cvalidT{\Delta, \Dhyp{t}}{\tsceneU{\Delta_\text{app}}{b}}{\ctau'}{\tau'}$ \BY{assumption} \label{cvalidT}
-%   \item $\istypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\tau'}$ \BY{IH on \pfref{cvalidT}} \pflabel{istypeU1}
-%   \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}, \Dhyp{t}}{\tau'}$ \BY{exchange over $\Delta_\text{app}$ on \pfref{istypeU1}} \pflabel{istypeU2}
-%   \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:istypeU-rec}) on \pfref{istypeU2}}
-% \end{pfsteps*}
-% \resetpfcounter
-
-% \item[\text{(\ref{rule:cvalidT-U-prod})}] We have
-% \begin{pfsteps*}
-% \item $\ctau=\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
-% \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-% \item $\{\cvalidT{\Delta}{\tsceneU{\Delta_\text{app}}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
-% \item $\{\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
-% \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-prod}) on \pfref{istype}}
-% \end{pfsteps*}
-% \resetpfcounter 
-
-% \item[\text{(\ref{rule:cvalidT-U-sum})}] We have
-% \begin{pfsteps*}
-% \item $\ctau=\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}$ \BY{assumption}  
-% \item $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
-% \item $\{\cvalidT{\Delta}{\tsceneU{\Delta_\text{app}}{b}}{\ctau_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidT-ass}
-% \item $\{\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_i}\}_{i \in \labelset}$ \BY{IH on \pfref{cvalidT-ass}$_i$ for each $i \in \labelset$} \pflabel{istype}
-% \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:istypeU-sum}) on \pfref{istype}}
-% \end{pfsteps*}
-% \resetpfcounter
-
-\item[\text{(\ref{rule:cvalidT-U-splicedt})}] We have
-\begin{pfsteps*}
-\item $\ctau=\acesplicedt{m}{n}$ \BY{assumption}
-\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$ \BY{assumption}
-\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$ \BY{assumption} \label{expandsTU}
-\item $\istypeU{\Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{expandsTU}}\pflabel{istype}
-\item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Delta$ on \pfref{istype} and exchange over $\Delta$}
-\end{pfsteps*}
-\resetpfcounter
-\end{byCases}
-\end{proof}
-\end{subequations}
-% \begin{subequations}\label{rules:cvalidT-U}
-% \begin{equation}\label{rule:cvalidT-U-tvar}
-% \inferrule{ }{
-%   \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{t}{t}
-% }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-parr}
-%   \inferrule{
-%     \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau_1}\\
-%     \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau_2}
-%   }{
-%     \cvalidT{\Delta}{\tscenev}{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-all}
-%   \inferrule {
-%     \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
-%   }{
-%     \cvalidT{\Delta}{\tscenev}{\aceall{t}{\ctau}}{\aall{t}{\tau}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-rec}
-%   \inferrule{
-%     \cvalidT{\Delta, \Dhyp{t}}{\tscenev}{\ctau}{\tau}
-%   }{
-%     \cvalidT{\Delta}{\tscenev}{\acerec{t}{\ctau}}{\arec{t}{\tau}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-prod}
-%   \inferrule{
-%     \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
-%   }{
-%     \cvalidT{\Delta}{\tscenev}{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-%   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidT-U-sum}
-%   \inferrule{
-%     \{\cvalidT{\Delta}{\tscenev}{\ctau_i}{\tau_i}\}_{i \in \labelset}
-%   }{
-%     \cvalidT{\Delta}{\tscenev}{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-%   }
-% \end{equation}
-% \end{subequations}
-%Each form of type, $\tau$, corresponds to a form of proto-types, $\ctau$ (compare Figures \ref{fig:U-expanded-terms} and \ref{fig:U-candidate-terms}). For each type formation rule in Rules (\ref{rules:istypeU}), there is a corresponding proto-types validation rule -- Rules (\ref{rule:cvalidT-U-tvar}) to (\ref{rule:cvalidT-U-sum}) -- where the proto-types and the final expansion correspond. The premises also correspond. 
-
-
-
-\subsubsection{Proto-Expansion Expression Validation}
+\subsubsection{Proto-Expression Validation}
 The \emph{proto-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, is defined mutually inductively with the typed expansion judgement by Rules (\ref*{rules:cvalidE-U}) as follows.% This is necessary because a typed expansion judgement appears as a premise in Rule (\ref{rule:cvalidE-U-splicede}) below, and a proto-expression validation judgement appears as a premise in Rule (\ref{rule:expandsU-tsmap}) above.
 
-\paragraph{Shared Forms} Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}) validate proto-expressions of shared form. The first three of these rules are reproduced below:
+\paragraph{Common Forms} Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}) validate proto-expressions of common form. The first three of these rules are reproduced below:
 %For each expanded expression form defined in Figure \ref{fig:U-expanded-terms}, Figure \ref{fig:U-candidate-terms} defines a corresponding proto-expression form. The validation rules for proto-expressions of these forms are each based on the corresponding typing rule in Rules (\ref{rules:hastypeU}). For example, the validation rules for proto-expressions of variable, function and function application form  are based on Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively:
-\begin{subequations}%\label{rules:cvalidE-U}
-\begin{equation}\tag{\ref{rule:cvalidE-U-var}}
+%\begin{subequations}%\label{rules:cvalidE-U}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-var}}
 \inferrule{ }{
   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
 }
-\end{equation}
-\begin{equation}\tag{\ref{rule:cvalidE-U-lam}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-lam}}
 \inferrule{
   \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce}{e}{\tau'}
 }{
   \cvalidE{\Delta}{\Gamma}{\escenev}{\acelam{\ctau}{x}{\ce}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
 }
-\end{equation}
-\begin{equation}\tag{\ref{rule:cvalidE-U-ap}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-ap}}
   \inferrule{
     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_1}{e_1}{\aparr{\tau}{\tau'}}\\
     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_2}{e_2}{\tau}
   }{
     \cvalidE{\Delta}{\Gamma}{\escenev}{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
-\end{equation}
-Observe that, in each of these rules, the proto-expression form and the expanded expression form in the conclusion correspond, and the premises correspond to those of the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively. The expression splicing scene, $\escenev$, passes opaquely through these rules.
+\end{equation*}
+Once again, these rules mirror the typing rules, i.e. Rules (\ref{rules:hastypeU}). The expression splicing scene, $\escenev$, passes opaquely through these rules.
 
-The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid proto-expression, $\Cof{e}$, that is assigned the same type under any expression splicing scene.
-\begin{theorem}[Proto-Expansion Expression Expressibility]\label{theorem:proto-expressions-expressibility-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.\end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:hastypeU}). The rule transformation above guarantees that this lemma holds by construction. In particular, in each case, we apply Lemma \ref{lemma:proto-type-expressibility-U} to or over each type formation premise, the IH to or over each typing premise, then apply the corresponding proto-expression validation rule in Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}).
-\end{proof}
 
-Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the proto-expansion typing context, $\Gamma$, are validated. Variables  in the application site unexpanded typing context, which appears within the expression splicing scene $\escenev$, are not validated. Indeed, $\escenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:splicing-and-hygiene} -- seTSMs cannot impose ``hidden constraints'' on the application site unexpanded typing context, because the variable bindings at the application site are not directly available to proto-expansions.
+Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the proto-expansion typing context, $\Gamma$, are validated. Variables  in the application site unexpanded typing context, which appears within the expression splicing scene $\escenev$, are not validated. Indeed, $\escenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:uetsms-validation} -- seTSMs cannot impose ``hidden constraints'' on the application site unexpanded typing context, because the variable bindings at the application site are not directly available to proto-expansions.
 
 \paragraph{References to Spliced Unexpanded Expressions} The only proto-expression form that does not correspond to an expanded expression form is $\acesplicede{m}{n}$, which is a \emph{reference to a spliced unexpanded expression}, i.e. it indicates that an unexpanded expression should be parsed out from the literal body beginning at position $m$ and ending at position $n$. Rule (\ref{rule:cvalidE-U-splicede}) governs this form:
-\begin{equation}\tag{\ref{rule:cvalidE-U-splicede}}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-splicede}}
 \inferrule{
   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
   \expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}\\\\
@@ -1548,8 +1398,8 @@ Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the pr
 }{
   \cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}}{\acesplicede{m}{n}}{e}{\tau}
 }
-\end{equation}
-% \begin{equation}\label{rule:cvalidE-U-splicede}
+\end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-splicede}
 % \inferrule{
 %   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\\\
 %   \expandsU{\Delta_\text{app}}{\Gamma_\text{app}}{\uPsi}{\ue}{e}{\tau}\\
@@ -1558,82 +1408,82 @@ Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the pr
 % }{
 %   \cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_\text{app}}{\Gamma_\text{app}}{\uPsi}{b}}{\splicede{m}{n}}{e}{\tau}
 % }
-% \end{equation}
-The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseUExp}(b)$, described in Sec. \ref{sec:syntax-U}, to produce the referenced spliced unexpanded expression, $\ue$.
+% \end{equation*}
+The first premise of this rule extracts the indicated subsequence of $b$ using the partial metafunction $\bsubseq{b}{m}{n}$ and parses it using the partial metafunction $\mathsf{parseUExp}(b)$, characterized in Sec. \ref{sec:syntax-U}, to produce the referenced spliced unexpanded expression, $\ue$.
 
-The second premise of Rule (\ref{rule:cvalidE-U-splicede}) types and expands the spliced unexpanded expression $\ue$ assuming the application site contexts that appear in the expression splicing scene. The hypotheses in the proto-types formation context, $\Delta$, and typing context, $\Gamma$, are not made available to $\ue$. 
+The second premise of Rule (\ref{rule:cvalidE-U-splicede}) performs typed expansion of $\ue$ assuming the application site contexts that appear in the expression splicing scene. Notice that the hypotheses in $\Delta$ and $\Gamma$ are not made available to $\ue$. 
 
 The third premise of Rule (\ref{rule:cvalidE-U-splicede}) imposes the constraint that the proto-expansion's type formation context, $\Delta$, be disjoint from the application site type formation context, $\Delta_\text{app}$. Similarly, the fourth premise requires that the proto-expansion's typing context, $\Gamma$, be disjoint from the application site typing context, $\Gamma_\text{app}$. These two premises can always be discharged by $\alpha$-varying the proto-expression that the reference to the spliced unexpanded expression appears within. 
 
-This achieves \emph{expansion-independent splicing} as described in Sec. \ref{sec:splicing-and-hygiene} -- the TSM provider can choose variable names freely within a proto-expansion, because the language prevents them from shadowing those at the application site (by $\alpha$-varying the proto-expansion as needed).
-\end{subequations}
+Together, these three premises enforce the prohibition on shadowing as described in Sec. \ref{sec:uetsms-validation} -- the TSM provider can choose variable names freely within a proto-expansion, because the language prevents them from shadowing those at the application site.
+%\end{subequations}
 % \begin{subequations}\label{rules:cvalidE-U}
-% \begin{equation}\label{rule:cvalidE-U-var}
+% \begin{equation*}\label{rule:cvalidE-U-var}
 % \inferrule{ }{
 %   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
 % }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-lam}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-lam}
 % \inferrule{
 %   \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
 %   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce}{e}{\tau'}
 % }{
 %   \cvalidE{\Delta}{\Gamma}{\escenev}{\acelam{\ctau}{x}{\ce}}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
 % }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-ap}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-ap}
 %   \inferrule{
 %     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_1}{e_1}{\aparr{\tau}{\tau'}}\\
 %     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_2}{e_2}{\tau}
 %   }{
 %     \cvalidE{\Delta}{\Gamma}{\escenev}{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau'}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-tlam}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-tlam}
 %   \inferrule{
 %     \cvalidE{\Delta, \Dhyp{t}}{\Gamma}{\escenev}{\ce}{e}{\tau}
 %   }{
 %     \cvalidEX{\acetlam{t}{\ce}}{\aetlam{t}{e}}{\aall{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-tap}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-tap}
 %   \inferrule{
 %     \cvalidEX{\ce}{e}{\aall{t}{\tau}}\\
 %     \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}
 %   }{
 %     \cvalidEX{\acetap{\ce}{\ctau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-fold}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-fold}
 %   \inferrule{
 %     \cvalidT{\Delta, \Dhyp{t}}{\escenev}{\ctau}{\tau}\\
 %     \cvalidEX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
 %     \cvalidEX{\acefold{t}{\ctau}{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-unfold}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-unfold}
 %   \inferrule{
 %     \cvalidEX{\ce}{e}{\arec{t}{\tau}}
 %   }{
 %     \cvalidEX{\aceunfold{\ce}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-tpl}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-tpl}
 %   \inferrule{
 %     \{\cvalidEX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
 %   }{
 %     \cvalidEX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-pr}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-pr}
 %   \inferrule{
 %     \cvalidEX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 %   }{
 %     \cvalidEX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-in}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-in}
 %   \inferrule{
 %     \{\cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau_i}{\tau_i}\}_{i \in \labelset}\\
 %     \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
@@ -1641,16 +1491,16 @@ This achieves \emph{expansion-independent splicing} as described in Sec. \ref{se
 %   }{
 %     \left\{\shortstack{$\Delta~\Gamma \vdash_\uPsi \acein{\labelset, \ell}{\ell}{\mapschema{\ctau}{i}{\labelset}; \mapitem{\ell}{\ctau}}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right\}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-case}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-case}
 %   \inferrule{
 %     \cvalidEX{\ce}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
 %     \{\cvalidE{\Delta}{\Gamma, \Ghyp{x_i}{\tau_i}}{\escenev}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
 %   }{
 %     \cvalidEX{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
-% \end{equation}
-% \begin{equation}\label{rule:cvalidE-U-splicede}
+% \end{equation*}
+% \begin{equation*}\label{rule:cvalidE-U-splicede}
 % \inferrule{
 %   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\\\
 %   \Delta \cap \Delta_\text{app} = \emptyset\\
@@ -1659,7 +1509,7 @@ This achieves \emph{expansion-independent splicing} as described in Sec. \ref{se
 % }{
 %   \cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_\text{app}}{\Gamma_\text{app}}{\uPsi}{b}}{\acesplicede{m}{n}}{e}{\tau}
 % }
-% \end{equation}
+% \end{equation*}
 % \end{subequations}
 
 % Each form of expanded expression, $e$, corresponds to a form of proto-expression, $\ce$ (compare Figure \ref{fig:U-expanded-terms} and Figure \ref{fig:U-candidate-terms}). For each typing rule in Rules \ref{rules:hastypeU}, there is a corresponding proto-expression validation rule -- Rules (\ref{rule:cvalidE-U-var}) to (\ref{rule:cvalidE-U-case}) -- where the proto-expression and expanded expression correspond. The premises also correspond.
@@ -1668,157 +1518,122 @@ This achieves \emph{expansion-independent splicing} as described in Sec. \ref{se
 %Candidate expansions cannot themselves define or apply TSMs. This simplifies our metatheory, though it can be inconvenient at times for TSM providers. We discuss adding the ability to use TSMs within proto-expansions in Sec. \ref{sec:tsms-in-expansions}.
 
 
-\subsection{Metatheory}
-For the judgements we have defined to form a sensible language, we must have that typed expansion and proto-expression validation be consistent with typing. Formally, this can be expressed as follows.
+\subsection{Metatheory}\label{sec:SE-metatheory}
+The proto-expression validation judgement is defined mutually inductively with the typed expansion judgement, due to the second premise of Rule (\ref{rule:cvalidE-U-splicede}). To prove Theorem \ref{thm:typed-expansion-short-U}, which was mentioned at the beginnning of Sec. \ref{sec:typed-expansion-U}, we must consequently prove the following stronger theorem:
 
-\begin{theorem}[Typed Expansion]\label{thm:typed-expansion-U} Both of the following hold:
+\begingroup
+\def\thetheorem{\ref{thm:typed-expansion-full-U}}
+\begin{theorem}[Typed Expansion (Full)] Both of the following hold:
 \begin{enumerate}
 \item If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uAS{\uA}{\Psi}}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
 \item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uAS{\uA}{\Psi}}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app} = \emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$.
 \end{enumerate}
 \end{theorem}
+\endgroup
 \begin{proof}
-By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules:cvalidE-U}). 
+By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules:cvalidE-U}). The full proof is given in Appendix \ref{appendix:typed-expression-expansion-SES}. We will reproduce the interesting cases below. 
 
-The proof of part 1 proceeds by inducting over the typed expansion assumption. In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ and $\uPsi=\uAS{\uA}{\Psi}$.
+The proof of part 1 proceeds by inducting over the typed expansion assumption. The only interesting cases are those related to seTSM definition and application, reproduced below. In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ and $\uPsi=\uAS{\uA}{\Psi}$.
+
 \begin{byCases}
-\item[\text{(\ref{rule:expandsU-var})}] We have:
-\begin{pfsteps}
-  \item \ue=\ux \BY{assumption}
-  \item e=x \BY{assumption}
-  \item \Gamma=\Gamma', \Ghyp{x}{\tau} \BY{assumption}
-  \item \hastypeU{\Delta}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau} \BY{Rule (\ref{rule:hastypeU-var})}
-\end{pfsteps}
-\resetpfcounter
-
-\item[\text{(\ref{rule:expandsU-lam})}] We have:
-\begin{pfsteps}
-  \item \ue=\aulam{\utau_1}{\ux}{\ue'} \BY{assumption}
-  \item e=\aelam{\tau_1}{x}{e'} \BY{assumption}
-  \item \tau=\aparr{\tau_1}{\tau_2} \BY{assumption}
-  \item \expandsTU{\uDelta}{\utau_1}{\tau_1} \BY{assumption} \pflabel{istype}
-  \item \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\ue'}{e'}{\tau_2} \BY{assumption} \pflabel{expandsU}
-%  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-  \item \istypeU{\Delta}{\tau_1} \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{istype}} \pflabel{istype2}
-  \item \hastypeU{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{e'}{\tau_2} \BY{IH, part 1 on \pfref{expandsU}} \pflabel{hastypeU}
-  \item \hastypeU{\Delta}{\Gamma}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}} \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype2} and \pfref{hastypeU}}
-\end{pfsteps}
-\resetpfcounter
-
-\item[\text{(\ref{rule:expandsU-ap})}] We have:
-\begin{pfsteps}
-  \item \ue=\auap{\ue_1}{\ue_2} \BY{assumption}
-  \item e=\aeap{e_1}{e_2} \BY{assumption}
-  \item \expandsU{\uDelta}{\uGamma}{\uPsi}{\ue_1}{e_1}{\aparr{\tau_1}{\tau}} \BY{assumption}\pflabel{expandsU1}
-  \item \expandsU{\uDelta}{\uGamma}{\uPsi}{\ue_2}{e_2}{\tau_1} \BY{assumption}\pflabel{expandsU2}
-%  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-  \item \hastypeU{\Delta}{\Gamma}{e_1}{\aparr{\tau_1}{\tau}} \BY{IH, part 1 on \pfref{expandsU1}}\pflabel{hastypeU1}
-  \item \hastypeU{\Delta}{\Gamma}{e_2}{\tau_1} \BY{IH on \pfref{expandsU2}}\pflabel{hastypeU2}
-  \item \hastypeU{\Delta}{\Gamma}{\aeap{e_1}{e_2}}{\tau} \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
-\end{pfsteps}
-\resetpfcounter
-
-\item[\text{(\ref{rule:expandsU-tlam})}~\text{through}~\text{(\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply Lemma \ref{lemma:type-expansion-U} to or over the type expansion premises and the IH, part 1, to or over the typed expression expansion premises and then apply the corresponding typing rule in Rules (\ref{rule:hastypeU-tlam}) through (\ref{rule:hastypeU-case}).
-\\
-
 \item[\text{(\ref{rule:expandsU-syntax})}] We have 
 \begin{pfsteps}
-  \item \ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'} \BY{assumption}
+  \item \ue=\uesyntax{\tsmv}{\utau'}{\eparse}{\ue'} \BY{assumption}
   \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
-%  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-  \item \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
+ \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
+  \item \expandsSG{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
 %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-%  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+ \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
 %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1 on \pfref{expandsU}}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
 \end{pfsteps}
 \resetpfcounter 
 
 \item[\text{(\ref{rule:expandsU-tsmap})}] We have 
 \begin{pfsteps}
-  \item \ue=\autsmap{b}{\tsmv} \BY{assumption}
+  \item \ue=\utsmap{\tsmv}{b} \BY{assumption}
   \item \uA = \uA', \vExpands{\tsmv}{a} \BY{assumption}
   \item \Psi=\Psi', \xuetsmbnd{a}{\tau}{\eparse} \BY{assumption}
   \item \encodeBody{b}{\ebody} \BY{assumption}
-  \item \evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}} \BY{assumption}
+  \item \evalU{\eparse(\ebody)}{{\lbltxt{SuccessE}}\cdot{\ecand}} \BY{assumption}
   \item \decodeCondE{\ecand}{\ce} \BY{assumption}
   \item \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
 %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-  \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection identity} \pflabel{delta-cap}
-  \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection identity} \pflabel{gamma-cap}
+  \item \emptyset \cap \Delta = \emptyset \BY{finite set intersection} \pflabel{delta-cap}
+  \item {\emptyset} \cap \domof{\Gamma} = \emptyset \BY{finite set intersection} \pflabel{gamma-cap}
   \item \hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{definition of finite set and finite function union over \pfref{penultimate}}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{finite set and finite function identity over \pfref{penultimate}}
 \end{pfsteps}
 \resetpfcounter
 \end{byCases}
 
-The second part of the theorem proceeds by induction over the proto-expression validation assumption as follows. In the following cases, let $\uDelta_\text{app}=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma_\text{app}=\uGG{\uG}{\Gamma_\text{app}}$ and $\uPsi = \uAS{\uA}{\Psi}$.
+The proof of part 2 proceeds by induction over the proto-expression validation assumption. The only interesting case governs references to spliced expressions. In the following cases, let $\uDelta_\text{app}=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma_\text{app}=\uGG{\uG}{\Gamma_\text{app}}$ and $\uPsi = \uAS{\uA}{\Psi}$.
 \begin{byCases}
-\item[\text{(\ref{rule:cvalidE-U-var})}] We have
-\begin{pfsteps*}
-  \item $\ce=x$ \BY{assumption}
-  \item $e=x$ \BY{assumption}
-  \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeU-var})} \pflabel{hastypeU}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma', \Ghyp{x}{\tau}}{\Gamma_\text{app}}}{x}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Gamma_\text{app}$ to \pfref{hastypeU}}
-\end{pfsteps*}
-\resetpfcounter
+% \item[\text{(\ref{rule:cvalidE-U-var})}] ~
+% \begin{pfsteps*}
+%   \item $\ce=x$ \BY{assumption}
+%   \item $e=x$ \BY{assumption}
+%   \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeU-var})} \pflabel{hastypeU}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma', \Ghyp{x}{\tau}}{\Gamma_\text{app}}}{x}{\tau}$ \BY{Lemma \ref{lemma:weakening-U} over $\Gamma_\text{app}$ to \pfref{hastypeU}}
+% \end{pfsteps*}
+% \resetpfcounter
 
-\item[\text{(\ref{rule:cvalidE-U-lam})}] We have
-\begin{pfsteps*}
-  \item $\ce=\acelam{\ctau_1}{x}{\ce'}$ \BY{assumption}
-  \item $e=\aelam{\tau_1}{x}{e'}$ \BY{assumption}
-  \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
-  \item $\cvalidT{\Delta}{\tsceneU{\uDelta_\text{app}}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
-  \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
-%  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-  \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-  \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-  \item $x \notin \domof{\Gamma_\text{app}}$ \BY{identification convention} \pflabel{x-fresh}
-  \item $\domof{\Gamma, x : \tau_1} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{\pfref{gamma-disjoint} and \pfref{x-fresh}} \pflabel{gamma-disjoint2}
-  \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_1}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_\text{app}}}{e'}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint2}} \pflabel{hastype1}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}, \Ghyp{x}{\tau_1}}{e'}{\tau_2}$ \BY{exchange over $\Gamma_\text{app}$ on \pfref{hastype1}} \pflabel{hastype2}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype} and \pfref{hastype2}}
-\end{pfsteps*}
-\resetpfcounter
+% \item[\text{(\ref{rule:cvalidE-U-lam})}] ~
+% \begin{pfsteps*}
+%   \item $\ce=\acelam{\ctau_1}{x}{\ce'}$ \BY{assumption}
+%   \item $e=\aelam{\tau_1}{x}{e'}$ \BY{assumption}
+%   \item $\tau=\aparr{\tau_1}{\tau_2}$ \BY{assumption}
+%   \item $\cvalidT{\Delta}{\tsceneU{\uDelta_\text{app}}{b}}{\ctau_1}{\tau_1}$ \BY{assumption} \pflabel{cvalidT}
+%   \item $\cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce'}{e'}{\tau_2}$ \BY{assumption} \pflabel{cvalidE}
+% %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+%   \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+%   \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+%   \item $x \notin \domof{\Gamma_\text{app}}$ \BY{identification convention} \pflabel{x-fresh}
+%   \item $\domof{\Gamma, x : \tau_1} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{\pfref{gamma-disjoint} and \pfref{x-fresh}} \pflabel{gamma-disjoint2}
+%   \item $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau_1}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT} and \pfref{delta-disjoint}} \pflabel{istype}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma, \Ghyp{x}{\tau_1}}{\Gamma_\text{app}}}{e'}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint2}} \pflabel{hastype1}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}, \Ghyp{x}{\tau_1}}{e'}{\tau_2}$ \BY{exchange over $\Gamma_\text{app}$ on \pfref{hastype1}} \pflabel{hastype2}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aelam{\tau_1}{x}{e'}}{\aparr{\tau_1}{\tau_2}}$ \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{istype} and \pfref{hastype2}}
+% \end{pfsteps*}
+% \resetpfcounter
 
-\item[\text{(\ref{rule:cvalidE-U-ap})}] We have
-\begin{pfsteps*}
-  \item $\ce=\aceap{\ce_1}{\ce_2}$ \BY{assumption}
-  \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
-  \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
-  \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce_2}{e_2}{\tau_2}$ \BY{assumption} \pflabel{cvalidE2}
-%  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-  \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-  \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{IH, part 2 on \pfref{cvalidE1}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU1}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_2}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE2}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU2}
-  \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aeap{e_1}{e_2}}{\tau}$ \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
-\end{pfsteps*}
-\resetpfcounter
+% \item[\text{(\ref{rule:cvalidE-U-ap})}] ~
+% \begin{pfsteps*}
+%   \item $\ce=\aceap{\ce_1}{\ce_2}$ \BY{assumption}
+%   \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
+%   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{assumption} \pflabel{cvalidE1}
+%   \item $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce_2}{e_2}{\tau_2}$ \BY{assumption} \pflabel{cvalidE2}
+% %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+%   \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+%   \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_1}{\aparr{\tau_2}{\tau}}$ \BY{IH, part 2 on \pfref{cvalidE1}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU1}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e_2}{\tau_2}$ \BY{IH, part 2 on \pfref{cvalidE2}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastypeU2}
+%   \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aeap{e_1}{e_2}}{\tau}$ \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastypeU1} and \pfref{hastypeU2}}
+% \end{pfsteps*}
+% \resetpfcounter
 
-\item[\text{(\ref{rule:cvalidE-U-tlam})}] We have
-\begin{pfsteps}
-  \item \ce=\acetlam{t}{\ce'} \BY{assumption}
-  \item e = \aetlam{t}{e'} \BY{assumption}
-  \item \tau = \aall{t}{\tau'}\BY{assumption}
-  \item \cvalidE{\Delta, \Dhyp{t}}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce'}{e'}{\tau'} \BY{assumption} \pflabel{cvalidE}
-%  \item \uetsmenv{\Delta_\text{app}}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-  \item \Delta \cap \Delta_\text{app}=\emptyset \BY{assumption} \pflabel{delta-disjoint}
-  \item \domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset \BY{assumption} \pflabel{gamma-disjoint}
-  \item \Dhyp{t} \notin \Delta_\text{app} \BY{identification convention}\pflabel{t-fresh}
-  \item \Delta, \Dhyp{t} \cap \Delta_\text{app} = \emptyset \BY{\pfref{delta-disjoint} and \pfref{t-fresh}}\pflabel{delta-disjoint2}
-  \item \hastypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint2} and \pfref{gamma-disjoint}}\pflabel{hastype1}
-  \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}, \Dhyp{t}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{exchange over $\Delta_\text{app}$ on \pfref{hastype1}}\pflabel{hastype2}
-  \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aetlam{t}{e'}}{\aall{t}{\tau'}} \BY{Rule (\ref{rule:hastypeU-tlam}) on \pfref{hastype2}}
-\end{pfsteps}
-\resetpfcounter
+% \item[\text{(\ref{rule:cvalidE-U-tlam})}] ~
+% \begin{pfsteps}
+%   \item \ce=\acetlam{t}{\ce'} \BY{assumption}
+%   \item e = \aetlam{t}{e'} \BY{assumption}
+%   \item \tau = \aall{t}{\tau'}\BY{assumption}
+%   \item \cvalidE{\Delta, \Dhyp{t}}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce'}{e'}{\tau'} \BY{assumption} \pflabel{cvalidE}
+% %  \item \uetsmenv{\Delta_\text{app}}{\Psi} \BY{assumption} \pflabel{uetsmenv}
+%   \item \Delta \cap \Delta_\text{app}=\emptyset \BY{assumption} \pflabel{delta-disjoint}
+%   \item \domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset \BY{assumption} \pflabel{gamma-disjoint}
+%   \item \Dhyp{t} \notin \Delta_\text{app} \BY{identification convention}\pflabel{t-fresh}
+%   \item \Delta, \Dhyp{t} \cap \Delta_\text{app} = \emptyset \BY{\pfref{delta-disjoint} and \pfref{t-fresh}}\pflabel{delta-disjoint2}
+%   \item \hastypeU{\Dcons{\Delta, \Dhyp{t}}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{IH, part 2 on \pfref{cvalidE}, \pfref{delta-disjoint2} and \pfref{gamma-disjoint}}\pflabel{hastype1}
+%   \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}, \Dhyp{t}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e'}{\tau'} \BY{exchange over $\Delta_\text{app}$ on \pfref{hastype1}}\pflabel{hastype2}
+%   \item \hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aetlam{t}{e'}}{\aall{t}{\tau'}} \BY{Rule (\ref{rule:hastypeU-tlam}) on \pfref{hastype2}}
+% \end{pfsteps}
+% \resetpfcounter
 
-\item[{\text{(\ref{rule:cvalidE-U-tap})}}~\text{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH, part 2 to all proto-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all proto-type validation judgements, the identification convention to ensure that extended contexts remain disjoint, weakening and exchange as needed, and the corresponding typing rule in Rules (\ref{rule:hastypeU-tap}) through (\ref{rule:hastypeU-case}).
-\\
+% \item[{\text{(\ref{rule:cvalidE-U-tap})}}~\textbf{through}~{\text{(\ref{rule:cvalidE-U-case})}}] These cases follow analagously, i.e. we apply the IH, part 2 to all proto-expression validation judgements, Lemma \ref{lemma:candidate-expansion-type-validation} to all proto-type validation judgements, the identification convention to ensure that extended contexts remain disjoint, weakening and exchange as needed, and the corresponding typing rule in Rules (\ref{rule:hastypeU-tap}) through (\ref{rule:hastypeU-case}).
+% \\
 
-\item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
+\item[\text{(\ref{rule:cvalidE-U-splicede})}] ~
 \begin{pfsteps*}
   \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
   \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
@@ -1837,28 +1652,11 @@ The mutual induction can be shown to be well-founded by showing that the followi
 \sizeof{\expandsU{\uDelta}{\uGamma}{\uPsi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
 \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 \end{align*}
-where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the literal bodies in $\ue$,
-\begin{align*}
-\sizeof{\ux} & = 0\\
-\sizeof{\aulam{\utau}{\ux}{\ue}} &= \sizeof{\ue}\\
-\sizeof{\auap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
-\sizeof{\autlam{\ut}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autap{\ue}{\utau}} & = \sizeof{\ue}\\
-\sizeof{\aufold{\ut}{\utau}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
-%\end{align*}
-%\begin{align*}
-\sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auin{\labelset}{\ell}{\mapschema{\utau}{i}{\labelset}}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autsmap{b}{\tsmv}} & = \sizeof{b}
-\end{align*}
+where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the literal bodies in $\ue$ (see Appendix \ref{appendix:SES-body-lengths}.)
 
 The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \begin{align*}
- & \sizeof{\expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
-=& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{b}}{\ce}{e}{\tau}}\\
+ & \sizeof{\expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}}\\
+=& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}}\\
 =&\sizeof{b}\end{align*}
 
 The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidE-U-splicede}). There, we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgement $\expandsU{\uDelta_\text{app}}{\uGamma_\text{app}}{\uPsi}{\ue}{e}{\tau}$ where $\uDelta_\text{app}=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma_\text{app}=\uGG{\uG}{\Gamma_\text{app}}$ and $\uPsi=\uAS{\uA}{\Psi}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
@@ -1866,12 +1664,18 @@ The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cval
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
 
-This is established by appeal to the following two conditions. The first condition simply states that subsequences of $b$ are no longer than $b$.
-\begin{condition}[Body Subsequencing]\label{condition:body-subsequences} If $\bsubseq{b}{m}{n}=b'$ then $\sizeof{b'} \leq \sizeof{b}$. \end{condition}
-The second condition states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke a TSM and delimit each literal body.
-\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
+This is established by appeal to the following two conditions. The first condition states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to invoke a TSM and delimit each literal body.
+\begingroup
+\def\thetheorem{\ref{condition:body-parsing}}
+\begin{condition}[Expression Parsing Monotonicity] If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
+\endgroup
+The second condition simply states that subsequences of $b$ are no longer than $b$.
+\begingroup
+\def\thetheorem{\ref{condition:body-subsequences}}
+\begin{condition}[Body Subsequencing] If $\bsubseq{b}{m}{n}=b'$ then $\sizeof{b'} \leq \sizeof{b}$. \end{condition}
+\endgroup
 
-Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
+Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
 % We need to define the following theorem about proto-expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
 % \begin{theorem}[Proto-Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
@@ -1879,7 +1683,7 @@ Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-p
 % \end{theorem}
 % \begin{proof} By rule induction over Rules (\ref{rules:cvalidE-U}).
 % \begin{byCases}
-% \item[\text{(\ref{rule:cvalidE-U-var})}] We have
+% \item[\text{(\ref{rule:cvalidE-U-var})}] ~
 % \begin{pfsteps*}
 %   \item $\ce=x$ \BY{assumption}
 %   \item $e=x$ \BY{assumption}
@@ -1889,7 +1693,7 @@ Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-p
 % \end{pfsteps*}
 % \resetpfcounter
 
-% \item[\text{(\ref{rule:cvalidE-U-lam})}] We have
+% \item[\text{(\ref{rule:cvalidE-U-lam})}] ~
 % \begin{pfsteps*}
 %   \item $\ce=\acelam{\ctau_1}{x}{\ce'}$ \BY{assumption}
 %   \item $e=\aelam{\tau_1}{x}{e'}$ \BY{assumption}
@@ -1904,7 +1708,7 @@ Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-p
 % \end{pfsteps*}
 % \resetpfcounter
 
-% \item[\text{(\ref{rule:cvalidE-U-ap})}] We have
+% \item[\text{(\ref{rule:cvalidE-U-ap})}] ~
 % \begin{pfsteps*}
 %   \item $\ce=\aceap{\ce_1}{\ce_2}$ \BY{assumption}
 %   \item $e=\aeap{e_1}{e_2}$ \BY{assumption}
@@ -1920,7 +1724,7 @@ Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-p
 % \item[\VExpof{\text{\ref{rule:hastypeU-tlam}}}~\text{through}~\VExpof{\text{\ref{rule:hastypeU-case}}}] These cases follow analagously, i.e. we apply the IH to all proto-expression validation premises, Lemma \ref{lemma:candidate-expansion-type-validation} to all proto-types validation premises, weakening and exchange as needed, and then apply the corresponding typing rule.
 % \\
 
-% \item[\text{(\ref{rule:cvalidE-U-splicede})}] We have
+% \item[\text{(\ref{rule:cvalidE-U-splicede})}] ~
 % \begin{pfsteps*}
 %   \item $\ce=\acesplicede{m}{n}$ \BY{assumption}
 %   \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
