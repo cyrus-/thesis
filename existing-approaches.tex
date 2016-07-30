@@ -213,7 +213,7 @@ One way to detect parse errors early and reduce the dynamic cost of parsing is t
 List.map (fn x => prev (List.sqparse 
 	`SCSS[^(ECSSnext xSCSS), ^(ECSSnext (2 * x)SCSS)]ECSS`)) input
 \end{lstlisting}
-Here, the operator \lstinline[morekeywords={next,prev}]{prev} causes the call to \li{List.sqparse} to be evaluated in the previous stage. \li{List.sqparse} differs from \li{List.qparse} in that the antiquoted values in the input must be encapsulated expressions from the next stage, indicated by the \lstinline[morekeywords={next, prev}]{next} operator. The return value is also an encapsulated expression from the next stage. By composing this value with \lstinline[morekeywords={next,prev}]{prev}, we achieve the desired staging. Other systems, e.g. MetaML, provide similar staging primitives \cite{Sheard:1999:UMS}.
+Here, the operator \lstinline[morekeywords={next,prev}]{prev} causes the call to \li{List.sqparse} to be evaluated in the previous stage. \li{List.sqparse} differs from \li{List.qparse} in that the antiquoted values in the input must be encapsulated expressions from the next stage, indicated by the \lstinline[morekeywords={next, prev}]{next} operator. The return value is also an encapsulated expression from the next stage. By composing this value with \lstinline[morekeywords={next,prev}]{prev}, we achieve the desired staging. Other systems, e.g. MetaML \cite{Sheard:1999:UMS} and MacroML \cite{ganz2001macros}, provide similar staging primitives.
 
 The main problem with this approach is that it incurs substantial annotation overhead. Here, the staged call to \li{List.sqparse} has higher syntactic cost than if we had simply manually applied \li{Nil} and \li{Cons}. This problem is compounded if marking constructors like those described above are needed.
   % the application of \li{qparse} is evaluated.
@@ -376,7 +376,24 @@ Or(Str "SSTRAESTR", Or (Str "SSTRTESTR", Or (Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
 Of course, it is unreasonable to assume that \li{Or} and \li{Str} are bound appropriately at every use site. In order to maintain \emph{context independence}, the desugaring instead applies the explicit \li{fold} and \li{inj} operators as discussed in Sec. \ref{sec:lists}.\footnote{In SML, where datatypes are generative, it is more difficult to maintain context independence. We would need to provide a module containing the constructors as a ``syntactic argument'' to each form. We describe this technique as it relates to our modular encoding of regexes next. In practice, programmers often fail to maintain context independence when using this technique.}
 
-
+\begin{figure}
+\begin{lstlisting}[numbers=none]
+fun is_dna_rx(r : rx) : boolean => 
+  match r with 
+  | SURL/A/EURL => True
+  | SURL/T/EURL => True
+  | SURL/G/EURL => True
+  | SURL/C/EURL => True
+  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
+  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
+  | _ => False
+  end
+\end{lstlisting}
+\vspace{-5px}
+\caption{Derived regex pattern forms in $\mathcal{V}_\texttt{rx}$}
+\label{fig:derived-pattern-syntax}
+\end{figure}
 
 $\mathcal{V}_\texttt{rx}$ also supports regex literals that contain {subexpressions}. These  capture the idioms that arise when constructing regex values compositionally. For example, the definition of \li{lookup_rx} in Figure \ref{fig:derived-spliced-subexpressions} is equivalent to the definition of \li{lookup_rx} that was given in Figure \ref{fig:lookup_rx}, i.e. it constructs a regex from a string, \li{name}, and another regex, \li{ssn}. The prefix \li{SURL@EURL} followed by the identifier \li{name} causes the expression \lstinline{name} to appear in the desugaring as if wrapped in the \li{Str} constructor, and the prefix \li{SURL%EURL} 
 followed by the identifier \li{ssn} causes \lstinline{ssn} to appear in the desugaring directly. We refer to the subexpressions that appear inside literal forms as \emph{spliced subexpressions}. 
@@ -397,24 +414,6 @@ To splice in an expression that is not of variable form, e.g. a function applica
 Finally, $\mathcal{V}_\texttt{rx}$ extends the syntax of patterns with analagous \emph{derived regex pattern literals}. For example, the definition of \li{is_dna_rx} in Figure \ref{fig:derived-pattern-syntax} is equivalent to the definition of \li{is_dna_rx} that was given in Figure \ref{fig:is_dna_rx}. Notice that the variables bound by the patterns in Figure \ref{fig:derived-pattern-syntax} appear inside \emph{spliced sub-patterns}.
 
 \subsubsection{Example 2: $\mathcal{V}_\text{RX}$}
-\begin{figure}
-\begin{lstlisting}[numbers=none]
-fun is_dna_rx(r : rx) : boolean => 
-  match r with 
-  | SURL/A/EURL => True
-  | SURL/T/EURL => True
-  | SURL/G/EURL => True
-  | SURL/C/EURL => True
-  | SURL/%(EURLr1SURL)%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
-  | SURL/%(EURLr1SURL)|%(EURLr2SURL)/EURL => (is_dna_rx r1) andalso (is_dna_rx r2)
-  | SURL/%(EURLrSURL)*/EURL => is_dna_rx r'
-  | _ => False
-  end
-\end{lstlisting}
-\vspace{-5px}
-\caption{Derived regex pattern forms in $\mathcal{V}_\texttt{rx}$}
-\label{fig:derived-pattern-syntax}
-\end{figure}
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx'(r : R.t) : boolean => 
@@ -444,7 +443,7 @@ R.Seq(R.Str(name), R.Seq(R.Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 This desugaring logic is context-independent because the constructors are explicitly qualified (i.e. \li{Seq} and \li{Str} are \emph{component labels} here, not variables.) The only variables that appear in the desugaring are \li{R}, \li{name} and \li{ssn}. All of these were specified by the client at the use site, so they are subject to renaming.
 
-Recall that \li{RX} specifies a function \li{unfold_norm : t -> t u} for computing the normal unfolding of the given regex, which is a value of type \li{R.t u}. $\mathcal{V}_\text{RX}$ defines derived forms for patterns matching values of types in the type family \li{'a u}. These are used in the definition of \li{is_dna_rx'} given in Figure \ref{fig:VRX-pats}.
+Recall that \li{RX} specifies a function \li{unfold_norm : t -> t u} for computing the normal unfolding of the given regex, which is a value of type \li{u(R.t)}. $\mathcal{V}_\text{RX}$ defines derived forms for patterns matching values of types in the type family \li{'a u}. These are used in the definition of \li{is_dna_rx'} given in Figure \ref{fig:VRX-pats}.
 
 
 
@@ -452,7 +451,7 @@ Recall that \li{RX} specifies a function \li{unfold_norm : t -> t u} for computi
 \subsection{Problems with Syntax Dialects}\label{sec:problems-with-syntax-dialects}
 \subsubsection{Conservatively Combining Syntax Dialects}
 
-Notice that the derived regex pattern forms that appear in Figure \ref{fig:VRX-pats} are identical to those that appear in Figure \ref{fig:derived-pattern-syntax}. Their desugarings are, however, different. In particular, the patterns in Figure \ref{fig:VRX-pats} match values of type \li{R.t u}, whereas the patterns in Figure \ref{fig:derived-pattern-syntax} match values of type \li{rx}. 
+Notice that the derived regex pattern forms that appear in Figure \ref{fig:VRX-pats} are identical to those that appear in Figure \ref{fig:derived-pattern-syntax}. Their desugarings are, however, different. In particular, the patterns in Figure \ref{fig:VRX-pats} match values of type \li{u(R.t)}, whereas the patterns in Figure \ref{fig:derived-pattern-syntax} match values of type \li{rx}. 
 
 These two examples were written in different syntax dialects. However, in general, it would be useful to have derived forms for values of type \li{rx} available even when we are working with a value of a type \li{R.t}, because we have defined a function \li{view : R.t -> rx} in \li{RXUtil}. This brings us to the first of the two main problems with the dialect-oriented approach, already described in Chapter \ref{chap:intro}: there is no good way to conservatively combine $\mathcal{V}_\text{rx}$ and $\mathcal{V}_\text{RX}$. In particular, any such ``combined dialect'' will either fail to conserve determinism (because the forms overlap), or the combined dialect will not be a dialect of both of the constituent dialects, i.e. some of the forms from one dialect will ``shadow'' the overlapping forms from the other dialect (depending on the order in which they were combined \cite{Ford04a}.) 
 
@@ -463,6 +462,8 @@ For the two dialects just considered, these conditions are not satisfied. If we 
 The solution proposed in \cite{conf/pldi/SchwerdfegerW09} is 1) to allow for the grammar's name to be used as an additional syntactic prefix when a conflict arises, and 2) to adopt a naming convention for grammars  based on the Internet domain name system (or some similar coordinating system) that makes conflicts unlikely. For example, Figure \ref{fig:vanwyk} shows how a client would need to draw \li{is_dna_rx'} if a conflict arose. Clearly, this drawing has higher syntactic cost than the drawing in Figure \ref{fig:VRX-pats}. Moreover, there is no simple way for clients to selectively control this cost by defining scoped abbreviations for marking tokens or grammar names (as one does for types, modules or values that are exported from deeply nested modules) because this mechanism is purely syntactic, i.e. agnostic to the binding structure of the base language.
 
 Another approach aimed at making conflicts less likely, though not impossible, is to use types to choose from amongst several possible parses. Some approaches require generating the full \emph{parse forest} before typechecking proceeds, e.g. the \emph{MetaBorg} system \cite{bravenboer2005generalized}. This approach is inefficient, particularly when a large number of grammars have been composed. Aasa et al. developed a dialect of ML where new quotation forms could be associated with datatype constructors, and integrated parsing of these quotation forms into the type inference mechanism of the language \cite{DBLP:conf/lfp/AasaPS88}. The method of \emph{type-oriented island parsing} also integrates parsing with typechecking to improve efficiency \cite{DBLP:conf/sfp/SilkensenS12}.
+
+A more radical approach would be to use a \emph{language composition editor} like Eco \cite{diekmann2014eco}. Language composition editors allow programmers to explicitly switch from one syntax to another with an editor command. This is an instance of the more general concept of \emph{structure editing} (also called \emph{structured editing}, \emph{projectional editing} or \emph{syntax-directed editing}.) This concept, pioneered by the Cornell Program Synthesizer \cite{teitelbaum_cornell_1981}, has various costs and benefits, summarized in \cite{DBLP:conf/sle/VolterSBK14}. In this work, our interest is in text-based syntax, but we consider structure editors as future work in Sec. \ref{sec:future-work}.
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
@@ -640,7 +641,7 @@ These systems present several conceptual problems, many of which are directly an
 \item \textbf{Typing:} It is not always clear what type the rewriting of a marked form will have (if indeed the rewriting happens to be local.)
 \end{enumerate}  
 
-\subsection{Macro Systems}\label{sec:macro-systems}
+\subsection{Term-Rewriting Macro Systems}\label{sec:macro-systems}
 Macro systems are language-integrated local term rewriting systems, i.e. they allow programmers to designate functions that implement rewritings as macros. Clients apply macros directly to terms (e.g. expressions, patterns and other sorts of terms.). The rewritten term is known as the \emph{expansion} of the macro application.
 
 Macro systems do not suffer from the problems of \textbf{Conflict}, \textbf{Search} and \textbf{Non-Locality} described above because macros are applied explicitly and operate locally.
@@ -651,7 +652,7 @@ Na\"ive macro systems, like the earliest variants of the LISP macro system \cite
 \end{lstlisting}
 The problem with these systems is that without examining the macro's implementation or the generated expansion, there is no way to reason about \textbf{Segmentation}, \textbf{Shadowing}, \textbf{Context Dependence} or \textbf{Typing} (assuming a language with a non-trivial type structure.)
 
-The problem of \textbf{Shadowing} was addressed by the design of Scheme's \emph{hygienic macro system} \cite{Kohlbecker86a,DBLP:conf/popl/Adams15}, which automatically alpha-renames identifiers bound in the expansion so that they do not shadow (a.k.a. \emph{capture}) those that appear at the macro application site. Nearly all modern macro systems incorporate such a hygiene mechanism. %Some of these allow the macro provider to override the automatic renaming in situations where shadowing is explicitly intended, though \todo{some make allowances...}
+The problem of \textbf{Shadowing} was addressed by the design of Scheme's \emph{hygienic macro system} \cite{Kohlbecker86a,DBLP:conf/popl/Adams15}, which automatically alpha-renames identifiers bound in the expansion so that they do not shadow (a.k.a. \emph{capture}) those that appear at the macro application site. Nearly all modern macro systems (e.g. Scala's macro system \cite{ScalaMacros2013} and the Template Haskell system \cite{sheard2002template}) incorporate such a hygiene mechanism. %Some of these allow the macro provider to override the automatic renaming in situations where shadowing is explicitly intended, though \todo{some make allowances...}
 
 The problem of \textbf{Context Dependence} is typically confronted by allowing macro expansions to explicitly refer only to those bindings that precede the macro definition site. These references are preserved even if the identifiers involved have been shadowed at the macro application site \cite{DBLP:conf/popl/ClingerR91,DBLP:journals/lisp/DybvigHB92,DBLP:conf/popl/Adams15}. Any references to application site bindings must originate in one of the macro's arguments. There are two problems with this approach:
 \begin{enumerate}

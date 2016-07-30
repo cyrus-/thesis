@@ -284,16 +284,16 @@
 
 \newcommand{\splicedt}[2]{\texttt{splicedt}\langle#1, #2\rangle}
 \newcommand{\asplicedt}[2]{\texttt{splicedt}[#1; #2]}
-\newcommand{\acesplicedt}[2]{\texttt{prsplicedt}[#1; #2]}
+\newcommand{\acesplicedt}[2]{\texttt{splicedt}[#1; #2]}
 \newcommand{\splicede}[2]{\texttt{splicede}\langle#1, #2\rangle}
 \newcommand{\asplicede}[2]{\texttt{splicede}[#1; #2]}
-\newcommand{\acesplicede}[2]{\texttt{prsplicede}[#1; #2]}
+\newcommand{\acesplicede}[2]{\texttt{splicede}[#1; #2]}
 \newcommand{\splicedp}[2]{\texttt{splicedp}\langle#1, #2\rangle}
-\newcommand{\acesplicedp}[2]{\texttt{prsplicedp}[#1; #2]}
+\newcommand{\acesplicedp}[2]{\texttt{splicedp}[#1; #2]}
 \newcommand{\splicedc}[2]{\texttt{splicedc}\langle #1, #2 \rangle}
-\newcommand{\acesplicedc}[2]{\texttt{prsplicedc}[#1; #2]}
+\newcommand{\acesplicedc}[2]{\texttt{splicedc}[#1; #2]}
 \newcommand{\splicedk}[2]{\texttt{splicedk}\langle #1, #2 \rangle}
-\newcommand{\acesplicedk}[2]{\texttt{prsplicedk}[#1; #2]}
+\newcommand{\acesplicedk}[2]{\texttt{splicedk}[#1; #2]}
 
 \newcommand{\mtau}{\dot{\tau}}
 \newcommand{\mtspliced}[1]{\texttt{spliced}(#1)}
@@ -833,3 +833,9 @@
 
 
 \newcommand{\uDOK}[1]{\vdash #1~\mathsf{utctx}}
+
+\newcommand{\segof}[1]{\mathsf{seg}(#1)}
+\newcommand{\segOK}[2]{#1~\mathsf{segments}~#2}
+\newcommand{\segExp}[2]{\langle #1; #2; \mathsf{UExp} \rangle}
+\newcommand{\segTyp}[2]{\langle #1; #2; \mathsf{UTyp} \rangle}
+\newcommand{\segPat}[2]{\langle #1; #2; \mathsf{UPat}\rangle}

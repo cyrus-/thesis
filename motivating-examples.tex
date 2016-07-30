@@ -223,7 +223,7 @@ Because the identity of the representation type \lstinline{R.t} is held abstract
 
 
 Similarly, clients cannot interrogate the structure of a value \li{r : R.t} directly. Instead, the signature specifies a function \li{unfold_norm} that produces the \emph{normal unfolding} of a given regex, i.e. a value of type \li{R.t u} that exposes only the outermost form of the regex in normal form (this normal form invariant is specified only as an unenforced side condition that implementations are expected to obey, as is common practice in languages like ML.) Clients can pattern match over the {normal unfolding} in the familiar manner, as shown in Figure \ref{fig:is_dna_rx_prime}. 
-\begin{figure}[h]
+\begin{figure}
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx'(r : R.t) : boolean => 
   match R.unfold_norm r with 
@@ -249,7 +249,7 @@ One approach is to define auxiliary functions that construct $n$-deep unfoldings
 Another approach is to \emph{completely unfold} a value of type \li{t} by applying a function \li{view : R.t -> rx} that recursively applies \li{R.unfold_norm} to exhaustion. The type \li{rx} was defined in Figure \ref{fig:datatype-rx}.  Computing the complete unfolding (also called the \emph{view}) can have higher dynamic cost than computing an incomplete unfolding of appropriate depth, but it is also a simpler approach (i.e.   lower cognitive cost can justify higher dynamic cost.)
 
 
-\begin{figure}
+\begin{figure}[t]
 \begin{lstlisting}[numbers=none]
 functor RXUtil(R : RX) = 
 struct

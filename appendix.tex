@@ -816,51 +816,6 @@ L_\mathtt{SP} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessP}\\
 \lbltxt{SuccessP}\cdot e & \defeq \aein{L_\mathtt{SP}}{\mathtt{SuccessP}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessP}}{\tCEPat}}{e}
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 \end{grayparbox}
-\subsubsection{Proto-Expression Encoding and Decoding}
-The type abbreviated $\tCEExp$ classifies encodings of \emph{proto-expressions}. The mapping from proto-expressions to values of type $\tCEExp$ is defined by the \emph{proto-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
-
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\encodeCondE{\ce}{e} & \text{$\ce$ has encoding $e$}\\
-\decodeCondE{e}{\ce} & \text{$e$ has decoding $\ce$}
-\end{array}\]
-
-Rather than picking a particular definition of $\tCEExp$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEExp$ and proto-expressions.
-
-\begin{condition}[Proto-Expression Isomorphism]\label{condition:proto-expression-isomorphism} All of the following must hold:
-\begin{enumerate}
-\item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
-\item If $\encodeCondE{\ce}{\ecand}$ then $\decodeCondE{\ecand}{\ce}$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ then $\encodeCondE{\ce}{\ecand}$.
-\item If $\encodeCondE{\ce}{\ecand}$ and $\encodeCondE{\ce}{\ecand'}$ then $\ecand=\ecand'$.
-\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ and $\decodeCondE{\ecand}{\ce'}$ then $\ce=\ce'$.
-\end{enumerate}
-\end{condition}\vspace{10px}
-
-\begin{grayparbox}\vspace{-16px}
-\subsubsection{Proto-Pattern Encoding and Decoding}
-The type abbreviated $\tCEPat$ classifies encodings of \emph{proto-patterns}. The mapping from proto-patterns to values of type $\tCEPat$ is defined by the \emph{proto-pattern encoding judgement}, $\encodeCEPat{\cpv}{p}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCEPat{p}{\cpv}$.
-
-\[\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\encodeCEPat{\cpv}{p} & \text{$\cpv$ has encoding $p$}\\
-\decodeCEPat{p}{\cpv} & \text{$p$ has decoding $\cpv$}
-\end{array}\]
-
-Again, rather than picking a particular definition of $\tCEPat$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEPat$ and proto-patterns.
-
-\begin{condition}[Proto-Pattern Isomorphism]\label{condition:proto-pattern-isomorphism} All of the following must hold:
-\begin{enumerate}
-\item For every $\cpv$, we have $\encodeCEPat{\cpv}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$.
-\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ then $\decodeCEPat{\ecand}{\cpv}$ for some $\cpv$.
-\item If $\encodeCEPat{\cpv}{\ecand}$ then $\decodeCEPat{\ecand}{\cpv}$.
-\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ and $\decodeCEPat{\ecand}{\cpv}$ then $\encodeCEPat{\cpv}{\ecand}$.
-\item If $\encodeCEPat{\cpv}{\ecand}$ and $\encodeCEPat{\cpv}{\ecand'}$ then $\ecand=\ecand'$.
-\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ and $\decodeCEPat{\ecand}{\cpv}$ and $\decodeCEPat{\ecand}{\cpv'}$ then $\cpv=\cpv'$.
-\end{enumerate}
-\end{condition}
-\end{grayparbox}
 
 \subsubsection{Typed Expression Expansion}\label{appendix:typed-expression-expansion-SES}
 \vspace{8px}\noindent\fbox{\strut$\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$}~~$\ue$ has expansion $e$ of type $\tau$
@@ -967,6 +922,7 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
   \decodeCondE{\ecand}{\ce}\\\\
+    \segOK{\segof{\ce}}{b}\\
   \cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}
 }{
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}
@@ -1179,6 +1135,7 @@ Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expands
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
+    \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
 }{
   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
@@ -1215,7 +1172,7 @@ $\arraycolsep=2pt\begin{array}{lllllll}
 &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
 &&& \acein{\labelset}{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
-&&& \acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
+&&& \acecase{\labelset}{\ctau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \caseof{\ce}{\mapschemab{x}{\ce}{i}{\labelset}} & \text{case analysis}\\
 &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\
 \LCC \lightgray &\lightgray & \lightgray& \lightgray & \lightgray & \lightgray\\
 &&& \acematchwith{n}{\ctau}{\ce}{\seqschemaX{\crv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\
@@ -1270,6 +1227,110 @@ $\arraycolsep=2pt\begin{array}{lllllll}
   \end{align*}
 \end{itemize}
 \end{grayparbox}
+
+\subsubsection{Proto-Expression Encoding and Decoding}
+The type abbreviated $\tCEExp$ classifies encodings of \emph{proto-expressions}. The mapping from proto-expressions to values of type $\tCEExp$ is defined by the \emph{proto-expression encoding judgement}, $\encodeCondE{\ce}{e}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCondE{e}{\ce}$.
+
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\encodeCondE{\ce}{e} & \text{$\ce$ has encoding $e$}\\
+\decodeCondE{e}{\ce} & \text{$e$ has decoding $\ce$}
+\end{array}\]
+
+Rather than picking a particular definition of $\tCEExp$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEExp$ and proto-expressions.
+
+\begin{condition}[Proto-Expression Isomorphism]\label{condition:proto-expression-isomorphism} All of the following must hold:
+\begin{enumerate}
+\item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
+\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
+\item If $\encodeCondE{\ce}{\ecand}$ then $\decodeCondE{\ecand}{\ce}$.
+\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ then $\encodeCondE{\ce}{\ecand}$.
+\item If $\encodeCondE{\ce}{\ecand}$ and $\encodeCondE{\ce}{\ecand'}$ then $\ecand=\ecand'$.
+\item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ and $\decodeCondE{\ecand}{\ce}$ and $\decodeCondE{\ecand}{\ce'}$ then $\ce=\ce'$.
+\end{enumerate}
+\end{condition}\vspace{10px}
+
+\begin{grayparbox}\vspace{-16px}
+\subsubsection{Proto-Pattern Encoding and Decoding}
+The type abbreviated $\tCEPat$ classifies encodings of \emph{proto-patterns}. The mapping from proto-patterns to values of type $\tCEPat$ is defined by the \emph{proto-pattern encoding judgement}, $\encodeCEPat{\cpv}{p}$. An inverse mapping is defined by the \emph{proto-expression decoding judgement}, $\decodeCEPat{p}{\cpv}$.
+
+\[\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\encodeCEPat{\cpv}{p} & \text{$\cpv$ has encoding $p$}\\
+\decodeCEPat{p}{\cpv} & \text{$p$ has decoding $\cpv$}
+\end{array}\]
+
+Again, rather than picking a particular definition of $\tCEPat$ and defining the judgements above inductively against it, we only state the following condition, which establishes an isomorphism between values of type $\tCEPat$ and proto-patterns.
+
+\begin{condition}[Proto-Pattern Isomorphism]\label{condition:proto-pattern-isomorphism} All of the following must hold:
+\begin{enumerate}
+\item For every $\cpv$, we have $\encodeCEPat{\cpv}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$.
+\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ then $\decodeCEPat{\ecand}{\cpv}$ for some $\cpv$.
+\item If $\encodeCEPat{\cpv}{\ecand}$ then $\decodeCEPat{\ecand}{\cpv}$.
+\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ and $\decodeCEPat{\ecand}{\cpv}$ then $\encodeCEPat{\cpv}{\ecand}$.
+\item If $\encodeCEPat{\cpv}{\ecand}$ and $\encodeCEPat{\cpv}{\ecand'}$ then $\ecand=\ecand'$.
+\item If $\hastypeUC{\ecand}{\tCEPat}$ and $\isvalU{\ecand}$ and $\decodeCEPat{\ecand}{\cpv}$ and $\decodeCEPat{\ecand}{\cpv'}$ then $\cpv=\cpv'$.
+\end{enumerate}
+\end{condition}
+\end{grayparbox}
+
+\subsubsection{Segmentations}
+A \emph{segmentation}, $\psi$, is a finite set of \emph{segments}. Segments consist of two natural numbers and a sort, i.e. segments are of the form $\segExp{m}{n}$ or $\segTyp{m}{n}$\graytxtbox{ or $\segPat{m}{n}$}.
+
+The metafunction $\segof{\ce}$ determines the segmentation of $\ce$ by generating one segment for each reference to a spliced expression or type, respectively. More specifically:
+\begin{itemize}
+\item We define $\segof{\ctau}$ as follows:
+\[\arraycolsep=1pt\begin{array}{rl}
+  \segof{t} & = \emptyset\\
+  \segof{\aceparr{\ctau_1}{\ctau_2}} & = \segof{\ctau_1} \cup \segof{\ctau_2}\\
+  \segof{\aceall{t}{\ctau}} &= \segof{\ctau}\\
+  \segof{\acerec{t}{\ctau}} & = \segof{\ctau}\\
+  \segof{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ctau_i}\\
+  \segof{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ctau_i}\\
+  \segof{\acesplicedt{m}{n}} & = \{ \segTyp{m}{n} \}
+  \end{array}\]
+\item We define $\segof{\ce}$ as follows:
+\[\arraycolsep=1pt\begin{array}{rl} 
+
+\segof{x} & = \emptyset\\
+\segof{\acelam{\ctau}{x}{\ce}} & = \segof{\ctau} \cup \segof{\ce} \\
+\segof{\acetlam{t}{\ce}} & = \segof{\ce}\\
+\segof{\acetap{\ce}{\ctau}} & = \segof{\ctau} \cup \segof{\ce}\\
+\segof{\acefold{t}{\ctau}{\ce}} & = \segof{\ctau} \cup \segof{\ce}\\
+\segof{\aceunfold{\ce}} & = \segof{\ce}\\
+\segof{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ce_i}\\
+\segof{\acepr{\ell}{\ce}} & = \segof{\ce}\\
+\segof{\acein{\labelset}{\ell}{\mapschema{\ctau}{i}{\labelset}}{\ce}} & = \cup_{i \in \labelset} \segof{\tau_i} \cup \segof{\ce}\\
+\segof{\acecase{\labelset}{\ctau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}} & = \segof{\ctau} \cup \segof{\ce} \cup_{i \in \labelset} \segof{\ce_i}\\
+\segof{\acesplicede{m}{n}} & = \{ \segExp{m}{n} \}\\
+\LCC \lightgray & \lightgray\\
+\segof{\acematchwith{n}{\ctau}{\ce}{\seqschemaX{\crv}}} & = \segof{\ctau} \cup \segof{\ce} \ECC \cup_{1 \leq i \leq n} \segof{\crv_i}
+\end{array}\]
+\end{itemize}
+\begin{grayparbox}
+\begin{itemize}
+\item We define $\segof{\crv}$ as follows:
+\[\arraycolsep=1pt\begin{array}{rl} 
+
+\segof{\acematchrule{p}{\ce}} & = \segof{\ce}
+\end{array}\]
+\end{itemize}
+
+The metafunction $\segof{\cpv}$ determines the segmentation of $\cpv$ by generating one segment for each reference to a spliced pattern:
+\[
+\arraycolsep=1pt\begin{array}{rl}
+
+\segof{\acewildp} & = \emptyset\\
+\segof{\acefoldp{\cpv}} & = \segof{\cpv}\\
+\segof{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\cpv_i}\\
+\segof{\aceinjp{\ell}{\cpv}} & = \segof{\cpv}\\
+\segof{\acesplicedp{m}{n}} & = \{ \segPat{m}{n} \}
+\end{array}
+\]
+
+\end{grayparbox}
+The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
+
 
 \subsection{Proto-Type Validation}
 %Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
@@ -1559,10 +1620,10 @@ By rule induction over Rules (\ref{rules:istypeU}). In each case, we apply the I
 \end{equation}
 \end{grayparbox}
 \end{subequations}
-\clearpage
-%\vspace{-5px}
+% \clearpage
+\vspace{-5px}
 \begin{grayparbox}
-%\vspace{15px}
+\vspace{15px}
 \noindent\fbox{\strut$\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$}~~$\crv$ has expansion $r$ taking values of type $r$ to values of type $\tau'$
 \begin{equation}\label{rule:cvalidR-UP}
 \inferrule{
@@ -1573,7 +1634,7 @@ By rule induction over Rules (\ref{rules:istypeU}). In each case, we apply the I
 }
 \end{equation}
 \end{grayparbox}
-\begin{grayparbox}
+\vspace{-5px}\begin{grayparbox}
 \subsection{Proto-Pattern Validation}
 \emph{Pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$.
 
@@ -1777,7 +1838,7 @@ If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ an
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-  By mutual rule induction on Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}).
+  By mutual rule induction over Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}).
   \begin{enumerate}
   \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
@@ -1933,7 +1994,7 @@ This is established by appeal to Condition \ref{condition:body-subsequences}, wh
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-By mutual rule induction on Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\ref{rule:ruleExpands}),} Rules (\ref{rules:cvalidE-U}) \graytxtbox{and Rule (\ref{rule:cvalidR-UP})}.
+By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\ref{rule:ruleExpands}),} Rules (\ref{rules:cvalidE-U}) \graytxtbox{and Rule (\ref{rule:cvalidR-UP})}.
 
 \begin{enumerate}
 \item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
@@ -2194,7 +2255,7 @@ The mutual induction can be shown to be well-founded by showing that the followi
 where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the seTSM literal bodies in $\ue$, as defined in Sec. \ref{appendix:SES-syntax}.
 
 The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \begin{align*}
- & \sizeof{\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
+ & \sizeof{\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}}\\
 =& \sizeof{\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}}\\
 =&\sizeof{b}\end{align*}
 
@@ -2207,7 +2268,7 @@ This is established by appeal to Condition \ref{condition:body-subsequences}, wh
 Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
 
-\begin{theorem}[Typed Expression Expansion]\label{thm:typed-expansion-short-U} \hspace{-3px}If $\expandsU{\uDD{\uD}{\Delta}\hspace{-3px}}{\uGG{\uG}{\Gamma}\hspace{-3px}}{\uPsi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+\begin{theorem}[Typed Expression Expansion]\label{thm:typed-expansion-short-U} If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}\hspace{-3px}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
 \end{theorem}
 \begin{proof} This theorem follows immediately from Theorem \ref{thm:typed-expansion-full-U}, part 1(a). \end{proof}
 
@@ -2353,3 +2414,65 @@ Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 % \resetpfcounter
 % \end{byCases}
 % \end{proof}
+
+\subsection{Reasoning Principles}
+The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+\begin{theorem}[Typing, Segmentation and Context Independence]
+\label{thm:tsc-SES}
+If $\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\begin{enumerate}
+\item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+\item $\encodeBody{b}{\ebody}$
+\item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+\item $\decodeCondE{\ecand}{\ce}$
+\item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+\item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ 
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+\end{proof}
+
+The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+\begin{theorem}[Shadowing Prohibition]
+\label{thm:shadowing-prohibition-SES} ~
+\begin{enumerate}
+\item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
+\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
+\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\end{enumerate}
+\item If $\cvalidE{\Delta}{\Gamma}{\esceneSG{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}$ then:
+\begin{enumerate}
+\item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
+\item $\expandsSG{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
+\end{enumerate}
+\end{enumerate}
+\end{theorem}
+\begin{proof} ~
+\begin{enumerate}
+\item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
+\item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
+\end{enumerate}
+\end{proof}
+
+\begin{grayparbox}
+The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
+
+\begin{theorem}[spTSM Typing and Segmentation]
+\label{thm:spTSM-Typing-Segmentation}
+If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+\begin{enumerate}
+        \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+        \item $\encodeBody{b}{\ebody}$
+        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\decodeCEPat{\ecand}{\cpv}$
+        \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
+\end{proof}
+\end{grayparbox}

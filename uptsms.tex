@@ -98,7 +98,7 @@ fun is_dna_rx(r : rx) : boolean =>
 The definition of the pattern TSM \li{#\dolla#rx} shown being applied in the examples above takes the following form:
 \begin{lstlisting}[numbers=none]
 syntax $rx at rx for patterns by 
-  static fn(b : body) : proto_pat parse_result =>
+  static fn(b : body) : parse_result(proto_pat) =>
     (* regex pattern parser here *)
 end 
 \end{lstlisting}
@@ -107,17 +107,17 @@ This definition first names the pattern TSM \li{#\dolla#rx}. Pattern TSM names, 
 The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM definition, rather than an expression TSM definition (the sort qualifier \li{for expressions} can be written for expression TSMs, though when the sort qualifier is omitted this is the default.) Defining both an expression TSM and a pattern TSM with the same name at the same type is a common idiom, so VerseML defines a derived form for combining their definitions:
 \begin{lstlisting}[numbers=none,morekeywords={andfor}]
 syntax $rx at rx for expressions by
-  static fn(body : body) : proto_exp parse_result => 
+  static fn(body : body) : proto_expr parse_result => 
     (* regex expression parser here *)
 andfor patterns by 
-  static fn(body : Body) : proto_pat parse_result => 
+  static fn(body : Body) : parse_result(proto_pat) => 
     (* regex pattern parser here *)
 end
 \end{lstlisting}
 
-Pattern TSMs, like expression TSMs, must specify a static {parse function}. For pattern TSMs, the parse function must be of type \li{body -> proto_pat parse_result}, where \li{body} and \li{parse_result} are defined as in Figure \ref{fig:indexrange-and-parseresult}. 
+Pattern TSMs, like expression TSMs, must specify a static {parse function}. For pattern TSMs, the parse function must be of type \li{body -> parse_result(proto_pat)}, where \li{body} and \li{parse_result} are defined as in Figure \ref{fig:indexrange-and-parseresult}. 
 
-The type \li{proto_pat}, defined in Figure \ref{fig:CEPat}, is analagous to the types \li{proto_exp} and \li{proto_typ} defined in Figure \ref{fig:candidate-exp-verseml}. This type classifies \emph{encodings of proto-patterns}. Every pattern form has a corresponding proto-pattern form, with the exception of variable patterns (for reasons explained in Sec. \ref{sec:ptsms-hygiene} below.) There is also an additional constructor, \li{SplicedP}, to allow a proto-pattern to refer indirectly to spliced patterns by their location within the literal body. 
+The type \li{proto_pat}, defined in Figure \ref{fig:CEPat}, is analagous to the types \li{proto_expr} and \li{proto_typ} defined in Figure \ref{fig:candidate-exp-verseml}. This type classifies \emph{encodings of proto-patterns}. Every pattern form has a corresponding proto-pattern form, with the exception of variable patterns (for reasons explained in Sec. \ref{sec:ptsms-hygiene} below.) There is also an additional constructor, \li{SplicedP}, to allow a proto-pattern to refer indirectly to spliced patterns by their location within the literal body. 
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
@@ -705,6 +705,7 @@ Rule (\ref{rule:patExpands-apuptsm}), below, governs spTSM application.
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
+  \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
 }{
   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
@@ -725,6 +726,8 @@ This rule is similar to Rule (\ref{rule:expandsU-tsmap}), which governs seTSM ap
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
 \item The fourth premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\cpv$, itself.
+
+\item The fifth premise ensures that the proto-expansion induces a valid segmentation of $b$, i.e. that the spliced pattern locations are within bounds and non-overlapping.
 
 \item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$, and generates hypotheses $\uGamma$, which appear in the conclusion of the rule. The proto-pattern validation judgement is discussed next.
 \end{enumerate}
@@ -1203,3 +1206,22 @@ By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleEx
 
 The mutual induction can be shown to be well-founded essentially as described in Sec. \ref{sec:SE-metatheory}. Appendix \ref{appendix:SES-typed-expression-expansion} gives the complete details.
 \end{proof}
+
+\subsubsection{Reasoning Principles}
+The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
+
+\begingroup
+\def\thetheorem{\ref{thm:spTSM-Typing-Segmentation}}
+\begin{theorem}[spTSM Typing and Segmentation]
+If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+\begin{enumerate}
+        \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+        \item $\encodeBody{b}{\ebody}$
+        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\decodeCEPat{\ecand}{\cpv}$
+        \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
+\end{proof}
+\endgroup

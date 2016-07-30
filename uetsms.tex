@@ -50,7 +50,7 @@ To avoid the assumption that the variables \li{Or} and \li{Str} are in scope at 
 The definition of \lstinline{#\dolla#rx} takes the following form:
 \begin{lstlisting}[numbers=none,mathescape=|]
 syntax $rx at rx by 
-  static fn(b : body) -> proto_expr parse_result => 
+  static fn(b : body) -> parse_result(proto_expr) => 
     (* regex literal parser here *)
 end
 \end{lstlisting}
@@ -60,16 +60,16 @@ All TSM names must begin with the dollar symbol (\li{#\dolla#}), which distingui
 
 The {parse function} is a \emph{static function} delegated responsibility over parsing literal bodies. Static functions, marked by the \li{static} keyword, are functions that are applied during the typed expansion process. For this reason, they cannot refer to the surrounding variable bindings (because those variables stand for dynamic values.) For now, we will simply assume that static functions are closed and do not themselves make use of TSMs (we will eliminate these impractical limitations in Chapter \ref{chap:static-eval}.)
 
-Every seTSM parse function must have type \li{body -> proto_expr parse_result}. The input type, \lstinline{body}, classifies encodings of literal {bodies}. In VerseML, literal bodies are sequences of characters, so it suffices to define \li{body} as an abbreviation for the \li{string} type, as shown in Figure \ref{fig:indexrange-and-parseresult}.\footnote{In languages where the surface syntax is not textual, \li{body} would have a different definition, but we leave explicit consideration of such languages as future work (see Sec. \ref{sec:future-work}.)} The return type is a labeled sum type defined by applying the type function \li{parse_result} defined in Figure \ref{fig:indexrange-and-parseresult}. The resulting type distinguishes between parse errors and successful parses.\footnote{\li{parse_result} is defined as a type function because in Chapter \ref{chap:uptsms}, we will introduce pattern TSMs, which generate patterns rather than expressions.} Let us consider these possibilities in turn.
+Every seTSM parse function must have type \li{body -> parse_result(proto_expr)}. The input type, \lstinline{body}, classifies encodings of literal {bodies}. In VerseML, literal bodies are sequences of characters, so it suffices to define \li{body} as an abbreviation for the \li{string} type, as shown in Figure \ref{fig:indexrange-and-parseresult}.\footnote{In languages where the surface syntax is not textual, \li{body} would have a different definition, but we leave explicit consideration of such languages as future work (see Sec. \ref{sec:future-work}.)} The return type is a labeled sum type defined by applying the type function \li{parse_result} defined in Figure \ref{fig:indexrange-and-parseresult}. The resulting type distinguishes between parse errors and successful parses.\footnote{\li{parse_result} is defined as a type function because in Chapter \ref{chap:uptsms}, we will introduce pattern TSMs, which generate patterns rather than expressions.} Let us consider these possibilities in turn.
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 type body = string
 
 type loc = {startIdx : int, endIdx : int} (* inclusive *)
-type 'a parse_result = ParseError of {
+type parse_result('a) = ParseError of {
                          msg : string, loc : loc
-                       }
-                     + Success of 'a 
+                        }
+                      + Success of 'a 
 \end{lstlisting}
 \caption[Definitions of \li{body}, \li{loc} and \li{parse_result} in VerseML]{Definitions of \li{body}, \li{loc} and \li{parse_result}. These type definitions are given in the VerseML \emph{prelude}, which is a small collection of definitions available ambiently.}
 \label{fig:indexrange-and-parseresult}
@@ -196,7 +196,7 @@ We will return to this example when we consider other possible points in this de
 
 
 \subsubsection{Context Dependence}
-The prohibition on shadowing ensures that variables that appear in spliced terms do not refer to bindings that appear in the surrounding expansion. The proto-expansion validation process also ensures that variables that appear in the proto-expansion do not refer to bindings that appear at the application site. In other words, expansions must be \emph{context independent}. A minimal example of a TSM that generates context-dependent proto-expansions is below:
+The prohibition on shadowing ensures that variables that appear in spliced terms do not refer to bindings that appear in the surrounding expansion. The proto-expansion validation process also ensures that variables that appear in the proto-expansion do not refer to bindings that appear at the definition or application site. In other words, expansions must be \emph{context independent}. A minimal example of a TSM that generates context-dependent proto-expansions is below:
 \begin{lstlisting}[numbers=none]
 syntax $bad1 at rx by
   static fn(_) => Success (Var "SSTRxESTR")
@@ -1166,6 +1166,7 @@ The typed expansion rule governing seTSM application is below:
   \encodeBody{b}{\ebody}\\
   \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
   \decodeCondE{\ecand}{\ce}\\\\
+  \segOK{\segof{\ce}}{b}\\
   \cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}
 }{
   \expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}
@@ -1185,6 +1186,12 @@ The premises of Rule (\ref{rule:expandsU-tsmap}) can be understood as follows, i
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
 \item The fourth premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\ce$, itself.
+
+\item The fifth premise determines a segmentation, $\segof{\ce}$ and ensures that it is valid with respect to $b$. 
+
+A \emph{segmentation}, $\psi$, is a finite set of \emph{segments} of the form $\segExp{m}{n}$ or $\segTyp{m}{n}$. The metafunction $\segof{\ce}$ determines the segmentation of $\ce$ by generating one segment for each reference to a spliced expression or type, respectively (see next section.)
+
+The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
 
 \item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$, which appears in the conclusion of the rule. The proto-expression validation judgement is discussed next.
 \end{enumerate}
@@ -1519,7 +1526,8 @@ Together, these three premises enforce the prohibition on shadowing as described
 
 
 \subsection{Metatheory}\label{sec:SE-metatheory}
-The proto-expression validation judgement is defined mutually inductively with the typed expansion judgement, due to the second premise of Rule (\ref{rule:cvalidE-U-splicede}). To prove Theorem \ref{thm:typed-expansion-short-U}, which was mentioned at the beginnning of Sec. \ref{sec:typed-expansion-U}, we must consequently prove the following stronger theorem:
+\subsubsection{Typed Expansion}
+To prove Theorem \ref{thm:typed-expansion-short-U}, which was mentioned at the beginnning of Sec. \ref{sec:typed-expansion-U}, we must  prove the following stronger theorem (because the proto-expression validation judgement is defined mutually inductively with the typed expansion judgement):
 
 \begingroup
 \def\thetheorem{\ref{thm:typed-expansion-full-U}}
@@ -1677,6 +1685,14 @@ The second condition simply states that subsequences of $b$ are no longer than $
 
 Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
+
+We can now restate Theorem \ref{thm:typed-expansion-short-U}.
+\begingroup
+\def\thetheorem{\ref{thm:typed-expansion-short-U}}
+\begin{theorem}[Typed Expression Expansion] \hspace{-3px}If $\expandsU{\uDD{\uD}{\Delta}\hspace{-3px}}{\uGG{\uG}{\Gamma}\hspace{-3px}}{\uPsi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+\end{theorem}
+\begin{proof} This theorem follows immediately from Theorem \ref{thm:typed-expansion-full-U}, part 1. \end{proof}
+\endgroup
 % We need to define the following theorem about proto-expression validation mutually with Theorem \ref{thm:typed-expansion-U}. 
 % \begin{theorem}[Proto-Expansion Expression Validation]\label{thm:candidate-expansion-validation-U}
 % If $\cvalidE{\Delta}{\Gamma}{\esceneU{\Delta_\text{app}}{\Gamma_\text{app}}{\uPsi}{b}}{\ce}{e}{\tau}$ and $\uetsmenv{\Delta_\text{app}}{\uPsi}$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$.
@@ -1741,3 +1757,49 @@ Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as need
 %\qed
 
 
+\subsubsection{Reasoning Principles}
+The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+\begingroup
+\def\thetheorem{\ref{thm:tsc-SES}}
+\begin{theorem}[seTSM Typing and Context Independence]
+If $\expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\begin{enumerate}
+\item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+\item $\encodeBody{b}{\ebody}$
+\item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+\item $\decodeCondE{\ecand}{\ce}$
+\item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+\item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}$ 
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+\end{proof}
+\endgroup
+
+The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
+\begingroup
+\def\thetheorem{\ref{thm:shadowing-prohibition-SES}}
+\begin{theorem}[Shadowing Prohibition] ~
+\begin{enumerate}
+\item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
+\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
+\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\end{enumerate}
+\item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}}{\acesplicede{m}{n}}{e}{\tau}$ then:
+\begin{enumerate}
+\item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
+\item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
+\end{enumerate}
+\end{enumerate}
+\end{theorem}
+\begin{proof} ~
+\begin{enumerate}
+\item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
+\item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
+\end{enumerate}
+\end{proof}
+\endgroup
