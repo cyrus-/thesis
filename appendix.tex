@@ -477,7 +477,7 @@ Our subsequent developments do not make mention of particular rules in the dynam
 
 \begin{condition}[Progress]\label{condition:progress-UP} If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ \graytxtbox{or $\matchfail{e}$} or there exists an $e'$ such that $\stepsU{e}{e'}$. \end{condition}
 
-\section{Unexpanded Language}\label{appendix:SES-uexps}
+\section{Unexpanded Language (UL)}\label{appendix:SES-uexps}
 \subsection{Syntax}\label{appendix:SES-syntax}\label{appendix:SES-shared-forms}
 \subsubsection{Stylized Abstract Syntax}
 \[\begin{array}{lllllll}
@@ -2476,3 +2476,852 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 \begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
 \end{proof}
 \end{grayparbox}
+
+
+\chapter{$\miniVerseParam$}
+\todo{add static environments and introductory explanation}
+
+\clearpage
+\section{Expanded Language (XL)}
+\subsection{Syntax}
+\subsubsection{Signatures and Module Expressions}
+\[\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Sig} & \sigma & ::= & \asignature{\kappa}{u}{\tau} 
+%& \signature{u}{\kappa}{\tau} 
+& \text{signature}\\
+\mathsf{Mod} & M & ::= & X 
+%& X 
+& \text{variable}\\
+&&& \astruct{c}{e} 
+%& \struct{c}{e} 
+& \text{structure}\\
+&&& \aseal{\sigma}{M} 
+%& \seal{M}{\sigma} 
+& \text{seal}\\
+&&& \amlet{\sigma}{M}{X}{M} %& \mlet{X}{M}{M}{\sigma} 
+& \text{definition}
+\end{array}\]
+
+\subsubsection{Kinds and Constructors}
+\[\begin{array}{lrlllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Kind} & \kappa & ::= & \akdarr{\kappa}{u}{\kappa} 
+%& \kdarr{u}{\kappa}{\kappa} 
+& \text{dependent function}\\
+&&& \akunit 
+%& \kunit 
+& \text{nullary product}\\
+&&& \akdbprod{\kappa}{u}{\kappa} 
+%& \kdbprod{u}{\kappa}{\kappa} 
+& \text{dependent product}\\
+%&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
+&&& \akty 
+%& \kty
+& \text{types}\\
+&&& \aksing{\tau} 
+%& \ksing{\tau} 
+& \text{singleton}\\
+\mathsf{Con} & c, \tau & ::= & u 
+%& u 
+& \text{variable}\\
+&&& t 
+%& t & \text{variable}
+\\
+&&& \acabs{u}{c} 
+%& \cabs{u}{c} 
+& \text{abstraction}\\
+&&& \acapp{c}{c} 
+%& \capp{c}{c} 
+& \text{application}\\
+&&& \actriv 
+%& \ctriv 
+& \text{trivial}\\
+&&& \acpair{c}{c}
+% & \cpair{c}{c} 
+& \text{pair}\\
+&&& \acprl{c} 
+%& \cprl{c} 
+& \text{left projection}\\
+&&& \acprr{c} 
+%& \cprr{c} 
+& \text{right projection}\\
+%&&& \adtplX & \dtplX & \text{labeled dependent tuple}\\
+%&&& \adprj{\ell}{c} & \prj{c}{\ell} & \text{projection}\\
+&&& \aparr{\tau}{\tau} 
+%& \parr{\tau}{\tau} 
+& \text{partial function}\\
+&&& \aallu{\kappa}{u}{\tau} 
+%& \forallu{u}{\kappa}{\tau} 
+& \text{polymorphic}\\
+&&& \arec{t}{\tau} 
+%& \rect{t}{\tau} 
+& \text{recursive}\\
+&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} 
+%& \prodt{\mapschema{\tau}{i}{\labelset}} 
+& \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} 
+%& \sumt{\mapschema{\tau}{i}{\labelset}} 
+& \text{labeled sum}\\
+&&& \amcon{M} 
+%& \mcon{M} 
+& \text{constructor part}
+\end{array}\]
+\clearpage
+
+\subsubsection{Expressions, Rules and Patterns}
+\[\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Exp} & e & ::= & x 
+%& x 
+& \text{variable}\\
+&&& \aelam{\tau}{x}{e} 
+%& \lam{x}{\tau}{e} 
+& \text{abstraction}\\
+&&& \aeap{e}{e} 
+%& \ap{e}{e} 
+& \text{application}\\
+&&& \aeclam{\kappa}{u}{e} %& \clam{u}{\kappa}{e} 
+& \text{constructor abstraction}\\
+&&& \aecap{e}{\kappa} %& \cAp{e}{\kappa} 
+& \text{constructor application}\\
+&&& \aefold{t}{\tau}{e} %& \fold{e} 
+& \text{fold}\\
+&&& \aeunfold{e} %& \unfold{e} 
+& \text{unfold}\\
+&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} 
+%& \tpl{\mapschema{e}{i}{\labelset}} 
+& \text{labeled tuple}\\
+&&& \aepr{\ell}{e} 
+%& \prj{e}{\ell} 
+& \text{projection}\\
+&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+%& \inj{\ell}{e} 
+& \text{injection}\\
+&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} 
+%& \matchwith{e}{\seqschemaX{r}} 
+& \text{match}\\
+&&& \amval{M} 
+%& \mval{M} 
+& \text{value part}\\
+\mathsf{Rule} & r & ::= & \aematchrule{p}{e} 
+%& \matchrule{p}{e} 
+& \text{rule}\\
+\mathsf{Pat} & p & ::= & x 
+%& x 
+& \text{variable pattern}\\
+&&& \aewildp 
+%& \wildp 
+& \text{wildcard pattern}\\
+&&& \aefoldp{p} 
+%& \foldp{p} 
+& \text{fold pattern}\\
+&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} 
+%& \tplp{\mapschema{p}{i}{\labelset}} 
+& \text{labeled tuple pattern}\\
+&&& \aeinjp{\ell}{p} 
+%& \injp{\ell}{p} 
+& \text{injection pattern}
+\end{array}\]
+
+\subsection{Statics}\label{appendix:P-statics}
+\subsubsection{Signatures and Structures}
+Signature formation
+\begin{equation}\label{rule:issig}
+\inferrule{
+  \iskindX{\kappa}\\
+  \istypeP{\Omega, u :: \kappa}{\tau}
+}{
+  \issigX{\asignature{\kappa}{u}{\tau}}
+}
+\end{equation}
+
+
+Signature equality
+\begin{equation}\label{rule:sigequal}
+\inferrule{
+  \kequalX{\kappa}{\kappa'}\\
+  \tequalP{\Omega, u :: \kappa}{\tau}{\tau'}
+}{
+  \sigequalX{\asignature{\kappa}{u}{\tau}}{\asignature{\kappa'}{u}{\tau'}}
+}
+\end{equation}
+
+Subsignature
+\begin{equation}\label{rule:sigsub}
+\inferrule{
+  \ksubX{\kappa}{\kappa'}\\
+  \issubtypeP{\Omega, u :: \kappa}{\tau}{\tau'}
+}{
+  \sigsubX{\asignature{\kappa}{u}{\tau}}{\asignature{\kappa'}{u}{\tau'}}
+}
+\end{equation}
+
+Signature matching
+\begin{subequations}\label{rules:hassig}
+\begin{equation}\label{rule:hassig-subsume}
+\inferrule{
+  \hassigX{M}{\sigma}\\
+  \sigsubX{\sigma}{\sigma'}
+}{
+  \hassigX{M}{\sigma'}
+}
+\end{equation}
+\begin{equation}\label{rule:hassig-var}
+\inferrule{ }{
+  \hassig{\Omega, X : \sigma}{X}{\sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:hassig-struct}
+\inferrule{
+  \haskindX{c}{\kappa}\\
+  \hastypeP{\Omega}{e}{[c/u]\tau}
+}{
+  \hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
+}
+\end{equation}
+\begin{equation}\label{rule:hassig-seal}
+\inferrule{
+  \issigX{\sigma}\\
+  \hassigX{M}{\sigma}
+}{
+  \hassigX{\aseal{\sigma}{M}}{\sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:hassig-let}
+\inferrule{
+  \hassigX{M}{\sigma}\\
+  \issigX{\sigma'}\\
+  \hassig{\Omega, X : \sigma}{M'}{\sigma'}  
+}{
+  \hassigX{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
+}
+\end{equation}
+\end{subequations}
+
+Module values
+\begin{subequations}\label{rules:ismval}
+\begin{equation}\label{rule:ismval-struct}
+\inferrule{ }{
+  \ismvalX{\astruct{c}{e}}
+}
+\end{equation}
+\begin{equation}\label{rule:ismval-var}
+\inferrule{ }{
+  \ismval{\Omega, X : \sigma}{X}
+}
+\end{equation}
+\end{subequations}
+
+\subsubsection{Kinds and Constructors}
+Kind formation \todo{describe these}
+\begin{subequations}\label{rules:iskind}
+\begin{equation}\label{rule:iskind-darr}
+\inferrule{
+  \iskindX{\kappa_1}\\
+  \iskind{\Omega, u :: \kappa_1}{\kappa_2}
+}{
+  \iskindX{\akdarr{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:iskind-unit}
+\inferrule{ }{
+  \iskindX{\akunit}
+}
+\end{equation}
+\begin{equation}\label{rule:iskind-dprod}
+\inferrule{
+  \iskindX{\kappa_1}\\
+  \iskind{\Omega, u :: \kappa_1}{\kappa_2}
+}{
+  \iskindX{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:iskind-ty}
+\inferrule{ }{
+  \iskindX{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:iskind-sing}
+\inferrule{
+  \haskindX{\tau}{\akty}
+}{
+  \iskindX{\aksing{\tau}}
+}
+\end{equation}
+\end{subequations}
+
+Kind definitional equality \todo{describe these}
+\begin{subequations}\label{rules:kequal}
+\begin{equation}\label{rule:kequal-refl}
+\inferrule{
+  \iskindX{\kappa}
+}{
+  \kequalX{\kappa}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:kequal-sym}
+\inferrule{
+  \kequalX{\kappa}{\kappa'}
+}{
+  \kequalX{\kappa'}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:kequal-trans}
+\inferrule{
+  \kequalX{\kappa}{\kappa'}\\
+  \kequalX{\kappa'}{\kappa''}
+}{
+  \kequalX{\kappa}{\kappa''}
+}
+\end{equation}
+\begin{equation}\label{rule:kequal-darr}
+\inferrule{
+  \kequalX{\kappa_1}{\kappa_1'}\\
+  \kequal{\Omega, u :: \kappa_1}{\kappa_2}{\kappa_2'}
+}{
+  \kequalX{\akdarr{\kappa_1}{u}{\kappa_2}}{\akdarr{\kappa_1'}{u}{\kappa_2'}}
+}
+\end{equation}
+\begin{equation}\label{rule:kequal-dprod}
+\inferrule{
+  \kequalX{\kappa_1}{\kappa'_1}\\
+  \kequal{\Omega, u :: \kappa_1}{\kappa_2}{\kappa'_2}
+}{
+  \kequalX{\akdbprod{\kappa_1}{u}{\kappa_2}}{\akdbprod{\kappa'_1}{u}{\kappa'_2}}  
+}
+\end{equation}
+\begin{equation}\label{rule:kequal-sing}
+\inferrule{
+  \cequalX{c}{c'}{\akty}
+}{
+  \kequalX{\aksing{c}}{\aksing{c'}}
+}
+\end{equation}
+\end{subequations}
+Subkinding \todo{describe these}
+\begin{subequations}\label{rules:ksub}
+\begin{equation}\label{rule:ksub-equal}
+\inferrule{
+  \kequalX{\kappa}{\kappa'}
+}{
+  \ksubX{\kappa}{\kappa'}
+}
+\end{equation}
+\begin{equation}\label{rule:ksub-trans}
+\inferrule{
+  \ksubX{\kappa}{\kappa'}\\
+  \ksubX{\kappa'}{\kappa''}
+}{
+  \ksubX{\kappa}{\kappa''}
+}
+\end{equation}
+\begin{equation}\label{rule:ksub-darr}
+\inferrule{
+  \ksubX{\kappa'_1}{\kappa_1}\\
+  \ksub{\Omega, u :: \kappa'_1}{\kappa_2}{\kappa'_2}  
+}{
+  \ksubX{\akdarr{\kappa_1}{u}{\kappa_2}}{\akdarr{\kappa'_1}{u}{\kappa'_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:ksub-dprod}
+\inferrule{
+  \ksubX{\kappa_1}{\kappa'_1}\\
+  \ksub{\Omega, u :: \kappa_1}{\kappa_2}{\kappa'_2}
+}{
+  \ksubX{\akdbprod{\kappa_1}{u}{\kappa_2}}{\akdbprod{\kappa'_1}{u}{\kappa'_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:ksub-sing}
+\inferrule{
+  \haskindX{\tau}{\akty}
+}{
+  \ksubX{\aksing{\tau}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:ksub-sing-2}
+\inferrule{
+  \issubtypePX{\tau}{\tau'}
+}{
+  \ksubX{\aksing{\tau}}{\aksing{\tau'}}{\akty}
+}
+\end{equation}
+\end{subequations}
+Kinding \todo{describe these}
+\begin{subequations}\label{rules:haskind}
+\begin{equation}\label{rule:haskind-subsume}
+\inferrule{
+  \haskindX{c}{\kappa_1}\\
+  \ksubX{\kappa_1}{\kappa_2}
+}{
+  \haskindX{c}{\kappa_2}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-var}
+\inferrule{ }{\haskind{\Omega, u :: \kappa}{u}{\kappa}}
+\end{equation}
+\begin{equation}\label{rule:haskind-abs}
+\inferrule{
+  \haskind{\Omega, u :: \kappa_1}{c_2}{\kappa_2}
+}{
+  \haskindX{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-app}
+\inferrule{
+  \haskindX{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
+  \haskindX{c_2}{\kappa_2}
+}{
+  \haskindX{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-unit}
+\inferrule{ }{
+  \haskindX{\actriv}{\akunit}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-pair}
+\inferrule{
+  \haskindX{c_1}{\kappa_1}\\
+  \haskindX{c_2}{[c_1/u]\kappa_2}
+}{
+  \haskindX{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-prl}
+\inferrule{
+  \haskindX{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}{
+  \haskindX{\acprl{c}}{\kappa_1}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-prr}
+\inferrule{
+  \haskindX{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}{
+  \haskindX{\acprr{c}}{[\acprl{c}/u]\kappa_2}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-parr}
+\inferrule{
+  \haskindX{\tau_1}{\akty}\\
+  \haskindX{\tau_2}{\akty}
+}{
+  \haskindX{\aparr{\tau_1}{\tau_2}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-all}
+\inferrule{
+  \iskindX{\kappa}\\
+  \haskind{\Omega, u :: \kappa}{\tau}{\akty}
+}{
+  \haskindX{\aallu{\kappa}{u}{\tau}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-rec}
+\inferrule{
+  \haskind{\Omega, t :: \akty}{\tau}{\akty}
+}{
+  \haskindX{\arec{t}{\tau}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-prod}
+\inferrule{
+  \{\haskindX{\tau_i}{\akty}\}_{1 \leq i \leq n}
+}{
+  \haskindX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-sum}
+\inferrule{
+  \{\haskindX{\tau_i}{\akty}\}_{1 \leq i \leq n}
+}{
+  \haskindX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-sing}
+\inferrule{
+  \haskindX{c}{\akty}
+}{
+  \haskindX{c}{\aksing{c}}
+}
+\end{equation}
+\begin{equation}\label{rule:haskind-stat}
+\inferrule{
+  \ismvalX{M}\\
+  \hassigX{M}{\asignature{\kappa}{u}{\tau}}
+}{
+  \haskindX{\amcon{M}}{\kappa}
+}
+\end{equation}
+\end{subequations}
+
+Constructor equality\todo{describe this}
+\begin{subequations}\label{rules:cequal}
+\begin{equation}\label{rule:cequal-refl}
+\inferrule{
+  \haskindX{c}{\kappa}
+}{
+  \cequalX{c}{c}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-sym}
+\inferrule{
+  \cequalX{c}{c'}{\kappa}
+}{
+  \cequalX{c'}{c}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-trans}
+\inferrule{
+  \cequalX{c}{c'}{\kappa}\\
+  \cequalX{c'}{c''}{\kappa}
+}{
+  \cequalX{c}{c''}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-lam}
+\inferrule{
+  \cequal{\Omega, u :: \kappa_1}{c}{c'}{\kappa_2}
+}{
+  \cequalX{\acabs{u}{c}}{\acabs{u}{c'}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-app-1}
+\inferrule{
+  \cequalX{c_1}{c_1'}{\akdarr{\kappa_2}{u}{\kappa}}\\
+  \cequalX{c_2}{c_2'}{\kappa_2}
+}{
+  \cequalX{\acapp{c_1}{c_2}}{\acapp{c'_1}{c'_2}}{\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-app-2}
+\inferrule{
+  \haskindX{\acabs{u}{c}}{\akdarr{\kappa_2}{u}{\kappa}}\\
+  \haskindX{c_2}{\kappa_2}
+}{
+  \cequalX{\acapp{\acabs{u}{c}}{c_2}}{[c_2/u]c}{[c_2/u]\kappa}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-pair}
+\inferrule{
+  \cequalX{c_1}{c'_1}{\kappa_1}\\
+  \cequalX{c_2}{c'_2}{[c_1/u]\kappa_2}
+}{
+  \cequalX{\acpair{c_1}{c_2}}{\acpair{c'_1}{c'_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-prl-1}
+\inferrule{
+  \cequalX{c}{c'}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}{
+  \cequalX{\acprl{c}}{\acprl{c'}}{\kappa_1}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-prl-2}
+\inferrule{
+  \haskindX{c_1}{\kappa_1}\\
+  \haskindX{c_2}{\kappa_2}
+}{
+  \cequalX{\acprl{\acpair{c_1}{c_2}}}{c_1}{\kappa_1}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-prr-1}
+\inferrule{
+  \cequalX{c}{c'}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+}{
+  \cequalX{\acprr{c}}{\acprr{c'}}{[\acprl{c}/u]\kappa_2}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-prr-2}
+\inferrule{
+  \haskindX{c_1}{\kappa_1}\\
+  \haskindX{c_2}{\kappa_2}
+}{
+  \cequalX{\acprr{\acpair{c_1}{c_2}}}{c_2}{\kappa_2}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-parr}
+\inferrule{
+  \cequalX{\tau_1}{\tau'_1}{\akty}\\
+  \cequalX{\tau_2}{\tau'_2}{\akty}
+}{
+  \cequalX{\aparr{\tau_1}{\tau_2}}{\aparr{\tau'_1}{\tau'_2}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-all}
+\inferrule{
+  \kequalX{\kappa}{\kappa'}\\
+  \cequal{\Omega, u :: \kappa}{\tau}{\tau'}{\akty}
+}{
+  \cequalX{\aallu{\kappa}{u}{\tau}}{\aallu{\kappa'}{u}{\tau'}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-rec}
+\inferrule{
+  \cequal{\Omega, t :: \akty}{\tau}{\tau'}{\akty}
+}{
+  \cequalX{\arec{t}{\tau}}{\arec{t}{\tau'}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-prod}
+\inferrule{
+  \{\cequalX{\tau_i}{\tau'_i}{\akty}\}_{1 \leq i \leq n}
+}{
+  \cequalX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau'}{i}{\labelset}}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-sum}
+\inferrule{
+  \{\cequalX{\tau_i}{\tau'_i}{\akty}\}_{1 \leq i \leq n}
+}{
+  \cequalX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau'}{i}{\labelset}}}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-sing}
+\inferrule{
+  \haskindX{c}{\aksing{c'}}
+}{
+  \cequalX{c}{c'}{\akty}
+}
+\end{equation}
+\begin{equation}\label{rule:cequal-stat}
+\inferrule{
+  \ismvalX{\astruct{c}{e}}\\
+  \hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
+}{
+  \cequalX{\amcon{\astruct{c}{e}}}{c}{\kappa}
+}
+\end{equation}
+\end{subequations}
+\subsubsection{Expressions, Rules and Patterns}
+Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide with the types of $\miniVerseParam$.
+\begin{equation}\label{rule:istypeP}
+\inferrule{
+  \haskindX{\tau}{\akty}
+}{
+  \istypeP{\Omega}{\tau}
+}
+\end{equation}
+Type equality then coincides with constructor equality at kind $\akty$.
+\begin{equation}\label{rule:tequalP}
+\inferrule{
+  \cequalX{\tau}{\tau}{\akty}
+}{
+  \tequalPX{\tau}{\tau'}
+}
+\end{equation}
+
+Subtyping.
+\begin{subequations}\label{rules:issubtypeP}  
+\begin{equation}\label{rule:issubtypeP-equal}
+\inferrule{
+  \tequalPX{\tau_1}{\tau_2}
+}{
+  \issubtypePX{\tau_1}{\tau_2}
+}
+\end{equation}
+\begin{equation}\label{rule:issubtypeP-trans}
+\inferrule{
+  \issubtypePX{\tau}{\tau'}\\
+  \issubtypePX{\tau'}{\tau''}
+}{
+  \issubtypePX{\tau}{\tau''}
+}
+\end{equation}
+\begin{equation}\label{rule:issubtypeP-parr}
+\inferrule{
+  \issubtypePX{\tau_1'}{\tau_1}\\
+  \issubtypePX{\tau_2}{\tau_2'}
+}{
+  \issubtypePX{\aparr{\tau_1}{\tau_2}}{\aparr{\tau_1'}{\tau_2'}}
+}
+\end{equation}
+\begin{equation}\label{rule:issubtypeP-all}
+\inferrule{
+  \ksubX{\kappa}{\kappa'}\\
+  \issubtypeP{\Omega, u :: \kappa}{\tau}{\tau'}
+}{
+  \issubtypePX{\aallu{\kappa}{u}{\tau}}{\aallu{\kappa'}{u}{\tau'}}
+}
+\end{equation}
+\begin{equation}\label{rule:issubtypeP-prod}
+\inferrule{
+  \{\issubtypePX{\tau_i}{\tau'_i}\}_{i \in \labelset}
+}{
+  \issubtypePX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau'}{i}{\labelset}}}
+}
+\end{equation}
+\begin{equation}\label{rule:issubtypeP-sum}
+\inferrule{
+  \{\issubtypePX{\tau_i}{\tau'_i}\}_{i \in \labelset}
+}{
+  \issubtypePX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau'}{i}{\labelset}}}
+}
+\end{equation}
+\end{subequations}
+
+Expression typing \todo{describe these}
+\begin{subequations}\label{rules:hastypeP}
+\begin{equation}\label{rule:hastypeP-subsume}
+\inferrule{
+  \hastypeP{\Omega}{e}{\tau}\\
+  \issubtypePX{\tau}{\tau'}
+}{
+  \hastypeP{\Omega}{e}{\tau'}
+}
+\end{equation}
+\begin{equation}\label{rule:hastypeP-var}
+  \inferrule{ }{
+    \hastypeP{\Omega, \Ghyp{x}{\tau}}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-lam}
+  \inferrule{
+    \istypeP{\Omega}{\tau}\\
+    \hastypeP{\Omega, \Ghyp{x}{\tau}}{e}{\tau'}
+  }{
+    \hastypeP{\Omega}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-ap}
+  \inferrule{
+    \hastypeP{\Omega}{e_1}{\aparr{\tau}{\tau'}}\\
+    \hastypeP{\Omega}{e_2}{\tau}
+  }{
+    \hastypeP{\Omega}{\aeap{e_1}{e_2}}{\tau'}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-clam}
+  \inferrule{
+    \iskindX{\kappa}\\
+    \hastypeP{\Omega, u :: \kappa}{e}{\tau}
+  }{
+    \hastypeP{\Omega}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-cap}
+  \inferrule{
+    \hastypeP{\Omega}{e}{\aallu{\kappa}{u}{\tau}}\\
+    \haskindX{c}{\kappa}
+  }{
+    \hastypeP{\Omega}{\aecap{e}{c}}{[c/u]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-fold}
+  \inferrule{\
+    \istypeP{\Omega, t :: \akty}{\tau}\\
+    \hastypeP{\Omega}{e}{[\arec{t}{\tau}/t]\tau}
+  }{
+    \hastypeP{\Omega}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-unfold}
+  \inferrule{
+    \hastypeP{\Omega}{e}{\arec{t}{\tau}}
+  }{
+    \hastypeP{\Omega}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-tpl}
+  \inferrule{
+    \{\hastypeP{\Omega}{e_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \hastypeP{\Omega}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-pr}
+  \inferrule{
+    \hastypeP{\Omega}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+  }{
+    \hastypeP{\Omega}{\aepr{\ell}{e}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-in}
+  \inferrule{
+    \{\istypeP{\Omega}{\tau_i}\}_{i \in \labelset}\\
+    \istypeP{\Omega}{\tau}\\
+    \hastypeP{\Omega}{e}{\tau}
+  }{
+    \hastypeP{\Omega}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:hastypeP-match}
+\inferrule{
+  \hastypeP{\Omega}{e}{\tau}\\
+  \istypeP{\Omega}{\tau'}\\
+  \{\ruleTypeP{\Omega}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
+}{\hastypeP{\Omega}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
+\end{equation}
+\begin{equation}\label{rule:hastypeP-dyn}
+\inferrule{
+  \ismvalX{M}\\
+  \hassigX{M}{\asignature{\kappa}{u}{\tau}}
+}{
+  \hastypeP{\Omega}{\amval{M}}{[\amcon{M}/u]\tau}
+}
+\end{equation}
+\end{subequations}
+maybe last one needs self-recognition?
+
+Rule typing
+\begin{equation}\label{rule:ruleTypeP}
+\inferrule{
+  \patTypeP{\Omega'}{p}{\tau}\\
+  \hastypeP{\Gcons{\Omega}{\Omega'}}{e}{\tau'}
+}{
+  \ruleTypeP{\Omega}{\aematchrule{p}{e}}{\tau}{\tau'}
+}
+\end{equation}
+
+Pattern typing
+\begin{subequations}\label{rules:patTypeP}
+\begin{equation}\label{rule:patTypeP-subsume}
+\inferrule{
+  \patTypeP{\Omega'}{p}{\tau}\\
+  \issubtypePX{\tau}{\tau'}
+}{
+  \patTypeP{\Omega'}{p}{\tau'}
+}
+\end{equation}
+\begin{equation}\label{rule:patTypeP-var}
+\inferrule{ }{\patTypeP{\Ghyp{x}{\tau}}{x}{\tau}}
+\end{equation}
+\begin{equation}\label{rule:patTypeP-wild}
+\inferrule{ }{\patTypeP{\emptyset}{\aewildp}{\tau}}
+\end{equation}
+\begin{equation}\label{rule:patTypeP-fold}
+\inferrule{
+  \patTypeP{\Omega'}{p}{[\arec{t}{\tau}/t]\tau}
+}{
+  \patTypeP{\Omega'}{\aefoldp{p}}{\arec{t}{\tau}}
+}
+\end{equation}
+\begin{equation}\label{rule:patTypeP-tpl}
+\inferrule{
+  \{\patTypeP{\Omega_i}{p_i}{\tau_i}\}_{i \in \labelset}
+}{
+  \patTypeP{\Gconsi{i \in \labelset}{\Omega_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+}
+\end{equation}
+\begin{equation}\label{rule:patTypeP-inj}
+\inferrule{
+  \patTypeP{\Omega'}{p}{\tau}
+}{
+  \patTypeP{\Omega'}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+}
+\end{equation}
+\end{subequations}
+\subsection{Structural Dynamics}
+
+\section{Unexpanded Language (UL)}
+
+\section{Proto-Expansion Validation}
+
+\section{Metatheory}

@@ -1,83 +1,117 @@
 % !TEX root = omar-thesis.tex
 
-\chapter{Parameterized TSMs (pTSMs)}\label{chap:ptsms}
+\chapter{Parametric TSMs (pTSMs)}\label{chap:ptsms}
 % \begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
 % and generality in language design is a serious unsolved 
 % problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
 % \end{quote}
-\begin{quote}\textit{You know me, I gotta put in a big tree.}
-\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
-\end{quote}
-~\\
-In the preceding chapters, we introduced unparameterized TSMs (uTSMs). uTSMs are defined at a single type, like \li{Rx}, and the expansions that they generate have access to bindings at the application site only via spliced subterms. In this chapter, we introduce \emph{parameterized TSMs} (pTSMs) -- TSMs parameterized by types and modules. pTSMs can be defined over a parameterized family of types, and can access their parameters within the expansions that they generate. 
+% ~\\
+In the two previous chapters, we introduced simple TSMs (sTSMs). Simple TSMs are defined at a single type, like \li{rx}, and the expansions that they generate have access to bindings at the application site only through spliced terms that the client provides. In this chapter, we introduce \emph{parametric TSMs} (pTSMs). pTSMs can be defined over a type- and module-parameterized family of types, and the expansions that they generate can refer to the supplied type and module parameters. 
 
-This chapter is organized much like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parameterized TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then formalize parameterized TSMs by defining a reduced calculus, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
-\section{Parameterized TSMs By Example}\label{sec:parameterized-tsms-by-example}
+This chapter is organized like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parameterized TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then develop a reduced calculus of parametric TSMs, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
+\section{Parametric TSMs By Example}\label{sec:parameterized-tsms-by-example}
 
 \subsection{Type Parameters}\label{sec:type-parameters}
-VerseML, like many ML dialects, provides support for defining \emph{type constructors}, which express type-parameterized families of types. The canonical example is the type constructor \li{list}, which constructs list types given one type parameter, the \emph{element type}. 
-In VerseML, \li{list} is defined as follows.
+Recall from Sec. \ref{sec:lists} the definition of the type-parameterized family of list types:
 \begin{lstlisting}[numbers=none]
-type list('a) = Nil | Cons of 'a * list('a)
+type list('a) = rec(self => Nil + Cons of 'a * self)
 \end{lstlisting}
 
-For any type \li{T}, the type of lists containing elements of type \li{T} can be constructed by applying \li{list} to \li{T}, written \li{list(T)}.\footnote{As with function application, the parentheses are optional (though for type constructor application, it is typical to include them). In many other ML dialects, type parameters are given in prefix form, e.g. in Standard ML, one writes \li{int list} rather than \li{list(int)}.} In other words, type constructors can be understood as total functions at the level of \emph{constructor expressions}. 
+% \emph{Kinds} classify constructor expressions, much like types classify expressions. Types are constructor expressions of kind \li{T}, and type constructors are constructor expressions of arrow kind. Here, \li{list} takes a single type parameter, so it has arrow kind \li{T -> T}.
 
-\emph{Kinds} classify constructor expressions, much like types classify expressions. Types are constructor expressions of kind \li{T}, and type constructors are constructor expressions of arrow kind. Here, \li{list} takes a single type parameter, so it has arrow kind \li{T -> T}.
-
-As discussed in Sec. \ref{sec:syntax-examples-containers}, full-scale ML dialects commonly define derived syntactic forms that decrease the syntactic cost of introducing and pattern matching over values of list type. VerseML, in contrast, does not build in such derived list forms. 
-
-In lieu of derived forms for introducing lists, we define the following \emph{parameterized expression TSM} (peTSM):
-\begin{lstlisting}
-syntax $list('a) at list('a) {
-  static fn(body : Body) : ParseResult(CEExp) => (* ... *)
-}
+ML dialects commonly define derived syntactic forms for constructing and pattern matching over values of list type. VerseML, in contrast, does not build in derived list forms. Instead, the provider of the library where the type function \li{list} is defined also defines a \emph{parametric expression TSM} (peTSM) and a \emph{parametric pattern TSM} (ppTSM), both named \li{#\dolla#list}, as shown in Figure \ref{fig:petsm-list}.
+\begin{figure}[h]
+\begin{lstlisting}[numbers=none]
+syntax $list('a) at list('a) for expressions by 
+  static fn(b : body) : parse_result(proto_expr) => (* ... *)
+and for patterns by 
+  static fn(b : body) : parse_result(proto_pat) => (* ... *) 
+end
 \end{lstlisting}
-Line 1 names the peTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a} (implicitly of kind \li{T}). This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when applied to a type \li{'a} and a generalized literal form, will only generate expansions of type \li{list('a)}. For example, we can apply \li{#\dolla#list} to the type \li{int} and generalized literal forms delimited by square brackets as follows.
+\caption{The type-parameterized \texttt{\$list} TSMs.}
+\label{fig:petsm-list}
+\end{figure}
+
+Line 1 specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which establishes that \li{#\dolla#list}, when applied to a type \li{T} and a generalized literal form, can only generate expansions (of type / that match values of type) \li{list(T)}. For example, we can apply \li{#\dolla#list} to \li{int} and generalized literal forms delimited by square brackets as follows:
 \begin{lstlisting}[numbers=none]
 val y = $list(int) [3SURL, EURL4SURL, EURL5]
 val x = $list(int) [1SURL, EURL2SURL :: EURLy]
 \end{lstlisting}
 
-Line 2 of the definition of \li{#\dolla#list} defines its parse function. Parse functions operate as described in Chapter \ref{chap:uetsms} to generate encodings of candidate expansions, which are subsequently validated to generate the final expansions of expressions of peTSM application form, like those in the example above. For \li{#\dolla#list}, the parse function (whose body is elided above for concision) breaks the literal body up into  spliced subexpressions -- those separated by commas become individual elements at the head of the list being generated, and, optionally, a trailing spliced subexpression prefixed by two colons (\li{SURL::EURL}) becomes the tail of the list being generated (the tail is \li{Nil} otherwise). The final expansion of the example above, if written textually, is:
+Parse functions operate as described in Chapter \ref{chap:uetsms} to generate encodings of proto-expansions, which are subsequently validated to generate the final expansions of expressions of TSM application form. For \li{#\dolla#list}, the parse functions (whose definitions are elided above for concision) break the literal body up into  spliced terms -- those separated by commas become individual elements at the head of the list, and, optionally, a trailing spliced term prefixed by two colons (\li{SURL::EURL}) becomes the tail of the list. The final expansion of the example above is equivalent to the following when the list value constructors are in scope:
 \begin{lstlisting}[numbers=none]
-val y : list(int) = Cons(3, Cons(4, Cons(5, Nil)))
-val x : list(int) = Cons(1, Cons(2, y))
+val y = Cons(3, Cons(4, Cons(5, Nil)))
+val x = Cons(1, Cons(2, y))
 \end{lstlisting}
-% differing only in that any type parameter that the peTSM specifies can appear free in the generated expansion.
+Once again, due to the prohibition on context-dependent expansions, the expansion itself must use the explicit \li{fold} and \li{inj} operators rather than the list value constructors \li{Cons} and \li{Nil}.
 
-Similarly, in lieu of derived list pattern forms, we define the following \emph{parameterized pattern TSM} (ppTSM):
-\begin{lstlisting}[numbers=none]
-syntax $list('a) at list('a) for patterns {
-  static fn(body : Body) : ParseResult(CEPat) => (* ... *)
-}
-\end{lstlisting}
-Again, Line 1 names the ppTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when apply to a type \li{'a} and a generalized literal form, will only generate patterns that match values of type \li{list('a)}. 
+\subsection{Module Parameters}\label{sec:module-parameters}
+In Figure \ref{fig:LIST}, we defined a signature \li{LIST} that exported the definition of \li{list} and specified the list value constructors (and some other values.) Let us now define parameterized TSM for lists, shown in Figure \ref{fig:ptsm-listprime}, that take modules matching \li{LIST} as an additional parameter.
 
-For example, we can apply the ppTSM \li{#\dolla#list} and the \li{#\dolla#list} to define the polymorphic map function as follows.
+\begin{figure}[h]
 \begin{lstlisting}[numbers=none]
-fun map (f : 'a -> 'b) (x : list('a)) => match x { 
-  $list('a) [] => $list('b) []
-| $list('a) [hdSURL :: EURLtl] => $list('b) [f hdSURL :: EURLmap f tl]
-}
-\end{lstlisting}
-The expansion of this function definition, written textually, is:
-\begin{lstlisting}[numbers=none]
-fun map (f : 'a -> 'b) (x : list('a)) : 'b list => match x { 
-  Nil => Nil
-| Cons(hd, tl) => Cons(f hd, map f tl)
-}
-\end{lstlisting}
-This is somewhat unsatisfying, however, because the expansion is more concise than the unexpanded definition of \li{map}. To further reduce syntactic cost, we can designate \li{#\dolla#list} as the implicit TSM for both expressions and patterns at all types \li{'a list} around our definition of \li{map} as follows.
-\begin{lstlisting}[numbers=none]
-implicit syntax $list('a) in
-  fun map (f : 'a -> 'b) (x : 'a list) : 'b list => match x {
-    [] => []
-  | [hdSURL :: EURLtl] => [f hdSURL :: EURLmap f tl]
-  }
+syntax $list' (L : LIST) 'a at 'a L.list for expressions by 
+  static fn(b : body) : parse_result(proto_expr) => (* ... *)
+and for patterns by 
+  static fn(b : body) : parse_result(proto_pat) => (* ... *)
 end
 \end{lstlisting}
-By designating an implicit TSM, we no longer need to explicitly apply \li{#\dolla#list} within expressions in analytic position or patterns.
+\caption{The type- and module-parameterized \texttt{\$list'} TSMs.}
+\label{fig:ptsm-listprime}
+\end{figure}
+% differing only in that any type parameter that the peTSM specifies can appear free in the generated expansion.
+
+We can apply \li{#\dolla#list'} to the module \li{List} and the type \li{int} as follows:
+\begin{lstlisting}[numbers=none]
+val y = $list' List int [3SURL, EURL4SURL, EURL5]
+val x = $list' List int [1SURL, EURL2SURL :: EURLy]
+\end{lstlisting}
+The expansion is:
+\begin{lstlisting}[numbers=none]
+val y = List.Cons(3, List.Cons(4, List.Cons(5, List.Nil)))
+val x = List.Cons(1, List.Cons(2, y))
+\end{lstlisting}
+There is no need to use explicit \li{fold} and \li{inj} operators in this expansion, because the constuctors are projected out of the provided module parameter. The TSM itself did not assume that the module would be named \li{List} (indeed, internally, it refers to it as \li{L}.)
+
+This makes matters simpler for the TSM provider, but there is a syntactic cost associated with supplying a module parameter at each TSM application site. To reduce this cost, VerseML supports partial parameter application in TSM abbreviations. For example, we can define \li{#\dolla#list} by partially applying \li{#\dolla#list'} as follows:
+\begin{lstlisting}[numbers=none]
+let syntax $list = $list' List
+\end{lstlisting}
+(This abbreviates both the expression and pattern TSMs -- sort qualifiers can be added to restrict the abbreviation if desired.)
+
+
+% Similarly, in lieu of derived list pattern forms, we define the following \emph{parameterized pattern TSM} (ppTSM):
+% \begin{lstlisting}[numbers=none]
+% syntax $list('a) at list('a) for patterns {
+%   static fn(body : Body) : ParseResult(CEPat) => (* ... *)
+% }
+% \end{lstlisting}
+% Again, Line 1 names the ppTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when apply to a type \li{'a} and a generalized literal form, will only generate patterns that match values of type \li{list('a)}. 
+
+% For example, we can apply the ppTSM \li{#\dolla#list} and the \li{#\dolla#list} to define the polymorphic map function as follows.
+% \begin{lstlisting}[numbers=none]
+% fun map (f : 'a -> 'b) (x : list('a)) => match x { 
+%   $list('a) [] => $list('b) []
+% | $list('a) [hdSURL :: EURLtl] => $list('b) [f hdSURL :: EURLmap f tl]
+% }
+% \end{lstlisting}
+% The expansion of this function definition, written textually, is:
+% \begin{lstlisting}[numbers=none]
+% fun map (f : 'a -> 'b) (x : list('a)) : 'b list => match x { 
+%   Nil => Nil
+% | Cons(hd, tl) => Cons(f hd, map f tl)
+% }
+% \end{lstlisting}
+% This is somewhat unsatisfying, however, because the expansion is more concise than the unexpanded definition of \li{map}. To further reduce syntactic cost, we can designate \li{#\dolla#list} as the implicit TSM for both expressions and patterns at all types \li{'a list} around our definition of \li{map} as follows.
+% \begin{lstlisting}[numbers=none]
+% implicit syntax $list('a) in
+%   fun map (f : 'a -> 'b) (x : 'a list) : 'b list => match x {
+%     [] => []
+%   | [hdSURL :: EURLtl] => [f hdSURL :: EURLmap f tl]
+%   }
+% end
+% \end{lstlisting}
+% By designating an implicit TSM, we no longer need to explicitly apply \li{#\dolla#list} within expressions in analytic position or patterns.
 
 % When designating an implicit TSM, we assume that free type variables in the type annotation, e.g. here \li{'a}, range over all types. We can make this more explicit by specifying a type parameter explicitly as follows:
 % \begin{lstlisting}[numbers=none]
@@ -86,177 +120,293 @@ By designating an implicit TSM, we no longer need to explicitly apply \li{#\doll
 % end
 % \end{lstlisting}
 % All type parameters must appear in the type annotation.
-\subsection{Module Parameters}\label{sec:module-parameters}
-VerseML also provides a module language based on the Standard ML module language \cite{MacQueen:1984:MSM:800055.802036}. The module language consists of \emph{module expressions} classified by \emph{signatures}. %Signatures specify type components, which may be opaque or transparent, value components, and module components.h
+% \subsection{More Examples}
+Module parameters also allow us to define TSMs that operate uniformly over module-parameterized families of abstract types. For example, the module-parameterized TSM \texttt{\$r} defined in Figure \ref{fig:param-tsm-r} supports the POSIX regex syntax for any type \li{R.t} where \li{R : RX}. 
 
-%In Sec. \ref{sec:motivating-examples}, we gave several examples of signatures and discussed how one might introduce derived forms that  across a module-parameterized family of types.
-
-The canonical example is the signature for working with persistent queues.
-\begin{lstlisting}[numbers=none]
-signature QUEUE = sig
-  type queue('a)
-  val empty  : queue('a)
-  val insert : 'a * queue('a) -> queue('a)
-  val remove : queue('a) -> option('a * queue('a))
-end 
-\end{lstlisting}
-Structures that match this signature must define a type constructor \li{queue} of kind \li{T -> T} and three values -- \li{empty} introduces the empty queue, \li{insert} inserts a value onto the back of a queue, and \li{remove} removes the element at the front of the queue and returns it and the remaining queue, or \li{None} if the queue is empty.%one for inserting an item into a queue, and one for removing a value from a queue.
-
-There are many possible structures that implement this signature. For example, we can define a structure \li{ListQueue} that represents queues internally as lists, where the head of the list is the back of the queue. With this representation, \li{insert} is a constant time operation, but \li{remove} is a linear time operation. Alternatively, we might define a structure \li{TwoListQueue} that represents queues internally as a pair of lists, maintaining the invariant that one is the reverse of the other, so that both \li{insert} and \li{remove} are constant time operations (see \cite{harper1997programming} for the details of this and other possibilities). 
-
-Regardless of the implementation that the client chooses, we would like for the client to be able to introduce queues more naturally and at lower syntactic cost than is possible by directly applying the functions specified by the signature above. In VerseML, we can give clients of structures matching the signature \li{QUEUE} this ability by defining the following parameterized expression TSM:
-\begin{lstlisting}[numbers=none]
-syntax $queue(Q : QUEUE)('a) at Q.queue('a) {
-	static fn(body : Body) : ParseResult(CEExp) => (* ... *)
-}
-\end{lstlisting}
-This peTSM specifies one module parameter, \li{Q}, which must match the signature \li{QUEUE}, and one type parameter, \li{'a} (implicitly of kind \li{T}). These appear in the type annotation, which specifies that expansions that arise from applying \li{#\dolla#queue} to a module \li{Q : QUEUE} and a type \li{'a} will be of type \li{Q.queue('a)}. For example:
+\begin{figure}[h]
 \begin{lstlisting}
-val q = $queue TwoListQueue int [SURL> EURL1SURL, EURL2SURL, EURL3]
-val q' = $queue TwoListQueue int [qSURL > EURL4SURL, EURL5]
-\end{lstlisting}
-On Line 1, the initial angle bracket (\li{SURL>EURL}) indicates that the items are inserted in left-to-right order. The items in the queue are given as spliced subexpressions separated by commas. Line 2 inserts two additional items onto the back of the queue \li{q}. The expansion of this example, written textually, is:
-\begin{lstlisting}
-val q : TwoListQueue.queue(int) = 
-	TwoListQueue.insert(1, 
-		TwoListQueue.insert(2, 
-			TwoListQueue.insert(3, 
-				TwoListQueue.empty)))
-val q' : TwoListQueue.queue(int) = 
-  TwoListQueue.insert(4, TwoListQueue.insert(5, q))
-\end{lstlisting}
-Notice that the expansion can refer to the module parameter \li{TwoListQueue}.
-
-We can further reduce syntactic cost by defining a synonym for the partial application of \li{#\dolla#queue} to the module parameter \li{TwoListQueue}:
-\begin{lstlisting}[numbers=none]
-syntax $tlq = $queue TwoListQueue
-val q = $tlq int [SURL> EURL1SURL, EURL2SURL, EURL3]
-\end{lstlisting}
-We can further define a synonym for the partial application of \li{#\dolla#tlq} to a type parameter:
-\begin{lstlisting}[numbers=none]
-syntax $tlqi = $tlq int (* = $queue TwoListQueue int *)
-val q' = $tlqi [qSURL > EURL4SURL, EURL5]
-\end{lstlisting}
-
-Another way to reduce syntactic cost is by designating \li{#\dolla#queue Q 'a} the implicit TSM at all types of the form \li{Q.queue('a)} where \li{Q : QUEUE}. This is written as follows:
-\begin{lstlisting}[numbers=none]
-implicit syntax (Q : QUEUE) ('a) => $queue Q 'a in
-  val q : TwoListQueue.queue(int) = [SURL> EURL1SURL, EURL2SURL, EURL3]
-  val q' : TwoListQueue.queue(int) = [qSURL > EURL4SURL, EURL5]
+syntax $r(R : RX) at R.t by 
+  static fn(b : body) : parse_result(proto_expr) => (* ... *)
 end
 \end{lstlisting}
-This designation is particularly useful for clients who need to construct a queue as an argument to a function. For example, consider a function 
-\begin{lstlisting}[numbers=none]
-enqueue_jobs : Q.queue(Job) -> Ticket
-\end{lstlisting}
-for some module \li{Q : QUEUE} and types \li{Job} and \li{Ticket}. We can enqueue a sequence of jobs \li{j1} through \li{j4} under the TSM designation above as follows:
-\begin{lstlisting}[numbers=none]
-enqueue_jobs [SURL> EURLj1SURL, EURLj2SURL, EURLj3SURL, EURLj4]
-\end{lstlisting}
-
-
-\begin{figure}[p] 
-$\begin{array}{lrlllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{Kind} & \kappa & ::= & \akdarr{\kappa}{u}{\kappa} & \kdarr{u}{\kappa}{\kappa} & \text{dependent function}\\
-&&& \akunit & \kunit & \text{nullary product}\\
-&&& \akdbprod{\kappa}{u}{\kappa} & \kdbprod{u}{\kappa}{\kappa} & \text{dependent product}\\
-%&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
-&&& \akty & \kty & \text{types}\\
-&&& \aksing{\tau} & \ksing{\tau} & \text{singleton}\\
-\mathsf{Con} & c, \tau & ::= & u & u & \text{variable}\\
-&&& t & t & \text{variable}\\
-&&& \acabs{u}{c} & \cabs{u}{c} & \text{abstraction}\\
-&&& \acapp{c}{c} & \capp{c}{c} & \text{application}\\
-&&& \actriv & \ctriv & \text{trivial}\\
-&&& \acpair{c}{c} & \cpair{c}{c} & \text{pair}\\
-&&& \acprl{c} & \cprl{c} & \text{left projection}\\
-&&& \acprr{c} & \cprr{c} & \text{right projection}\\
-%&&& \adtplX & \dtplX & \text{labeled dependent tuple}\\
-%&&& \adprj{\ell}{c} & \prj{c}{\ell} & \text{projection}\\
-&&& \aparr{\tau}{\tau} & \parr{\tau}{\tau} & \text{partial function}\\
-&&& \aallu{\kappa}{u}{\tau} & \forallu{u}{\kappa}{\tau} & \text{polymorphic}\\
-&&& \arec{t}{\tau} & \rect{t}{\tau} & \text{recursive}\\
-&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} & \prodt{\mapschema{\tau}{i}{\labelset}} & \text{labeled product}\\
-&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} & \sumt{\mapschema{\tau}{i}{\labelset}} & \text{labeled sum}\\
-&&& \amcon{M} & \mcon{M} & \text{constructor part}
-\end{array}$
-\caption[Syntax of kinds and constructors in $\miniVerseParam$]{Syntax of kinds and constructors in $\miniVerseParam$. By convention, we choose the metavariable $\tau$ for constructors that, in well-formed terms, must necessarily be of kind $\kty$, and the metavariable $c$ otherwise. Similarly, we use constructor variables $t$ to stand for constructors of kind $\kty$, and constructor variables $u$ otherwise. Kinds and constructors are identified up to $\alpha$-equivalence.}
-\label{fig:P-kinds-constructors}
+\caption{The module-parameterized TSM \texttt{\$r}.}
+\label{fig:param-tsm-r}
 \end{figure}
 
-\begin{figure}[p] 
-$\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{Exp} & e & ::= & x & x & \text{variable}\\
-&&& \aelam{\tau}{x}{e} & \lam{x}{\tau}{e} & \text{abstraction}\\
-&&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
-&&& \aeclam{\kappa}{u}{e} & \clam{u}{\kappa}{e} & \text{constructor abstraction}\\
-&&& \aecap{e}{\kappa} & \cAp{e}{\kappa} & \text{constructor application}\\
-&&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
-&&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
-&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
-&&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
-&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} & \matchwith{e}{\seqschemaX{r}} & \text{match}\\
-&&& \amval{M} & \mval{M} & \text{value part}\\
-\mathsf{Rule} & r & ::= & \aematchrule{p}{e} & \matchrule{p}{e} & \text{rule}\\
-\mathsf{Pat} & p & ::= & x & x & \text{variable pattern}\\
-&&& \aewildp & \wildp & \text{wildcard pattern}\\
-&&& \aefoldp{p} & \foldp{p} & \text{fold pattern}\\
-&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} & \tplp{\mapschema{p}{i}{\labelset}} & \text{labeled tuple pattern}\\
-&&& \aeinjp{\ell}{p} & \injp{\ell}{p} & \text{injection pattern}
-\end{array}$
-\caption[Syntax of expanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of expanded expressions, rules and patterns (collectively, expanded terms) in $\miniVerseParam$. Expanded terms are identified up to $\alpha$-equivalence.}
-\label{fig:P-expanded-terms}
-\end{figure}
+To be clear: TSM parameters are available only to (proto-)expansions. Parameters are not available to the parse function. For example, the following TSM definition is not well-typed because it refers to \li{M} from within the parse function:
+\begin{lstlisting}[numbers=none]
+syntax $badM(M : A) at T by 
+  static fn(b : body) => let x = M.x in (* ... *)
+end
+\end{lstlisting}
+
+% \subsubsection{Queues}
+% Consider the following signature for working with persistent queues:
+% \begin{lstlisting}[numbers=none]
+% signature QUEUE = sig
+%   type queue('a)
+%   val empty  : queue('a)
+%   val insert : 'a * queue('a) -> queue('a)
+%   val remove : queue('a) -> option('a * queue('a))
+% end 
+% \end{lstlisting}
+% Structures that match this signature must define a type constructor \li{queue} of kind \li{T -> T} and three values -- \li{empty} introduces the empty queue, \li{insert} inserts a value onto the back of a queue, and \li{remove} removes the element at the front of the queue and returns it and the remaining queue, or \li{None} if the queue is empty.%one for inserting an item into a queue, and one for removing a value from a queue.
+
+% There are many possible structures that implement this signature. For example, we can define a structure \li{ListQueue} that represents queues internally as lists, where the head of the list is the back of the queue. With this representation, \li{insert} is a constant time operation, but \li{remove} is a linear time operation. Alternatively, we might define a structure \li{TwoListQueue} that represents queues internally as a pair of lists, maintaining the invariant that one is the reverse of the other, so that both \li{insert} and \li{remove} are constant time operations (see \cite{harper1997programming} for the details of this and other possibilities). 
+
+% Regardless of the implementation that the client chooses, we would like for the client to be able to introduce queues more naturally and at lower syntactic cost than is possible by directly applying the functions specified by the signature above. In VerseML, we can give clients of structures matching the signature \li{QUEUE} this ability by defining the following parameterized expression TSM:
+% \begin{lstlisting}[numbers=none]
+% syntax $queue(Q : QUEUE)('a) at Q.queue('a) {
+%   static fn(body : Body) : ParseResult(CEExp) => (* ... *)
+% }
+% \end{lstlisting}
+% This peTSM specifies one module parameter, \li{Q}, which must match the signature \li{QUEUE}, and one type parameter, \li{'a} (implicitly of kind \li{T}). These appear in the type annotation, which specifies that expansions that arise from applying \li{#\dolla#queue} to a module \li{Q : QUEUE} and a type \li{'a} will be of type \li{Q.queue('a)}. For example:
+% \begin{lstlisting}
+% val q = $queue TwoListQueue int [SURL> EURL1SURL, EURL2SURL, EURL3]
+% val q' = $queue TwoListQueue int [qSURL > EURL4SURL, EURL5]
+% \end{lstlisting}
+% On Line 1, the initial angle bracket (\li{SURL>EURL}) indicates that the items are inserted in left-to-right order. The items in the queue are given as spliced subexpressions separated by commas. Line 2 inserts two additional items onto the back of the queue \li{q}. The expansion of this example, written textually, is:
+% \begin{lstlisting}
+% val q : TwoListQueue.queue(int) = 
+%   TwoListQueue.insert(1, 
+%     TwoListQueue.insert(2, 
+%       TwoListQueue.insert(3, 
+%         TwoListQueue.empty)))
+% val q' : TwoListQueue.queue(int) = 
+%   TwoListQueue.insert(4, TwoListQueue.insert(5, q))
+% \end{lstlisting}
+% Notice that the expansion can refer to the module parameter \li{TwoListQueue}.
+
+% We can further reduce syntactic cost by defining a synonym for the partial application of \li{#\dolla#queue} to the module parameter \li{TwoListQueue}:
+% \begin{lstlisting}[numbers=none]
+% syntax $tlq = $queue TwoListQueue
+% val q = $tlq int [SURL> EURL1SURL, EURL2SURL, EURL3]
+% \end{lstlisting}
+% We can further define a synonym for the partial application of \li{#\dolla#tlq} to a type parameter:
+% \begin{lstlisting}[numbers=none]
+% syntax $tlqi = $tlq int (* = $queue TwoListQueue int *)
+% val q' = $tlqi [qSURL > EURL4SURL, EURL5]
+% \end{lstlisting}
+% \subsection{Module Parameters}
+% VerseML also provides a module language based on the Standard ML module language \cite{MacQueen:1984:MSM:800055.802036}. The module language consists of \emph{module expressions} classified by \emph{signatures}. %Signatures specify type components, which may be opaque or transparent, value components, and module components.h
+
+% %In Sec. \ref{sec:motivating-examples}, we gave several examples of signatures and discussed how one might introduce derived forms that  across a module-parameterized family of types.
+
+
+
+% Another way to reduce syntactic cost is by designating \li{#\dolla#queue Q 'a} the implicit TSM at all types of the form \li{Q.queue('a)} where \li{Q : QUEUE}. This is written as follows:
+% \begin{lstlisting}[numbers=none]
+% implicit syntax (Q : QUEUE) ('a) => $queue Q 'a in
+%   val q : TwoListQueue.queue(int) = [SURL> EURL1SURL, EURL2SURL, EURL3]
+%   val q' : TwoListQueue.queue(int) = [qSURL > EURL4SURL, EURL5]
+% end
+% \end{lstlisting}
+% This designation is particularly useful for clients who need to construct a queue as an argument to a function. For example, consider a function 
+% \begin{lstlisting}[numbers=none]
+% enqueue_jobs : Q.queue(Job) -> Ticket
+% \end{lstlisting}
+% for some module \li{Q : QUEUE} and types \li{Job} and \li{Ticket}. We can enqueue a sequence of jobs \li{j1} through \li{j4} under the TSM designation above as follows:
+% \begin{lstlisting}[numbers=none]
+% enqueue_jobs [SURL> EURLj1SURL, EURLj2SURL, EURLj3SURL, EURLj4]
+% \end{lstlisting}
+
+\section{\texorpdfstring{$\miniVerseParam$}{miniVerseP}}\label{sec:miniVerseP}
+We will now define a reduced dialect of VerseML called $\miniVerseParam$ that supports parametric expression and pattern TSMs. This language, like $\miniVersePat$, consists of an unexpanded language (UL) defined by typed expansion to an expanded language (XL).
+
+\subsection{Syntax of the Expanded Language (XL)}\label{sec:P-expanded-terms}
 
 \begin{figure}[p] 
-$\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{Sig} & \sigma & ::= & \asignature{\kappa}{u}{\tau} & \signature{u}{\kappa}{\tau} & \text{signature}\\
-\mathsf{Mod} & M & ::= & X & X & \text{variable}\\
-&&& \astruct{c}{e} & \struct{c}{e} & \text{structure}\\
-&&& \aseal{\sigma}{M} & \seal{M}{\sigma} & \text{seal}\\
-&&& \amlet{\sigma}{M}{X}{M} & \mlet{X}{M}{M}{\sigma} & \text{definition}
-\end{array}$
-\caption[Syntax of signatures and module expressions in $\miniVerseParam$]{Syntax of signatures and module expressions in $\miniVerseParam$. Signatures and module expressions are identified up to $\alpha$-equivalence.}
+\[\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Sig} & \sigma & ::= & \asignature{\kappa}{u}{\tau} 
+%& \signature{u}{\kappa}{\tau} 
+& \text{signature}\\
+\mathsf{Mod} & M & ::= & X 
+%& X 
+& \text{variable}\\
+&&& \astruct{c}{e} 
+%& \struct{c}{e} 
+& \text{structure}\\
+&&& \aseal{\sigma}{M} 
+%& \seal{M}{\sigma} 
+& \text{seal}\\
+&&& \amlet{\sigma}{M}{X}{M} %& \mlet{X}{M}{M}{\sigma} 
+& \text{definition}
+\end{array}\]
+\caption[Syntax of signatures and module expressions in $\miniVerseParam$]{Syntax of signatures and module expressions in $\miniVerseParam$.}
 \label{fig:P-modules-signatures}
 \end{figure}
 
-\section{\texorpdfstring{$\miniVerseParam$}{miniVerseForall}}\label{sec:miniVerseP}
-\subsection{Syntax of the Inner Language}
+
+\begin{figure}[p] 
+\[\begin{array}{lrlllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Kind} & \kappa & ::= & \akdarr{\kappa}{u}{\kappa} 
+%& \kdarr{u}{\kappa}{\kappa} 
+& \text{dependent function}\\
+&&& \akunit 
+%& \kunit 
+& \text{nullary product}\\
+&&& \akdbprod{\kappa}{u}{\kappa} 
+%& \kdbprod{u}{\kappa}{\kappa} 
+& \text{dependent product}\\
+%&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
+&&& \akty 
+%& \kty
+& \text{types}\\
+&&& \aksing{\tau} 
+%& \ksing{\tau} 
+& \text{singleton}\\
+\mathsf{Con} & c, \tau & ::= & u 
+%& u 
+& \text{variable}\\
+&&& t 
+%& t & \text{variable}
+\\
+&&& \acabs{u}{c} 
+%& \cabs{u}{c} 
+& \text{abstraction}\\
+&&& \acapp{c}{c} 
+%& \capp{c}{c} 
+& \text{application}\\
+&&& \actriv 
+%& \ctriv 
+& \text{trivial}\\
+&&& \acpair{c}{c}
+% & \cpair{c}{c} 
+& \text{pair}\\
+&&& \acprl{c} 
+%& \cprl{c} 
+& \text{left projection}\\
+&&& \acprr{c} 
+%& \cprr{c} 
+& \text{right projection}\\
+%&&& \adtplX & \dtplX & \text{labeled dependent tuple}\\
+%&&& \adprj{\ell}{c} & \prj{c}{\ell} & \text{projection}\\
+&&& \aparr{\tau}{\tau} 
+%& \parr{\tau}{\tau} 
+& \text{partial function}\\
+&&& \aallu{\kappa}{u}{\tau} 
+%& \forallu{u}{\kappa}{\tau} 
+& \text{polymorphic}\\
+&&& \arec{t}{\tau} 
+%& \rect{t}{\tau} 
+& \text{recursive}\\
+&&& \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} 
+%& \prodt{\mapschema{\tau}{i}{\labelset}} 
+& \text{labeled product}\\
+&&& \asum{\labelset}{\mapschema{\tau}{i}{\labelset}} 
+%& \sumt{\mapschema{\tau}{i}{\labelset}} 
+& \text{labeled sum}\\
+&&& \amcon{M} 
+%& \mcon{M} 
+& \text{constructor part}
+\end{array}\]
+\caption[Syntax of kinds and constructors in $\miniVerseParam$]{Syntax of kinds and constructors in $\miniVerseParam$. By convention, we choose the metavariable $\tau$ for constructors that, in well-formed terms, must necessarily be of kind $\kty$, and the metavariable $c$ otherwise. Similarly, we use constructor variables $t$ to stand for constructors of kind $\kty$, and constructor variables $u$ otherwise.}
+\label{fig:P-kinds-constructors}
+\end{figure}
+
+\begin{figure}
+\[\begin{array}{lllllll}
+\textbf{Sort} & & & \textbf{Operational Form} 
+%& \textbf{Stylized Form} 
+& \textbf{Description}\\
+\mathsf{Exp} & e & ::= & x 
+%& x 
+& \text{variable}\\
+&&& \aelam{\tau}{x}{e} 
+%& \lam{x}{\tau}{e} 
+& \text{abstraction}\\
+&&& \aeap{e}{e} 
+%& \ap{e}{e} 
+& \text{application}\\
+&&& \aeclam{\kappa}{u}{e} %& \clam{u}{\kappa}{e} 
+& \text{constructor abstraction}\\
+&&& \aecap{e}{\kappa} %& \cAp{e}{\kappa} 
+& \text{constructor application}\\
+&&& \aefold{t}{\tau}{e} %& \fold{e} 
+& \text{fold}\\
+&&& \aeunfold{e} %& \unfold{e} 
+& \text{unfold}\\
+&&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} 
+%& \tpl{\mapschema{e}{i}{\labelset}} 
+& \text{labeled tuple}\\
+&&& \aepr{\ell}{e} 
+%& \prj{e}{\ell} 
+& \text{projection}\\
+&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+%& \inj{\ell}{e} 
+& \text{injection}\\
+&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} 
+%& \matchwith{e}{\seqschemaX{r}} 
+& \text{match}\\
+&&& \amval{M} 
+%& \mval{M} 
+& \text{value part}\\
+\mathsf{Rule} & r & ::= & \aematchrule{p}{e} 
+%& \matchrule{p}{e} 
+& \text{rule}\\
+\mathsf{Pat} & p & ::= & x 
+%& x 
+& \text{variable pattern}\\
+&&& \aewildp 
+%& \wildp 
+& \text{wildcard pattern}\\
+&&& \aefoldp{p} 
+%& \foldp{p} 
+& \text{fold pattern}\\
+&&& \aetplp{\labelset}{\mapschema{p}{i}{\labelset}} 
+%& \tplp{\mapschema{p}{i}{\labelset}} 
+& \text{labeled tuple pattern}\\
+&&& \aeinjp{\ell}{p} 
+%& \injp{\ell}{p} 
+& \text{injection pattern}
+\end{array}\]
+\caption[Syntax of expanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of expanded expressions, rules and patterns in $\miniVerseParam$.}
+\label{fig:P-expanded-terms}
+\end{figure}
+The $\miniVerseParam$ XL extends the $\miniVersePat$ XL with a \emph{module language} and a \emph{type construction language}. Both of these are based directly on the languages defined in \emph{PFPL} \cite{pfpl}. This language, in turn, is similar to the internal language defined by Lee et al. \cite{conf/popl/LeeCH07}, and also to the internal language used by Dreyer \cite{dreyer2005understanding}. Both of these incorporate Stone and Harper's \emph{dependent singleton kinds} formalism to track type identity \cite{stone2006extensional}.
 
 
-\subsubsection{Syntax of the Inner Core Language}
-We adopt the metatheoretic conventions established for our definitions of $\miniVerseUE$ in Sec. \ref{sec:miniVerseU} and $\miniVersePat$ in Sec. \ref{sec:miniVerseUP} without restating them. 
+Figure \ref{fig:P-modules-signatures} defines the syntax of the expanded module language. Figure \ref{fig:P-kinds-constructors} defines the syntax of the expanded type construction language. Figure \ref{fig:P-expanded-terms} defines the syntax of the expanded expression language.
 
-Kinds and constructors in Figure \ref{fig:P-kinds-constructors}.
 
-Expanded expressions, rules and patterns in Figure \ref{fig:P-expanded-terms}.
+\subsection{Statics of the Expanded Language}
+The \emph{statics of the expanded language} is defined by a collection of judgements that we organize into three groups.
 
-\subsubsection{Syntax of the Inner Module Language}
-Module expressions and signatures in Figure \ref{fig:P-modules-signatures}.
+The first group of judgements, which we refer to as the \emph{statics of the expanded module language}, define the statics of expanded signatures and module expressions.
 
-\subsection{Statics of the Inner Language}
-The \emph{statics of the inner language} is defined by a collection of judgements that we organize into three groups.
-
-The first group of judgements, which we refer to as the \emph{statics of the inner constructor language}, define the statics of expanded kinds and constructors.
-
-\vspace{10px}
+\vspace{5px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\iskindX{\kappa} & \text{$\kappa$ is a well-formed kind}\\
+\issigX{\sigma} & \text{$\sigma$ is a signature }\\
+\sigequalX{\sigma}{\sigma'} & \text{$\sigma$ and $\sigma'$ are definitionally equal}\\
+\sigsubX{\sigma}{\sigma'} & \text{$\sigma$ is a sub-signature of $\sigma'$}\\
+\hassigX{M}{\sigma} & \text{$M$ has signature $\sigma$}\\
+\ismvalX{M} & \text{$M$ is a module value}
+\end{array}$
+\vspace{5px}
+
+The second group of judgements, which we refer to as the \emph{statics of the expanded constructor language}, define the statics of expanded kinds and constructors.
+
+\vspace{5px}
+$\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\iskindX{\kappa} & \text{$\kappa$ is a kind}\\
 \kequalX{\kappa}{\kappa'} & \text{$\kappa$ and $\kappa'$ are equivalent}\\
 \ksubX{\kappa}{\kappa'} & \text{$\kappa$ is a subkind of $\kappa'$}\\
 \haskindX{c}{\kappa} & \text{$c$ has kind $\kappa$}\\
 \cequalX{c}{c'}{\kappa} & \text{$c$ and $c'$ are equivalent as constructors of kind $\kappa$}
 \end{array}$
-\vspace{10px}
+\vspace{5px}
 
-The second group of judgements, which we refer to as the \emph{statics of the inner core language}, define the statics of types, expanded expressions, rules and patterns.
+The third group of judgements, which we refer to as the \emph{statics of the expanded expression language}, define the statics of types, expanded expressions, rules and patterns.
 
-\vspace{10px}
+\vspace{5px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \istypeP{\Omega}{\tau} & \text{$\tau$ is a well-formed type}\\
@@ -266,726 +416,187 @@ $\begin{array}{ll}
 \ruleTypeP{\Omega}{r}{\tau}{\tau'} & \text{$r$ takes values of type $\tau$ to values of type $\tau'$}\\
 \patTypeP{\Omega'}{p}{\tau} & \text{$p$ matches values of type $\tau$ and generates hypotheses $\Omega'$} 
 \end{array}$
-\vspace{10px}
+\vspace{5px}
 
-The third group of judgements, which we refer to as the \emph{statics of the inner module language}, define the statics of expanded signatures and module expressions.
 
-\vspace{10px}
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\issigX{\sigma} & \text{$\sigma$ is a well-formed signature }\\
-\sigequalX{\sigma}{\sigma'} & \text{$\sigma$ and $\sigma'$ are definitionally equal}\\
-\sigsubX{\sigma}{\sigma'} & \text{$\sigma$ is a sub-signature of $\sigma'$}\\
-\hassigX{M}{\sigma} & \text{$M$ has signature $\sigma$}\\
-\ismvalX{M} & \text{$M$ is a module value}
-\end{array}$
-\vspace{10px}
-
-A \emph{unified inner context}, $\Omega$, is a finite function that maps
-\begin{itemize}
-\item each expression variable $x \in \domof{\Omega}$ to the hypothesis $\Ghyp{x}{\tau}$ for some $\tau$;
-\item each constructor variable $u \in \domof{\Omega}$ to the hypothesis $u :: \kappa$ for some $\kappa$; and
-\item each module variable $X \in \domof{\Omega}$ to the hypothesis $X :: \sigma$ for some $\sigma$.
-\end{itemize}
+A \emph{unified context}, $\Omega$, is a finite function. 
 We write
 \begin{itemize}
-\item $\Omega, x : \tau$ when $x \notin \domof{\Omega}$ and $\haskindX{\tau}{\akty}$ for the extension of $\Omega$ with a mapping from $x$ to $x : \tau$
-\item $\Omega, u :: \kappa$ when $u \notin \domof{\Omega}$ and $\iskindX{\kappa}$ for the extension of $\Omega$ with a mapping from $u$ to $u :: \kappa$
-\item $\Omega, X : \sigma$ when $X \notin \domof{\Omega}$ and $\issigX{\sigma}$ for the extension of $\Omega$ with a mapping from $X$ to $X : \sigma$.
+\item $\Omega, x : \tau$ when $x \notin \domof{\Omega}$ and $\haskindX{\tau}{\akty}$ for the extension of $\Omega$ with a mapping from $x$ to the hypothesis $x : \tau$
+\item $\Omega, u :: \kappa$ when $u \notin \domof{\Omega}$ and $\iskindX{\kappa}$ for the extension of $\Omega$ with a mapping from $u$ to the hypothesis $u :: \kappa$
+\item $\Omega, X : \sigma$ when $X \notin \domof{\Omega}$ and $\issigX{\sigma}$ for the extension of $\Omega$ with a mapping from $X$ to the hypothesis $X : \sigma$.
 \end{itemize}
-A well-formed unified inner context is one that can be constructed by some sequence of such extensions, start from the empty context, $\emptyset$.
+A well-formed unified context is one that can be constructed by some sequence of such extensions, start from the empty context, $\emptyset$.
 
+The complete set of rules is given in Appendix \ref{appendix:P-statics}. A comprehensive introductory account of these constructs is beyond the scope of this work (see \cite{pfpl}.) Instead, let us summarize the key features of the expanded language by example. 
+
+We encode modules using a \emph{phase-splitting} approach where the constructor components are ``tupled'' into a single constructor component and the value components are ``tupled'' into a single value component \cite{harper1989higher}. Signatures, $\sigma$, classify module expressions, and are also split in this way -- a single \emph{kind} classifies the constructor component and a single type classifies the value component of the classified module. The type in the signature can refer to the constructor component of the module through a mediating constructor variable. The key rule is reproduced below:
+\begin{equation*}\tag{\ref{rule:hassig-struct}}
+\inferrule{
+  \haskindX{c}{\kappa}\\
+  \hastypeP{\Omega}{e}{[c/u]\tau}
+}{
+  \hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
+}
+\end{equation*}
+
+For example, consider the following VerseML signature on the left, and the corresponding $\miniVerseParam$ signature on the right:
+
+\begin{minipage}{0.35\textwidth}
+\begin{lstlisting}
+sig
+  type t
+  type t' = t * t
+  val x : t
+  val y : t -> t'
+end
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}%\vspace{-13px}
+\[\footnotesize
+\begin{array}{l}
+\asignature{\akdbprod{\\
+\quad\quad \akty}{t}{\\
+\quad\quad \aksing{
+  \aprod{\lbltxt{1}; \lbltxt{2}}{
+    \mapitem{\lbltxt{1}}{t}; \mapitem{\lbltxt{2}}{t}
+  }
+}}\\}{u}{
+ \aprod{\lbltxt{x}; \lbltxt{y}}{
+  \mapitem{\lbltxt{x}}{\acprl{u}}; \\ 
+\quad\quad \mapitem{\lbltxt{y}}{\aparr{
+    \acprl{u}
+  }{
+    \acprr{u}
+  }}
+}\\
+}
+\end{array}
+\]
+\end{minipage}
+
+The kind in the signature (Lines 1-3, right) is a \emph{dependent product kind} and the type (Lines 4-5, right) is a product type. Let us consider these in turn.
+
+On Lines 2-3 (left), we specified an abstract type component \li{t}, and then a translucent type component \li{t'}. Abstract type components have kind $\akty$, as seen on Line 2 (right). The constructor variable $t$ stands for this abstract type component in the right side of the dependent product kind. The second component is not held abstract, so it is classified by a corresponding \emph{singleton kind}, rather than by the kind $\akty$, as shown on Line 3 (right). A singleton kind $\aksing{\tau}$ classifies only those types definitionally equal to $\tau$ (whereas the kind $\akty$ classifies all types.) A subkinding relation is necessary to ensure that constructors of singleton kind can appear where a constructor of kind $\akty$ is needed -- the key rule is reproduced below:
+\begin{equation*}\tag{\ref{rule:ksub-sing}}
+\inferrule{
+  \haskindX{\tau}{\akty}
+}{
+  \ksubX{\aksing{\tau}}{\akty}
+}
+\end{equation*}
+
+Moving on, Lines 4-5 (right) define a product type that classifies the value component of matching modules. The constructor variable \li{u} stands for the constructor component of the matching module. Because the constructor component is of dependent product kind, we must use the left- and right-projection operators, $\acprl{c}$ and $\acprr{c}$. (In practice, we would use labeled dependent product kinds, but for simplicity, we stick to binary dependent product kinds here.)
+
+Consider another example: the VerseML \li{LIST} signature from Figure \ref{fig:LIST}, partially reproduced below:
+\begin{lstlisting}
+sig 
+  type list('a) = rec(self => Nil + Cons of 'a * self)
+  val Nil : list('a)
+  val Cons : 'a * list('a) -> list('a)
+  (* ... *)
+end
+\end{lstlisting}
+This VerseML signature corresponds to the following $\miniVerseParam$ signature:
+\[
+\arraycolsep=1px\begin{array}{ll}
+
+\sigma_\texttt{LIST} & \defeq \asignature{\kappa_\texttt{LIST}}{list}{\tau_\texttt{LIST}}\\
+\kappa_\texttt{LIST} & \defeq \akdarr{\akty}{\alpha}{\aksing{
+  \arec{self}{
+    \asum{L_\texttt{list}}{\\
+    & \quad\quad 
+      \mapitem{\lbltxt{Nil}}{\aprod{}{}}; \\
+    & \quad\quad 
+      \mapitem{\lbltxt{Cons}}{
+        \aprod{\lbltxt{1}; \lbltxt{2}}{
+          \mapitem{\lbltxt{1}}{\alpha}; 
+          \mapitem{\lbltxt{2}}{self}
+        }
+      }
+    }
+  } 
+}}\\
+L_\texttt{list} & \defeq \lbltxt{Nil}, \lbltxt{Cons}\\
+\tau_\texttt{LIST} & \defeq \aprod{L_\texttt{list}}{\\&
+  \quad\quad \mapitem{\lbltxt{Nil}}{
+    \aallu{\akty}{\alpha}{\acapp{list}{\alpha}}
+  }; \\&
+  \quad\quad \mapitem{\lbltxt{Cons}}{
+    \aallu{\akty}{\alpha}{
+      \aparr{\\&\quad\quad\quad
+        \aprod{\lbltxt{1}; \lbltxt{2}}{
+          \mapitem{\lbltxt{1}}{\alpha}; 
+          \mapitem{\lbltxt{2}}{\acapp{list}{\alpha}}
+        }
+      }{\\&\quad\quad\quad
+        \acapp{list}{\alpha}
+      }
+    }
+  }
+}
+\end{array}
+\]
+
+Here, there is only a single constructor component, so a dependent product kind is not needed. This component is a type function, so it has dependent function kind. The argument is of kind $\akty$ and the return kind is a singleton kind, because the type function is not abstract. Had we held the list type function abstract, its kind would instead be:
+\[
+\akdarr{\akty}{\_}{\akty}
+\]
 %A well-formed unified inner context is one where there are no cycles in the dependency graph between the hypotheses (constructed in the obvious manner) and for each hypothesis, the constructor, kinds or signature involved is well-formed relative to the unified inner context.
 
-\subsubsection{Kinds and Constructors}
-Kind formation \todo{describe these}
-\begin{subequations}\label{rules:iskind}
-\begin{equation}\label{rule:iskind-darr}
+The top level of a program consists of a module expression, $M$. The module let binding form allows the programmer to bind a module to a module variable, $X$:
+\begin{equation*}\tag{\ref{rule:hassig-let}}
 \inferrule{
-	\iskindX{\kappa_1}\\
-	\iskind{\Omega, u :: \kappa_1}{\kappa_2}
+  \hassigX{M}{\sigma}\\
+  \issigX{\sigma'}\\
+  \hassig{\Omega, X : \sigma}{M'}{\sigma'}  
 }{
-	\iskindX{\akdarr{\kappa_1}{u}{\kappa_2}}
+  \hassigX{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
 }
-\end{equation}
-\begin{equation}\label{rule:iskind-unit}
+\end{equation*}
+
+To be able to use the constructor defined by a module, $M$, within a constructor appearing in some other module, we need a constructor projection form, $\amcon{M}$. The kinding rule for this form is reproduced below:
+\begin{equation*}\tag{\ref{rule:haskind-stat}}
+\inferrule{
+  \ismvalX{M}\\
+  \hassigX{M}{\asignature{\kappa}{u}{\tau}}
+}{
+  \haskindX{\amcon{M}}{\kappa}
+}
+\end{equation*}
+Similarly, the value projection form, $\amval{M}$, projects out the value component of $M$ within an expression. The typing rule for this form is reproduced below:
+\begin{equation*}\tag{\ref{rule:hastypeP-dyn}}
+\inferrule{
+  \ismvalX{M}\\
+  \hassigX{M}{\asignature{\kappa}{u}{\tau}}
+}{
+  \hastypeP{\Omega}{\amval{M}}{[\amcon{M}/u]\tau}
+}
+\end{equation*}
+The first premise of both of these rules requires that $M$ be, or stand for, a \emph{module value}, according to the following rules:
+\begin{equation*}\tag{\ref{rule:ismval-struct}}
 \inferrule{ }{
-	\iskindX{\akunit}
+  \ismvalX{\astruct{c}{e}}
 }
-\end{equation}
-\begin{equation}\label{rule:iskind-dprod}
-\inferrule{
-	\iskindX{\kappa_1}\\
-	\iskind{\Omega, u :: \kappa_1}{\kappa_2}
-}{
-	\iskindX{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:iskind-ty}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:ismval-var}}
 \inferrule{ }{
-	\iskindX{\akty}
+  \ismval{\Omega, X : \sigma}{X}
 }
-\end{equation}
-\begin{equation}\label{rule:iskind-sing}
+\end{equation*}
+The reason for this restriction has to do with the \emph{sealing} operation:
+\begin{equation*}\tag{\ref{rule:hassig-seal}}
 \inferrule{
-	\haskindX{\tau}{\akty}
+  \issigX{\sigma}\\
+  \hassigX{M}{\sigma}
 }{
-	\iskindX{\aksing{\tau}}
+  \hassigX{\aseal{\sigma}{M}}{\sigma}
 }
-\end{equation}
-\end{subequations}
+\end{equation*}
+Sealing is intended to support \emph{representation independence}, i.e. the abstract constructor components of a sealed module are not equivalent to those of any other sealed module. The module value restriction above enforces this \emph{generativity} property by simple syntactic means -- a sealed module is not a module value, so it has to first be bound to a module variable for it to be possible to refer to its constructor components. Different bindings, even if of the same underlying module, induce distinct constructor projections.
 
-Kind definitional equality \todo{describe these}
-\begin{subequations}\label{rules:kequal}
-\begin{equation}\label{rule:kequal-refl}
-\inferrule{
-	\iskindX{\kappa}
-}{
-	\kequalX{\kappa}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:kequal-sym}
-\inferrule{
-	\kequalX{\kappa}{\kappa'}
-}{
-	\kequalX{\kappa'}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:kequal-trans}
-\inferrule{
-	\kequalX{\kappa}{\kappa'}\\
-	\kequalX{\kappa'}{\kappa''}
-}{
-	\kequalX{\kappa}{\kappa''}
-}
-\end{equation}
-\begin{equation}\label{rule:kequal-darr}
-\inferrule{
-	\kequalX{\kappa_1}{\kappa_1'}\\
-	\kequal{\Omega, u :: \kappa_1}{\kappa_2}{\kappa_2'}
-}{
-	\kequalX{\akdarr{\kappa_1}{u}{\kappa_2}}{\akdarr{\kappa_1'}{u}{\kappa_2'}}
-}
-\end{equation}
-\begin{equation}\label{rule:kequal-dprod}
-\inferrule{
-	\kequalX{\kappa_1}{\kappa'_1}\\
-	\kequal{\Omega, u :: \kappa_1}{\kappa_2}{\kappa'_2}
-}{
-	\kequalX{\akdbprod{\kappa_1}{u}{\kappa_2}}{\akdbprod{\kappa'_1}{u}{\kappa'_2}}	
-}
-\end{equation}
-\begin{equation}\label{rule:kequal-sing}
-\inferrule{
-	\cequalX{c}{c'}{\akty}
-}{
-	\kequalX{\aksing{c}}{\aksing{c'}}
-}
-\end{equation}
-\end{subequations}
-Subkinding \todo{describe these}
-\begin{subequations}\label{rules:ksub}
-\begin{equation}\label{rule:ksub-equal}
-\inferrule{
-	\kequalX{\kappa}{\kappa'}
-}{
-	\ksubX{\kappa}{\kappa'}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-trans}
-\inferrule{
-	\ksubX{\kappa}{\kappa'}\\
-	\ksubX{\kappa'}{\kappa''}
-}{
-	\ksubX{\kappa}{\kappa''}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-darr}
-\inferrule{
-	\ksubX{\kappa'_1}{\kappa_1}\\
-	\ksub{\Omega, u :: \kappa'_1}{\kappa_2}{\kappa'_2}	
-}{
-	\ksubX{\akdarr{\kappa_1}{u}{\kappa_2}}{\akdarr{\kappa'_1}{u}{\kappa'_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-dprod}
-\inferrule{
-	\ksubX{\kappa_1}{\kappa'_1}\\
-	\ksub{\Omega, u :: \kappa_1}{\kappa_2}{\kappa'_2}
-}{
-	\ksubX{\akdbprod{\kappa_1}{u}{\kappa_2}}{\akdbprod{\kappa'_1}{u}{\kappa'_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-sing}
-\inferrule{
-	\haskindX{\tau}{\akty}
-}{
-	\ksubX{\aksing{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksub-sing-2}
-\inferrule{
-	\issubtypePX{\tau}{\tau'}
-}{
-	\ksubX{\aksing{\tau}}{\aksing{\tau'}}{\akty}
-}
-\end{equation}
-\end{subequations}
-Kinding \todo{describe these}
-\begin{subequations}\label{rules:haskind}
-\begin{equation}\label{rule:haskind-subsume}
-\inferrule{
-	\haskindX{c}{\kappa_1}\\
-	\ksubX{\kappa_1}{\kappa_2}
-}{
-	\haskindX{c}{\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-var}
-\inferrule{ }{\haskind{\Omega, u :: \kappa}{u}{\kappa}}
-\end{equation}
-\begin{equation}\label{rule:haskind-abs}
-\inferrule{
-	\haskind{\Omega, u :: \kappa_1}{c_2}{\kappa_2}
-}{
-	\haskindX{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-app}
-\inferrule{
-	\haskindX{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
-	\haskindX{c_2}{\kappa_2}
-}{
-	\haskindX{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-unit}
-\inferrule{ }{
-	\haskindX{\actriv}{\akunit}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-pair}
-\inferrule{
-	\haskindX{c_1}{\kappa_1}\\
-	\haskindX{c_2}{[c_1/u]\kappa_2}
-}{
-	\haskindX{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-prl}
-\inferrule{
-	\haskindX{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-	\haskindX{\acprl{c}}{\kappa_1}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-prr}
-\inferrule{
-	\haskindX{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-	\haskindX{\acprr{c}}{[\acprl{c}/u]\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-parr}
-\inferrule{
-	\haskindX{\tau_1}{\akty}\\
-	\haskindX{\tau_2}{\akty}
-}{
-	\haskindX{\aparr{\tau_1}{\tau_2}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-all}
-\inferrule{
-	\iskindX{\kappa}\\
-	\haskind{\Omega, u :: \kappa}{\tau}{\akty}
-}{
-	\haskindX{\aallu{\kappa}{u}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-rec}
-\inferrule{
-	\haskind{\Omega, t :: \akty}{\tau}{\akty}
-}{
-	\haskindX{\arec{t}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-prod}
-\inferrule{
-	\{\haskindX{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-	\haskindX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-sum}
-\inferrule{
-	\{\haskindX{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-	\haskindX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-sing}
-\inferrule{
-	\haskindX{c}{\akty}
-}{
-	\haskindX{c}{\aksing{c}}
-}
-\end{equation}
-\begin{equation}\label{rule:haskind-stat}
-\inferrule{
-	\ismvalX{M}\\
-	\hassigX{M}{\asignature{\kappa}{u}{\tau}}
-}{
-	\haskindX{\amcon{M}}{\kappa}
-}
-\end{equation}
-\end{subequations}
+\todo{statics metatheory: Weakening, Substitution, etc. + reflexivity/transitivity/etc. properties of equality, subtyping}
 
-Constructor equality\todo{describe this}
-\begin{subequations}\label{rules:cequal}
-\begin{equation}\label{rule:cequal-refl}
-\inferrule{
-	\haskindX{c}{\kappa}
-}{
-	\cequalX{c}{c}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-sym}
-\inferrule{
-	\cequalX{c}{c'}{\kappa}
-}{
-	\cequalX{c'}{c}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-trans}
-\inferrule{
-	\cequalX{c}{c'}{\kappa}\\
-	\cequalX{c'}{c''}{\kappa}
-}{
-	\cequalX{c}{c''}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-lam}
-\inferrule{
-	\cequal{\Omega, u :: \kappa_1}{c}{c'}{\kappa_2}
-}{
-	\cequalX{\acabs{u}{c}}{\acabs{u}{c'}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-app-1}
-\inferrule{
-	\cequalX{c_1}{c_1'}{\akdarr{\kappa_2}{u}{\kappa}}\\
-	\cequalX{c_2}{c_2'}{\kappa_2}
-}{
-	\cequalX{\acapp{c_1}{c_2}}{\acapp{c'_1}{c'_2}}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-app-2}
-\inferrule{
-	\haskindX{\acabs{u}{c}}{\akdarr{\kappa_2}{u}{\kappa}}\\
-	\haskindX{c_2}{\kappa_2}
-}{
-	\cequalX{\acapp{\acabs{u}{c}}{c_2}}{[c_2/u]c}{[c_2/u]\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-pair}
-\inferrule{
-	\cequalX{c_1}{c'_1}{\kappa_1}\\
-	\cequalX{c_2}{c'_2}{[c_1/u]\kappa_2}
-}{
-	\cequalX{\acpair{c_1}{c_2}}{\acpair{c'_1}{c'_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prl-1}
-\inferrule{
-	\cequalX{c}{c'}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-	\cequalX{\acprl{c}}{\acprl{c'}}{\kappa_1}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prl-2}
-\inferrule{
-	\haskindX{c_1}{\kappa_1}\\
-	\haskindX{c_2}{\kappa_2}
-}{
-	\cequalX{\acprl{\acpair{c_1}{c_2}}}{c_1}{\kappa_1}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prr-1}
-\inferrule{
-	\cequalX{c}{c'}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-	\cequalX{\acprr{c}}{\acprr{c'}}{[\acprl{c}/u]\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prr-2}
-\inferrule{
-	\haskindX{c_1}{\kappa_1}\\
-	\haskindX{c_2}{\kappa_2}
-}{
-	\cequalX{\acprr{\acpair{c_1}{c_2}}}{c_2}{\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-parr}
-\inferrule{
-	\cequalX{\tau_1}{\tau'_1}{\akty}\\
-	\cequalX{\tau_2}{\tau'_2}{\akty}
-}{
-	\cequalX{\aparr{\tau_1}{\tau_2}}{\aparr{\tau'_1}{\tau'_2}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-all}
-\inferrule{
-	\kequalX{\kappa}{\kappa'}\\
-	\cequal{\Omega, u :: \kappa}{\tau}{\tau'}{\akty}
-}{
-	\cequalX{\aallu{\kappa}{u}{\tau}}{\aallu{\kappa'}{u}{\tau'}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-rec}
-\inferrule{
-	\cequal{\Omega, t :: \akty}{\tau}{\tau'}{\akty}
-}{
-	\cequalX{\arec{t}{\tau}}{\arec{t}{\tau'}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-prod}
-\inferrule{
-	\{\cequalX{\tau_i}{\tau'_i}{\akty}\}_{1 \leq i \leq n}
-}{
-	\cequalX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau'}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-sum}
-\inferrule{
-	\{\cequalX{\tau_i}{\tau'_i}{\akty}\}_{1 \leq i \leq n}
-}{
-	\cequalX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau'}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-sing}
-\inferrule{
-	\haskindX{c}{\aksing{c'}}
-}{
-	\cequalX{c}{c'}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cequal-stat}
-\inferrule{
-	\ismvalX{\astruct{c}{e}}\\
-	\hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
-}{
-	\cequalX{\amcon{\astruct{c}{e}}}{c}{\kappa}
-}
-\end{equation}
-\end{subequations}
-\subsubsection{Expanded Expressions, Rules and Patterns}
-Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide with the types of $\miniVerseParam$.
-\begin{equation}\label{rule:istypeP}
-\inferrule{
-	\haskindX{\tau}{\akty}
-}{
-	\istypeP{\Omega}{\tau}
-}
-\end{equation}
-Type equality then coincides with constructor equality at kind $\akty$.
-\begin{equation}\label{rule:tequalP}
-\inferrule{
-	\cequalX{\tau}{\tau}{\akty}
-}{
-	\tequalPX{\tau}{\tau'}
-}
-\end{equation}
-
-Subtyping.
-\begin{subequations}\label{rules:issubtypeP}	
-\begin{equation}\label{rule:issubtypeP-equal}
-\inferrule{
-	\tequalPX{\tau_1}{\tau_2}
-}{
-	\issubtypePX{\tau_1}{\tau_2}
-}
-\end{equation}
-\begin{equation}\label{rule:issubtypeP-trans}
-\inferrule{
-	\issubtypePX{\tau}{\tau'}\\
-	\issubtypePX{\tau'}{\tau''}
-}{
-	\issubtypePX{\tau}{\tau''}
-}
-\end{equation}
-\begin{equation}\label{rule:issubtypeP-parr}
-\inferrule{
-	\issubtypePX{\tau_1'}{\tau_1}\\
-	\issubtypePX{\tau_2}{\tau_2'}
-}{
-	\issubtypePX{\aparr{\tau_1}{\tau_2}}{\aparr{\tau_1'}{\tau_2'}}
-}
-\end{equation}
-\begin{equation}\label{rule:issubtypeP-all}
-\inferrule{
-	\ksubX{\kappa}{\kappa'}\\
-	\issubtypeP{\Omega, u :: \kappa}{\tau}{\tau'}
-}{
-	\issubtypePX{\aallu{\kappa}{u}{\tau}}{\aallu{\kappa'}{u}{\tau'}}
-}
-\end{equation}
-\begin{equation}\label{rule:issubtypeP-prod}
-\inferrule{
-	\{\issubtypePX{\tau_i}{\tau'_i}\}_{i \in \labelset}
-}{
-	\issubtypePX{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau'}{i}{\labelset}}}
-}
-\end{equation}
-\begin{equation}\label{rule:issubtypeP-sum}
-\inferrule{
-	\{\issubtypePX{\tau_i}{\tau'_i}\}_{i \in \labelset}
-}{
-	\issubtypePX{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau'}{i}{\labelset}}}
-}
-\end{equation}
-\end{subequations}
-
-Expression typing \todo{describe these}
-\begin{subequations}\label{rules:hastypeP}
-\begin{equation}\label{rule:hastypeP-subsume}
-\inferrule{
-	\hastypeP{\Omega}{e}{\tau}\\
-	\issubtypePX{\tau}{\tau'}
-}{
-	\hastypeP{\Omega}{e}{\tau'}
-}
-\end{equation}
-\begin{equation}\label{rule:hastypeP-var}
-  \inferrule{ }{
-    \hastypeP{\Omega, \Ghyp{x}{\tau}}{x}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-lam}
-  \inferrule{
-    \istypeP{\Omega}{\tau}\\
-    \hastypeP{\Omega, \Ghyp{x}{\tau}}{e}{\tau'}
-  }{
-    \hastypeP{\Omega}{\aelam{\tau}{x}{e}}{\aparr{\tau}{\tau'}}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-ap}
-  \inferrule{
-    \hastypeP{\Omega}{e_1}{\aparr{\tau}{\tau'}}\\
-    \hastypeP{\Omega}{e_2}{\tau}
-  }{
-    \hastypeP{\Omega}{\aeap{e_1}{e_2}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-clam}
-  \inferrule{
-  	\iskindX{\kappa}\\
-    \hastypeP{\Omega, u :: \kappa}{e}{\tau}
-  }{
-    \hastypeP{\Omega}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-cap}
-  \inferrule{
-    \hastypeP{\Omega}{e}{\aallu{\kappa}{u}{\tau}}\\
-    \haskindX{c}{\kappa}
-  }{
-    \hastypeP{\Omega}{\aecap{e}{c}}{[c/u]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-fold}
-  \inferrule{\
-    \istypeP{\Omega, t :: \akty}{\tau}\\
-    \hastypeP{\Omega}{e}{[\arec{t}{\tau}/t]\tau}
-  }{
-    \hastypeP{\Omega}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-unfold}
-  \inferrule{
-    \hastypeP{\Omega}{e}{\arec{t}{\tau}}
-  }{
-    \hastypeP{\Omega}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-tpl}
-  \inferrule{
-    \{\hastypeP{\Omega}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \hastypeP{\Omega}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-pr}
-  \inferrule{
-    \hastypeP{\Omega}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
-  }{
-    \hastypeP{\Omega}{\aepr{\ell}{e}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-in}
-  \inferrule{
-    \{\istypeP{\Omega}{\tau_i}\}_{i \in \labelset}\\
-    \istypeP{\Omega}{\tau}\\
-    \hastypeP{\Omega}{e}{\tau}
-  }{
-    \hastypeP{\Omega}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:hastypeP-match}
-\inferrule{
-  \hastypeP{\Omega}{e}{\tau}\\
-  \istypeP{\Omega}{\tau'}\\
-  \{\ruleTypeP{\Omega}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
-}{\hastypeP{\Omega}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
-\end{equation}
-\begin{equation}\label{rule:hastypeP-dyn}
-\inferrule{
-	\ismvalX{M}\\
-	\hassigX{M}{\asignature{\kappa}{u}{\tau}}
-}{
-	\hastypeP{\Omega}{\amval{M}}{[\amcon{M}/u]\tau}
-}
-\end{equation}
-\end{subequations}
-maybe last one needs self-recognition?
-
-Rule typing
-\begin{equation}\label{rule:ruleTypeP}
-\inferrule{
-  \patTypeP{\Omega'}{p}{\tau}\\
-  \hastypeP{\Gcons{\Omega}{\Omega'}}{e}{\tau'}
-}{
-	\ruleTypeP{\Omega}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
-
-Pattern typing
-\begin{subequations}\label{rules:patTypeP}
-\begin{equation}\label{rule:patTypeP-subsume}
-\inferrule{
-  \patTypeP{\Omega'}{p}{\tau}\\
-  \issubtypePX{\tau}{\tau'}
-}{
-  \patTypeP{\Omega'}{p}{\tau'}
-}
-\end{equation}
-\begin{equation}\label{rule:patTypeP-var}
-\inferrule{ }{\patTypeP{\Ghyp{x}{\tau}}{x}{\tau}}
-\end{equation}
-\begin{equation}\label{rule:patTypeP-wild}
-\inferrule{ }{\patTypeP{\emptyset}{\aewildp}{\tau}}
-\end{equation}
-\begin{equation}\label{rule:patTypeP-fold}
-\inferrule{
-  \patTypeP{\Omega'}{p}{[\arec{t}{\tau}/t]\tau}
-}{
-  \patTypeP{\Omega'}{\aefoldp{p}}{\arec{t}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:patTypeP-tpl}
-\inferrule{
-  \{\patTypeP{\Omega_i}{p_i}{\tau_i}\}_{i \in \labelset}
-}{
-  \patTypeP{\Gconsi{i \in \labelset}{\Omega_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-}
-\end{equation}
-\begin{equation}\label{rule:patTypeP-inj}
-\inferrule{
-  \patTypeP{\Omega'}{p}{\tau}
-}{
-  \patTypeP{\Omega'}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-}
-\end{equation}
-\end{subequations}
-
-\subsubsection{Signatures and Structures}
-Signature formation
-\begin{equation}\label{rule:issig}
-\inferrule{
-	\iskindX{\kappa}\\
-	\istypeP{\Omega, u :: \kappa}{\tau}
-}{
-	\issigX{\asignature{\kappa}{u}{\tau}}
-}
-\end{equation}
-
-
-Signature equality
-\begin{equation}\label{rule:sigequal}
-\inferrule{
-	\kequalX{\kappa}{\kappa'}\\
-	\tequalP{\Omega, u :: \kappa}{\tau}{\tau'}
-}{
-	\sigequalX{\asignature{\kappa}{u}{\tau}}{\asignature{\kappa'}{u}{\tau'}}
-}
-\end{equation}
-
-Subsignature
-\begin{equation}\label{rule:sigsub}
-\inferrule{
-	\ksubX{\kappa}{\kappa'}\\
-	\issubtypeP{\Omega, u :: \kappa}{\tau}{\tau'}
-}{
-	\sigsubX{\asignature{\kappa}{u}{\tau}}{\asignature{\kappa'}{u}{\tau'}}
-}
-\end{equation}
-
-Signature matching
-\begin{subequations}\label{rules:hassig}
-\begin{equation}\label{rule:hassig-subsume}
-\inferrule{
-	\hassigX{M}{\sigma}\\
-	\sigsubX{\sigma}{\sigma'}
-}{
-	\hassigX{M}{\sigma'}
-}
-\end{equation}
-\begin{equation}\label{rule:hassig-var}
-\inferrule{ }{
-	\hassig{\Omega, X : \sigma}{X}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:hassig-struct}
-\inferrule{
-	\haskindX{c}{\kappa}\\
-	\hastypeP{\Omega}{e}{[c/u]\tau}
-}{
-	\hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:hassig-seal}
-\inferrule{
-	\issigX{\sigma}\\
-	\hassigX{M}{\sigma}
-}{
-	\hassigX{\aseal{\sigma}{M}}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:hassig-let}
-\inferrule{
-	\hassigX{M}{\sigma}\\
-	\issigX{\sigma'}\\
-	\hassig{\Omega, X : \sigma}{M'}{\sigma'}	
-}{
-	\hassigX{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
-}
-\end{equation}
-\end{subequations}
-
-Module values
-\begin{subequations}\label{rules:ismval}
-\begin{equation}\label{rule:ismval-struct}
-\inferrule{ }{
-	\ismvalX{\astruct{c}{e}}
-}
-\end{equation}
-\begin{equation}\label{rule:ismval-var}
-\inferrule{ }{
-	\ismval{\Omega, X : \sigma}{X}
-}
-\end{equation}
-\end{subequations}
-
-\todo{metatheory of statics of inner core}
 \subsection{Structural Dynamics}
 Expressions
 
