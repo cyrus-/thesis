@@ -333,7 +333,7 @@ These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}
 %\item The second premise of Rule (\ref{rule:ruleType}) ensures that pattern typing of $p$ has generated hypotheses for all of the variables that the branch expression, $e$, binds. This is merely a matter of ``metatheoretic bookkeeping''. In the stylized form for rules, $\matchrule{p}{e}$, the variables bound in $e$ are, implicitly, exactly those mentioned in p.% The bindings for $e$ would be extracted from the pattern implicitly. 
 
 \subsection{Structural Dynamics}\label{sec:dynamics-UP}
-The \emph{structural dynamics of }$\miniVersePat$ is specified as a transition system, and is organized around judgements of the following form:
+The \emph{structural dynamics of }$\miniVersePat$ is defined as a transition system, and is organized around judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
@@ -354,7 +354,7 @@ We also define auxiliary judgements for \emph{iterated transition}, $\multistepU
 % \addtocounter{theorem}{-1}
 \endgroup
 
-As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following condition.
+As in Sec. \ref{sec:dynamics-U}, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following conditions.
 
 The Canonical Forms condition, which characterizes well-typed values, is identical to the corresponding condition in the structural dynamics of $\miniVerseUE$, i.e. Condition \ref{condition:canonical-forms-UP}. 
 

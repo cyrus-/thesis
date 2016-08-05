@@ -386,8 +386,8 @@ $\begin{array}{ll}
 \issigX{\sigma} & \text{$\sigma$ is a signature }\\
 \sigequalX{\sigma}{\sigma'} & \text{$\sigma$ and $\sigma'$ are definitionally equal}\\
 \sigsubX{\sigma}{\sigma'} & \text{$\sigma$ is a sub-signature of $\sigma'$}\\
-\hassigX{M}{\sigma} & \text{$M$ has signature $\sigma$}\\
-\ismvalX{M} & \text{$M$ is a module value}
+\hassigX{M}{\sigma} & \text{$M$ matches $\sigma$}\\
+\ismvalX{M} & \text{$M$ is, or stands for, a module value}
 \end{array}$
 \vspace{5px}
 
@@ -426,7 +426,7 @@ We write
 \item $\Omega, u :: \kappa$ when $u \notin \domof{\Omega}$ and $\iskindX{\kappa}$ for the extension of $\Omega$ with a mapping from $u$ to the hypothesis $u :: \kappa$
 \item $\Omega, X : \sigma$ when $X \notin \domof{\Omega}$ and $\issigX{\sigma}$ for the extension of $\Omega$ with a mapping from $X$ to the hypothesis $X : \sigma$.
 \end{itemize}
-A well-formed unified context is one that can be constructed by some sequence of such extensions, start from the empty context, $\emptyset$.
+A well-formed unified context is one that can be constructed by some sequence of such extensions, start from the empty context, $\emptyset$. We identify unified contexts up to exchange and contraction in the usual manner.
 
 The complete set of rules is given in Appendix \ref{appendix:P-statics}. A comprehensive introductory account of these constructs is beyond the scope of this work (see \cite{pfpl}.) Instead, let us summarize the key features of the expanded language by example. 
 
@@ -452,8 +452,8 @@ sig
 end
 \end{lstlisting}
 \end{minipage}
-\begin{minipage}{0.5\textwidth}%\vspace{-13px}
-\[\footnotesize
+\begin{minipage}{0.5\textwidth}\vspace{3px}
+{\footnotesize\[
 \begin{array}{l}
 \asignature{\akdbprod{\\
 \quad\quad \akty}{t}{\\
@@ -472,7 +472,7 @@ end
 }\\
 }
 \end{array}
-\]
+\]}
 \end{minipage}
 
 The kind in the signature (Lines 1-3, right) is a \emph{dependent product kind} and the type (Lines 4-5, right) is a product type. Let us consider these in turn.
@@ -544,7 +544,7 @@ Here, there is only a single constructor component, so a dependent product kind 
 \]
 %A well-formed unified inner context is one where there are no cycles in the dependency graph between the hypotheses (constructed in the obvious manner) and for each hypothesis, the constructor, kinds or signature involved is well-formed relative to the unified inner context.
 
-The top level of a program consists of a module expression, $M$. The module let binding form allows the programmer to bind a module to a module variable, $X$:
+At the top level, a program consists of a module expression, $M$. The module let binding form allows the programmer to bind a module to a module variable, $X$:
 \begin{equation*}\tag{\ref{rule:hassig-let}}
 \inferrule{
   \hassigX{M}{\sigma}\\
@@ -593,30 +593,73 @@ The reason for this restriction has to do with the \emph{sealing} operation:
   \hassigX{\aseal{\sigma}{M}}{\sigma}
 }
 \end{equation*}
-Sealing is intended to support \emph{representation independence}, i.e. the abstract constructor components of a sealed module are not equivalent to those of any other sealed module. The module value restriction above enforces this \emph{generativity} property by simple syntactic means -- a sealed module is not a module value, so it has to first be bound to a module variable for it to be possible to refer to its constructor components. Different bindings, even if of the same underlying module, induce distinct constructor projections.
+Sealing is intended to support \emph{representation independence}, i.e. the abstract constructor components of a sealed module are not equivalent to those of any other sealed module. In other words, sealing is \emph{generative}. The module value restriction above encodes this behavior by simple syntactic means -- a sealed module is not a module value, so it has to first be bound to a module variable for it to be possible to refer to its constructor components. Different bindings, even if of the same underlying module, induce distinct constructor projections.
 
-\todo{statics metatheory: Weakening, Substitution, etc. + reflexivity/transitivity/etc. properties of equality, subtyping}
+The judgements above obey standard lemmas, including Weakening, Substitution and Decomposition (see Appendix \ref{appendix:P-statics}.)
+
+Some aspects of the ML module system are not available in $\miniVerseParam$, including its support for hierarchical modules and functors. Also, our formulation does not support ``width'' subtyping and subkinding for simplicity. These are straightforward extensions of $\miniVerseParam$, but because their inclusion would not change the semantics of parametric TSMs, we did not include them for concision.
 
 \subsection{Structural Dynamics}
-Expressions
-
-\vspace{10px}
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
-\isvalP{\Omega}{e} & \text{$e$ is a value}
-\end{array}$
-\vspace{10px}
-
-Modules
+The structural dynamics of modules is defined as a transition system, and is organized around judgements of the following form:
 
 \vspace{10px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \stepsU{M}{M'} & \text{$M$ transitions to $M'$}\\
-\ismvalX{M} & \text{$M$ is a module value}
+\isvalP{M} & \text{$M$ is a module value}\\
+\matchfail{M} & \text{$M$ raises match failure}
 \end{array}$
 \vspace{10px}
+
+The structural dynamics of expressions is also defined as a transition system, and is organized around judgements of the following form:
+
+\vspace{10px}
+$\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
+\isvalP{e} & \text{$e$ is a value}\\
+\matchfail{e} & \text{$e$ raises match failure}
+\end{array}$
+\vspace{10px}
+
+We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$ of expressions.
+
+\begingroup
+\def\thetheorem{\ref{defn:iterated-transition-P}}
+\begin{definition}[Iterated Transition] Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
+
+\begingroup
+\def\thetheorem{\ref{defn:evaluation-P}}
+\begin{definition}[Evaluation] $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+% \addtocounter{theorem}{-1}
+\endgroup
+
+As in previous chapters, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following conditions.
+
+The Preservation condition ensures that evaluation preserves typing.
+\begingroup
+\def\thetheorem{\ref{condition:preservation-P}}
+\begin{condition}[Preservation] ~
+\begin{enumerate}
+\item If $\hassig{}{M}{\sigma}$ and $\stepsU{M}{M'}$ then $\hassig{}{M}{\sigma}$.
+\item If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$.
+\end{enumerate}
+\end{condition}
+\endgroup
+
+The Progress condition ensures that evaluation of a well-typed expanded expression cannot ``get stuck''. We must consider the possibility of match failure in this condition.
+\begingroup
+\def\thetheorem{\ref{condition:progress-P}}
+\begin{condition}[Progress] ~
+\begin{enumerate}
+\item If $\hassig{}{M}{\sigma}$ then either $\isvalU{M}$ or $\matchfail{M}$ or there exists an $M'$ such that $\stepsU{M}{M'}$.
+\item If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or $\matchfail{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$.
+\end{enumerate}
+\end{condition}
+% \addtocounter{theorem}{-1}
+\endgroup
 
 \begin{figure}[p] 
 $\begin{array}{lrlllll}

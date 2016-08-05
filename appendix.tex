@@ -2631,8 +2631,27 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 \end{array}\]
 
 \subsection{Statics}\label{appendix:P-statics}
+\subsubsection{Unified Contexts}
+A \emph{unified context}, $\Omega$, is an ordered finite function. 
+We write
+\begin{itemize}
+\item $\Omega, x : \tau$ when $x \notin \domof{\Omega}$ and $\haskindX{\tau}{\akty}$ for the extension of $\Omega$ with a mapping from $x$ to the hypothesis $x : \tau$
+\item $\Omega, u :: \kappa$ when $u \notin \domof{\Omega}$ and $\iskindX{\kappa}$ for the extension of $\Omega$ with a mapping from $u$ to the hypothesis $u :: \kappa$
+\item $\Omega, X : \sigma$ when $X \notin \domof{\Omega}$ and $\issigX{\sigma}$ for the extension of $\Omega$ with a mapping from $X$ to the hypothesis $X : \sigma$.
+\end{itemize}
+A well-formed unified context is one that can be constructed by some sequence of such extensions, start from the empty context, $\emptyset$. We identify unified contexts up to exchange and contraction in the usual manner.
+
+% \begin{definition}[Unified Context Formation] $\isctxU{\Omega}$ iff:
+% \begin{enumerate}
+% \item $\Omega = \emptyset$; or
+% \item $\Omega = \Omega', X : \sigma$ and $\issig{\Omega'}{\sigma}$; or 
+% \item $\Omega = \Omega', u :: \kappa$ and $\iskind{\Omega'}{\kappa}$; or 
+% \item $\Omega = \Omega', x : \tau$ and $\isTypeP{\Omega'}{\tau}$.
+% \end{enumerate}
+% \end{definition}
+
 \subsubsection{Signatures and Structures}
-Signature formation
+\noindent\fbox{$\strut\issigX{\sigma}$}~~$\sigma$ is a signature
 \begin{equation}\label{rule:issig}
 \inferrule{
   \iskindX{\kappa}\\
@@ -2642,8 +2661,7 @@ Signature formation
 }
 \end{equation}
 
-
-Signature equality
+\noindent\fbox{$\strut\sigequalX{\sigma}{\sigma'}$}~~$\sigma$ and $\sigma'$ are definitionally equal
 \begin{equation}\label{rule:sigequal}
 \inferrule{
   \kequalX{\kappa}{\kappa'}\\
@@ -2653,7 +2671,7 @@ Signature equality
 }
 \end{equation}
 
-Subsignature
+\noindent\fbox{$\strut\sigsubX{\sigma}{\sigma'}$}~~$\sigma$ is a subsignature of $\sigma'$
 \begin{equation}\label{rule:sigsub}
 \inferrule{
   \ksubX{\kappa}{\kappa'}\\
@@ -2663,7 +2681,7 @@ Subsignature
 }
 \end{equation}
 
-Signature matching
+\noindent\fbox{$\strut\hassigX{M}{\sigma}$}~~$M$ matches $\sigma$
 \begin{subequations}\label{rules:hassig}
 \begin{equation}\label{rule:hassig-subsume}
 \inferrule{
@@ -2705,7 +2723,7 @@ Signature matching
 \end{equation}
 \end{subequations}
 
-Module values
+\noindent\fbox{$\strut\ismvalX{M}$}~~$M$ is, or stands for, a module value
 \begin{subequations}\label{rules:ismval}
 \begin{equation}\label{rule:ismval-struct}
 \inferrule{ }{
@@ -2720,7 +2738,7 @@ Module values
 \end{subequations}
 
 \subsubsection{Kinds and Constructors}
-Kind formation \todo{describe these}
+\noindent\fbox{$\strut\iskindX{\kappa}$}~~$\kappa$ is a kind
 \begin{subequations}\label{rules:iskind}
 \begin{equation}\label{rule:iskind-darr}
 \inferrule{
@@ -2757,7 +2775,7 @@ Kind formation \todo{describe these}
 \end{equation}
 \end{subequations}
 
-Kind definitional equality \todo{describe these}
+\noindent\fbox{$\strut\kequalX{\kappa}{\kappa'}$}~~$\kappa$ and $\kappa'$ are definitionally equal
 \begin{subequations}\label{rules:kequal}
 \begin{equation}\label{rule:kequal-refl}
 \inferrule{
@@ -2805,7 +2823,8 @@ Kind definitional equality \todo{describe these}
 }
 \end{equation}
 \end{subequations}
-Subkinding \todo{describe these}
+
+\noindent\fbox{$\strut\ksubX{\kappa}{\kappa'}$}~~$\kappa$ is a subkind of $\kappa'$
 \begin{subequations}\label{rules:ksub}
 \begin{equation}\label{rule:ksub-equal}
 \inferrule{
@@ -2853,7 +2872,8 @@ Subkinding \todo{describe these}
 }
 \end{equation}
 \end{subequations}
-Kinding \todo{describe these}
+
+\noindent\fbox{$\strut\haskindX{c}{\kappa}$}~~$c$ has kind $\kappa$
 \begin{subequations}\label{rules:haskind}
 \begin{equation}\label{rule:haskind-subsume}
 \inferrule{
@@ -2962,7 +2982,7 @@ Kinding \todo{describe these}
 \end{equation}
 \end{subequations}
 
-Constructor equality\todo{describe this}
+\noindent\fbox{$\strut\cequalX{c}{c'}{\kappa}$}~~$c$ and $c'$ are definitionally equal as constructors of kind $\kappa$
 \begin{subequations}\label{rules:cequal}
 \begin{equation}\label{rule:cequal-refl}
 \inferrule{
@@ -3093,7 +3113,7 @@ Constructor equality\todo{describe this}
 \end{equation}
 \begin{equation}\label{rule:cequal-stat}
 \inferrule{
-  \ismvalX{\astruct{c}{e}}\\
+  % \ismvalX{\astruct{c}{e}}\\
   \hassigX{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
 }{
   \cequalX{\amcon{\astruct{c}{e}}}{c}{\kappa}
@@ -3101,7 +3121,9 @@ Constructor equality\todo{describe this}
 \end{equation}
 \end{subequations}
 \subsubsection{Expressions, Rules and Patterns}
-Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide with the types of $\miniVerseParam$.
+\noindent\fbox{$\strut\istypeP{\Omega}{\tau}$}~~$\tau$ is a type
+
+\vspace{6px}\noindent Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide with the types of $\miniVerseParam$.
 \begin{equation}\label{rule:istypeP}
 \inferrule{
   \haskindX{\tau}{\akty}
@@ -3109,7 +3131,10 @@ Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide w
   \istypeP{\Omega}{\tau}
 }
 \end{equation}
-Type equality then coincides with constructor equality at kind $\akty$.
+
+\noindent\fbox{$\strut\tequalPX{\tau}{\tau'}$}~~$\tau$ and $\tau'$ are definitionally equal types
+
+\vspace{6px}\noindent Type equality then coincides with constructor equality at kind $\akty$.
 \begin{equation}\label{rule:tequalP}
 \inferrule{
   \cequalX{\tau}{\tau}{\akty}
@@ -3118,7 +3143,9 @@ Type equality then coincides with constructor equality at kind $\akty$.
 }
 \end{equation}
 
-Subtyping.
+
+\noindent\fbox{$\strut\issubtypePX{\tau}{\tau'}$}~~$\tau$ is a subtype of $\tau'$
+
 \begin{subequations}\label{rules:issubtypeP}  
 \begin{equation}\label{rule:issubtypeP-equal}
 \inferrule{
@@ -3145,7 +3172,7 @@ Subtyping.
 \end{equation}
 \begin{equation}\label{rule:issubtypeP-all}
 \inferrule{
-  \ksubX{\kappa}{\kappa'}\\
+  \ksubX{\kappa'}{\kappa}\\
   \issubtypeP{\Omega, u :: \kappa}{\tau}{\tau'}
 }{
   \issubtypePX{\aallu{\kappa}{u}{\tau}}{\aallu{\kappa'}{u}{\tau'}}
@@ -3167,7 +3194,7 @@ Subtyping.
 \end{equation}
 \end{subequations}
 
-Expression typing \todo{describe these}
+\noindent\fbox{$\strut\hastypeP{\Omega}{e}{\tau}$}~~$e$ has type $\tau$
 \begin{subequations}\label{rules:hastypeP}
 \begin{equation}\label{rule:hastypeP-subsume}
 \inferrule{
@@ -3268,9 +3295,7 @@ Expression typing \todo{describe these}
 }
 \end{equation}
 \end{subequations}
-maybe last one needs self-recognition?
-
-Rule typing
+\noindent\fbox{$\strut\ruleTypeP{\Omega}{r}{\tau}{\tau'}$}~~$r$ takes values of type $\tau$ to values of type $\tau'$
 \begin{equation}\label{rule:ruleTypeP}
 \inferrule{
   \patTypeP{\Omega'}{p}{\tau}\\
@@ -3280,7 +3305,8 @@ Rule typing
 }
 \end{equation}
 
-Pattern typing
+\noindent\fbox{$\strut\patTypeP{\Omega'}{p}{\tau}$}~~$p$ matches values of type $\tau$ generating hypotheses $\Omega'$
+
 \begin{subequations}\label{rules:patTypeP}
 \begin{equation}\label{rule:patTypeP-subsume}
 \inferrule{
@@ -3318,7 +3344,111 @@ Pattern typing
 }
 \end{equation}
 \end{subequations}
+
+\subsubsection{Metatheory}
+The rules above are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately or proving it explicitly. The following standard lemmas also hold, for all basic judgements $J$ above.
+
+\begin{lemma}[Weakening]\label{lemma:weakening-P}  If $\Omega \vdash J$ then $\Omega \cup \Omega' \vdash J$.
+% \begin{enumerate}
+% \item \begin{enumerate}
+%   \item If $\issigX{\sigma}$ then $\issig{\Omega \cup \Omega'}{\sigma}$.
+%   \item If $\sigequal{\Omega}{\sigma}{\sigma'}$ then $\sigequal{\Omega \cup \Omega'}{\sigma}{\sigma'}$.
+%   \item If $\sigsub{\Omega}{\sigma}{\sigma'}$ then $\sigsub{\Omega \cup \Omega'}{\sigma}{\sigma'}$.
+%   \item If $\hassigX{M}{\sigma}$ then $\hassig{\Omega \cup \Omega'}{M}{\sigma}$.
+%   \item If $\ismvalX{M}$ then $\ismval{\Omega \cup \Omega'}{M}$.
+%   \end{enumerate}
+% \item \begin{enumerate}
+% \item If $\iskindX{\kappa}$ then $\iskind{\Omega \cup \Omega'}{\kappa}$.
+% \item If $\kequalX{\kappa}{\kappa'}$ then $\kequal{\Omega \cup \Omega'}{\kappa}{\kappa'}$.
+% \item If $\ksubX{\kappa}{\kappa'}$ then $\ksub{\Omega \cup \Omega'}{\kappa}{\kappa'}$.
+% \item If $\haskindX{c}{\kappa}$ then $\haskind{\Omega \cup \Omega'}{c}{\kappa}$.
+% \item If $\cequalX{c}{c'}{\kappa}$ then $\cequal{\Omega \cup \Omega'}{c}{c'}{\kappa}$.
+% \end{enumerate}
+% \item \begin{enumerate}
+% \item If $\istypeP{\Omega}{\tau}$ then $\istypeP{\Omega \cup \Omega'}{\tau}$.
+% \item If $\tequalPX{\tau}{\tau'}$ then $\tequalP{\Omega \cup \Omega'}{\tau}{\tau'}$.
+% \item If $\issubtypePX{\tau}{\tau'}$ then $\issubtypeP{\Omega \cup \Omega'}{\tau}{\tau'}$.
+% \item If $\hastypeP{\Omega}{e}{\tau}$ then $\hastypeP{\Omega \cup \Omega'}{e}{\tau}$.
+% \item If $\ruleTypeP{\Omega}{r}{\tau}{\tau'}$ then $\ruleTypeP{\Omega \cup \Omega'}{r}{\tau}{\tau'}$.
+% \item If $\patTypePC{\Omega}{\Omega''}{p}{\tau}$ then $\patTypePC{\Omega \cup \Omega'}{\Omega''}{p}{\tau}$.
+% \end{enumerate}
+% \end{enumerate}
+\end{lemma}
+\begin{proof-sketch} By straightforward mutual rule induction.
+\end{proof-sketch}
+
+\begin{lemma}[Substitution]\label{lemma:substitution-P} ~
+\begin{enumerate}
+\item If $\Omega, X : \sigma \cup \Omega' \vdash J$ and $\hassigX{M}{\sigma}$ and $\ismvalX{M}$ then $\Omega \cup [M/X]\Omega' \vdash [M/X]J$.
+\item If $\Omega, u :: \kappa \cup \Omega' \vdash J$ and $\haskindX{c}{\kappa}$ then $\Omega \cup [c/u]\Omega' \vdash [c/u]J$.
+\item If $\Omega, x : \tau \cup \Omega' \vdash J$ and $\hastypeP{\Omega}{e}{\tau}$ then $\Omega \cup [e/x]\Omega' \vdash [e/x]J$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch} By straightforward mutual rule induction. 
+\end{proof-sketch}
+
+\begin{lemma}[Decomposition]\label{lemma:decomposition-P} ~
+\begin{enumerate}
+\item If $\Omega \cup [M/X]\Omega' \vdash [M/X]J$ and $\hassigX{M}{\sigma}$ then $\Omega, X : \sigma \cup \Omega' \vdash J$.
+\item If $\Omega \cup [c/u]\Omega' \vdash [c/u]J$ and $\haskindX{c}{\kappa}$ then $\Omega \cup \Omega' \vdash J$.
+\item If $\Omega \cup [e/x]\Omega' \vdash [e/x]J$ and $\hastypeP{\Omega}{e}{\tau}$ then $\Omega \cup \Omega' \vdash J$.
+\end{enumerate}
+\end{lemma}
+\begin{proof-sketch} By straightforward mutual rule induction.
+\end{proof-sketch}
+
+% \begin{lemma}[Regularity]\label{lemma:regularity-P} ~
+% \begin{enumerate}
+% \item ...
+% \end{enumerate}
+% \end{lemma}
+
 \subsection{Structural Dynamics}
+The structural dynamics of modules is defined as a transition system, and is organized around judgements of the following form:
+
+\vspace{10px}
+$\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\stepsU{M}{M'} & \text{$M$ transitions to $M'$}\\
+\isvalP{M} & \text{$M$ is a module value}\\
+\matchfail{M} & \text{$M$ raises match failure}
+\end{array}$
+\vspace{10px}
+
+The structural dynamics of expressions is also defined as a transition system, and is organized around judgements of the following form:
+
+\vspace{10px}
+$\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
+\isvalP{e} & \text{$e$ is a value}\\
+\matchfail{e} & \text{$e$ raises match failure}
+\end{array}$
+\vspace{10px}
+
+We also define auxiliary judgements for \emph{iterated transition}, $\multistepU{e}{e'}$, and \emph{evaluation}, $\evalU{e}{e'}$ of expressions.
+
+\begin{definition}[Iterated Transition]\label{defn:iterated-transition-P} Iterated transition, $\multistepU{e}{e'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{e}{e'}$.\end{definition}
+
+\begin{definition}[Evaluation]\label{defn:evaluation-P} $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
+
+As in $\miniVersePat$, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following conditions.
+
+The Preservation condition ensures that evaluation preserves typing.
+\begin{condition}[Preservation]\label{condition:preservation-P} ~
+\begin{enumerate}
+\item If $\hassig{}{M}{\sigma}$ and $\stepsU{M}{M'}$ then $\hassig{}{M}{\sigma}$.
+\item If $\hastypeUC{e}{\tau}$ and $\stepsU{e}{e'}$ then $\hastypeUC{e'}{\tau}$.
+\end{enumerate}
+\end{condition}
+
+The Progress condition ensures that evaluation of a well-typed expanded expression cannot ``get stuck''. We must consider the possibility of match failure in this condition.
+\begin{condition}[Progress]\label{condition:progress-P} ~
+\begin{enumerate}
+\item If $\hassig{}{M}{\sigma}$ then either $\isvalU{M}$ or $\matchfail{M}$ or there exists an $M'$ such that $\stepsU{M}{M'}$.
+\item If $\hastypeUC{e}{\tau}$ then either $\isvalU{e}$ or $\matchfail{e}$ or there exists an $e'$ such that $\stepsU{e}{e'}$.
+\end{enumerate}
+\end{condition}
 
 \section{Unexpanded Language (UL)}
 
