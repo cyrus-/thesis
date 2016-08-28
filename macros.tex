@@ -167,7 +167,7 @@
 \newcommand{\acein}[4]{\abopic{prinj}{#1; #2}{#3}{#4}}
 
 \newcommand{\auanain}[2]{\abopp{uin}{#1}{#2}}
-\newcommand{\aceanain}[2]{\abopp{prin}{#1}{#2}}
+\newcommand{\aceanain}[2]{\abopp{prinj}{#1}{#2}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
 \newcommand{\aecase}[4]{\abopic{case}{#1}{#2}{#3; #4}}
@@ -196,6 +196,7 @@
 
 %\newcommand{\isctxP}[2]{#1 \vdash #2~\mathsf{ctx}}
 \newcommand{\hastypeP}[3]{#1 \vdash #2 : #3}
+\newcommand{\hastypePX}[2]{\hastypeP{\uOmega}{#1}{#2}}
 \newcommand{\hastypePC}[2]{\vdash #1 : #2}
 
 \newcommand{\Dhyp}[1]{#1~\mathsf{type}}
@@ -256,27 +257,37 @@
 \newcommand{\uA}{\mathcal{A}}
 \newcommand{\uAS}[2]{\langle #1; #2 \rangle}
 \newcommand{\uShyp}[4]{#1 \leadsto #2 \hookrightarrow \xuetsmdef{#3}{#4}}
+\newcommand{\pShyp}[4]{#1 \leadsto #2 \hookrightarrow \petsmdefn{#3}{#4}}
 \newcommand{\uPhyp}[4]{#1 \leadsto #2 \hookrightarrow \xuptsmdef{#3}{#4}}
+\newcommand{\pPhyp}[4]{#1 \leadsto #2 \hookrightarrow \pptsmdefn{#3}{#4}}
 
 \newcommand{\tBody}{\mathtt{Body}}
 \newcommand{\tParseResultExp}{\mathtt{ParseResultSE}} 
-\newcommand{\tCEExp}{\mathtt{ProtoExpr}} % Typed expansion
+\newcommand{\tParseResultF}{\mathtt{ParseResult}}
+\newcommand{\tParseResult}[1]{\mathtt{ParseResult}(#1)}
+\newcommand{\tCEExp}{\mathtt{PrExpr}} % Typed expansion
 \newcommand{\expandsU}[6]{#1~#2 \vdash_{#3} #4 \leadsto #5 : #6} % there's a multiline one in the document done manually
 \newcommand{\expandsUX}[3]{\expandsU{\uDelta}{\uGamma}{\uPsi}{#1}{#2}{#3}}
 \newcommand{\expandsUC}[3]{\vdash #1 \leadsto #2 : #3}
+\newcommand{\expandsP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 : #6}
+\newcommand{\expandsPX}[3]{\expandsP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 \newcommand{\expandsTU}[3]{#1 \vdash #2 \leadsto #3~\mathsf{type}}
 \newcommand{\domof}[1]{\text{dom}(#1)}
 \newcommand{\xuetsmdef}[2]{\abop{setsm}{#1;\,#2}}
 \newcommand{\xuetsmbnd}[3]{#1 \hookrightarrow \xuetsmdef{#2}{#3}}
 \newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{seTSMs}}
+\newcommand{\petsmenv}[2]{#1 \vdash #2~\mathsf{peTSMs}}
+\newcommand{\pptsmenv}[2]{#1 \vdash #2~\mathsf{ppTSMs}}
 \newcommand{\uetsmctx}[2]{#1 \vdash #2~\mathsf{seTSMctx}}
+\newcommand{\petsmctx}[2]{#1 \vdash #2~\mathsf{peTSMctx}}
+\newcommand{\pptsmctx}[2]{#1 \vdash #2~\mathsf{ppTSMctx}}
 \newcommand{\encodeBody}[2]{#1 \downarrow_\mathsf{Body} #2}
 \newcommand{\decodeBody}[2]{#1 \uparrow_\mathsf{Body} #2}
 \newcommand{\ebody}{\etxt{body}}
 \newcommand{\eparse}{\etxt{parse}}
 \newcommand{\ecand}{\etxt{proto}}
-\newcommand{\decodeCondE}[2]{#1 \uparrow_\mathsf{ProtoExpr} #2}
-\newcommand{\encodeCondE}[2]{#1 \downarrow_\mathsf{ProtoExpr} #2}
+\newcommand{\decodeCondE}[2]{#1 \uparrow_\mathsf{PrExpr} #2}
+\newcommand{\encodeCondE}[2]{#1 \downarrow_\mathsf{PrExpr} #2}
 
 % Candidate Expansions
 \newcommand{\ce}{\grave{e}}
@@ -301,6 +312,8 @@
 % Candidate expansion validation
 \newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 \newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
+\newcommand{\cvalidEP}[5]{#1 \vdash^{#2} #3 \leadsto #4 : #5}
+\newcommand{\cvalidEPX}[3]{\cvalidEP{\Omega}{\escenev}{#1}{#2}{#3}}
 \newcommand{\csyn}[6]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Rightarrow #6}
 \newcommand{\csynX}[3]{\csyn{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
 \newcommand{\cana}[6]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Leftarrow #6}
@@ -403,13 +416,14 @@
 \newcommand{\uptsmctx}[2]{#1 \vdash #2~\mathsf{spTSMctx}}
 
 \newcommand{\tParseResultPat}{\mathtt{ParseResultSP}} 
-\newcommand{\tCEPat}{\mathtt{ProtoPat}} % Typed expansion
+\newcommand{\tCEPat}{\mathtt{PrPat}} % Typed expansion
 
-\newcommand{\decodeCEPat}[2]{#1 \uparrow_\mathsf{ProtoPat} #2}
-\newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{ProtoPat} #2}
+\newcommand{\decodeCEPat}[2]{#1 \uparrow_\mathsf{PrPat} #2}
+\newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{PrPat} #2}
 
 \newcommand{\cvalidP}[5]{\vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
 \newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Mapsto #7}
+\newcommand{\cvalidRP}[6]{#1 \vdash^{#2} #3 \leadsto #4 : #5 \Mapsto #6}
 \newcommand{\crsyn}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
 \newcommand{\crsynX}[4]{\crsyn{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}{#4}}
 \newcommand{\crana}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Leftarrow #6 \Mapsto #7}
@@ -607,6 +621,9 @@
 \newcommand{\uepsilon}{{\hat\epsilon}}
 \newcommand{\uX}{{\hat X}}
 
+\newcommand{\defpetsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{expressions}~\texttt{by}~#3~\texttt{in}~#4}
+\newcommand{\defpptsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~#3~\texttt{in}~#4}
+
 \newcommand{\audefpetsm}[4]{\abopcc{usyntaxpe}{#2}{#1}{#3.#4}}
 \newcommand{\aumdefpetsm}[4]{\abopcc{umsyntaxpe}{#2}{#1}{#3.#4}}
 \newcommand{\auappetsm}[2]{\abopicz{uappetsm}{#1}{#2}}
@@ -686,7 +703,7 @@
 \newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
 \newcommand{\uMhyp}[3]{#1 \leadsto #2 : #3}
 
-\newcommand{\uOmegaEx}[4]{\langle #1; #2; #3; #4 \rangle}
+\newcommand{\uOmegaEx}[4]{\langle #3; #1; #2; #4 \rangle}
 \newcommand{\uMctx}{\mathcal{M}}
 
 \newcommand{\istypeP}[2]{\istypeU{#1}{#2}}
@@ -715,12 +732,12 @@
 \newcommand{\mExpandsSP}[7]{#1 \sslash #2 \vdash_{#3; #4} #5 \leadsto #6 : #7}
 
 \newcommand{\msyn}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6}
-\newcommand{\msynX}[3]{\msyn{\uOmega}{\uPsiE}{\uPsiP}{#1}{#2}{#3}}
+\newcommand{\msynX}[3]{\msyn{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 \newcommand{\mana}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Leftarrow #6}
 \newcommand{\manaX}[3]{\mana{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 
-\newcommand{\mExpandsP}[4]{#1 \vdash #2 \leadsto #3 : #4}
-\newcommand{\mExpandsPX}[3]{\mExpandsP{\uOmega}{#1}{#2}{#3}}
+\newcommand{\mExpandsP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 : #6}
+\newcommand{\mExpandsPX}[3]{\mExpandsP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 
 \newcommand{\petsmdefn}[3]{#1 \hookrightarrow \texttt{petsm}(#2; #3)}
 \newcommand{\pptsmdefn}[3]{#1 \hookrightarrow \texttt{pptsm}(#2; #3)}
@@ -728,7 +745,8 @@
 \newcommand{\istsmty}[2]{#1 \vdash #2~\mathsf{tsmty}}
 \newcommand{\tsmtyExpands}[3]{#1 \vdash #2 \leadsto #3 ~\mathsf{tsmty}}
 
-\newcommand{\tParseResultPCEExp}{\mathtt{ParseResult}(\mathtt{PCEExp})}
+\newcommand{\tParseResultPCEExp}{\mathtt{ParseResult}(\mathtt{PPrExpr})}
+\newcommand{\tPProtoExpr}{\mathtt{PPrExpr}}
 
 \newcommand{\tsmexpExpandsExp}[5]{#1 \vdash_{#2}^{\mathsf{Exp}} #3 \leadsto #4~@~#5}
 \newcommand{\tsmexpExpandsExpX}[3]{\tsmexpExpandsExp{\Omega}{\uPsi}{#1}{#2}{#3}}
@@ -744,10 +762,16 @@
 \newcommand{\tsmexpMultistepsExp}[4]{#1 \vdash_{#2}^\mathsf{Exp} #3 \mapsto^{*} #4}
 \newcommand{\tsmexpEvalsExp}[4]{#1 \vdash_{#2}^\mathsf{Exp} #3 \Downarrow #4}
 
+\newcommand{\tsmexpNormalPat}[3]{#1 \vdash_{#2}^\mathsf{Pat} #3~\mathsf{normal}}
+\newcommand{\tsmexpStepsPat}[4]{#1 \vdash_{#2}^\mathsf{Pat} #3 \mapsto #4}
+\newcommand{\tsmexpMultistepsPat}[4]{#1 \vdash_{#2}^\mathsf{Pat} #3 \mapsto^{*} #4}
+\newcommand{\tsmexpEvalsPat}[4]{#1 \vdash_{#2}^\mathsf{Pat} #3 \Downarrow #4}
+
+
 \newcommand{\tsmdefof}[1]{\mathsf{tsmdef}(#1)}
 
-\newcommand{\decodePCEExp}[2]{#1 \uparrow_\mathsf{PCEExp} #2}
-\newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PCEExp} #2}
+\newcommand{\decodePCEExp}[2]{#1 \uparrow_\mathsf{PPrExpr} #2}
+\newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PPrExpr} #2}
 
 \newcommand{\pce}{\check{e}}
 \newcommand{\pcp}{\check{p}}
@@ -756,7 +780,7 @@
 \newcommand{\prepcp}[6]{#1 \vdash_{#2}^\mathsf{Pat} \cdot \looparrowright_{#3} \cdot ~?~ #4 \dashv #5 : #6}
 
 %\newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
-%\newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
+% \newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
 \newcommand{\csynP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5}
 \newcommand{\csynPX}[3]{\csynP{\Omega}{\escenev}{#1}{#2}{#3}}
 \newcommand{\canaP}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5}
@@ -790,31 +814,42 @@
 \newcommand{\cekappa}{{\grave\kappa}}
 \newcommand{\cec}{{\grave c}}
 
-\newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{prPat})}
+\newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{PrPat})}
 
 \newcommand{\cscenev}{\mathbbmss{C}}
 
 \newcommand{\cvalidK}[4]{#1 \vdash^{#2} #3 \leadsto #4~\mathsf{kind}}
 \newcommand{\cvalidKX}[2]{\cvalidK{\Omega}{\cscenev}{#1}{#2}}
 
+\newcommand{\cvalidC}[5]{#1 \vdash^{#2} #3 \leadsto #4 :: #5}
+\newcommand{\cvalidCX}[3]{\cvalidC{\Omega}{\cscenev}{#1}{#2}{#3}}
 \newcommand{\ccsyn}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5}
 \newcommand{\ccsynX}[3]{\ccsyn{\Omega}{\cscenev}{#1}{#2}{#3}}
 \newcommand{\ccana}[5]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5}
 \newcommand{\ccanaX}[3]{\ccana{\Omega}{\cscenev}{#1}{#2}{#3}}
 
+% \newcommand{\cvalidR}[6]{#1 \vdash^{#2} #3 \leadsto #4 : #5 \Mapsto #6}
+% \newcommand{\cvalidRX}[4]{\cvalidR{\Omega}{\escenev}{#1}{#2}{#3}{#4}}
 \newcommand{\crsynP}[6]{#1 \vdash^{#2} #3 \leadsto #4 \Rightarrow #5 \Mapsto #6}
 \newcommand{\crsynPX}[4]{\crsynP{\Omega}{\escenev}{#1}{#2}{#3}{#4}}
 \newcommand{\cranaP}[6]{#1 \vdash^{#2} #3 \leadsto #4 \Leftarrow #5 \Mapsto #6}
 \newcommand{\cranaPX}[4]{\cranaP{\Omega}{\escenev}{#1}{#2}{#3}{#4}}
 
+\newcommand{\parseUMod}[2]{\mathsf{parseUMod}(#1)=#2}
+\newcommand{\parseUModF}[1]{\mathsf{parseUMod}(#1)}
+\newcommand{\parseUSigF}[1]{\mathsf{parseUSig}(#1)}
+\newcommand{\parseUSig}[2]{\mathsf{parseUSig}(#1)=#2}
 \newcommand{\parseUKind}[2]{\mathsf{parseUKind}(#1)=#2}
+\newcommand{\parseUKindF}[1]{\mathsf{parseUKind}(#1)}
+\newcommand{\parseUConF}[1]{\mathsf{parseUCon}(#1)}
 \newcommand{\parseUCon}[2]{\mathsf{parseUCon}(#1)=#2}
 
 \newcommand{\cvalidTP}[4]{#1 \vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 
 \newcommand{\csfrom}[1]{\mathsf{cs}(#1)}
 
-\newcommand{\cvalidPP}[5]{\Omega_\text{param} \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
+\newcommand{\cvalidPPE}[5]{\Omega \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
+\newcommand{\cvalidPP}[5]{\Omega_\text{params} \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
 
 \newcommand{\isvalP}[1]{#1~\mathsf{val}}
 
@@ -839,3 +874,6 @@
 \newcommand{\segExp}[2]{\langle #1; #2; \mathsf{UExp} \rangle}
 \newcommand{\segTyp}[2]{\langle #1; #2; \mathsf{UTyp} \rangle}
 \newcommand{\segPat}[2]{\langle #1; #2; \mathsf{UPat}\rangle}
+\newcommand{\segCon}[2]{\langle #1; #2; \mathsf{UCon}\rangle}
+\newcommand{\segKind}[2]{\langle #1; #2; \mathsf{UKind} \rangle}
+\newcommand{\seg}

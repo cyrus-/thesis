@@ -355,6 +355,8 @@ Various alternative designs that better control dynamic cost or that maintain ot
 %The most minimal syntax definition systems, e.g. Racket's dialect preprocessor \cite{Flatt:2012:CLR:2063176.2063195}, take any function of a type like \li{string -> exp}, where \li{exp} is a system-defined encoding of the syntax of expressions (enriched perhaps with source code locations and other ``metadata''), as a syntax definition. Programmers using these systems are free to use an implementation of some other syntax definition system to define this function.
 
 \subsection{Examples of Syntax Dialects}\label{sec:examples-of-syntax-dialects}
+Now that we have given an overview of a number of syntax definition systems, let us consider two concrete examples of syntax dialects to motivate our subsequent discussion of the problems with the dialect oriented approach.
+
 \subsubsection{Example 1: $\mathcal{V}_\texttt{rx}$}
 \begin{figure}
 \begin{lstlisting}[numbers=none]
@@ -529,7 +531,7 @@ Similarly, it is not always straightforward to determine what type a spliced exp
 
 SoundExt/SugarFomega \cite{conf/popl/LorenzenE16} and SoundX \cite{conf/sle/RitschelE15} allow dialect providers to define derived typing rules alongside derived forms and desugaring rules. These systems automatically verify that the desugaring rules are sound with respect to these derived typing rules. This ensures that type errors are never reported in terms of the desugaring (which is the stated goal of their work.) However, this helps only to a limited extent in answering the questions just given. In particular, the programmer must construct a derivation using the derived typing rules introduced by all of the constituent dialects, then examine this derivation to answer questions about the type of the desugaring and the spliced terms within it. 
 
-Even for relatively simple base languages, like System $\mathbf{F}_\omega$, understanding a typing derivation requires significantly more expertise than programmers usually need.\footnote{At CMU, we teach ML to all first-year students (in 15-150.) However, understanding a judgemental specification of a language like System $\mathbf{F}_\omega$ involves skills that are taught only to some third and fourth year students (in 15-312.)} For languages like ML, the judgement forms are substantially more complex. 
+Even for relatively simple base languages, like System $\mathbf{F}_\omega$, understanding a typing derivation requires significantly more expertise than programmers usually need.\footnote{At CMU, we teach ML to all first-year students (in 15-150.) However, understanding a judgemental specification of a language like System $\mathbf{F}_\omega$ involves skills that are taught only to some third and fourth year students (in 15-312 -- Principles of Programming Languages.)} For languages like ML, the judgement forms are substantially more complex. 
 
 Systems that rely on types to disambiguate between parses also better support reasoning about types. In particular, clients can determine the type of the desugaring by determining the types of subexpressions (which is not always trivial, due to the problems of \textbf{Search} and \textbf{Shadowing} discussed above) and, in some cases, examining the grammar production governing the form in question.
 \end{enumerate}

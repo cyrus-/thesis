@@ -551,7 +551,7 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively de
 These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution, Decomposition and Regularity.
 
 \subsection{Structural Dynamics}\label{sec:dynamics-U}
-The \emph{structural dynamics of }$\miniVerseUE$ is defined as a transition system by judgements of the following form:
+The \emph{structural dynamics} (a.k.a. the \emph{structural operational semantics} \cite{DBLP:journals/jlp/Plotkin04a}) of $\miniVerseUE$ is defined as a transition system by judgements of the following form:
 \[\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \stepsU{e}{e'} & \text{$e$ transitions to $e'$}\\
@@ -694,7 +694,7 @@ In addition to the stylized syntax given in Figure \ref{fig:U-unexpanded-terms},
 Giving a complete definition of the context-free textual syntax as, e.g., a context-free grammar, risks digression into details that are not critical to our purposes here. Our paper on Wyvern defines a textual syntax for a similar system \cite{TSLs}. Instead, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$  that go from character sequences, $b$, to unexpanded types and expressions, respectively. 
 \begingroup
 \def\thetheorem{\ref{condition:textual-representability-SES}}
-\begin{condition}[Textual Representability] Both of the following must hold:
+\begin{condition}[Textual Representability] ~
 \begin{enumerate}
 \item For each $\utau$, there exists $b$ such that $\parseUTyp{b}{\utau}$. 
 \item For each $\ue$, there exists $b$ such that $\parseUExp{b}{\ue}$.
@@ -1058,7 +1058,7 @@ Rather than defining $\tBody$ explicitly, and these judgements inductively again
 
 \begingroup
 \def\thetheorem{\ref{condition:body-isomorphism}}
-\begin{condition}[Body Isomorphism] All of the following must hold:
+\begin{condition}[Body Isomorphism] ~
 \begin{enumerate}
 \item For every literal body $b$, we have that $\encodeBody{b}{\ebody}$ for some $\ebody$ such that $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$.
 \item If $\hastypeUC{\ebody}{\tBody}$ and $\isvalU{\ebody}$ then $\decodeBody{\ebody}{b}$ for some $b$.
@@ -1092,7 +1092,7 @@ Again, rather than picking a particular definition of $\tCEExp$ and defining the
 
 \begingroup 
 \def\thetheorem{\ref{condition:proto-expression-isomorphism}}
-\begin{condition}[Proto-Expression Isomorphism] All of the following must hold:
+\begin{condition}[Proto-Expression Isomorphism] ~
 \begin{enumerate}
 \item For every $\ce$, we have $\encodeCondE{\ce}{\ecand}$ for some $\ecand$ such that $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$.
 \item If $\hastypeUC{\ecand}{\tCEExp}$ and $\isvalU{\ecand}$ then $\decodeCondE{\ecand}{\ce}$ for some $\ce$.
@@ -1531,7 +1531,7 @@ To prove Theorem \ref{thm:typed-expansion-short-U}, which was mentioned at the b
 
 \begingroup
 \def\thetheorem{\ref{thm:typed-expansion-full-U}}
-\begin{theorem}[Typed Expansion (Full)] Both of the following hold:
+\begin{theorem}[Typed Expansion (Full)] ~
 \begin{enumerate}
 \item If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uAS{\uA}{\Psi}}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
 \item If $\cvalidE{\Delta}{\Gamma}{\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uAS{\uA}{\Psi}}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app} = \emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$.
