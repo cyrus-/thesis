@@ -339,11 +339,11 @@ In some cases, the composition of various parser combinators can be taken as def
 
 For example, Hutton describes a system where parsers are functions of some type in the following parametric type family:% \li{'char 'tree parser}, bound in VerseML's syntax:
 \begin{lstlisting}[numbers=none]
-type 'char 'out parser = 'char list -> ('out * ('char list)) list
+type parser('c, 't) = list('c) -> list('t * list('c))
 \end{lstlisting}
 Here, a parser is a function that takes a list of (abstract) characters and returns a list of valid parses, each of which consists of an (abstract) output (e.g. a tree) and a list of the characters that were not consumed. An input is ambiguous if this function returns more than one parse. A deterministic parser is one that never returns more than one parse. The  non-deterministic choice combinator \li{alt} has the following signature: 
 \begin{lstlisting}[numbers=none]
-val alt : 'c 't parser -> 'c 't parser -> 'c 't parser
+val alt : parser('c, 't) -> parser('c, 't) -> parser('c, 't)
 \end{lstlisting}
 The \li{alt} combinator combines the two given parsers by applying them both to the input and appending the lists that they return.
 
