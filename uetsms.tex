@@ -1032,7 +1032,8 @@ Rule (\ref*{rule:expandsU-syntax}) defines typed expansion of this form:
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+  \evalU{\eparse}{\eparse'}\\
+  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse'}}{\ue}{e}{\tau'}
 }{
   \expandsUX{\uesyntax{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
@@ -1104,6 +1105,7 @@ Again, rather than picking a particular definition of $\tCEExp$ and defining the
 \end{condition}
 \endgroup
 
+\item The third premise of Rule (\ref{rule:expandsU-syntax}) evaluates the parse function to a value.
 \item The final premise of Rule (\ref{rule:expandsU-syntax}) extends the seTSM context, $\uPsi$, with the newly determined {seTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsU-syntax}) assigns this type and expansion to the seTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 
 

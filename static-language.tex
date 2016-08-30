@@ -75,7 +75,7 @@ signature PARSEGEN =
 sig 
   type grammar('a)
   (* ... operations on grammars ... *)
-  type parser('a) = string -> 'a parse_result
+  type parser('a) = string -> parse_result('a)
   val generate : grammar('a) -> parser('a)
 end
 \end{lstlisting}
@@ -137,7 +137,234 @@ Library
 is 
   (* ... *)
 
-  (* we do not need static qualifiers within parsegen.cm *)
+  (* now we do not need static qualifiers within parsegen.cm *)
   static parsegen.cm 
 \end{lstlisting}
 For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken by the definition of Standard ML \cite{Tofte:89:TheDefinitionOfStandardML}.)
+
+\section{$\miniVersePH$}
+We will now formalize the mechanisms just discussed by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
+
+\subsection{Syntax of Unexpanded Modules}
+The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. The parts of this figure that differ from Figure \ref{fig:P-unexpanded-modules-signatures} are highlighted in yellow.
+
+\begin{figure}[h]
+\[\arraycolsep=3pt\begin{array}{lllllll}
+\textbf{Sort} & & 
+%& \textbf{Operational Form} 
+& \textbf{Stylized Form} & \textbf{Description}\\
+\LCC \color{Yellow} & \color{Yellow} & \color{Yellow} & \color{Yellow} & \color{Yellow}\\
+\mathsf{Phase} & \varphi & ::= & \standardphase & \text{standard phase}\\
+& & & \staticphase & \text{static phase}\\\ECC
+\mathsf{UMod} & \uM & ::= 
+%& \uX 
+& \uX & \text{module identifier}\\
+&&
+%& \austruct{\uc}{\ue} 
+& \struct{\uc}{\ue} & \text{structure}\\
+&&
+%& \auseal{\usigma}{\uM} 
+& \seal{\uM}{\usigma} & \text{seal}\\
+&&
+%& \aumlet{\usigma}{\uM}{\uX}{\uM} 
+& \mletH{\yellowbox{\varphi}}{\uX}{\uM}{\uM}{\usigma} & \text{definition}\\
+% \LCC &&
+%& \lightgray 
+% & \color{Yellow} & \color{Yellow}\\
+&&
+%& \aumdefpetsm{\urho}{e}{\tsmv}{\uM} 
+& \defpetsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{peTSM definition}\\
+%&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\uM\\
+&&
+%& \aumletpetsm{\uepsilon}{\tsmv}{\uM} 
+& \uletpetsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{peTSM binding}\\
+% &&&                                  & \texttt{expressions}~\texttt{in}~\uM\\
+% &&& ... & ... & \text{peTSM designation}\\
+&&
+%& \audefpptsm{\urho}{e}{\tsmv}{\uM} 
+& \defpptsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{ppTSM definition}\\
+% &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\uM\\
+&&
+%& \auletpptsm{\uepsilon}{\tsmv}{\uM} 
+& \uletpptsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}%\ECC%
+% &&& & \texttt{patterns}~\texttt{in}~\uM\\
+% &&& ... & ... & \text{ppTSM designation}\ECC
+\end{array}\]
+\caption{Syntax of unexpanded modules in $\miniVersePH$}
+\label{fig:syntax-uM-PH}
+\end{figure}
+
+\subsection{Module Expansion}
+The module expansion judgement in $\miniVersePH$ takes the following form:
+
+\vspace{10px}
+$\begin{array}{ll}
+\textbf{Judgement Form} & \textbf{Description}\\
+\mExpandsPHX{\uM}{M}{\sigma} & \text{$\uM$ has expansion $M$ matching $\sigma$}
+\end{array}$
+\vspace{10px}
+
+A \emph{static environment}, $\Sigma$, takes the form $\staticenv{\omega}{\uOmega}{\uPsi}{\uPhi}$, where $\omega$ is a substitution.
+
+The static environment passes opaquely through the subsumption rule and the rules governing module identifiers, structures and sealing:
+\begin{subequations}
+\begin{equation}\label{rule:mExpandsPH-subsumes}
+\inferrule{
+  \mExpandsPHX{\uM}{M}{\sigma}\\
+  \sigsub{\uOmega}{\sigma}{\sigma'}
+}{
+  \mExpandsPHX{\uM}{M}{\sigma'}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-var}
+\inferrule{ }{
+  \mExpandsPH{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}{\Sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-struct}
+\inferrule{
+  \kanaX{\uc}{c}{\kappa}\\
+  \eanaPX{\ue}{e}{[c/u]\tau}
+}{
+  \mExpandsPHX{\struct{\uc}{\ue}}{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-seal}
+\inferrule{
+  \sigExpandsPX{\usigma}{\sigma}\\
+  \mExpandsPHX{\uM}{M}{\sigma}
+}{
+  \mExpandsPHX{\seal{\uM}{\usigma}}{\aseal{\sigma}{M}}{\sigma} 
+}
+\end{equation}
+
+Each binding form in the syntax of $\uM$ is qualified with a \emph{phase}, $\varphi$, which is either $\standardphase$ or $\staticphase$. The static environment passes opaquely through the standard phase module let binding construct:\todo{why does let have an annotation but not the others?}
+\begin{equation}\label{rule:mExpandsPH-mlet-standard}
+\inferrule{
+  \mExpandsPHX{\uM}{M}{\sigma}\\
+  \sigExpandsPX{\usigma'}{\sigma'}\\\\
+  \mExpandsPH{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uM'}{M'}{\sigma'}{\Sigma}
+}{
+  \mExpandsPHX{\mletH{\standardphase}{\uX}{\uM}{\uM'}{\usigma'}}{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
+}
+\end{equation}
+
+The rule for the $\staticphase$ phase module let binding construct, on the other hand, calls for the module expression being bound to be evaluated to a module value under the current environment. The substitution and corresponding unexpanded context is then extended with this module value:
+\begin{equation}\label{rule:mExpandsPH-mlet-static}
+\inferrule{
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\\\
+  \mExpandsPH{\uOmega_S}{\uPsi_S}{\uPhi_S}{\uM}{M}{\sigma}{\Sigma}\\
+  \evalU{[\omega]M}{M'}\\\\
+  \sigExpandsP{\uOmega}{\usigma'}{\sigma'}\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uM'}{M'}{\sigma'}{
+  	\staticenv{\omega, M'/X}{\uOmega_S, \uMhyp{\uX}{X}{\sigma}}{\uPsi_S}{\uPhi_S}
+  }
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\mletH{\staticphase}{\uX}{\uM}{\uM'}{\usigma'}}{M'}{\sigma'}{\Sigma}
+}
+\end{equation}
+
+The standard peTSM definition construct is governed by the following rule:
+\begin{equation}\label{rule:mExpandsPH-syntaxpe-standard}
+\inferrule{
+  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\\\
+  \expandsP{\uOmega_S}{\uPsi_S}{\uPhi_S}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
+  \evalU{[\omega]\eparse}{\eparse'}\\
+  \mExpandsPH{\uOmega}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse'}}}{\uPhi}{\uM}{M}{\sigma}{\Sigma}
+}{
+  \mExpandsPH{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\defpetsmH{\standardphase}{\tsmv}{\urho}{\ueparse}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+The difference here is that the parse function is an unexpanded (rather than an expanded) expression. It is expanded under the static environment's unified context, $\uOmega_S$. Then the substitution, $\omega$, is applied to the resulting expanded parse function before it is added to the peTSM context.
+
+The static peTSM definition construct operates similarly, differing only in that the static environment's peTSM context is extended, rather than the standard peTSM context:
+\begin{equation}\label{rule:mExpandsPH-syntaxpe-static}
+\inferrule{
+  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\
+  \uPsi_S = \uAS{\uA_S}{\Psi_S}\\\\
+  \expandsP{\uOmega_S}{\uPsi_S}{\uPhi_S}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
+  \evalU{[\omega]\eparse}{\eparse'}\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{\staticenv{\omega}{\uOmega_S}{\uAS{\uA_S \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi_S, \petsmdefn{a}{\rho}{\eparse'}}}{\uPhi_S}}
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\defpetsmH{\staticphase}{\tsmv}{\urho}{\ueparse}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+
+
+The static environment passes opaquely through the standard peTSM abbreviation construct:
+\begin{equation}\label{rule:mExpandsPH-letpetsm-standard}
+\inferrule{
+  \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\
+  \mExpandsPH{\uOmega}{\uAS{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}}{\uPhi}{\uM}{M}{\sigma}{\Sigma}
+}{
+  \mExpandsPH{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\uletpetsmH{\standardphase}{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+
+The static peTSM abbreviation construct updates the static peTSM identifier expansion context, $\uA_S$:\todo{normalize epsilon}
+\begin{equation}\label{rule:mExpandsPH-letpetsm-static}
+\inferrule{
+  \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\\\
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\
+  \uPsi_S = \uAS{\uA_S}{\Psi_S}\\\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{\staticenv{\omega}{\Omega_S}{\uAS{\uA_S\uplus\mapitem{\tsmv}{\epsilon}}{\Psi_S}}{\uPhi_S}}
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uletpetsmH{\staticphase}{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+
+The rules governing ppTSM definitions and abbreviations are analagous:
+\begin{equation}\label{rule:mExpandsPH-syntaxpp-standard}
+\inferrule{ 
+  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+    \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\\\
+  \expandsP{\uOmega_S}{\uPsi_S}{\uPhi_S}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultCEPat }}\\\\
+  \evalU{[\omega]\eparse}{\eparse'}\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse'}}}{\uM}{M}{\sigma}{\Sigma}
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\defpptsmH{\standardphase}{\tsmv}{\urho}{\ueparse}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-syntaxpp-static}
+\inferrule{ 
+  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\
+  \uPhi_S = \uAS{\uA_S}{\Phi_S}\\\\
+  \expandsP{\uOmega_S}{\uPsi_S}{\uPhi_S}{\ueparse}{\eparse}{\aparr{\tBody}{\tParseResultCEPat }}\\\\
+  \evalU{[\omega]\eparse}{\eparse'}\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{
+  	\staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uAS{\uA_S \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi_S, \pptsmdefn{a}{\rho}{\eparse}}}
+  }
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\defpptsmH{\staticphase}{\tsmv}{\urho}{\ueparse}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-letpptsm-standard}
+\inferrule{
+  \tsmexpExpandsPat{\uOmega}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}\\
+  \mExpandsPH{\uOmega}{\uPsi}{\uAS{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}}{\uM}{M}{\sigma}{\Sigma}
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\uletpptsmH{\standardphase}{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+\begin{equation}\label{rule:mExpandsPH-letpptsm-static}
+\inferrule{
+  \tsmexpExpandsPat{\uOmega}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}\\\\
+  \Sigma = \staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uPhi_S}\\
+  \uPhi_S = \uAS{\uA_S}{\Phi_S}\\\\
+    \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{
+    	\staticenv{\omega}{\uOmega_S}{\uPsi_S}{\uAS{\uA_S\uplus\mapitem{\tsmv}{\epsilon}}{\Phi_S}}
+    }
+}{
+  \mExpandsPH{\uOmega}{\uPsi}{\uPhi}{\uletpptsmH{\staticphase}{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}{\Sigma}
+}
+\end{equation}
+\end{subequations}
+
+\subsection{Constructor Expansion}
+
+\subsection{Expression Expansion}
+
+\subsection{Metatheory}

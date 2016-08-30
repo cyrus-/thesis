@@ -912,7 +912,8 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}\\\\
-  \expandsSG{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}}{\uPhi}{\ue}{e}{\tau'}
+  \evalU{\eparse}{\eparse'}\\
+  \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse'}}{\ue}{e}{\tau'}
 }{
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\uesyntax{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
@@ -932,7 +933,7 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \begin{grayparbox}\vspace{-10px}
 \begin{equation}\label{rule:expandsU-match}
 \graybox{\inferrule{
-  \expandsSG{\uDelta}{\uGamma}{\uPhi}{\uPsi}{\ue}{e}{\tau}\\
+  \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\
   \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{
@@ -953,7 +954,8 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \graybox{\inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}\\\\
-  \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+  \evalU{\eparse}{\eparse'}\\
+  \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse'}}{\ue}{e}{\tau'}
 }{
   \expandsUPX{\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }}
@@ -2481,8 +2483,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 \end{grayparbox}
 
 
-\chapter{$\miniVerseParam$}
-\todo{add static environments and introductory explanation}
+\chapter{$\miniVerseParam$}\label{appendix:miniVerseParam}
 
 \clearpage
 \section{Expanded Language (XL)}
@@ -3443,6 +3444,14 @@ We also define auxiliary judgements for \emph{iterated transition}, $\multistepU
 
 \begin{definition}[Evaluation]\label{defn:evaluation-P} $\evalU{e}{e'}$ iff $\multistepU{e}{e'}$ and $\isvalU{e'}$. \end{definition}
 
+Similarly, we lift these definitions to the level of module expressions as well.
+
+\begin{definition}[Iterated Module Transition]\label{defn:iterated-transition-modules-P} Iterated transition, $\multistepU{M}{M'}$, is the reflexive, transitive closure of the transition judgement, $\stepsU{M}{M'}$.\end{definition}
+
+\begin{definition}[Module Evaluation]\label{defn:evaluation-modules-P} $\evalU{M}{M'}$ iff $\multistepU{M}{M'}$ and $\isvalU{M'}$. \end{definition}
+
+
+
 As in $\miniVersePat$, our subsequent developments do not make mention of particular rules in the dynamics, nor do they make mention of other judgements, not listed above, that are used only for defining the dynamics of the match operator, so we do not produce these details here. Instead, it suffices to state the following conditions.
 
 The Preservation condition ensures that evaluation preserves typing.
@@ -3998,7 +4007,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \begin{equation}\label{rule:mExpands-var}
 \inferrule{ }{
-  \mExpandsP{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPhi}{\uPsi}{\uX}{X}{\sigma}
+  \mExpandsP{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}
 }
 \end{equation}
 \begin{equation}\label{rule:mExpandsP-struct}
@@ -4030,7 +4039,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \inferrule{
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-  \mExpandsP{\uOmega}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}}{\uPhi}{\uM}{M}{\sigma}
+  \evalU{\eparse}{\eparse'}\\
+  \mExpandsP{\uOmega}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse'}}}{\uPhi}{\uM}{M}{\sigma}
 }{
   \mExpandsP{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\defpetsm{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 }
@@ -4047,7 +4057,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \inferrule{ 
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat }}\\\\
-  \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}}{\uM}{M}{\sigma}
+  \evalU{\eparse}{\eparse'}\\
+  \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse'}}}{\uM}{M}{\sigma}
 }{
   \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\defpptsm{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 }
@@ -6652,7 +6663,7 @@ Synthetic module expression expansion
 \begin{subequations}\label{rules:msyn}
 \begin{equation}\label{rule:msyn-var}
 \inferrule{ }{
-  \msyn{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPhi}{\uPsi}{\uX}{X}{\sigma}
+  \msyn{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}
 }
 \end{equation}
 \begin{equation}\label{rule:msyn-seal}

@@ -26,6 +26,7 @@
 \newcommand{\miniVerseParam}{\mathsf{miniVerse}_\textbf{P}}
 \newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
 \newcommand{\miniVerseUB}{\mathsf{miniVerse}_\textbf{U}^\textbf{B}}
+\newcommand{\miniVersePH}{\mathsf{miniVerse}_\textbf{PH}}
 
 % General abstract syntax
 \newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
@@ -581,6 +582,9 @@
 \newcommand{\mletdecl}[4]{\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3}
 \newcommand{\umletdecl}[5]{#1~\texttt{let}~#2~\texttt{=}~#3~\texttt{in}~#4}
 \newcommand{\mlet}[4]{(\texttt{let}~#1~\texttt{=}~#2~\texttt{in}~#3) : #4}
+\newcommand{\staticphase}{\texttt{static}}
+\newcommand{\standardphase}{\texttt{standard}}
+\newcommand{\mletH}[5]{(#1~\texttt{let}~#2~\texttt{=}~#3~\texttt{in}~#4) : #5}
 \newcommand{\amlet}[4]{\abopc{mlet}{#1}{#2; #3.#4}}
 \newcommand{\aumlet}[4]{\abopc{umlet}{#1}{#2; #3.#4}}
 
@@ -621,8 +625,11 @@
 \newcommand{\uepsilon}{{\hat\epsilon}}
 \newcommand{\uX}{{\hat X}}
 
-\newcommand{\defpetsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{expressions}~\texttt{by}~#3~\texttt{in}~#4}
-\newcommand{\defpptsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~#3~\texttt{in}~#4}
+\newcommand{\defpetsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{expressions}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
+\newcommand{\defpptsm}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
+
+\newcommand{\defpetsmH}[5]{#1~\texttt{syntax}~#2~\texttt{at}~#3~\texttt{for}~\texttt{expressions}~\texttt{by}~\texttt{static}~#4~\texttt{in}~#5}
+\newcommand{\defpptsmH}[5]{#1~\texttt{syntax}~#2~\texttt{at}~#3~\texttt{for}~\texttt{patterns}~\texttt{by}~\texttt{static}~#4~\texttt{in}~#5}
 
 \newcommand{\audefpetsm}[4]{\abopcc{usyntaxpe}{#2}{#1}{#3.#4}}
 \newcommand{\aumdefpetsm}[4]{\abopcc{umsyntaxpe}{#2}{#1}{#3.#4}}
@@ -631,10 +638,15 @@
 \newcommand{\auletpetsm}[3]{\abopc{uletpetsm}{#1}{#2.#3}}
 \newcommand{\aumletpetsm}[3]{\abopc{umletpetsm}{#1}{#2.#3}}
 
+\newcommand{\uletpetsmH}[4]{#1~\texttt{let}~\texttt{syntax}~#2=#3~\texttt{for}~\texttt{expressions}~\texttt{in}~#4}
+
 \newcommand{\audefpptsm}[4]{\abopcc{usyntaxpp}{#2}{#1}{#3.#4}}
 \newcommand{\aumdefpptsm}[4]{\abopcc{umsyntaxpp}{#2}{#1}{#3.#4}}
 \newcommand{\auappptsm}[2]{\abopicz{uappptsm}{#1}{#2}}
 \newcommand{\uletpptsm}[3]{\texttt{let}~\texttt{syntax}~#1=#2~\texttt{for}~\texttt{patterns}~\texttt{in}~#3}
+
+\newcommand{\uletpptsmH}[4]{#1~\texttt{let}~\texttt{syntax}~#2=#3~\texttt{for}~\texttt{patterns}~\texttt{in}~#4}
+
 \newcommand{\auletpptsm}[3]{\abopc{uletpptsm}{#1}{#2.#3}}
 \newcommand{\aumletpptsm}[3]{\abopc{umletpptsm}{#1}{#2.#3}}
 
@@ -738,6 +750,13 @@
 
 \newcommand{\mExpandsP}[6]{#1 \vdash_{#2; #3} #4 \leadsto #5 : #6}
 \newcommand{\mExpandsPX}[3]{\mExpandsP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
+
+\newcommand{\mExpandsPH}[7]{#1 \vdash_{#2; #3}^{#7} #4 \leadsto #5 : #6}
+\newcommand{\mExpandsPHX}[3]{\mExpandsPH{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{\staticenvv}}
+
+\newcommand{\staticenvv}{\Sigma}
+\newcommand{\staticenv}[4]{#1 : #2; #3; #4}
+
 
 \newcommand{\petsmdefn}[3]{#1 \hookrightarrow \texttt{petsm}(#2; #3)}
 \newcommand{\pptsmdefn}[3]{#1 \hookrightarrow \texttt{pptsm}(#2; #3)}
@@ -862,6 +881,8 @@
 \newcommand{\defeq}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\scriptsize def}}}{=}}}
 
 \newcommand{\graybox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{lightgray}{\vphantom{]}$#1$}}
+\newcommand{\yellowbox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{Yellow}{\vphantom{]}$#1$}}
+
 \newcommand{\graytxtbox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{lightgray}{\vphantom{]}#1}}
 
 \newmdenv[backgroundcolor=lightgray,hidealllines=true,innerleftmargin=1pt,innerrightmargin=1pt,leftmargin=0pt,rightmargin=0pt,innertopmargin=1.5pt,innerbottommargin=1.5pt]{grayparbox}
@@ -876,4 +897,3 @@
 \newcommand{\segPat}[2]{\langle #1; #2; \mathsf{UPat}\rangle}
 \newcommand{\segCon}[2]{\langle #1; #2; \mathsf{UCon}\rangle}
 \newcommand{\segKind}[2]{\langle #1; #2; \mathsf{UKind} \rangle}
-\newcommand{\seg}

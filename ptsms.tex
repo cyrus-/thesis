@@ -692,7 +692,7 @@ There is also a context-free textual syntax for the UL. For our purposes, we nee
 \endgroup
 
 \begin{figure}[p] \vspace{-15px}
-\[\begin{array}{lllllll}
+$\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & 
 %& \textbf{Operational Form} 
 & \textbf{Stylized Form} & \textbf{Description}\\
@@ -732,7 +732,7 @@ There is also a context-free textual syntax for the UL. For our purposes, we nee
 & \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}\ECC%
 % &&& & \texttt{patterns}~\texttt{in}~\uM\\
 % &&& ... & ... & \text{ppTSM designation}\ECC
-\end{array}\]\vspace{-15px}
+\end{array}$\vspace{-5px}
 \caption[Syntax of unexpanded module expressions and signatures in $\miniVerseParam$]{Syntax of unexpanded module expressions and signatures in $\miniVerseParam$.}\vspace{-5px}
 \label{fig:P-unexpanded-modules-signatures}
 \end{figure}
@@ -804,7 +804,7 @@ There is also a context-free textual syntax for the UL. For our purposes, we nee
 &&
 %& \aumcon{\uX} 
 & \mcon{\uX} & \text{constructor component}
-\end{array}\]\vspace{-15px}
+\end{array}\]\vspace{-5px}
 \caption[Syntax of unexpanded kinds and constructors in $\miniVerseParam$]{Syntax of unexpanded kinds and constructors in $\miniVerseParam$.}\vspace{-10px}
 \label{fig:P-unexpanded-kinds-constructors}
 \end{figure}
@@ -1038,7 +1038,8 @@ The rule governing peTSM definitions is reproduced below:
 \inferrule{
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-  \mExpandsP{\uOmega}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}}{\uPhi}{\uM}{M}{\sigma}
+  \evalU{\eparse}{\eparse'}\\
+  \mExpandsP{\uOmega}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse'}}}{\uPhi}{\uM}{M}{\sigma}
 }{
   \mExpandsP{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\defpetsm{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 }
@@ -1071,6 +1072,8 @@ peTSM definitions differ from ueTSM definitions in that the unexpanded type anno
 
 The second premise of Rule (\ref{rule:mExpandsP-syntaxpe}) checks that the parse function is of the appropriate type. The types $\tBody$ and $\tParseResultPCEExp$ are characterized in Appendix \ref{appendix:typed-expansion-P}. The type $\tPProtoExpr$ classifies \emph{encodings of parameterized proto-expressions}, which we will return to when we discuss TSM application below.
 
+The third premise of Rule (\ref{rule:mExpandsP-syntaxpe}) evaluates the parse function to a value.
+
 The final premise of Rule (\ref{rule:mExpandsP-syntaxpe}) extends the \emph{peTSM context}, $\uPsi$, which consists of a \emph{TSM identifier expansion context}, $\uA$, and a \emph{peTSM definition context}, $\Psi$. A peTSM definition context maps TSM names, $a$, to an expanded peTSM definition, $\petsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the TSM type annotation and $\eparse$ is its parse function. A TSM identifier context maps TSM identifiers, $\tsmv$, to \emph{TSM expressions}, $\epsilon$. In this case, the TSM expression is simply a reference to the newly introduced TSM definition, $\adefref{a}$. We will discuss the other TSM expression forms when we discuss TSM abbreviations below.
 
 \subsubsection{ppTSM Definitions}
@@ -1079,7 +1082,8 @@ The rule governing ppTSM definitions is similar, and is reproduced below:
 \inferrule{ 
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat }}\\\\
-  \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}}{\uM}{M}{\sigma}
+  \evalU{\eparse}{\eparse'}\\
+  \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse'}}}{\uM}{M}{\sigma}
 }{
   \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\defpptsm{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 }

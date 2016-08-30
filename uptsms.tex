@@ -627,7 +627,8 @@ Rule (\ref{rule:expandsU-defuptsm}) defines typed expansion of spTSM definitions
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
   \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}\\\\
-  \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}}{\ue}{e}{\tau'}
+  \evalU{\eparse}{\eparse'}\\
+  \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse'}}{\ue}{e}{\tau'}
 }{
   \expandsUPX{\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}}{e}{\tau'}
 }
@@ -675,6 +676,7 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 \end{condition}
 \endgroup
 
+\item The third premise of Rule (\ref{rule:expandsU-defuptsm}) evaluates the parse function to a value.
 \item The final premise of Rule (\ref{rule:expandsU-defuptsm}) extends the spTSM context, $\uPhi$, with the newly determined {spTSM definition}, and proceeds to assign a type, $\tau'$, and expansion, $e$, to $\ue$. The conclusion of Rule (\ref{rule:expandsU-defuptsm}) assigns this type and expansion to the spTSM definition as a whole.% i.e. TSMs define behavior that is relevant during typed expansion, but not during evaluation. 
 
 
