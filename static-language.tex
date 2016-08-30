@@ -238,7 +238,7 @@ The static environment passes opaquely through the subsumption rule and the rule
 }
 \end{equation}
 
-Each binding form in the syntax of $\uM$ is qualified with a \emph{phase}, $\varphi$, which is either $\standardphase$ or $\staticphase$. The static environment passes opaquely through the standard phase module let binding construct:\todo{why does let have an annotation but not the others?}
+Each binding form in the syntax of $\uM$ is qualified with a \emph{phase}, $\varphi$, which is either $\standardphase$ or $\staticphase$. The static environment passes opaquely through the standard phase module let binding construct:
 \begin{equation}\label{rule:mExpandsPH-mlet-standard}
 \inferrule{
   \mExpandsPHX{\uM}{M}{\sigma}\\
@@ -303,7 +303,7 @@ The static environment passes opaquely through the standard peTSM abbreviation c
 }
 \end{equation}
 
-The static peTSM abbreviation construct updates the static peTSM identifier expansion context, $\uA_S$:\todo{normalize epsilon}
+The static peTSM abbreviation construct updates the static peTSM identifier expansion context, $\uA_S$:
 \begin{equation}\label{rule:mExpandsPH-letpetsm-static}
 \inferrule{
   \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\\\
@@ -363,8 +363,9 @@ The rules governing ppTSM definitions and abbreviations are analagous:
 \end{equation}
 \end{subequations}
 
-\subsection{Constructor Expansion}
-
-\subsection{Expression Expansion}
-
 \subsection{Metatheory}
+\begin{theorem}[Module Expansion]
+\label{thm:module-expansion-PH}
+If $\mExpandsPH{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{\Sigma}$ then $\hassig{\Omega}{M}{\sigma}$.
+\end{theorem}
+\begin{proof} \todo{proof} \end{proof}

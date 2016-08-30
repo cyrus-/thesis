@@ -4047,8 +4047,10 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \begin{equation}\label{rule:mExpandsP-letpetsm}
 \inferrule{
+  % \uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\
   \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\
-  \mExpandsP{\uOmega}{\uAS{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}}{\uPhi}{\uM}{M}{\sigma}
+  % \tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon_\text{normal}}\\\\
+  \mExpandsP{\uOmega}{\uAS{\uA\uplus\mapitem{\tsmv}{\epsilon_\text{normal}}}{\Psi}}{\uPhi}{\uM}{M}{\sigma}
 }{
   \mExpandsP{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 }
