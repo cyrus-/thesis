@@ -6643,2031 +6643,2031 @@ The type $\tCEPat$ and the judgements $\encodeCEPat{\cpv}{e}$ and $\decodeCEPat{
 % \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) using the definitions of $\Uof{\Delta}$, $\Uof{\Gamma}$, $\Uof{e}$ and $\Uof{r}$. In each case, we apply the IH, part 1 to or over each typing premise, the IH, part 2 over each rule typing premise, Lemma \ref{lemma:type-expressibility} to or over each type formation premise, Lemma \ref{lemma:pattern-expressibility-B} to each pattern typing premise, then derive the conclusion by applying Rules (\ref{rules:esyn}) and Rule (\ref{rule:rsyn}).  
 % \end{proof} 
 
-\chapter{Parametric Implicits}
-...
+% \chapter{Parametric Implicits}
+% ...
 
-\subsubsection{Kinds and Constructors}
-Kind expansion
+% \subsubsection{Kinds and Constructors}
+% Kind expansion
 
-\begin{subequations}\label{rules:kExpands}
-\begin{equation}\label{rule:kExpands-darr}
-\inferrule{
-  \kExpandsX{\ukappa_1}{\kappa_1}\\
-  \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
-}{
-  \kExpandsX{\kdarr{\uu}{\ukappa_1}{\ukappa_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:kExpands-unit}
-\inferrule{ }{
-  \kExpandsX{\kunit}{\akunit}
-}
-\end{equation}
-\begin{equation}\label{rule:kExpands-dprod}
-\inferrule{
-  \kExpandsX{\ukappa_1}{\kappa_1}\\
-  \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
-}{
-  \kExpandsX{\kdbprod{\uu}{\ukappa_1}{\ukappa_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:kExpands-ty}
-\inferrule{ }{
-  \kExpandsX{\kty}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:kExpands-sing}
-\inferrule{
-  \kanaX{\utau}{\tau}{\akty}
-}{
-  \kExpandsX{\ksing{\utau}}{\aksing{\tau}}
-}
-\end{equation}
-\end{subequations}
-
-Synthetic constructor expansion
-\begin{subequations}\label{rules:ksyn}
-\begin{equation}\label{rule:ksyn-var}
-\inferrule{ }{\ksyn{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\uu}{u}{\kappa}}
-\end{equation}
-\begin{equation}\label{rule:ksyn-asc}
-\inferrule{
-  \kExpandsX{\ukappa}{\kappa}\\
-  \kanaX{\uc}{c}{\kappa}
-}{
-  \ksynX{\casc{\uc}{\ukappa}}{c}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-app}
-\inferrule{
-  \ksynX{\uc_1}{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
-  \kanaX{\uc_2}{c_2}{\kappa_2}
-}{
-  \ksynX{\capp{\uc_1}{\uc_2}}{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-unit}
-\inferrule{ }{
-  \ksynX{\ctriv}{\actriv}{\akunit}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-prl}
-\inferrule{
-  \ksynX{\uc}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-  \ksynX{\cprl{\uc}}{\acprl{c}}{\kappa_1}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-prr}
-\inferrule{
-  \ksynX{\uc}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-  \ksynX{\cprr{\uc}}{\acprr{c}}{[\acprl{c}/u]\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-parr}
-\inferrule{
-  \kanaX{\utau_1}{\tau_1}{\akty}\\
-  \kanaX{\utau_2}{\tau_2}{\akty}
-}{
-  \ksynX{\parr{\utau_1}{\utau_2}}{\aparr{\tau_1}{\tau_2}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-all}
-\inferrule{
-  \kExpandsX{\ukappa}{\kappa}\\
-  \kana{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\utau}{\tau}{\akty}
-}{
-  \ksynX{\forallu{\uu}{\ukappa}{\utau}}{\aallu{\kappa}{u}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-rec}
-\inferrule{
-  \kana{\uOmega, \uKhyp{\ut}{t}{\akty}}{\utau}{\tau}{\akty}
-}{
-  \ksynX{\rect{\ut}{\utau}}{\arec{t}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-prod}
-\inferrule{
-  \{\kanaX{\utau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-  \ksynX{\prodt{\mapschema{\utau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-sum}
-\inferrule{
-  \{\kanaX{\utau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-  \ksynX{\sumt{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ksyn-stat}
-\inferrule{ }{
-  \ksyn{\uOmega, \uMhyp{\uX}{X}{\asignature{\kappa}{u}{\tau}}}{\mcon{\uX}}{\amcon{X}}{\kappa}
-}
-\end{equation}
-\end{subequations}
-
-Analytic constructor expansion
-\begin{subequations}\label{rules:kana}
-\begin{equation}\label{rule:kana-subsume}
-\inferrule{
-  \ksynX{\uc}{c}{\kappa_1}\\
-  \ksubX{\kappa_1}{\kappa_2}
-}{
-  \kanaX{\uc}{c}{\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:kana-sing}
-\inferrule{
-  \kanaX{\uc}{c}{\akty}
-}{
-  \kanaX{\uc}{c}{\aksing{c}}
-}
-\end{equation}
-\begin{equation}\label{rule:kana-abs}
-\inferrule{
-  \kana{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\uc_2}{c_2}{\kappa_2}
-}{
-  \kanaX{\cabs{\uu}{\uc_2}}{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:kana-pair}
-\inferrule{
-  \kanaX{\uc_1}{c_1}{\kappa_1}\\
-  \kanaX{\uc_2}{c_2}{[c_1/u]\kappa_2}
-}{
-  \kanaX{\cpair{\uc_1}{\uc_2}}{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\end{subequations}
-
-
-\subsubsection{Types, Expressions, Rules and Patterns}
-Type expansion
-\begin{equation}\label{rule:tExpandsP-B}
-\inferrule{
-  \kanaX{\utau}{\tau}{\akty}
-}{
-  \cExpandsX{\utau}{\tau}{\akty}
-}
-\end{equation}
-
-Synthetic typed expression expansion
-\begin{subequations}\label{rules:esynP}
-\begin{equation}\label{rule:esynP-var}
-  \inferrule{ }{ 
-    \esynP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}
-  }
-\end{equation}
-
-%A \emph{type ascription} can be placed on an unexpanded expression to specify the type that it should be analyzed against. The ascribed type is synthesized if type analysis succeeds.
-\begin{equation}\label{rule:esynP-asc}
-  \inferrule{
-    \cExpandsX{\utau}{\tau}{\akty}\\
-    \eanaPX{\ue}{e}{\tau}
-  }{
-    \esynPX{\asc{\ue}{\utau}}{e}{\tau}
-  }
-\end{equation}
-
-%We define let-binding of a value in synthetic position primitively in $\miniVerseUB$. The following rule governs such bindings in synthetic position.
-\begin{equation}\label{rule:esynP-let}
-  \inferrule{
-    \esynPX{\ue}{e}{\tau}\\
-    \esynP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}
-  }{
-    \esynPX{\letsyn{\ux}{\ue}{\ue'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-
-%Functions with an argument type annotation can appear in synthetic position.
-\begin{equation}\label{rule:esynP-lam}
-  \inferrule{
-    \cExpandsX{\utau_1}{\tau_1}{\akty}\\
-    \esynP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue}{e}{\tau_2}
-  }{
-    \esynPX{\lam{\ux}{\utau_1}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-
-%Function applications can appear in synthetic position. The argument is analyzed against the argument type synthesized by the function.
-\begin{equation}\label{rule:esynP-ap}
-  \inferrule{
-    \esynPX{\ue_1}{e_1}{\aparr{\tau_2}{\tau}}\\
-    \eanaPX{\ue_2}{e_2}{\tau_2}
-  }{
-    \esynPX{\ap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau}
-  }
-\end{equation}
-
-%Type lambdas and type applications can appear in synthetic position.
-\begin{equation}\label{rule:esynP-tlam}
-  \inferrule{
-    \kExpandsX{\ukappa}{\kappa}\\
-    \esynP{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\uPsi}{\uPhi}{\ue}{e}{\tau}
-  }{
-    \esynPX{\clam{\uu}{\ukappa}{\ue}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:esynP-tap}
-  \inferrule{
-    \esynPX{\ue}{e}{\aallu{\kappa}{u}{\tau}}\\
-    \ksynX{\uc}{c}{\kappa}
-  }{
-    \esynPX{\cAp{\ue}{\uc}}{\aecap{e}{c}}{[c/t]\tau}
-  }
-\end{equation}
-
-%Unfoldings can appear in synthetic position.
-\begin{equation}\label{rule:esynP-unfold}
-  \inferrule{
-    \esynPX{\ue}{e}{\arec{t}{\tau}}
-  }{
-    \esynPX{\unfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-  }
-\end{equation}
-
-%Labeled tuples can appear in synthetic position. Each of the field values are then in synthetic position. 
-\begin{equation}\label{rule:esynP-tpl}
-  \inferrule{
-    \{\esynPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \esynPX{\tpl{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-
-%Fields can be projected out of a labeled tuple in synthetic position.
-\begin{equation}\label{rule:esynP-pr}
-  \inferrule{
-    \esynPX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }{
-    \esynPX{\prj{\ue}{\ell}}{\aepr{\ell}{e}}{\tau}
-  }
-\end{equation}
-
-%Match expressions can appear in synthetic position.
-\begin{equation}\label{rule:esynP-match}
-  \inferrule{
-    n > 0\\
-    \esynPX{\ue}{e}{\tau}\\
-    \{\rsynPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \esynPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
-
-\begin{equation}\label{rule:esynP-mval}
-  \inferrule{ }{
-    \esynP{\uOmega, \uMhyp{\uX}{X}{\asignature{\kappa}{u}{\tau}}}{\uPsi}{\uPhi}{\mval{\uX}}{\amval{X}}{[\amcon{X}/u]\tau}
-  }
-\end{equation}
-
-% ueTSMs can be defined and applied in synthetic position.
-% \begin{equation}\label{rule:esynP-defpetsm}
+% \begin{subequations}\label{rules:kExpands}
+% \begin{equation}\label{rule:kExpands-darr}
 % \inferrule{
-%   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-%   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-%   \esynP{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\ue}{e}{\tau}
+%   \kExpandsX{\ukappa_1}{\kappa_1}\\
+%   \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
 % }{
-%   \esynP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+%   \kExpandsX{\kdarr{\uu}{\ukappa_1}{\ukappa_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kExpands-unit}
+% \inferrule{ }{
+%   \kExpandsX{\kunit}{\akunit}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kExpands-dprod}
+% \inferrule{
+%   \kExpandsX{\ukappa_1}{\kappa_1}\\
+%   \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
+% }{
+%   \kExpandsX{\kdbprod{\uu}{\ukappa_1}{\ukappa_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kExpands-ty}
+% \inferrule{ }{
+%   \kExpandsX{\kty}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kExpands-sing}
+% \inferrule{
+%   \kanaX{\utau}{\tau}{\akty}
+% }{
+%   \kExpandsX{\ksing{\utau}}{\aksing{\tau}}
+% }
+% \end{equation}
+% \end{subequations}
+
+% Synthetic constructor expansion
+% \begin{subequations}\label{rules:ksyn}
+% \begin{equation}\label{rule:ksyn-var}
+% \inferrule{ }{\ksyn{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\uu}{u}{\kappa}}
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-asc}
+% \inferrule{
+%   \kExpandsX{\ukappa}{\kappa}\\
+%   \kanaX{\uc}{c}{\kappa}
+% }{
+%   \ksynX{\casc{\uc}{\ukappa}}{c}{\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-app}
+% \inferrule{
+%   \ksynX{\uc_1}{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
+%   \kanaX{\uc_2}{c_2}{\kappa_2}
+% }{
+%   \ksynX{\capp{\uc_1}{\uc_2}}{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-unit}
+% \inferrule{ }{
+%   \ksynX{\ctriv}{\actriv}{\akunit}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-prl}
+% \inferrule{
+%   \ksynX{\uc}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }{
+%   \ksynX{\cprl{\uc}}{\acprl{c}}{\kappa_1}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-prr}
+% \inferrule{
+%   \ksynX{\uc}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }{
+%   \ksynX{\cprr{\uc}}{\acprr{c}}{[\acprl{c}/u]\kappa_2}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-parr}
+% \inferrule{
+%   \kanaX{\utau_1}{\tau_1}{\akty}\\
+%   \kanaX{\utau_2}{\tau_2}{\akty}
+% }{
+%   \ksynX{\parr{\utau_1}{\utau_2}}{\aparr{\tau_1}{\tau_2}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-all}
+% \inferrule{
+%   \kExpandsX{\ukappa}{\kappa}\\
+%   \kana{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\utau}{\tau}{\akty}
+% }{
+%   \ksynX{\forallu{\uu}{\ukappa}{\utau}}{\aallu{\kappa}{u}{\tau}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-rec}
+% \inferrule{
+%   \kana{\uOmega, \uKhyp{\ut}{t}{\akty}}{\utau}{\tau}{\akty}
+% }{
+%   \ksynX{\rect{\ut}{\utau}}{\arec{t}{\tau}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-prod}
+% \inferrule{
+%   \{\kanaX{\utau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
+% }{
+%   \ksynX{\prodt{\mapschema{\utau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-sum}
+% \inferrule{
+%   \{\kanaX{\utau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
+% }{
+%   \ksynX{\sumt{\labelset}{\mapschema{\utau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ksyn-stat}
+% \inferrule{ }{
+%   \ksyn{\uOmega, \uMhyp{\uX}{X}{\asignature{\kappa}{u}{\tau}}}{\mcon{\uX}}{\amcon{X}}{\kappa}
+% }
+% \end{equation}
+% \end{subequations}
+
+% Analytic constructor expansion
+% \begin{subequations}\label{rules:kana}
+% \begin{equation}\label{rule:kana-subsume}
+% \inferrule{
+%   \ksynX{\uc}{c}{\kappa_1}\\
+%   \ksubX{\kappa_1}{\kappa_2}
+% }{
+%   \kanaX{\uc}{c}{\kappa_2}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kana-sing}
+% \inferrule{
+%   \kanaX{\uc}{c}{\akty}
+% }{
+%   \kanaX{\uc}{c}{\aksing{c}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kana-abs}
+% \inferrule{
+%   \kana{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\uc_2}{c_2}{\kappa_2}
+% }{
+%   \kanaX{\cabs{\uu}{\uc_2}}{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:kana-pair}
+% \inferrule{
+%   \kanaX{\uc_1}{c_1}{\kappa_1}\\
+%   \kanaX{\uc_2}{c_2}{[c_1/u]\kappa_2}
+% }{
+%   \kanaX{\cpair{\uc_1}{\uc_2}}{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \end{subequations}
+
+
+% \subsubsection{Types, Expressions, Rules and Patterns}
+% Type expansion
+% \begin{equation}\label{rule:tExpandsP-B}
+% \inferrule{
+%   \kanaX{\utau}{\tau}{\akty}
+% }{
+%   \cExpandsX{\utau}{\tau}{\akty}
 % }
 % \end{equation}
 
-% \begin{equation}\label{rule:esynP-letpetsm}
-% \inferrule{
-%   \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-%   \esynP{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\ue}{e}{\tau}
-% }{
-%   \esynP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
-% }
-% \end{equation}
-
-\begin{equation}\label{rule:esynP-apuetsm}
-\inferrule{
-  \uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \uPsi=\uAS{\uA}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}\\\\
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}\\
-  \tsmexpEvalsExp{\Omega_\text{app}}{\Psi}{\epsilon}{\epsilon_\text{normal}}\\\\
-  \tsmdefof{\epsilon_\text{normal}}=a\\
-  \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessE}}\cdot{e_\text{pproto}}}\\\\
-  \decodePCEExp{e_\text{pproto}}{\pce}\\\\
-  \prepce{\Omega_\text{app}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
-  \segOK{\segof{\ce}}{b}\\
-  \canaP{\Omega_\text{params}}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
-}{
-  \esynP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{proto}}
-}
-\end{equation}
-
-% These rules are nearly identical to Rules (\ref{rule:expandsUP-syntax}) and (\ref{rule:expandsUP-tsmap}), differing only in that the typed expansion premises have been replaced by corresponding synthetic typed expansion premises. The premises of these rules can be understood as described in Sections \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. The body encoding judgement and candidate expansion expression decoding judgements were characterized in Sec. \ref{sec:typed-expansion-UP}. We discuss candidate expansion validation in Sec. \ref{sec:ce-validation-B} below.
-
-% To support ueTSM implicits, ueTSM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TSM naming contexts, $\uA$, and ueTSM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
-
-% \emph{TSM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
-
-% The TSM designation context in the ueTSM context is updated by expressions of ueTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-%\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
-
-% \todo{peTSM implicit designation}
-% \begin{equation}\label{rule:esynP-implicite}
-%   \inferrule{
-%     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
-%   }{
-%     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\uPhi}{\implicite{\tsmv}{\ue}}{e}{\tau'}
+% Synthetic typed expression expansion
+% \begin{subequations}\label{rules:esynP}
+% \begin{equation}\label{rule:esynP-var}
+%   \inferrule{ }{ 
+%     \esynP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}
 %   }
 % \end{equation}
 
-% % Like ueTSMs, upTSMs can be defined in synthetic position.
-% \begin{equation}\label{rule:esynP-syntaxup}
+% %A \emph{type ascription} can be placed on an unexpanded expression to specify the type that it should be analyzed against. The ascribed type is synthesized if type analysis succeeds.
+% \begin{equation}\label{rule:esynP-asc}
+%   \inferrule{
+%     \cExpandsX{\utau}{\tau}{\akty}\\
+%     \eanaPX{\ue}{e}{\tau}
+%   }{
+%     \esynPX{\asc{\ue}{\utau}}{e}{\tau}
+%   }
+% \end{equation}
+
+% %We define let-binding of a value in synthetic position primitively in $\miniVerseUB$. The following rule governs such bindings in synthetic position.
+% \begin{equation}\label{rule:esynP-let}
+%   \inferrule{
+%     \esynPX{\ue}{e}{\tau}\\
+%     \esynP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}
+%   }{
+%     \esynPX{\letsyn{\ux}{\ue}{\ue'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
+%   }
+% \end{equation}
+
+% %Functions with an argument type annotation can appear in synthetic position.
+% \begin{equation}\label{rule:esynP-lam}
+%   \inferrule{
+%     \cExpandsX{\utau_1}{\tau_1}{\akty}\\
+%     \esynP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue}{e}{\tau_2}
+%   }{
+%     \esynPX{\lam{\ux}{\utau_1}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+%   }
+% \end{equation}
+
+% %Function applications can appear in synthetic position. The argument is analyzed against the argument type synthesized by the function.
+% \begin{equation}\label{rule:esynP-ap}
+%   \inferrule{
+%     \esynPX{\ue_1}{e_1}{\aparr{\tau_2}{\tau}}\\
+%     \eanaPX{\ue_2}{e_2}{\tau_2}
+%   }{
+%     \esynPX{\ap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau}
+%   }
+% \end{equation}
+
+% %Type lambdas and type applications can appear in synthetic position.
+% \begin{equation}\label{rule:esynP-tlam}
+%   \inferrule{
+%     \kExpandsX{\ukappa}{\kappa}\\
+%     \esynP{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+%   }{
+%     \esynPX{\clam{\uu}{\ukappa}{\ue}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:esynP-tap}
+%   \inferrule{
+%     \esynPX{\ue}{e}{\aallu{\kappa}{u}{\tau}}\\
+%     \ksynX{\uc}{c}{\kappa}
+%   }{
+%     \esynPX{\cAp{\ue}{\uc}}{\aecap{e}{c}}{[c/t]\tau}
+%   }
+% \end{equation}
+
+% %Unfoldings can appear in synthetic position.
+% \begin{equation}\label{rule:esynP-unfold}
+%   \inferrule{
+%     \esynPX{\ue}{e}{\arec{t}{\tau}}
+%   }{
+%     \esynPX{\unfold{\ue}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+%   }
+% \end{equation}
+
+% %Labeled tuples can appear in synthetic position. Each of the field values are then in synthetic position. 
+% \begin{equation}\label{rule:esynP-tpl}
+%   \inferrule{
+%     \{\esynPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
+%   }{
+%     \esynPX{\tpl{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   }
+% \end{equation}
+
+% %Fields can be projected out of a labeled tuple in synthetic position.
+% \begin{equation}\label{rule:esynP-pr}
+%   \inferrule{
+%     \esynPX{\ue}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%   }{
+%     \esynPX{\prj{\ue}{\ell}}{\aepr{\ell}{e}}{\tau}
+%   }
+% \end{equation}
+
+% %Match expressions can appear in synthetic position.
+% \begin{equation}\label{rule:esynP-match}
+%   \inferrule{
+%     n > 0\\
+%     \esynPX{\ue}{e}{\tau}\\
+%     \{\rsynPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+%   }{
+%     \esynPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%   }
+% \end{equation}
+
+% \begin{equation}\label{rule:esynP-mval}
+%   \inferrule{ }{
+%     \esynP{\uOmega, \uMhyp{\uX}{X}{\asignature{\kappa}{u}{\tau}}}{\uPsi}{\uPhi}{\mval{\uX}}{\amval{X}}{[\amcon{X}/u]\tau}
+%   }
+% \end{equation}
+
+% % ueTSMs can be defined and applied in synthetic position.
+% % \begin{equation}\label{rule:esynP-defpetsm}
+% % \inferrule{
+% %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+% %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
+% %   \esynP{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\ue}{e}{\tau}
+% % }{
+% %   \esynP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+% % \begin{equation}\label{rule:esynP-letpetsm}
+% % \inferrule{
+% %   \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+% %   \esynP{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\ue}{e}{\tau}
+% % }{
+% %   \esynP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+% \begin{equation}\label{rule:esynP-apuetsm}
 % \inferrule{
-%   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-%   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
-%   \esynP{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\ue}{e}{\tau}
+%   \uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \uPsi=\uAS{\uA}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}\\\\
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}\\
+%   \tsmexpEvalsExp{\Omega_\text{app}}{\Psi}{\epsilon}{\epsilon_\text{normal}}\\\\
+%   \tsmdefof{\epsilon_\text{normal}}=a\\
+%   \encodeBody{b}{\ebody}\\
+%   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessE}}\cdot{e_\text{pproto}}}\\\\
+%   \decodePCEExp{e_\text{pproto}}{\pce}\\\\
+%   \prepce{\Omega_\text{app}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
+%   \segOK{\segof{\ce}}{b}\\
+%   \canaP{\Omega_\text{params}}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
 % }{
-%   \esynP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+%   \esynP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{proto}}
 % }
 % \end{equation}
 
+% % These rules are nearly identical to Rules (\ref{rule:expandsUP-syntax}) and (\ref{rule:expandsUP-tsmap}), differing only in that the typed expansion premises have been replaced by corresponding synthetic typed expansion premises. The premises of these rules can be understood as described in Sections \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. The body encoding judgement and candidate expansion expression decoding judgements were characterized in Sec. \ref{sec:typed-expansion-UP}. We discuss candidate expansion validation in Sec. \ref{sec:ce-validation-B} below.
 
-% \begin{equation}\label{rule:esynP-letpptsm}
-% \inferrule{
-%   \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-%   \esynP{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\ue}{e}{\tau}
-% }{
-%   \esynP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
-% }
-% \end{equation}
+% % To support ueTSM implicits, ueTSM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TSM naming contexts, $\uA$, and ueTSM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
 
-% % This rule is nearly identical to Rule (\ref{rule:expandsUP-defuptsm}), differing only in that the typed expansion premise has been replaced by the corresponding synthetic typed expansion premise. The premises can be understood as described in Section \ref{sec:uptsm-definition}.
+% % \emph{TSM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
 
-% % To support upTSM implicits, upTSM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTSM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
-
-% % The TSM designation context in the upTSM context is updated by expressions of upTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+% % The TSM designation context in the ueTSM context is updated by expressions of ueTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
 % %\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
-% \todo{ppTSM implicit designation}
-% \begin{equation}\label{rule:esynP-implicitp}
+
+% % \todo{peTSM implicit designation}
+% % \begin{equation}\label{rule:esynP-implicite}
+% %   \inferrule{
+% %     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
+% %   }{
+% %     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\uPhi}{\implicite{\tsmv}{\ue}}{e}{\tau'}
+% %   }
+% % \end{equation}
+
+% % % Like ueTSMs, upTSMs can be defined in synthetic position.
+% % \begin{equation}\label{rule:esynP-syntaxup}
+% % \inferrule{
+% %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+% %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
+% %   \esynP{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\ue}{e}{\tau}
+% % }{
+% %   \esynP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+
+% % \begin{equation}\label{rule:esynP-letpptsm}
+% % \inferrule{
+% %   \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+% %   \esynP{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\ue}{e}{\tau}
+% % }{
+% %   \esynP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+% % % This rule is nearly identical to Rule (\ref{rule:expandsUP-defuptsm}), differing only in that the typed expansion premise has been replaced by the corresponding synthetic typed expansion premise. The premises can be understood as described in Section \ref{sec:uptsm-definition}.
+
+% % % To support upTSM implicits, upTSM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTSM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
+
+% % % The TSM designation context in the upTSM context is updated by expressions of upTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+% % %\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+% % \todo{ppTSM implicit designation}
+% % \begin{equation}\label{rule:esynP-implicitp}
+% %   \inferrule{
+% %     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
+% %   }{
+% %     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\implicitp{\tsmv}{\ue}}{e}{\tau'}
+% %   }
+% % \end{equation}
+% \end{subequations}
+
+
+% Analytic typed expression expansion
+% \begin{subequations}\label{rules:eanaP}
+% % Type analysis subsumes type synthesis, in that when a type can be synthesized for an unexpanded expression, that unexpanded expression can also be analyzed against that type, producing the same expansion. This is expressed by the following \emph{subsumption rule} for unexpanded expressions.
+% \begin{equation}\label{rule:eanaP-subsume}
 %   \inferrule{
-%     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
+%     \esynPX{\ue}{e}{\tau}\\
+%     \issubtypePX{\tau}{\tau'}
 %   }{
-%     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\implicitp{\tsmv}{\ue}}{e}{\tau'}
+%     \eanaPX{\ue}{e}{\tau'}
 %   }
 % \end{equation}
-\end{subequations}
 
+% % Additional rules are needed for certain forms in order to propagate types for analysis into subexpressions, and for forms that can appear only in analytic position.
 
-Analytic typed expression expansion
-\begin{subequations}\label{rules:eanaP}
-% Type analysis subsumes type synthesis, in that when a type can be synthesized for an unexpanded expression, that unexpanded expression can also be analyzed against that type, producing the same expansion. This is expressed by the following \emph{subsumption rule} for unexpanded expressions.
-\begin{equation}\label{rule:eanaP-subsume}
-  \inferrule{
-    \esynPX{\ue}{e}{\tau}\\
-    \issubtypePX{\tau}{\tau'}
-  }{
-    \eanaPX{\ue}{e}{\tau'}
-  }
-\end{equation}
-
-% Additional rules are needed for certain forms in order to propagate types for analysis into subexpressions, and for forms that can appear only in analytic position.
-
-% Rule (\ref{rule:esyn-let}) governed value bindings in synthetic position. The following rule governs value bindings in analytic position.
-\begin{equation}\label{rule:eanaP-let}
-  \inferrule{
-    \esynPX{\ue}{e}{\tau}\\
-    \eanaP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}
-  }{
-    \eanaPX{\letsyn{\ux}{\ue}{\ue'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-
-% An unannotated function can appear only in analytic position. The argument type is determined from the type that the unannotated function is being analyzed against. 
-\begin{equation}\label{rule:eanaP-analam}
-  \inferrule{
-    \eanaP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue}{e}{\tau_2}
-  }{
-    \eanaPX{\analam{\ux}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-
-% Rule (\ref{rule:esyn-tlam}) governed type lambdas in synthetic position. The following rule governs type lambdas in analytic position.
-% \begin{equation}\label{rule:eanaP-tlam}
+% % Rule (\ref{rule:esyn-let}) governed value bindings in synthetic position. The following rule governs value bindings in analytic position.
+% \begin{equation}\label{rule:eanaP-let}
 %   \inferrule{
-%     \eana{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+%     \esynPX{\ue}{e}{\tau}\\
+%     \eanaP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}
 %   }{
-%     \eanaPX{\clam{\uu}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+%     \eanaPX{\letsyn{\ux}{\ue}{\ue'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
 %   }
 % \end{equation}
 
-% Values of recursive types can be introduced only in analytic position.
-\begin{equation}\label{rule:eanaP-fold}
-  \inferrule{
-    \eanaPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
-  }{
-    \eanaPX{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-  }
-\end{equation}
+% % An unannotated function can appear only in analytic position. The argument type is determined from the type that the unannotated function is being analyzed against. 
+% \begin{equation}\label{rule:eanaP-analam}
+%   \inferrule{
+%     \eanaP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue}{e}{\tau_2}
+%   }{
+%     \eanaPX{\analam{\ux}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+%   }
+% \end{equation}
 
-% Rule (\ref{rule:esyn-tpl}) governed labeled tuples in synthetic position. The following rule governs labeled tuples in analytic position.
-\begin{equation}\label{rule:eanaP-tpl}
-  \inferrule{
-    \{\eanaPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \eanaPX{\tpl{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
+% % Rule (\ref{rule:esyn-tlam}) governed type lambdas in synthetic position. The following rule governs type lambdas in analytic position.
+% % \begin{equation}\label{rule:eanaP-tlam}
+% %   \inferrule{
+% %     \eana{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+% %   }{
+% %     \eanaPX{\clam{\uu}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+% %   }
+% % \end{equation}
 
-% Values of labeled sum type can appear only in analytic position.
-\begin{equation}\label{rule:eanaP-in}
-  \inferrule{
-    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
-    \eanaPX{\ue'}{e'}{\tau'}
-  }{
-    \eanaPX{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e'}}{\tau}
-    % \uOmega \vdash_{\uPsi; \uPhi} \left(\shortstack{$\ue \leadsto $\\$\Leftarrow$\vspace{-1.2em}}\right)
-    %\eanaPX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }
-\end{equation}
+% % Values of recursive types can be introduced only in analytic position.
+% \begin{equation}\label{rule:eanaP-fold}
+%   \inferrule{
+%     \eanaPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
+%   }{
+%     \eanaPX{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%   }
+% \end{equation}
 
-% Rule (\ref{rule:esyn-match}) governed match expressions in synthetic position. The following rule governs match expressions in analytic position.
-\begin{equation}\label{rule:eanaP-match}
-  \inferrule{
-    \esynPX{\ue}{e}{\tau}\\
-    \{\ranaPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \eanaPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
+% % Rule (\ref{rule:esyn-tpl}) governed labeled tuples in synthetic position. The following rule governs labeled tuples in analytic position.
+% \begin{equation}\label{rule:eanaP-tpl}
+%   \inferrule{
+%     \{\eanaPX{\ue_i}{e_i}{\tau_i}\}_{i \in \labelset}
+%   }{
+%     \eanaPX{\tpl{\mapschema{\ue}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   }
+% \end{equation}
 
-% Rule (\ref{rule:esyn-defuetsm}) governed ueTSM definitions in synthetic position. The following rule governs ueTSM definitions in analytic position.
-% \begin{equation}\label{rule:eanaP-defpetsm}
+% % Values of labeled sum type can appear only in analytic position.
+% \begin{equation}\label{rule:eanaP-in}
+%   \inferrule{
+%     \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
+%     \eanaPX{\ue'}{e'}{\tau'}
+%   }{
+%     \eanaPX{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e'}}{\tau}
+%     % \uOmega \vdash_{\uPsi; \uPhi} \left(\shortstack{$\ue \leadsto $\\$\Leftarrow$\vspace{-1.2em}}\right)
+%     %\eanaPX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%   }
+% \end{equation}
+
+% % Rule (\ref{rule:esyn-match}) governed match expressions in synthetic position. The following rule governs match expressions in analytic position.
+% \begin{equation}\label{rule:eanaP-match}
+%   \inferrule{
+%     \esynPX{\ue}{e}{\tau}\\
+%     \{\ranaPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+%   }{
+%     \eanaPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%   }
+% \end{equation}
+
+% % Rule (\ref{rule:esyn-defuetsm}) governed ueTSM definitions in synthetic position. The following rule governs ueTSM definitions in analytic position.
+% % \begin{equation}\label{rule:eanaP-defpetsm}
+% % \inferrule{
+% %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+% %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
+% %   \eanaP{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\ue}{e}{\tau}
+% % }{
+% %   \eanaP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+% % \begin{equation}\label{rule:eanaP-letpetsm}
+% % \inferrule{
+% %   \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+% %   \eanaP{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\ue}{e}{\tau}
+% % }{
+% %   \eanaP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+% % \todo{peTSM implicit designation}
+% % Rule (\ref{rule:esyn-implicite}) governed ueTSM designations in synthetic position. The following rule governs ueTSM designations in analytic position.
+% % \begin{equation}\label{rule:eanaP-implicite}
+% %   \inferrule{
+% %     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
+% %   }{
+% %     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\uPhi}{\implicite{\tsmv}{\ue}}{e}{\tau'}
+% %   }
+% % \end{equation}
+
+% % \todo{peTSM implicit application}
+% % % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TSM designated at the type that the expression is being analyzed against from the TSM designation context in the ueTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
+% \begin{equation}\label{rule:eanaP-lit}
+%   \inferrule{
+%     \encodeBody{b}{\ebody}\\
+%     \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+%     \decodeCondE{\ecand}{\ce}\\\\
+%     \cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{b}}{\ce}{e}{\tau}
+%   }{
+%     \eana{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\auelit{b}}{e}{\tau}
+%   }
+% \end{equation}
+
+% % Rule (\ref{rule:esyn-defuptsm}) governed upTSM definitions in synthetic position. The following rule governs upTSM definitions in analytic position.
+% % \begin{equation}\label{rule:eanaP-syntaxup}
+% % \inferrule{
+% %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+% %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
+% %   \eanaP{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\ue}{e}{\tau}
+% % }{
+% %   \eanaP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+
+% % \begin{equation}\label{rule:eanaP-letpptsm}
+% % \inferrule{
+% %   \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+% %   \eanaP{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\ue}{e}{\tau}
+% % }{
+% %   \eanaP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+% % }
+% % \end{equation}
+
+
+% % \todo{ppTSM implicit designation}
+% % % Rule (\ref{rule:esyn-implicitp}) governed upTSM designations in synthetic position. The following rule governs upTSM designations in analytic position.
+% % \begin{equation}\label{rule:eanaP-implicitp}
+% %   \inferrule{
+% %     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
+% %   }{
+% %     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\implicitp{\tsmv}{\ue}}{e}{\tau'}
+% %   }
+% % \end{equation}
+
+% \end{subequations}
+
+% Synthetic rule expansion
+% %The synthetic typed rule expansion judgement is invoked iteratively by Rule (\ref{rule:esyn-match}) to synthesize a type, $\tau'$, from the branch expressions in the rule sequence. This judgement is defined mutually inductively with Rules (\ref{rules:esyn}) and Rules (\ref{rules:eana}) by the following rule. 
+% \begin{equation}\label{rule:rsynP}
+%   \inferrule{
+%     \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\
+%     \patExpandsP{\uOmegaEx{\emptyset}{\uG'}{\emptyset}{\Omega'}}{\uPhi}{\upv}{p}{\tau}\\
+%     \esynP{\uOmegaEx{\uD}{\uG \uplus \uG'}{\uMctx}{\Omega \cup \Omega'}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
+%   }{
+%     \rsynP{\uOmega}{\uPsi}{\uPhi}{\matchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
+%   }
+% \end{equation}
+
+% Analytic rule expansion
+% %The analytic typed rule expansion judgement is invoked iteratively by Rule (\ref{rule:eana-match}). This judgement is defined mutually inductively with Rules (\ref{rules:esyn}), Rules (\ref{rules:eana}), and Rule (\ref{rule:rsyn}) by the following rule, which is the analytic analag of Rule (\ref{rule:rsyn}).
+% \begin{equation}\label{rule:ranaP}
+%   \inferrule{
+%     \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\
+%     \patExpandsP{\uOmegaEx{\emptyset}{\uG'}{\emptyset}{\Omega'}}{\uPhi}{\upv}{p}{\tau}\\
+%     \eanaP{\uOmegaEx{\uD}{\uG \uplus \uG'}{\uMctx}{\Omega \cup \Omega'}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
+%   }{
+%     \ranaP{\uOmega}{\uPsi}{\uPhi}{\matchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
+%   }
+% \end{equation}
+
+% %The premises of these rules can be understood as described in Sec. \ref{sec:typed-expansion-UP}.% We will define typed pattern expansion below.
+
+% Typed pattern expansion
+% % The typed pattern expansion judgement is inductively defined by Rules (\ref{rules:patExpandsP}) as follows. %As in $\miniVersePat$, \emph{unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). 
+
+% % The following rules are written identically to the typed pattern expansion rules for shared pattern forms in $\miniVersePat$, i.e. Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}).
+% \begin{subequations}\label{rules:patExpandsP-B}
+% \begin{equation}\label{rule:patExpandsP-B-subsume}
+% \inferrule{
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\\\
+%   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}\\
+%   \issubtypeP{\Omega}{\tau}{\tau'}
+% }{
+%   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau'}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:patExpandsP-B-var}
+% \inferrule{ }{
+%   \patExpandsP{\uOmegaEx{\emptyset}{\vExpands{\ux}{x}}{\emptyset}{\Ghyp{x}{\tau}}}{\uPhi}{\ux}{x}{\tau}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:patExpandsP-B-wild}
+% \inferrule{ }{
+%   \patExpandsP{\uOmegaEx{\emptyset}{\emptyset}{\emptyset}{\emptyset}}{\uPhi}{\wildp}{\aewildp}{\tau}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:patExpandsP-B-fold}
+% \inferrule{ 
+%   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{[\arec{t}{\tau}/t]\tau}
+% }{
+%   \patExpandsP{\uOmega'}{\uPhi}{\foldp{\upv}}{\aefoldp{p}}{\arec{t}{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:patExpandsP-B-tpl}
+% \inferrule{
+%   \tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
+%   \{\patExpandsP{{\uOmega_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}
+% }{
+%   %\patExpandsP{\Gconsi{i \in \labelset}{\upctx_i}}{A}{B}{C}
+%   \patExpandsP{\Gconsi{i \in \labelset}{\uOmega_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+%   % \patExpands{\Gconsi{i \in \labelset}{\pctx_i}}{\Phi}{
+%   %   \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}
+%   % }{
+%   %   \aetplp{\labelset}{\mapschema{p}{i}{\labelset}}
+%   % }{
+%   %   \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}
+%   % } %{\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema}{p}{i}{\labelset}}{...}
+%   %\left(\shortstack{$\Delta \vdash_{\uPhi} \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} \dashV \Gconsi{i \in \labelset}{\upctx_i}$\vspace{-1.2em}}\right)
+% }
+% \end{equation}
+% \begin{equation}\label{rule:patExpandsP-B-in}
+% \inferrule{
+%   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
+% }{
+%   \patExpandsP{\uOmega'}{\uPhi}{\injp{\ell}{\upv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+% }
+% \end{equation}
+
+% \begin{equation}\label{rule:patExpandsP-B-apuptsm}
+% \inferrule{
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \uPhi=\uASI{\uA}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}\\\\
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}\\
+%   \tsmdefof{\epsilon}=a\\\\
+%   \encodeBody{b}{\ebody}\\
+%   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{Success}}\cdot{\ecand}}\\
+%   \decodeCEPat{\ecand}{\cpv}\\\\
+%   \prepcp{\Omega_\text{app}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\pcp}{\cpv}{\epsilon}{\aetype{\tau_\text{cand}}}{\omega}{\Omega_\text{params}}\\\\
+%   \cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{cand}}
+% }{
+%   \patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{[\omega]\tau_\text{cand}}
+% }
+% \end{equation}
+
+% \todo{ppTSM implicit application}
+% % Unexpanded patterns of unadorned literal form are governed by the following rule, which extracts the designated upTSM from the upTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:patExpandsP-apuptsm}).
+% \begin{equation}\label{rule:patExpandsP-B-lit}
+% \inferrule{
+%   \encodeBody{b}{\ebody}\\
+%   \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
+%   \decodeCEPat{\ecand}{\cpv}\\\\
+%   \cvalidPP{\uOmega}{\pscene{\uDelta}{\uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}}{b}}{\cpv}{p}{\tau}
+% }{
+%   \patExpands{\uOmega}{\uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}}{\lit{b}}{p}{\tau}
+% }
+% \end{equation}
+
+% \end{subequations}
+
+
+% \subsubsection{Unexpanded Signatures and Module Expressions}
+% Signature expansion
+% \begin{equation}\label{rule:sigExpandsP-B}
+% \inferrule{
+%   \kExpandsX{\ukappa}{\kappa}\\
+%   \cExpands{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\utau}{\tau}{\akty}
+% }{
+%   \sigExpandsPX{\signature{\uu}{\ukappa}{\utau}}{\asignature{\kappa}{u}{\tau}}
+% }
+% \end{equation}
+
+% Synthetic module expression expansion
+% \begin{subequations}\label{rules:msyn}
+% \begin{equation}\label{rule:msyn-var}
+% \inferrule{ }{
+%   \msyn{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:msyn-seal}
+% \inferrule{
+%   \sigExpandsPX{\usigma}{\sigma}\\
+%   \manaX{\uM}{M}{\sigma}
+% }{
+%   \msynX{\seal{\uM}{\usigma}}{\aseal{\sigma}{M}}{\sigma} 
+% }
+% \end{equation}
+% \begin{equation}\label{rule:msyn-mlet}
+% \inferrule{
+%   \msynX{\uM}{M}{\sigma}\\
+%   \sigExpandsPX{\usigma'}{\sigma'}\\\\
+%   \mana{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uM'}{M'}{\sigma'}
+% }{
+%   \msynX{\mlet{\uX}{\uM}{\uM'}{\usigma'}}{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:msyn-syntaxpe}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
 %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-%   \eanaP{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\ue}{e}{\tau}
+%   \msyn{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\uM}{M}{\sigma}
 % }{
-%   \eanaP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+%   \msyn{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-
-% \begin{equation}\label{rule:eanaP-letpetsm}
+% \begin{equation}\label{rule:msyn-letpetsm}
 % \inferrule{
 %   \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-%   \eanaP{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\ue}{e}{\tau}
+%   \msyn{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\uM}{M}{\sigma}
 % }{
-%   \eanaP{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+%   \msyn{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-
-% \todo{peTSM implicit designation}
-% Rule (\ref{rule:esyn-implicite}) governed ueTSM designations in synthetic position. The following rule governs ueTSM designations in analytic position.
-% \begin{equation}\label{rule:eanaP-implicite}
-%   \inferrule{
-%     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
-%   }{
-%     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\uPhi}{\implicite{\tsmv}{\ue}}{e}{\tau'}
-%   }
+% \todo{peTSM implicit designation at module level}
+% \begin{equation}\label{rule:msyn-implicitpe}
+% \inferrule{
+%   ...
+% }{
+%   ...
+% }
 % \end{equation}
-
-% \todo{peTSM implicit application}
-% % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TSM designated at the type that the expression is being analyzed against from the TSM designation context in the ueTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
-\begin{equation}\label{rule:eanaP-lit}
-  \inferrule{
-    \encodeBody{b}{\ebody}\\
-    \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
-    \decodeCondE{\ecand}{\ce}\\\\
-    \cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{b}}{\ce}{e}{\tau}
-  }{
-    \eana{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\auelit{b}}{e}{\tau}
-  }
-\end{equation}
-
-% Rule (\ref{rule:esyn-defuptsm}) governed upTSM definitions in synthetic position. The following rule governs upTSM definitions in analytic position.
-% \begin{equation}\label{rule:eanaP-syntaxup}
+% \begin{equation}\label{rule:msyn-syntaxpp}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
 %   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
-%   \eanaP{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\ue}{e}{\tau}
+%   \msyn{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\uM}{M}{\sigma}
 % }{
-%   \eanaP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\ue}}{e}{\tau}
+%   \msyn{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-
-
-% \begin{equation}\label{rule:eanaP-letpptsm}
+% \begin{equation}\label{rule:msyn-letpptsm}
 % \inferrule{
 %   \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-%   \eanaP{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\ue}{e}{\tau}
+%   \msyn{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\uM}{M}{\sigma}
 % }{
-%   \eanaP{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\ue}}{e}{\tau}
+%   \msyn{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
+% }
+% \end{equation}
+% \todo{ppTSM implicit designation at module level}
+% \begin{equation}\label{rule:msyn-implicitpp}
+% \inferrule{
+%   ...
+% }{
+%   ...
+% }
+% \end{equation}
+% \end{subequations}
+
+% Analytic module expression expansion
+% \begin{subequations}\label{rules:mana}
+% \begin{equation}\label{rule:mana-subsumes}
+% \inferrule{
+%   \msynX{\uM}{M}{\sigma}\\
+%   \sigsub{\uOmega}{\sigma}{\sigma'}
+% }{
+%   \manaX{\uM}{M}{\sigma'}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:mana-struct}
+% \inferrule{
+%   \kanaX{\uc}{c}{\kappa}\\
+%   \eanaPX{\ue}{e}{[c/u]\tau}
+% }{
+%   \manaX{\struct{\uc}{\ue}}{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:mana-syntaxpe}
+% \inferrule{
+%   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+%   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
+%   \mana{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\uM}{M}{\sigma}
+% }{
+%   \mana{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:mana-letpetsm}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+%   \mana{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\uM}{M}{\sigma}
+% }{
+%   \mana{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
+% }
+% \end{equation}
+% \todo{peTSM implicit designation at module level}
+% \begin{equation}\label{rule:mana-implicitpe}
+% \inferrule{
+%   ...
+% }{
+%   ...
+% }
+% \end{equation}
+% \begin{equation}\label{rule:mana-syntaxpp}
+% \inferrule{
+%   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
+%   \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
+%   \mana{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\uM}{M}{\sigma}
+% }{
+%   \mana{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:mana-letpptsm}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
+%   \mana{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\uM}{M}{\sigma}
+% }{
+%   \mana{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
+% }
+% \end{equation}
+% \todo{ppTSM implicit designation at module level}
+% \begin{equation}\label{rule:mana-implicitpp}
+% \inferrule{
+%   ...
+% }{
+%   ...
+% }
+% \end{equation}
+% \end{subequations}
+
+% \subsubsection{TSM Types and Expressions}
+% TSM Expression Typing
+
+% \vspace{10px}
+% $\begin{array}{ll}
+% \textbf{Judgement Form} & \textbf{Description}\\
+% \istsmty{\Omega}{\rho} & \text{$\rho$ is a well-formed TSM type}\\
+% \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{peTSM expression $\epsilon$ has TSM type $\rho$}\\
+% \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{ppTSM expression $\epsilon$ has TSM type $\rho$}
+% \end{array}$
+% \vspace{10px}
+
+% peTSM Expression Evaluation
+
+% \vspace{10px}
+% $\begin{array}{ll}
+% \textbf{Judgement Form} & \textbf{Description}\\
+% \tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{peTSM expression $\epsilon$ is in normal form}\\
+% \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTSM expression $\epsilon$ transitions to $\epsilon'$}\\
+% \end{array}$
+% \vspace{10px}
+
+% + auxiliary judgements for multi-step transitions and evaluation
+
+% unexpanded TSM types and expressions
+
+% \vspace{10px}
+% $\begin{array}{ll}
+% \textbf{Judgement Form} & \textbf{Description}\\
+% \tsmtyExpands{\uOmega}{\urho}{\rho} & \text{$\urho$ has expansion $\rho$}\\
+% \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded peTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}\\
+% \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded ppTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}
+% \end{array}$
+% \vspace{10px}
+
+% TSM type formation
+% \begin{subequations}\label{rules:istsmty-B}
+% \begin{equation}\label{rule:istsmty-B-type}
+% \inferrule{
+%   \haskindX{\tau}{\akty}
+% }{
+%   \istsmty{\Omega}{\aetype{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:istsmty-B-alltypes}
+% \inferrule{
+%   \istsmty{\Omega, t :: \akty}{\rho}
+% }{
+%   \istsmty{\Omega}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:istsmty-B-allmods}
+% \inferrule{
+%   \issig{\Omega}{\sigma}\\
+%   \istsmty{\Omega, X : \sigma}{\rho}
+% }{
+%   \istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \end{subequations}
+
+% Unexpanded TSM type expansion
+% \begin{subequations}\label{rules:tsmtyExpands-B}
+% \begin{equation}\label{rule:tsmtyExpands-B-type}
+% \inferrule{
+%   \cExpandsX{\utau}{\tau}{\akty}
+% }{
+%   \tsmtyExpands{\uOmega}{{\utau}}{\aetype{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmtyExpands-B-alltypes}
+% \inferrule{
+%   \tsmtyExpands{\uOmega, \uKhyp{\ut}{t}{\akty}}{\urho}{\rho}
+% }{
+%   \tsmtyExpands{\uOmega}{\alltypes{\ut}{\urho}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmtyExpands-B-allmods}
+% \inferrule{
+%   \sigExpandsPX{\usigma}{\sigma}\\
+%   \tsmtyExpands{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\urho}{\rho}
+% }{
+%   \tsmtyExpands{\uOmega}{\allmods{\uX}{\usigma}{\urho}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \end{subequations}
+% peTSM Expression Typing
+% \begin{subequations}\label{rules:hastsmtypeExp-B}
+% \begin{equation}\label{rule:hastsmtypeExp-B-defref}
+% \inferrule{ }{
+%   \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypeExp-B-abstype}
+% \inferrule{
+%   \hastsmtypeExp{\Omega, t :: \akty}{\Psi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypeExp-B-absmod}
+% \inferrule{
+%   \issigX{\sigma}\\
+%   \hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypeExp-B-aptype}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \haskindX{\tau}{\akty}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypeExp-B-apmod}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \hassig{\Omega}{X}{\sigma}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+% }
+% \end{equation}
+% \end{subequations}
+
+% ppTSM Expression Typing
+% \begin{subequations}\label{rules:hastsmtypePat-B}
+% \begin{equation}\label{rule:hastsmtypePat-B-defref}
+% \inferrule{ }{
+%   \hastsmtypePat{\Omega}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-B-abstype}
+% \inferrule{
+%   \hastsmtypePat{\Omega, t :: \akty}{\Phi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-B-absmod}
+% \inferrule{
+%   \issigX{\sigma}\\
+%   \hastsmtypePat{\Omega, X : \sigma}{\Phi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-B-aptype}
+% \inferrule{
+%   \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \haskindX{\tau}{\akty}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-B-apmod}
+% \inferrule{
+%   \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \hassig{\Omega}{X}{\sigma}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
 % }
 % \end{equation}
 
+% \end{subequations}
 
-% \todo{ppTSM implicit designation}
-% % Rule (\ref{rule:esyn-implicitp}) governed upTSM designations in synthetic position. The following rule governs upTSM designations in analytic position.
-% \begin{equation}\label{rule:eanaP-implicitp}
-%   \inferrule{
-%     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
-%   }{
-%     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}}{\implicitp{\tsmv}{\ue}}{e}{\tau'}
-%   }
+% peTSM Expression Expansion
+% \begin{subequations}\label{rules:tsmexpExpandsExp-B}
+% \begin{equation}\label{rule:tsmexpExpandsExp-B-bindref}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}  
+% }{
+%   \tsmexpExpandsExp{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uASI{\uA, \mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{{\tsmv}}{\epsilon}{\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-B-abstype}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-B-absmod}
+% \inferrule{
+%   \sigExpandsPX{\usigma}{\sigma}\\
+%   \tsmexpExpandsExp{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-B-aptype}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \cExpandsX{\utau}{\tau}{\akty}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-B-apmod}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \manaX{\uX}{X}{\sigma}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\apmod{\uepsilon}{\uX}}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+% }
+% \end{equation}
+% \end{subequations}
+
+% ppTSM expression expansion
+% \begin{subequations}\label{rules:tsmexpExpandsPat-B}
+% \begin{equation}\label{rule:tsmexpExpandsPat-B-bindref}
+% \inferrule{
+%   \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}  
+% }{
+%   \tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uASI{\uA, \mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{{\tsmv}}{\epsilon}{\rho}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-B-abstype}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-B-absmod}
+% \inferrule{
+%   \sigExpandsPX{\usigma}{\sigma}\\
+%   \tsmexpExpandsPat{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-B-aptype}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \cExpandsX{\utau}{\tau}{\akty}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-B-apmod}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \manaX{\uX}{X}{\sigma}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\apmod{\uepsilon}{\uX}}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+% }
+% \end{equation}
+% \end{subequations}
+
+% peTSM expression normal forms
+% \begin{subequations}\label{rules:tsmexpNormalExp-B}
+% \begin{equation}\label{rule:tsmexpNormalExp-B-defref}
+% \inferrule{ }{
+%   \tsmexpNormalExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-B-abstype}
+% \inferrule{ }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-B-absmod}
+% \inferrule{ }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-B-aptype}
+% \inferrule{
+%   \epsilon \neq \aeabstype{t}{\epsilon'}\\
+%   \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+% }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-B-apmod}
+% \inferrule{
+%   \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
+%   \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+% }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
+% }
+% \end{equation}
+% \end{subequations}
+
+% peTSM transitions
+% \begin{subequations}\label{rules:tsmexpStepsExp-B}
+% \begin{equation}\label{rule:tsmexpStepsExp-B-aptype-1}
+% \inferrule{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpStepsExp-B-aptype-2}
+% \inferrule{ }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpStepsExp-B-apmod-1}
+% \inferrule{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{\aeapmod{X}{\epsilon'}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpStepsExp-B-apmod-2}
+% \inferrule{ }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon}}}{[X/X']\epsilon}
+% }
+% \end{equation}
+% \end{subequations}
+
+% peTSM reflexive, transitive transitions
+% \begin{subequations}\label{rules:tsmexpMultistepsExp-B}
+% \begin{equation}\label{rule:tsmexpMultistepsExp-B-refl}
+% \inferrule{ }{
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpMultistepsExp-B-steps}
+% \inferrule{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpMultistepsExp-B-trans}
+% \inferrule{
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon'}{\epsilon''}
+% }{
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon''}
+% }
+% \end{equation}
+% \end{subequations}
+
+% peTSM normalization
+% \begin{equation}\label{rule:tsmexpEvalsExp-B}
+% \inferrule{
+%   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
+%   \tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}
+% }{
+%   \tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }
 % \end{equation}
 
-\end{subequations}
+% TSM expression definition extraction
 
-Synthetic rule expansion
-%The synthetic typed rule expansion judgement is invoked iteratively by Rule (\ref{rule:esyn-match}) to synthesize a type, $\tau'$, from the branch expressions in the rule sequence. This judgement is defined mutually inductively with Rules (\ref{rules:esyn}) and Rules (\ref{rules:eana}) by the following rule. 
-\begin{equation}\label{rule:rsynP}
-  \inferrule{
-    \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\
-    \patExpandsP{\uOmegaEx{\emptyset}{\uG'}{\emptyset}{\Omega'}}{\uPhi}{\upv}{p}{\tau}\\
-    \esynP{\uOmegaEx{\uD}{\uG \uplus \uG'}{\uMctx}{\Omega \cup \Omega'}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
-  }{
-    \rsynP{\uOmega}{\uPsi}{\uPhi}{\matchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
-  }
-\end{equation}
+% \begin{subequations}
+% \begin{align}
+% \tsmdefof{\adefref{a}} & = a\\
+% \tsmdefof{\aeabstype{t}{\epsilon}} & = \tsmdefof{\epsilon}\\
+% \tsmdefof{\aeabsmod{\sigma}{X}{\epsilon}} & = \tsmdefof{\epsilon}\\
+% \tsmdefof{\aeaptype{\tau}{\epsilon}} & = \tsmdefof{\epsilon}\\
+% \tsmdefof{\aeapmod{X}{\epsilon}} & = \tsmdefof{\epsilon}
+% \end{align}
+% \end{subequations}
 
-Analytic rule expansion
-%The analytic typed rule expansion judgement is invoked iteratively by Rule (\ref{rule:eana-match}). This judgement is defined mutually inductively with Rules (\ref{rules:esyn}), Rules (\ref{rules:eana}), and Rule (\ref{rule:rsyn}) by the following rule, which is the analytic analag of Rule (\ref{rule:rsyn}).
-\begin{equation}\label{rule:ranaP}
-  \inferrule{
-    \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\
-    \patExpandsP{\uOmegaEx{\emptyset}{\uG'}{\emptyset}{\Omega'}}{\uPhi}{\upv}{p}{\tau}\\
-    \eanaP{\uOmegaEx{\uD}{\uG \uplus \uG'}{\uMctx}{\Omega \cup \Omega'}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
-  }{
-    \ranaP{\uOmega}{\uPsi}{\uPhi}{\matchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
-  }
-\end{equation}
+% \subsubsection{Candidate Expansion Kind and Constructor Validation}
+% %The \emph{ce-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{sec:ce-validation-U}.
 
-%The premises of these rules can be understood as described in Sec. \ref{sec:typed-expansion-UP}.% We will define typed pattern expansion below.
+% ce-kind validation
+% \begin{subequations}\label{rules:cvalidK-B}
+% \begin{equation}\label{rule:cvalidK-B-darr}
+% \inferrule{
+%   \cvalidKX{\cekappa_1}{\kappa_1}\\
+%   \cvalidK{\Omega, u :: \kappa_1}{\cscenev}{\cekappa_2}{\kappa_2}
+% }{
+%   \cvalidKX{\acekdarr{\cekappa_1}{u}{\cekappa_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidK-B-unit}
+% \inferrule{ }{
+%   \cvalidKX{\acekunit}{\akunit}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidK-B-dprod}
+% \inferrule{
+%   \cvalidKX{\cekappa_1}{\kappa_1}\\
+%   \cvalidK{\Omega, u :: \kappa_1}{\cscenev}{\cekappa_2}{\kappa_2}
+% }{
+%   \cvalidKX{\acekdbprod{\cekappa_1}{u}{\cekappa_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidK-B-ty}
+% \inferrule{ }{
+%   \cvalidKX{\acekty}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidK-B-sing}
+% \inferrule{
+%   \ccanaX{\ctau}{\tau}{\akty}
+% }{
+%   \cvalidKX{\aceksing{\ctau}}{\aksing{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidK-B-spliced}
+% \inferrule{
+%   \parseUKind{\bsubseq{b}{m}{n}}{\ukappa}\\
+%   \kExpands{\uOmega}{\ukappa}{\kappa}\\\\
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+% }{
+%   \cvalidK{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedk{m}{n}}{\kappa}
+% }
+% \end{equation}
+% \end{subequations}
 
-Typed pattern expansion
-% The typed pattern expansion judgement is inductively defined by Rules (\ref{rules:patExpandsP}) as follows. %As in $\miniVersePat$, \emph{unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). 
+% Synthetic ce-constructor validation
+% \begin{subequations}\label{rules:ccsyn}
+% \begin{equation}\label{rule:ccsyn-var}
+% \inferrule{ }{\ccsyn{\Omega, {u} :: {\kappa}}{\cscenev}{u}{u}{\kappa}}
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-asc}
+% \inferrule{
+%   \cvalidKX{\cekappa}{\kappa}\\
+%   \ccanaX{\cec}{c}{\kappa}
+% }{
+%   \ccsynX{\acecasc{\cekappa}{\cec}}{c}{\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-app}
+% \inferrule{
+%   \ccsynX{\cec_1}{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
+%   \ccsynX{\cec_2}{c_2}{\kappa_2}
+% }{
+%   \ccsynX{\acecapp{\cec_1}{\cec_2}}{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-unit}
+% \inferrule{ }{
+%   \ccsynX{\acectriv}{\actriv}{\akunit}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-prl}
+% \inferrule{
+%   \ccsynX{\cec}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }{
+%   \ccsynX{\acecprl{\cec}}{\acprl{c}}{\kappa_1}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-prr}
+% \inferrule{
+%   \ccsynX{\cec}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }{
+%   \ccsynX{\acecprr{\cec}}{\acprr{c}}{[\acprl{c}/u]\kappa_2}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-parr}
+% \inferrule{
+%   \ccanaX{\ctau_1}{\tau_1}{\akty}\\
+%   \ccanaX{\ctau_2}{\tau_2}{\akty}
+% }{
+%   \ccsynX{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-all}
+% \inferrule{
+%   \cvalidKX{\cekappa}{\kappa}\\
+%   \ccana{\Omega, u :: \kappa}{\cscenev}{\ctau}{\tau}{\akty}
+% }{
+%   \ccsynX{\aceallu{\cekappa}{u}{\ctau}}{\aallu{\kappa}{u}{\tau}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-rec}
+% \inferrule{
+%   \ccana{\Omega, t :: \akty}{\cscenev}{\ctau}{\tau}{\akty}
+% }{
+%   \ccsynX{\acerec{t}{\ctau}}{\arec{t}{\tau}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-prod}
+% \inferrule{
+%   \{\ccanaX{\ctau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
+% }{
+%   \ccsynX{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-sum}
+% \inferrule{
+%   \{\ccanaX{\ctau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
+% }{
+%   \ccsynX{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-stat}
+% \inferrule{ }{
+%   \ccsyn{\Omega, X : {\asignature{\kappa}{u}{\tau}}}{\cscenev}{\acemcon{X}}{\amcon{X}}{\kappa}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccsyn-spliced}
+% \inferrule{
+%   \parseUCon{\bsubseq{b}{m}{n}}{\uc}\\
+%   \ksyn{\uOmega}{\uc}{c}{\kappa}\\\\
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+% }{
+%   \ccsyn{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}
+% }
+% \end{equation}
+% \end{subequations}
 
-% The following rules are written identically to the typed pattern expansion rules for shared pattern forms in $\miniVersePat$, i.e. Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}).
-\begin{subequations}\label{rules:patExpandsP-B}
-\begin{equation}\label{rule:patExpandsP-B-subsume}
-\inferrule{
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}\\\\
-  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}\\
-  \issubtypeP{\Omega}{\tau}{\tau'}
-}{
-  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau'}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpandsP-B-var}
-\inferrule{ }{
-  \patExpandsP{\uOmegaEx{\emptyset}{\vExpands{\ux}{x}}{\emptyset}{\Ghyp{x}{\tau}}}{\uPhi}{\ux}{x}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpandsP-B-wild}
-\inferrule{ }{
-  \patExpandsP{\uOmegaEx{\emptyset}{\emptyset}{\emptyset}{\emptyset}}{\uPhi}{\wildp}{\aewildp}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpandsP-B-fold}
-\inferrule{ 
-  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{[\arec{t}{\tau}/t]\tau}
-}{
-  \patExpandsP{\uOmega'}{\uPhi}{\foldp{\upv}}{\aefoldp{p}}{\arec{t}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:patExpandsP-B-tpl}
-\inferrule{
-  \tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
-  \{\patExpandsP{{\uOmega_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}
-}{
-  %\patExpandsP{\Gconsi{i \in \labelset}{\upctx_i}}{A}{B}{C}
-  \patExpandsP{\Gconsi{i \in \labelset}{\uOmega_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
-  % \patExpands{\Gconsi{i \in \labelset}{\pctx_i}}{\Phi}{
-  %   \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}
-  % }{
-  %   \aetplp{\labelset}{\mapschema{p}{i}{\labelset}}
-  % }{
-  %   \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}
-  % } %{\autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema}{p}{i}{\labelset}}{...}
-  %\left(\shortstack{$\Delta \vdash_{\uPhi} \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}} \dashV \Gconsi{i \in \labelset}{\upctx_i}$\vspace{-1.2em}}\right)
-}
-\end{equation}
-\begin{equation}\label{rule:patExpandsP-B-in}
-\inferrule{
-  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
-}{
-  \patExpandsP{\uOmega'}{\uPhi}{\injp{\ell}{\upv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-}
-\end{equation}
+% Analytic constructor expansion
+% \begin{subequations}\label{rules:ccana}
+% \begin{equation}\label{rule:ccana-subsume}
+% \inferrule{
+%   \ccsynX{\cec}{c}{\kappa_1}\\
+%   \ksubX{\kappa_1}{\kappa_2}
+% }{
+%   \ccanaX{\cec}{c}{\kappa_2}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccana-sing}
+% \inferrule{
+%   \kanaX{\cec}{c}{\akty}
+% }{
+%   \kanaX{\cec}{c}{\aksing{c}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccana-abs}
+% \inferrule{
+%   \ccana{\Omega, u :: \kappa_1}{\cscenev}{\cec_2}{c_2}{\kappa_2}
+% }{
+%   \ccanaX{\acecabs{u}{\cec_2}}{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccana-pair}
+% \inferrule{
+%   \ccanaX{\cec_1}{c_1}{\kappa_1}\\
+%   \ccanaX{\cec_2}{c_2}{[c_1/u]\kappa_2}
+% }{
+%   \ccanaX{\acecpair{\cec_1}{\cec_2}}{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:ccana-spliced}
+% \inferrule{
+%   \parseUCon{\bsubseq{b}{m}{n}}{\uc}\\
+%   \kana{\uOmega}{\uc}{c}{\kappa}\\\\
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+% }{
+%   \ccana{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}
+% }
+% \end{equation}
+% \end{subequations}
 
-\begin{equation}\label{rule:patExpandsP-B-apuptsm}
-\inferrule{
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \uPhi=\uASI{\uA}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}\\\\
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}\\
-  \tsmdefof{\epsilon}=a\\\\
-  \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{Success}}\cdot{\ecand}}\\
-  \decodeCEPat{\ecand}{\cpv}\\\\
-  \prepcp{\Omega_\text{app}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\pcp}{\cpv}{\epsilon}{\aetype{\tau_\text{cand}}}{\omega}{\Omega_\text{params}}\\\\
-  \cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{cand}}
-}{
-  \patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{[\omega]\tau_\text{cand}}
-}
-\end{equation}
-
-\todo{ppTSM implicit application}
-% Unexpanded patterns of unadorned literal form are governed by the following rule, which extracts the designated upTSM from the upTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:patExpandsP-apuptsm}).
-\begin{equation}\label{rule:patExpandsP-B-lit}
-\inferrule{
-  \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}\\
-  \decodeCEPat{\ecand}{\cpv}\\\\
-  \cvalidPP{\uOmega}{\pscene{\uDelta}{\uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}}{b}}{\cpv}{p}{\tau}
-}{
-  \patExpands{\uOmega}{\uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}}{\lit{b}}{p}{\tau}
-}
-\end{equation}
-
-\end{subequations}
-
-
-\subsubsection{Unexpanded Signatures and Module Expressions}
-Signature expansion
-\begin{equation}\label{rule:sigExpandsP-B}
-\inferrule{
-  \kExpandsX{\ukappa}{\kappa}\\
-  \cExpands{\uOmega, \uKhyp{\uu}{u}{\kappa}}{\utau}{\tau}{\akty}
-}{
-  \sigExpandsPX{\signature{\uu}{\ukappa}{\utau}}{\asignature{\kappa}{u}{\tau}}
-}
-\end{equation}
-
-Synthetic module expression expansion
-\begin{subequations}\label{rules:msyn}
-\begin{equation}\label{rule:msyn-var}
-\inferrule{ }{
-  \msyn{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-seal}
-\inferrule{
-  \sigExpandsPX{\usigma}{\sigma}\\
-  \manaX{\uM}{M}{\sigma}
-}{
-  \msynX{\seal{\uM}{\usigma}}{\aseal{\sigma}{M}}{\sigma} 
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-mlet}
-\inferrule{
-  \msynX{\uM}{M}{\sigma}\\
-  \sigExpandsPX{\usigma'}{\sigma'}\\\\
-  \mana{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uM'}{M'}{\sigma'}
-}{
-  \msynX{\mlet{\uX}{\uM}{\uM'}{\usigma'}}{\amlet{\sigma'}{M}{X}{M'}}{\sigma'}
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-syntaxpe}
-\inferrule{
-  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-  \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-  \msyn{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\uM}{M}{\sigma}
-}{
-  \msyn{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-letpetsm}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-  \msyn{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\uM}{M}{\sigma}
-}{
-  \msyn{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\todo{peTSM implicit designation at module level}
-\begin{equation}\label{rule:msyn-implicitpe}
-\inferrule{
-  ...
-}{
-  ...
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-syntaxpp}
-\inferrule{
-  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-  \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
-  \msyn{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\uM}{M}{\sigma}
-}{
-  \msyn{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:msyn-letpptsm}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-  \msyn{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\uM}{M}{\sigma}
-}{
-  \msyn{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\todo{ppTSM implicit designation at module level}
-\begin{equation}\label{rule:msyn-implicitpp}
-\inferrule{
-  ...
-}{
-  ...
-}
-\end{equation}
-\end{subequations}
-
-Analytic module expression expansion
-\begin{subequations}\label{rules:mana}
-\begin{equation}\label{rule:mana-subsumes}
-\inferrule{
-  \msynX{\uM}{M}{\sigma}\\
-  \sigsub{\uOmega}{\sigma}{\sigma'}
-}{
-  \manaX{\uM}{M}{\sigma'}
-}
-\end{equation}
-\begin{equation}\label{rule:mana-struct}
-\inferrule{
-  \kanaX{\uc}{c}{\kappa}\\
-  \eanaPX{\ue}{e}{[c/u]\tau}
-}{
-  \manaX{\struct{\uc}{\ue}}{\astruct{c}{e}}{\asignature{\kappa}{u}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:mana-syntaxpe}
-\inferrule{
-  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-  \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\\\\
-  \mana{\uOmega}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\uI}}{\uPhi}{\uM}{M}{\sigma}
-}{
-  \mana{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\usyntaxueP{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:mana-letpetsm}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-  \mana{\uOmega}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{\uPhi}{\uM}{M}{\sigma}
-}{
-  \mana{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\todo{peTSM implicit designation at module level}
-\begin{equation}\label{rule:mana-implicitpe}
-\inferrule{
-  ...
-}{
-  ...
-}
-\end{equation}
-\begin{equation}\label{rule:mana-syntaxpp}
-\inferrule{
-  \tsmtyExpands{\uOmega}{\urho}{\rho}\\
-  \hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\\\\
-  \mana{\uOmega}{\uPsi}{\uASI{\uA \uplus \mapitem{\tsmv}{\adefref{a}}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\uI}}{\uM}{M}{\sigma}
-}{
-  \mana{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\usyntaxup{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\begin{equation}\label{rule:mana-letpptsm}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega}{\uASI{\uA}{\Phi}{\uI}}{\uepsilon}{\epsilon}{\rho}\\
-  \mana{\uOmega}{\uPsi}{\uASI{\uA\uplus\mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{\uM}{M}{\sigma}
-}{
-  \mana{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
-}
-\end{equation}
-\todo{ppTSM implicit designation at module level}
-\begin{equation}\label{rule:mana-implicitpp}
-\inferrule{
-  ...
-}{
-  ...
-}
-\end{equation}
-\end{subequations}
-
-\subsubsection{TSM Types and Expressions}
-TSM Expression Typing
-
-\vspace{10px}
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\istsmty{\Omega}{\rho} & \text{$\rho$ is a well-formed TSM type}\\
-\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{peTSM expression $\epsilon$ has TSM type $\rho$}\\
-\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{ppTSM expression $\epsilon$ has TSM type $\rho$}
-\end{array}$
-\vspace{10px}
-
-peTSM Expression Evaluation
-
-\vspace{10px}
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{peTSM expression $\epsilon$ is in normal form}\\
-\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTSM expression $\epsilon$ transitions to $\epsilon'$}\\
-\end{array}$
-\vspace{10px}
-
-+ auxiliary judgements for multi-step transitions and evaluation
-
-unexpanded TSM types and expressions
-
-\vspace{10px}
-$\begin{array}{ll}
-\textbf{Judgement Form} & \textbf{Description}\\
-\tsmtyExpands{\uOmega}{\urho}{\rho} & \text{$\urho$ has expansion $\rho$}\\
-\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded peTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}\\
-\tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded ppTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}
-\end{array}$
-\vspace{10px}
-
-TSM type formation
-\begin{subequations}\label{rules:istsmty-B}
-\begin{equation}\label{rule:istsmty-B-type}
-\inferrule{
-  \haskindX{\tau}{\akty}
-}{
-  \istsmty{\Omega}{\aetype{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:istsmty-B-alltypes}
-\inferrule{
-  \istsmty{\Omega, t :: \akty}{\rho}
-}{
-  \istsmty{\Omega}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:istsmty-B-allmods}
-\inferrule{
-  \issig{\Omega}{\sigma}\\
-  \istsmty{\Omega, X : \sigma}{\rho}
-}{
-  \istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\end{subequations}
-
-Unexpanded TSM type expansion
-\begin{subequations}\label{rules:tsmtyExpands-B}
-\begin{equation}\label{rule:tsmtyExpands-B-type}
-\inferrule{
-  \cExpandsX{\utau}{\tau}{\akty}
-}{
-  \tsmtyExpands{\uOmega}{{\utau}}{\aetype{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmtyExpands-B-alltypes}
-\inferrule{
-  \tsmtyExpands{\uOmega, \uKhyp{\ut}{t}{\akty}}{\urho}{\rho}
-}{
-  \tsmtyExpands{\uOmega}{\alltypes{\ut}{\urho}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmtyExpands-B-allmods}
-\inferrule{
-  \sigExpandsPX{\usigma}{\sigma}\\
-  \tsmtyExpands{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\urho}{\rho}
-}{
-  \tsmtyExpands{\uOmega}{\allmods{\uX}{\usigma}{\urho}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\end{subequations}
-peTSM Expression Typing
-\begin{subequations}\label{rules:hastsmtypeExp-B}
-\begin{equation}\label{rule:hastsmtypeExp-B-defref}
-\inferrule{ }{
-  \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-B-abstype}
-\inferrule{
-  \hastsmtypeExp{\Omega, t :: \akty}{\Psi}{\epsilon}{\rho}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-B-absmod}
-\inferrule{
-  \issigX{\sigma}\\
-  \hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon}{\rho}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-B-aptype}
-\inferrule{
-  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \haskindX{\tau}{\akty}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-B-apmod}
-\inferrule{
-  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \hassig{\Omega}{X}{\sigma}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-\end{subequations}
-
-ppTSM Expression Typing
-\begin{subequations}\label{rules:hastsmtypePat-B}
-\begin{equation}\label{rule:hastsmtypePat-B-defref}
-\inferrule{ }{
-  \hastsmtypePat{\Omega}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-B-abstype}
-\inferrule{
-  \hastsmtypePat{\Omega, t :: \akty}{\Phi}{\epsilon}{\rho}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-B-absmod}
-\inferrule{
-  \issigX{\sigma}\\
-  \hastsmtypePat{\Omega, X : \sigma}{\Phi}{\epsilon}{\rho}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-B-aptype}
-\inferrule{
-  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \haskindX{\tau}{\akty}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-B-apmod}
-\inferrule{
-  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \hassig{\Omega}{X}{\sigma}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-
-\end{subequations}
-
-peTSM Expression Expansion
-\begin{subequations}\label{rules:tsmexpExpandsExp-B}
-\begin{equation}\label{rule:tsmexpExpandsExp-B-bindref}
-\inferrule{
-  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}  
-}{
-  \tsmexpExpandsExp{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uASI{\uA, \mapitem{\tsmv}{\epsilon}}{\Psi}{\uI}}{{\tsmv}}{\epsilon}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-B-abstype}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-B-absmod}
-\inferrule{
-  \sigExpandsPX{\usigma}{\sigma}\\
-  \tsmexpExpandsExp{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-B-aptype}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \cExpandsX{\utau}{\tau}{\akty}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-B-apmod}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \manaX{\uX}{X}{\sigma}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\apmod{\uepsilon}{\uX}}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-\end{subequations}
-
-ppTSM expression expansion
-\begin{subequations}\label{rules:tsmexpExpandsPat-B}
-\begin{equation}\label{rule:tsmexpExpandsPat-B-bindref}
-\inferrule{
-  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}  
-}{
-  \tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uASI{\uA, \mapitem{\tsmv}{\epsilon}}{\Phi}{\uI}}{{\tsmv}}{\epsilon}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-B-abstype}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-B-absmod}
-\inferrule{
-  \sigExpandsPX{\usigma}{\sigma}\\
-  \tsmexpExpandsPat{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-B-aptype}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \cExpandsX{\utau}{\tau}{\akty}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-B-apmod}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \manaX{\uX}{X}{\sigma}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\apmod{\uepsilon}{\uX}}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-\end{subequations}
-
-peTSM expression normal forms
-\begin{subequations}\label{rules:tsmexpNormalExp-B}
-\begin{equation}\label{rule:tsmexpNormalExp-B-defref}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-B-abstype}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-B-absmod}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-B-aptype}
-\inferrule{
-  \epsilon \neq \aeabstype{t}{\epsilon'}\\
-  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
-}{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-B-apmod}
-\inferrule{
-  \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
-  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
-}{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
-}
-\end{equation}
-\end{subequations}
-
-peTSM transitions
-\begin{subequations}\label{rules:tsmexpStepsExp-B}
-\begin{equation}\label{rule:tsmexpStepsExp-B-aptype-1}
-\inferrule{
-  \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpStepsExp-B-aptype-2}
-\inferrule{ }{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpStepsExp-B-apmod-1}
-\inferrule{
-  \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{\aeapmod{X}{\epsilon'}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpStepsExp-B-apmod-2}
-\inferrule{ }{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon}}}{[X/X']\epsilon}
-}
-\end{equation}
-\end{subequations}
-
-peTSM reflexive, transitive transitions
-\begin{subequations}\label{rules:tsmexpMultistepsExp-B}
-\begin{equation}\label{rule:tsmexpMultistepsExp-B-refl}
-\inferrule{ }{
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpMultistepsExp-B-steps}
-\inferrule{
-  \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}{
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpMultistepsExp-B-trans}
-\inferrule{
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon'}{\epsilon''}
-}{
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon''}
-}
-\end{equation}
-\end{subequations}
-
-peTSM normalization
-\begin{equation}\label{rule:tsmexpEvalsExp-B}
-\inferrule{
-  \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
-  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}
-}{
-  \tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}
-\end{equation}
-
-TSM expression definition extraction
-
-\begin{subequations}
-\begin{align}
-\tsmdefof{\adefref{a}} & = a\\
-\tsmdefof{\aeabstype{t}{\epsilon}} & = \tsmdefof{\epsilon}\\
-\tsmdefof{\aeabsmod{\sigma}{X}{\epsilon}} & = \tsmdefof{\epsilon}\\
-\tsmdefof{\aeaptype{\tau}{\epsilon}} & = \tsmdefof{\epsilon}\\
-\tsmdefof{\aeapmod{X}{\epsilon}} & = \tsmdefof{\epsilon}
-\end{align}
-\end{subequations}
-
-\subsubsection{Candidate Expansion Kind and Constructor Validation}
-%The \emph{ce-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{sec:ce-validation-U}.
-
-ce-kind validation
-\begin{subequations}\label{rules:cvalidK-B}
-\begin{equation}\label{rule:cvalidK-B-darr}
-\inferrule{
-  \cvalidKX{\cekappa_1}{\kappa_1}\\
-  \cvalidK{\Omega, u :: \kappa_1}{\cscenev}{\cekappa_2}{\kappa_2}
-}{
-  \cvalidKX{\acekdarr{\cekappa_1}{u}{\cekappa_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidK-B-unit}
-\inferrule{ }{
-  \cvalidKX{\acekunit}{\akunit}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidK-B-dprod}
-\inferrule{
-  \cvalidKX{\cekappa_1}{\kappa_1}\\
-  \cvalidK{\Omega, u :: \kappa_1}{\cscenev}{\cekappa_2}{\kappa_2}
-}{
-  \cvalidKX{\acekdbprod{\cekappa_1}{u}{\cekappa_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidK-B-ty}
-\inferrule{ }{
-  \cvalidKX{\acekty}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidK-B-sing}
-\inferrule{
-  \ccanaX{\ctau}{\tau}{\akty}
-}{
-  \cvalidKX{\aceksing{\ctau}}{\aksing{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidK-B-spliced}
-\inferrule{
-  \parseUKind{\bsubseq{b}{m}{n}}{\ukappa}\\
-  \kExpands{\uOmega}{\ukappa}{\kappa}\\\\
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
-}{
-  \cvalidK{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedk{m}{n}}{\kappa}
-}
-\end{equation}
-\end{subequations}
-
-Synthetic ce-constructor validation
-\begin{subequations}\label{rules:ccsyn}
-\begin{equation}\label{rule:ccsyn-var}
-\inferrule{ }{\ccsyn{\Omega, {u} :: {\kappa}}{\cscenev}{u}{u}{\kappa}}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-asc}
-\inferrule{
-  \cvalidKX{\cekappa}{\kappa}\\
-  \ccanaX{\cec}{c}{\kappa}
-}{
-  \ccsynX{\acecasc{\cekappa}{\cec}}{c}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-app}
-\inferrule{
-  \ccsynX{\cec_1}{c_1}{\akdarr{\kappa_2}{u}{\kappa}}\\
-  \ccsynX{\cec_2}{c_2}{\kappa_2}
-}{
-  \ccsynX{\acecapp{\cec_1}{\cec_2}}{\acapp{c_1}{c_2}}{[c_1/u]\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-unit}
-\inferrule{ }{
-  \ccsynX{\acectriv}{\actriv}{\akunit}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-prl}
-\inferrule{
-  \ccsynX{\cec}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-  \ccsynX{\acecprl{\cec}}{\acprl{c}}{\kappa_1}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-prr}
-\inferrule{
-  \ccsynX{\cec}{c}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}{
-  \ccsynX{\acecprr{\cec}}{\acprr{c}}{[\acprl{c}/u]\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-parr}
-\inferrule{
-  \ccanaX{\ctau_1}{\tau_1}{\akty}\\
-  \ccanaX{\ctau_2}{\tau_2}{\akty}
-}{
-  \ccsynX{\aceparr{\ctau_1}{\ctau_2}}{\aparr{\tau_1}{\tau_2}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-all}
-\inferrule{
-  \cvalidKX{\cekappa}{\kappa}\\
-  \ccana{\Omega, u :: \kappa}{\cscenev}{\ctau}{\tau}{\akty}
-}{
-  \ccsynX{\aceallu{\cekappa}{u}{\ctau}}{\aallu{\kappa}{u}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-rec}
-\inferrule{
-  \ccana{\Omega, t :: \akty}{\cscenev}{\ctau}{\tau}{\akty}
-}{
-  \ccsynX{\acerec{t}{\ctau}}{\arec{t}{\tau}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-prod}
-\inferrule{
-  \{\ccanaX{\ctau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-  \ccsynX{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-sum}
-\inferrule{
-  \{\ccanaX{\ctau_i}{\tau_i}{\akty}\}_{1 \leq i \leq n}
-}{
-  \ccsynX{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}{\akty}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-stat}
-\inferrule{ }{
-  \ccsyn{\Omega, X : {\asignature{\kappa}{u}{\tau}}}{\cscenev}{\acemcon{X}}{\amcon{X}}{\kappa}
-}
-\end{equation}
-\begin{equation}\label{rule:ccsyn-spliced}
-\inferrule{
-  \parseUCon{\bsubseq{b}{m}{n}}{\uc}\\
-  \ksyn{\uOmega}{\uc}{c}{\kappa}\\\\
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
-}{
-  \ccsyn{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}
-}
-\end{equation}
-\end{subequations}
-
-Analytic constructor expansion
-\begin{subequations}\label{rules:ccana}
-\begin{equation}\label{rule:ccana-subsume}
-\inferrule{
-  \ccsynX{\cec}{c}{\kappa_1}\\
-  \ksubX{\kappa_1}{\kappa_2}
-}{
-  \ccanaX{\cec}{c}{\kappa_2}
-}
-\end{equation}
-\begin{equation}\label{rule:ccana-sing}
-\inferrule{
-  \kanaX{\cec}{c}{\akty}
-}{
-  \kanaX{\cec}{c}{\aksing{c}}
-}
-\end{equation}
-\begin{equation}\label{rule:ccana-abs}
-\inferrule{
-  \ccana{\Omega, u :: \kappa_1}{\cscenev}{\cec_2}{c_2}{\kappa_2}
-}{
-  \ccanaX{\acecabs{u}{\cec_2}}{\acabs{u}{c_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:ccana-pair}
-\inferrule{
-  \ccanaX{\cec_1}{c_1}{\kappa_1}\\
-  \ccanaX{\cec_2}{c_2}{[c_1/u]\kappa_2}
-}{
-  \ccanaX{\acecpair{\cec_1}{\cec_2}}{\acpair{c_1}{c_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
-}
-\end{equation}
-\begin{equation}\label{rule:ccana-spliced}
-\inferrule{
-  \parseUCon{\bsubseq{b}{m}{n}}{\uc}\\
-  \kana{\uOmega}{\uc}{c}{\kappa}\\\\
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
-}{
-  \ccana{\Omega}{\tsceneP{\uOmega}{b}}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}
-}
-\end{equation}
-\end{subequations}
-
-\subsubsection{Bidirectional Candidate Expansion Expression Validation}
-Like the bidirectionally typed expression expansion judgements, the bidirectional ce-expression validation judgements distinguish type synthesis from type analysis. The \emph{synthetic ce-expression validation judgement}, $\csynX{\ce}{e}{\tau}$, and the \emph{analytic ce-expression validation judgement}, $\canaX{\ce}{e}{\tau}$, are defined mutually inductively with Rules (\ref{rules:esyn}) and Rules (\ref{rules:eana}) by Rules (\ref{rules:csyn}) and Rules (\ref{rules:cana}), respectively, as follows.
+% \subsubsection{Bidirectional Candidate Expansion Expression Validation}
+% Like the bidirectionally typed expression expansion judgements, the bidirectional ce-expression validation judgements distinguish type synthesis from type analysis. The \emph{synthetic ce-expression validation judgement}, $\csynX{\ce}{e}{\tau}$, and the \emph{analytic ce-expression validation judgement}, $\canaX{\ce}{e}{\tau}$, are defined mutually inductively with Rules (\ref{rules:esyn}) and Rules (\ref{rules:eana}) by Rules (\ref{rules:csyn}) and Rules (\ref{rules:cana}), respectively, as follows.
 
 
-\begin{equation}
-\inferrule{
-  \ccanaX{\ctau}{\tau}{\akty}
-}{
-  \cvalidTP{\Omega}{\cscenev}{\ctau}{\tau}
-}
-\end{equation}
+% \begin{equation}
+% \inferrule{
+%   \ccanaX{\ctau}{\tau}{\akty}
+% }{
+%   \cvalidTP{\Omega}{\cscenev}{\ctau}{\tau}
+% }
+% \end{equation}
 
-\paragraph{Type Synthesis} \begin{subequations}\label{rules:csynP}
-Synthetic ce-expression validation is governed by the following rules.
-\begin{equation}\label{rule:csynP-var}
-  \inferrule{ }{ 
-    \csynP{\Omega, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-asc}
-  \inferrule{
-    \cvalidTP{\Omega}{\csfrom{\escenev}}{\ctau}{\tau}\\
-    \canaPX{\ce}{e}{\tau}
-  }{
-    \csynPX{\aceasc{\ctau}{\ce}}{e}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-let}
-  \inferrule{
-    \csynPX{\ce}{e}{\tau}\\
-    \csynP{\Omega, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
-  }{
-    \csynPX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-lam}
-  \inferrule{
-    \cvalidTP{\Omega}{\csfrom{\escenev}}{\ctau_1}{\tau_1}\\
-    \csynP{\Omega, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
-  }{
-    \csynPX{\acelam{\ctau_1}{x}{\ce}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-ap}
-  \inferrule{
-    \csynPX{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}\\
-    \canaPX{\ce_2}{e_2}{\tau_2}
-  }{
-    \csynPX{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-clam}
-  \inferrule{
-    \cvalidK{\Omega}{\csfrom{\escenev}}{\cekappa}{\kappa}\\
-    \csynP{\Omega, u :: \kappa}{\escenev}{\ce}{e}{\tau}
-  }{
-    \csynX{\aceclam{\cekappa}{u}{\ce}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-cap}
-  \inferrule{
-    \csynPX{\ce}{e}{\aallu{\kappa}{u}{\tau}}\\
-    \ccana{\Omega}{\csfrom{\escenev}}{\cec}{c}{\kappa}
-  }{
-    \csynPX{\acecap{\ce}{\cec}}{\aecap{e}{c}}{[c/u]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-unfold}
-  \inferrule{
-    \csynPX{\ce}{e}{\arec{t}{\tau}}
-  }{
-    \csynPX{\aceunfold{\ce}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-tpl}
-  \inferrule{
-    \ce=\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}\\
-    e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}\\\\
-    \{\csynPX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \csynPX{\ce}{e}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-pr}
-  \inferrule{
-    \csynPX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }{
-    \csynPX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-match}
-  \inferrule{
-    n > 0\\
-    \csynPX{\ce}{e}{\tau}\\
-    \{\crsynPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \csynPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:csynP-mval}
-\inferrule{ }{
-  \csynP{\Omega, X : \asignature{\kappa}{u}{\tau}}{\escenev}{\acemval{X}}{\amval{X}}{[\amcon{X}/u]\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:csynP-splicede}
-\inferrule{
-  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \esynP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
-}{
-  \csynP{\Omega}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
-}
-\end{equation}
-\end{subequations}
+% \paragraph{Type Synthesis} \begin{subequations}\label{rules:csynP}
+% Synthetic ce-expression validation is governed by the following rules.
+% \begin{equation}\label{rule:csynP-var}
+%   \inferrule{ }{ 
+%     \csynP{\Omega, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-asc}
+%   \inferrule{
+%     \cvalidTP{\Omega}{\csfrom{\escenev}}{\ctau}{\tau}\\
+%     \canaPX{\ce}{e}{\tau}
+%   }{
+%     \csynPX{\aceasc{\ctau}{\ce}}{e}{\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-let}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\tau}\\
+%     \csynP{\Omega, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
+%   }{
+%     \csynPX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-lam}
+%   \inferrule{
+%     \cvalidTP{\Omega}{\csfrom{\escenev}}{\ctau_1}{\tau_1}\\
+%     \csynP{\Omega, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
+%   }{
+%     \csynPX{\acelam{\ctau_1}{x}{\ce}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-ap}
+%   \inferrule{
+%     \csynPX{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}\\
+%     \canaPX{\ce_2}{e_2}{\tau_2}
+%   }{
+%     \csynPX{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-clam}
+%   \inferrule{
+%     \cvalidK{\Omega}{\csfrom{\escenev}}{\cekappa}{\kappa}\\
+%     \csynP{\Omega, u :: \kappa}{\escenev}{\ce}{e}{\tau}
+%   }{
+%     \csynX{\aceclam{\cekappa}{u}{\ce}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-cap}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\aallu{\kappa}{u}{\tau}}\\
+%     \ccana{\Omega}{\csfrom{\escenev}}{\cec}{c}{\kappa}
+%   }{
+%     \csynPX{\acecap{\ce}{\cec}}{\aecap{e}{c}}{[c/u]\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-unfold}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\arec{t}{\tau}}
+%   }{
+%     \csynPX{\aceunfold{\ce}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-tpl}
+%   \inferrule{
+%     \ce=\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}\\
+%     e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}\\\\
+%     \{\csynPX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
+%   }{
+%     \csynPX{\ce}{e}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-pr}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%   }{
+%     \csynPX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-match}
+%   \inferrule{
+%     n > 0\\
+%     \csynPX{\ce}{e}{\tau}\\
+%     \{\crsynPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+%   }{
+%     \csynPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-mval}
+% \inferrule{ }{
+%   \csynP{\Omega, X : \asignature{\kappa}{u}{\tau}}{\escenev}{\acemval{X}}{\amval{X}}{[\amcon{X}/u]\tau}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:csynP-splicede}
+% \inferrule{
+%   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
+%   \esynP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+% }{
+%   \csynP{\Omega}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
+% }
+% \end{equation}
+% \end{subequations}
 
-Rules (\ref{rule:csyn-var}) through (\ref{rule:csyn-match}) are analagous to Rules (\ref{rule:esyn-var}) through (\ref{rule:esyn-match}). Rule (\ref{rule:csyn-splicede}) governs references to spliced unexpanded expressions in synthetic position, and can be understood as described in Sec. \ref{sec:ce-validation-U}.
+% Rules (\ref{rule:csyn-var}) through (\ref{rule:csyn-match}) are analagous to Rules (\ref{rule:esyn-var}) through (\ref{rule:esyn-match}). Rule (\ref{rule:csyn-splicede}) governs references to spliced unexpanded expressions in synthetic position, and can be understood as described in Sec. \ref{sec:ce-validation-U}.
 
 
-\paragraph{Type Analysis} \begin{subequations}\label{rules:canaP}
-Analytic ce-expression validation is governed by the following rules.
-\begin{equation}\label{rule:canaP-subsume}
-  \inferrule{
-    \csynPX{\ce}{e}{\tau}\\
-    \issubtypePX{\tau}{\tau'}
-  }{
-    \canaPX{\ce}{e}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-let}
-  \inferrule{
-    \csynPX{\ce}{e}{\tau}\\
-    \canaP{\Omega, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
-  }{
-    \canaPX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-analam}
-  \inferrule{
-    \canaP{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
-  }{
-    \canaPX{\aceanalam{x}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-clam}
-  \inferrule{
-    \cvalidKX{\cekappa}{\kappa}\\
-    \canaP{\Omega, u :: \kappa}{\escenev}{\ce}{e}{\tau}
-  }{
-    \canaPX{\aceclam{\cekappa}{u}{\ce}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-fold}
-  \inferrule{
-    \canaPX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
-  }{
-    \canaPX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-tpl}
-  \inferrule{
-    \ce=\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}\\
-    e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}\\\\
-    \{\canaPX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \canaPX{\ce}{e}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-in}
-  \inferrule{
-    \ce=\aceanain{\ell}{\ce'}\\
-    e=\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e'}\\\\
-    \canaX{\ce'}{e'}{\tau}
-  }{
-    \canaPX{\ce}{e}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-    %\left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} $\\$\leadsto$\\$ \Leftarrow $\vspace{-1.2em}}\right)
-    %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-match}
-  \inferrule{
-    \csynPX{\ce}{e}{\tau}\\
-    \{\cranaPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \canaPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:canaP-splicede}
-\inferrule{
-  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \eanaP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
-  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
-  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
-}{
-  \canaP{\Omega}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
-}
-\end{equation}
-\end{subequations}
+% \paragraph{Type Analysis} \begin{subequations}\label{rules:canaP}
+% Analytic ce-expression validation is governed by the following rules.
+% \begin{equation}\label{rule:canaP-subsume}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\tau}\\
+%     \issubtypePX{\tau}{\tau'}
+%   }{
+%     \canaPX{\ce}{e}{\tau'}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-let}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\tau}\\
+%     \canaP{\Omega, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
+%   }{
+%     \canaPX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-analam}
+%   \inferrule{
+%     \canaP{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
+%   }{
+%     \canaPX{\aceanalam{x}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-clam}
+%   \inferrule{
+%     \cvalidKX{\cekappa}{\kappa}\\
+%     \canaP{\Omega, u :: \kappa}{\escenev}{\ce}{e}{\tau}
+%   }{
+%     \canaPX{\aceclam{\cekappa}{u}{\ce}}{\aeclam{\kappa}{u}{e}}{\aallu{\kappa}{u}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-fold}
+%   \inferrule{
+%     \canaPX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
+%   }{
+%     \canaPX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-tpl}
+%   \inferrule{
+%     \ce=\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}\\
+%     e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}\\\\
+%     \{\canaPX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
+%   }{
+%     \canaPX{\ce}{e}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-in}
+%   \inferrule{
+%     \ce=\aceanain{\ell}{\ce'}\\
+%     e=\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e'}\\\\
+%     \canaX{\ce'}{e'}{\tau}
+%   }{
+%     \canaPX{\ce}{e}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%     %\left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} $\\$\leadsto$\\$ \Leftarrow $\vspace{-1.2em}}\right)
+%     %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-match}
+%   \inferrule{
+%     \csynPX{\ce}{e}{\tau}\\
+%     \{\cranaPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+%   }{
+%     \canaPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%   }
+% \end{equation}
+% \begin{equation}\label{rule:canaP-splicede}
+% \inferrule{
+%   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
+%   \eanaP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
+%   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+%   \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+% }{
+%   \canaP{\Omega}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
+% }
+% \end{equation}
+% \end{subequations}
 
-Rules (\ref{rule:cana-subsume}) through (\ref{rule:cana-match}) are analagous to Rules (\ref{rule:eana-subsume}) through (\ref{rule:eana-match}). Rule (\ref{rule:cana-splicede}) governs references to spliced unexpanded expressions in analytic position. 
+% Rules (\ref{rule:cana-subsume}) through (\ref{rule:cana-match}) are analagous to Rules (\ref{rule:eana-subsume}) through (\ref{rule:eana-match}). Rule (\ref{rule:cana-splicede}) governs references to spliced unexpanded expressions in analytic position. 
 
-\subsubsection{Bidirectional Candidate Expansion Rule Validation}
-The \emph{synthetic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:esyn}) by the following rule.
-\begin{equation}\label{rule:crsynP}
-\inferrule{
-  \patTypeP{\Omega'}{p}{\tau}\\
-  \csynP{\Gcons{\Omega}{\Omega'}}{\escenev}{\ce}{e}{\tau'}
-}{
-  \crsynPX{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
+% \subsubsection{Bidirectional Candidate Expansion Rule Validation}
+% The \emph{synthetic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:esyn}) by the following rule.
+% \begin{equation}\label{rule:crsynP}
+% \inferrule{
+%   \patTypeP{\Omega'}{p}{\tau}\\
+%   \csynP{\Gcons{\Omega}{\Omega'}}{\escenev}{\ce}{e}{\tau'}
+% }{
+%   \crsynPX{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
+% }
+% \end{equation}
 
-The \emph{analytic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:eana}) by the following rule.
-\begin{equation}\label{rule:cranaP}
-\inferrule{
-  \patType{\Omega'}{p}{\tau}\\
-  \canaP{\Gcons{\Omega}{\Omega'}}{\escenev}{\ce}{e}{\tau'}
-}{
-  \cranaPX{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
+% The \emph{analytic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:eana}) by the following rule.
+% \begin{equation}\label{rule:cranaP}
+% \inferrule{
+%   \patType{\Omega'}{p}{\tau}\\
+%   \canaP{\Gcons{\Omega}{\Omega'}}{\escenev}{\ce}{e}{\tau'}
+% }{
+%   \cranaPX{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
+% }
+% \end{equation}
 
-\subsubsection{Candidate Expansion Pattern Validation}
-The \emph{ce-pattern validation judgement} is inductively defined by the following rules, which are written identically to Rules (\ref{rules:cvalidP-UP}).
-\begin{subequations}\label{rules:cvalidP-P}
-\begin{equation}\label{rule:cvalidP-P-wild}
-\inferrule{ }{
-  \cvalidPP{\uOmegaEx{\emptyset}{\emptyset}{\emptyset}{\emptyset}}{\pscenev}{\acewildp}{\aewildp}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-P-fold}
-\inferrule{
-  \cvalidPP{\uOmega}{\pscenev}{\cpv}{p}{[\arec{t}{\tau}/t]\tau}
-}{
-  \cvalidPP{\uOmega}{\pscenev}{\acefoldp{\cpv}}{\aefoldp{p}}{\arec{t}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-P-tpl}
-\inferrule{
-  \cpv=\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}\\
-  p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}\\\\
-  \{\cvalidPP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
-}{
-  \cvalidPP{\Gconsi{i \in \labelset}{\uOmega_i}}{\pscenev}{\cpv}{p}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  %\cvalidPP{}{\cpv}{p}{}
-%\left(\shortstack{$\vdash^{\pscenev} $\\$\leadsto$\\$ :~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-P-in}
-\inferrule{
-  \cvalidPP{\uOmega}{\pscenev}{\cpv}{p}{\tau}
-}{
-  \cvalidPP{\uOmega}{\pscenev}{\aceinjp{\ell}{\cpv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-P-spliced}
-\inferrule{
-  \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
-  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
-}{
-  \cvalidPP{\uOmega'}{\pscene{\uOmega}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
-}
-\end{equation}
-\end{subequations}
+% \subsubsection{Candidate Expansion Pattern Validation}
+% The \emph{ce-pattern validation judgement} is inductively defined by the following rules, which are written identically to Rules (\ref{rules:cvalidP-UP}).
+% \begin{subequations}\label{rules:cvalidP-P}
+% \begin{equation}\label{rule:cvalidP-P-wild}
+% \inferrule{ }{
+%   \cvalidPP{\uOmegaEx{\emptyset}{\emptyset}{\emptyset}{\emptyset}}{\pscenev}{\acewildp}{\aewildp}{\tau}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidP-P-fold}
+% \inferrule{
+%   \cvalidPP{\uOmega}{\pscenev}{\cpv}{p}{[\arec{t}{\tau}/t]\tau}
+% }{
+%   \cvalidPP{\uOmega}{\pscenev}{\acefoldp{\cpv}}{\aefoldp{p}}{\arec{t}{\tau}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidP-P-tpl}
+% \inferrule{
+%   \cpv=\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}\\
+%   p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}\\\\
+%   \{\cvalidPP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
+% }{
+%   \cvalidPP{\Gconsi{i \in \labelset}{\uOmega_i}}{\pscenev}{\cpv}{p}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+%   %\cvalidPP{}{\cpv}{p}{}
+% %\left(\shortstack{$\vdash^{\pscenev} $\\$\leadsto$\\$ :~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidP-P-in}
+% \inferrule{
+%   \cvalidPP{\uOmega}{\pscenev}{\cpv}{p}{\tau}
+% }{
+%   \cvalidPP{\uOmega}{\pscenev}{\aceinjp{\ell}{\cpv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:cvalidP-P-spliced}
+% \inferrule{
+%   \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
+%   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
+% }{
+%   \cvalidPP{\uOmega'}{\pscene{\uOmega}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
+% }
+% \end{equation}
+% \end{subequations}
 
-Finally, the following theorem establishes that bidirectionally typed expression and rule expansion produces expanded expressions and rules of the appropriate type under the appropriate contexts. These statements must be stated mutually with the corresponding statements about birectional ce-expression and ce-rule validation because the judgements are mutually defined. 
+% Finally, the following theorem establishes that bidirectionally typed expression and rule expansion produces expanded expressions and rules of the appropriate type under the appropriate contexts. These statements must be stated mutually with the corresponding statements about birectional ce-expression and ce-rule validation because the judgements are mutually defined. 
 
-\begin{theorem}[Typed Expansion] Letting $\uPsi=\uASI{\uA}{\Psi}{\uI}$, if $\uetsmenv{\Delta}{\Psi}$ then all of the following hold:
-\begin{enumerate}
-  \item \begin{enumerate}
-    \item \begin{enumerate}
-      \item If $\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
-      \item If $\rsyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$  then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
-    \end{enumerate}
-    \item \begin{enumerate}
-      \item If $\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
-      \item If $\rana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau'}$ then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
-    \end{enumerate}
-  \end{enumerate}
-  \item \begin{enumerate}
-    \item \begin{enumerate}
-      \item If $\csyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
-      \item If $\crsyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
-    \end{enumerate}
-    \item \begin{enumerate}
-      \item If $\cana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ and $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau}$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
-      \item If $\crana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ and $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau'}$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
-    \end{enumerate}
-  \end{enumerate}
-\end{enumerate}
-\end{theorem}
-\begin{proof} By mutual rule induction over Rules (\ref{rules:esyn}), Rules (\ref{rules:eana}), Rule (\ref{rule:rsyn}), Rule (\ref{rule:rana}), Rules (\ref{rules:csyn}), Rules (\ref{rules:cana}), Rule (\ref{rule:crsyn}) and Rule (\ref{rule:crana}). In the following, we refer to the induction hypothesis applied to the assumption $\uetsmenv{\Delta}{\Psi}$ as simply the ``IH''. When we apply the induction hypothesis to a different argument, we refer to it as the ``Outer IH''.
+% \begin{theorem}[Typed Expansion] Letting $\uPsi=\uASI{\uA}{\Psi}{\uI}$, if $\uetsmenv{\Delta}{\Psi}$ then all of the following hold:
+% \begin{enumerate}
+%   \item \begin{enumerate}
+%     \item \begin{enumerate}
+%       \item If $\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+%       \item If $\rsyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$  then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
+%     \end{enumerate}
+%     \item \begin{enumerate}
+%       \item If $\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+%       \item If $\rana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau'}$ then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
+%     \end{enumerate}
+%   \end{enumerate}
+%   \item \begin{enumerate}
+%     \item \begin{enumerate}
+%       \item If $\csyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
+%       \item If $\crsyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
+%     \end{enumerate}
+%     \item \begin{enumerate}
+%       \item If $\cana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ and $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau}$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
+%       \item If $\crana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ and $\istypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\tau'}$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
+%     \end{enumerate}
+%   \end{enumerate}
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By mutual rule induction over Rules (\ref{rules:esyn}), Rules (\ref{rules:eana}), Rule (\ref{rule:rsyn}), Rule (\ref{rule:rana}), Rules (\ref{rules:csyn}), Rules (\ref{rules:cana}), Rule (\ref{rule:crsyn}) and Rule (\ref{rule:crana}). In the following, we refer to the induction hypothesis applied to the assumption $\uetsmenv{\Delta}{\Psi}$ as simply the ``IH''. When we apply the induction hypothesis to a different argument, we refer to it as the ``Outer IH''.
 
-\begin{enumerate}
-  \item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$. We have:
-  \begin{enumerate}
-    \item \begin{enumerate}
-      \item We induct on the assumption.
-        \begin{byCases}
-          \item[\text{(\ref{rule:esyn-var})}] We have:
-            \begin{pfsteps*}
-              \item $e=x$ \BY{assumption}
-              \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
-              \item $\hastypeU{\Delta}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-var})}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:esyn-asc})}] We have:
-            \begin{pfsteps*}
-               \item $\ue=\auasc{\utau}{\ue'}$ \BY{assumption}
-               \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption}\pflabel{expandsTU}
-               \item $\eanaX{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{eanaX}
-               \item $\istypeU{\Delta}{\tau}$ \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{expandsTU}}\pflabel{istype}
-               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) to \pfref{eanaX} and \pfref{istype}}
-             \end{pfsteps*}
-             \resetpfcounter
-          \item[\text{(\ref{rule:esyn-let}) through (\ref{rule:esyn-match})}] In each of these cases, we apply:
-            \begin{itemize}
-              \item Lemma \ref{lemma:type-expansion-U} to or over all type expansion premises.
-              \item The IH, part 1(a)(i) to or over all synthetic typed expression expansion premises.
-              \item The IH, part 1(a)(ii) to or over all synthetic rule expansion premises.
-              \item The IH, part 1(b)(i) to or over all analytic typed expression expansion premises.
-            \end{itemize}
-            We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) as needed.
-          \item[\text{(\ref{rule:esyn-defuetsm})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
-              \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
-              \item $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$ \BY{assumption}\pflabel{eparse}
-              \item $\esyn{\uDelta}{\uGamma}{\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
-              \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
-              \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-              \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Outer IH, part 1(a)(i) on \pfref{uetsmenv3} and \pfref{expandsU}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:esyn-apuetsm})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\autsmap{b}{\tsmv}$ \BY{assumption}
-              \item $\uPsi = \uASI{\ctxUpdate{\uA'}{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau}{\eparse}}{\uI}$ \BY{assumption}
-              \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-              \item $\evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
-              \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
-              \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
-              \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-              \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
-              \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
-              \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
-              \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, \pfref{gamma-cap} and \pfref{istype}} \pflabel{penultimate}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set and finite function union over \pfref{penultimate}}               
-             \end{pfsteps*} 
-             \resetpfcounter
-          \item[\text{(\ref{rule:esyn-implicite})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\auimplicite{\tsmv}{\ue}$ \BY{assumption}
-              \item $\uPsi=\uASI{\uA' \uplus \vExpands{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
-              \item $\esyn{\uDelta}{\uGamma}{\uASI{\uA' \uplus \vExpands{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:esyn-defuptsm})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
-              \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
-            %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-              \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
-            %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-            %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-            %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expandsU}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:esyn-implicitp})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\auimplicitp{\tsmv}{\ue}$ \BY{assumption}
-              \item $\uPhi=\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
-              \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-      \item We induct on the assumption. There is one case.
-        \begin{byCases}
-          \item[\text{(\ref{rule:rsyn})}] We have:
-            \begin{pfsteps*}
-              \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
-              \item $r=\aematchrule{p}{e}$ \BY{assumption}
-              \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
-              \item $\esyn{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-              \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-B}, part 1 on \pfref{patExpands}}\pflabel{patType}
-              \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(a)(i) on \pfref{expandsUP}} \pflabel{hasType}
-              \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-    \end{enumerate}
-    \item \begin{enumerate}
-      \item We induct on the assumption.
-        \begin{byCases}
-          \item[\text{(\ref{rule:eana-subsume})}] We have:
-            \begin{pfsteps*}
-              \item $\esynX{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
-            \end{pfsteps*}
-          \item[\text{(\ref{rule:eana-let}) through (\ref{rule:eana-match})}] In each of these cases, we apply:
-            \begin{itemize}
-              \item Lemma \ref{lemma:type-expansion-U} to or over all type expansion premises.
-              \item The IH, part 1(a)(i) to or over all synthetic typed expression expansion premises.
-              \item The IH, part 1(a)(ii) to or over all synthetic rule expansion premises.
-              \item The IH, part 1(b)(i) to or over all analytic typed expression expansion premises.
-            \end{itemize}
-            We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) as needed. 
-          \item[\text{(\ref{rule:eana-defuetsm})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
-              \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
-              \item $,$ \BY{assumption}\pflabel{eparse}
-              \item $\eana{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
-              \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
-              \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-              \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-            %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-            %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-            %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:eana-implicite})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\autsmap{b}{\tsmv}$ \BY{assumption}
-              \item $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ \BY{assumption}
-              \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-              \item $\evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
-              \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
-              \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
-            %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
-              \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
-              \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
-              \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(b)(i) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set union over \pfref{penultimate}}               
-             \end{pfsteps*} 
-             \resetpfcounter
-          \item[\text{(\ref{rule:eana-lit})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\auelit{b}$ \BY{assumption}
-              \item $\uPsi=\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}$ \BY{assumption}
-              \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-              \item $\evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
-              \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
-              \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption} \pflabel{cvalidE}
-              \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
-              \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
-              \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set union over \pfref{penultimate}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:eana-defuptsm})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
-              \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
-            %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-              \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
-            %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
-            %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-            %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
-            \end{pfsteps*}
-            \resetpfcounter
-          \item[\text{(\ref{rule:eana-implicitp})}] We have:
-            \begin{pfsteps*}
-              \item $\ue=\auimplicitp{\tsmv}{\ue}$ \BY{assumption}
-              \item $\uPhi=\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
-              \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{esyn}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-      \item We induct on the assumption. There is one case.
-        \begin{byCases}
-          \item[\text{(\ref{rule:rana})}] We have:
-            \begin{pfsteps*}
-              \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
-              \item $r=\aematchrule{p}{e}$ \BY{assumption}
-              \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
-              \item $\eana{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-              \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-B}, part 1 on \pfref{patExpands}}\pflabel{patType}
-              \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(b)(i) on \pfref{expandsUP}} \pflabel{hasType}
-              \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-    \end{enumerate}
-  \end{enumerate}
-  \item In the following, let $\uDelta=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma=\uGG{\uG}{\Gamma_\text{app}}$ and $\escenev=\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$.
-  \begin{enumerate}
-    \item \begin{enumerate}
-      \item We induct on the assumption.
-        \begin{byCases}
-          \item[\text{(\ref{rule:csyn-var})}] We have:
-            \begin{pfsteps*}
-              \item $e=x$ \BY{assumption}
-              \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
-              \item $\hastypeU{\Delta}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-var})}
-            \end{pfsteps*}
-            \resetpfcounter 
-          \item[\text{(\ref{rule:csyn-asc})}] We have:
-            \begin{pfsteps*}
-               \item $\ce=\aceasc{\ctau}{\ce'}$ \BY{assumption}
-               \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-               \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-               \item $\cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}$ \BY{assumption}\pflabel{expandsTU}
-               \item $\canaX{\ce'}{e}{\tau}$ \BY{assumption}\pflabel{eanaX}
-               \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{expandsTU}}\pflabel{istype}
-               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 2(b)(i) to \pfref{eanaX}, \pfref{delta-disjoint}, \pfref{gamma-disjoint} and  \pfref{istype}}
-             \end{pfsteps*}
-             \resetpfcounter
-          \item[\text{(\ref{rule:csyn-let}) through (\ref{rule:csyn-match})}] In each of these cases, we apply:
-            \begin{itemize}
-              \item Lemma \ref{lemma:candidate-expansion-type-validation} to or over all ce-type validation premises.
-              \item The IH, part 2(a)(i) to or over all synthetic ce-expression validation premises.
-              \item The IH, part 2(a)(ii) to or over all synthetic ce-rule validation premises.
-              \item The IH, part 2(b)(i) to or over all analytic ce-expression validation premises.
-            \end{itemize}
-            We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}), Rule (\ref{rule:ruleType}), Lemma \ref{lemma:weakening-UP},  the identification convention and exchange as needed.
-          \item[\text{(\ref{rule:csyn-splicede})}] We have:
-            \begin{pfsteps*}
-              \item $\ce=\acesplicede{m}{n}{\ctau}$ \BY{assumption}
-              \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
-              \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
-            %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-              \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-              \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-              \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expands}} \pflabel{hastype}
-              \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-      \item We induct on the assumption. There is one case.
-        \begin{byCases}
-          \item[\text{(\ref{rule:crsyn})}] We have:
-            \begin{pfsteps*}
-              \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
-              \item $r=\aematchrule{p}{e}$ \BY{assumption}
-              \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
-              \item $\csyn{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
-              \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
-              \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
-              \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
-              \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption}\pflabel{gamma-disjoint3}
-              \item $\domof{\Gcons{\Gamma}{\pctx}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
-              \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint4}}\pflabel{hastype}
-              \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
-              \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-    \end{enumerate}
-    \item  \begin{enumerate}
-      \item We induct on the assumption.
-        \begin{byCases}
-          \item[\text{(\ref{rule:cana-subsume})}] We have:
-            \begin{pfsteps*}
-              \item $\csynX{\ce}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
-              \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{esyn}}
-            \end{pfsteps*}
-          \item[\text{(\ref{rule:cana-let}) through (\ref{rule:eana-match})}] In each of these cases, we apply:
-            \begin{itemize}
-              \item Lemma \ref{lemma:candidate-expansion-type-validation} to or over all ce-type validation premises.
-              \item The IH, part 2(a)(i) to or over all synthetic ce-expression validation premises.
-              \item The IH, part 2(a)(ii) to or over all synthetic ce-rule validation premises.
-              \item The IH, part 2(b)(i) to or over all analytic ce-expression validation premises.
-            \end{itemize}
-            We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}), Rule (\ref{rule:ruleType}), Lemma \ref{lemma:weakening-UP},  the identification convention and exchange as needed.
-          \item[\text{(\ref{rule:cana-splicede})}] We have:
-            \begin{pfsteps*}
-              \item $\ce=\acesplicede{m}{n}{\ctau}$ \BY{assumption}
-              \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
-              \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
-              \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{assumption} \pflabel{istype}
-            %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-              \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
-              \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
-              \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expands}, \pfref{delta-disjoint}, \pfref{gamma-disjoint} and \pfref{istype}} \pflabel{hastype}
-              \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
-            \end{pfsteps*}
-            \resetpfcounter
-        \end{byCases}
-      \item We induct on the assumption. There is one case.
-        \begin{byCases}
-          \item[\text{(\ref{rule:crana})}] We have:    
-            \begin{pfsteps*}
-                \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
-                \item $r=\aematchrule{p}{e}$ \BY{assumption}
-                \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
-                \item $\cana{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
-                \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau'}$ \BY{assumption} \pflabel{istype}
-                \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption}\pflabel{gamma-disjoint3}
-                \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
-                \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
-                \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
-                \item $\domof{\Gcons{\Gamma}{\pctx}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
-                \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(b)(i) on \pfref{cvalidE}, \pfref{delta-disjoint}, \pfref{gamma-disjoint4} and \pfref{istype}}\pflabel{hastype}
-                \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
-                \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
-              \end{pfsteps*}
-              \resetpfcounter
+% \begin{enumerate}
+%   \item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$. We have:
+%   \begin{enumerate}
+%     \item \begin{enumerate}
+%       \item We induct on the assumption.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:esyn-var})}] We have:
+%             \begin{pfsteps*}
+%               \item $e=x$ \BY{assumption}
+%               \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
+%               \item $\hastypeU{\Delta}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-var})}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-asc})}] We have:
+%             \begin{pfsteps*}
+%                \item $\ue=\auasc{\utau}{\ue'}$ \BY{assumption}
+%                \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption}\pflabel{expandsTU}
+%                \item $\eanaX{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{eanaX}
+%                \item $\istypeU{\Delta}{\tau}$ \BY{Lemma \ref{lemma:type-expansion-U} on \pfref{expandsTU}}\pflabel{istype}
+%                \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) to \pfref{eanaX} and \pfref{istype}}
+%              \end{pfsteps*}
+%              \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-let}) through (\ref{rule:esyn-match})}] In each of these cases, we apply:
+%             \begin{itemize}
+%               \item Lemma \ref{lemma:type-expansion-U} to or over all type expansion premises.
+%               \item The IH, part 1(a)(i) to or over all synthetic typed expression expansion premises.
+%               \item The IH, part 1(a)(ii) to or over all synthetic rule expansion premises.
+%               \item The IH, part 1(b)(i) to or over all analytic typed expression expansion premises.
+%             \end{itemize}
+%             We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) as needed.
+%           \item[\text{(\ref{rule:esyn-defuetsm})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
+%               \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
+%               \item $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$ \BY{assumption}\pflabel{eparse}
+%               \item $\esyn{\uDelta}{\uGamma}{\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
+%               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
+%               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Outer IH, part 1(a)(i) on \pfref{uetsmenv3} and \pfref{expandsU}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-apuetsm})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\autsmap{b}{\tsmv}$ \BY{assumption}
+%               \item $\uPsi = \uASI{\ctxUpdate{\uA'}{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau}{\eparse}}{\uI}$ \BY{assumption}
+%               \item $\encodeBody{b}{\ebody}$ \BY{assumption}
+%               \item $\evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
+%               \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
+%               \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
+%               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+%               \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
+%               \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
+%               \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
+%               \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, \pfref{gamma-cap} and \pfref{istype}} \pflabel{penultimate}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set and finite function union over \pfref{penultimate}}               
+%              \end{pfsteps*} 
+%              \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-implicite})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\auimplicite{\tsmv}{\ue}$ \BY{assumption}
+%               \item $\uPsi=\uASI{\uA' \uplus \vExpands{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
+%               \item $\esyn{\uDelta}{\uGamma}{\uASI{\uA' \uplus \vExpands{\tsmv}{a}}{\Psi', \xuetsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-defuptsm})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
+%               \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
+%             %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
+%               \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
+%             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
+%             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expandsU}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:esyn-implicitp})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\auimplicitp{\tsmv}{\ue}$ \BY{assumption}
+%               \item $\uPhi=\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
+%               \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%       \item We induct on the assumption. There is one case.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:rsyn})}] We have:
+%             \begin{pfsteps*}
+%               \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
+%               \item $r=\aematchrule{p}{e}$ \BY{assumption}
+%               \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+%               \item $\esyn{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
+%               \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-B}, part 1 on \pfref{patExpands}}\pflabel{patType}
+%               \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(a)(i) on \pfref{expandsUP}} \pflabel{hasType}
+%               \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%     \end{enumerate}
+%     \item \begin{enumerate}
+%       \item We induct on the assumption.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:eana-subsume})}] We have:
+%             \begin{pfsteps*}
+%               \item $\esynX{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{esyn}}
+%             \end{pfsteps*}
+%           \item[\text{(\ref{rule:eana-let}) through (\ref{rule:eana-match})}] In each of these cases, we apply:
+%             \begin{itemize}
+%               \item Lemma \ref{lemma:type-expansion-U} to or over all type expansion premises.
+%               \item The IH, part 1(a)(i) to or over all synthetic typed expression expansion premises.
+%               \item The IH, part 1(a)(ii) to or over all synthetic rule expansion premises.
+%               \item The IH, part 1(b)(i) to or over all analytic typed expression expansion premises.
+%             \end{itemize}
+%             We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}) as needed. 
+%           \item[\text{(\ref{rule:eana-defuetsm})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\audefuetsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
+%               \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
+%               \item $,$ \BY{assumption}\pflabel{eparse}
+%               \item $\eana{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
+%               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
+%               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
+%             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:eana-implicite})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\autsmap{b}{\tsmv}$ \BY{assumption}
+%               \item $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ \BY{assumption}
+%               \item $\encodeBody{b}{\ebody}$ \BY{assumption}
+%               \item $\evalU{\eparse(\ebody)}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
+%               \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
+%               \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
+%             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
+%               \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
+%               \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
+%               \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(b)(i) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set union over \pfref{penultimate}}               
+%              \end{pfsteps*} 
+%              \resetpfcounter
+%           \item[\text{(\ref{rule:eana-lit})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\auelit{b}$ \BY{assumption}
+%               \item $\uPsi=\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}$ \BY{assumption}
+%               \item $\encodeBody{b}{\ebody}$ \BY{assumption}
+%               \item $\evalU{\ap{\eparse}{\ebody}}{\inj{\lbltxt{Success}}{\ecand}}$ \BY{assumption}
+%               \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
+%               \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption} \pflabel{cvalidE}
+%               \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
+%               \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
+%               \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, and \pfref{gamma-cap}} \pflabel{penultimate}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{definition of finite set union over \pfref{penultimate}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:eana-defuptsm})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\audefuptsm{\utau'}{\eparse}{\tsmv}{\ue'}$ \BY{assumption}
+%               \item $\expandsTU{\uDelta}{\utau'}{\tau'}$ \BY{assumption} \pflabel{expandsTU}
+%             %  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
+%               \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
+%             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
+%             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%           \item[\text{(\ref{rule:eana-implicitp})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ue=\auimplicitp{\tsmv}{\ue}$ \BY{assumption}
+%               \item $\uPhi=\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI}$ \BY{assumption}
+%               \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau'}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{esyn}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%       \item We induct on the assumption. There is one case.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:rana})}] We have:
+%             \begin{pfsteps*}
+%               \item $\urv=\aumatchrule{\upv}{\ue}$ \BY{assumption}
+%               \item $r=\aematchrule{p}{e}$ \BY{assumption}
+%               \item $\patExpands{\uGG{\uA'}{\pctx}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+%               \item $\eana{\uDelta}{\uGG{{\uA}\uplus{\uA'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
+%               \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-B}, part 1 on \pfref{patExpands}}\pflabel{patType}
+%               \item $\hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'}$ \BY{IH, part 1(b)(i) on \pfref{expandsUP}} \pflabel{hasType}
+%               \item $\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hasType}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%     \end{enumerate}
+%   \end{enumerate}
+%   \item In the following, let $\uDelta=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma=\uGG{\uG}{\Gamma_\text{app}}$ and $\escenev=\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$.
+%   \begin{enumerate}
+%     \item \begin{enumerate}
+%       \item We induct on the assumption.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:csyn-var})}] We have:
+%             \begin{pfsteps*}
+%               \item $e=x$ \BY{assumption}
+%               \item $\Gamma=\Gamma', \Ghyp{x}{\tau}$ \BY{assumption}
+%               \item $\hastypeU{\Delta}{\Gamma', \Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-var})}
+%             \end{pfsteps*}
+%             \resetpfcounter 
+%           \item[\text{(\ref{rule:csyn-asc})}] We have:
+%             \begin{pfsteps*}
+%                \item $\ce=\aceasc{\ctau}{\ce'}$ \BY{assumption}
+%                \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+%                \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+%                \item $\cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}$ \BY{assumption}\pflabel{expandsTU}
+%                \item $\canaX{\ce'}{e}{\tau}$ \BY{assumption}\pflabel{eanaX}
+%                \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{expandsTU}}\pflabel{istype}
+%                \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 2(b)(i) to \pfref{eanaX}, \pfref{delta-disjoint}, \pfref{gamma-disjoint} and  \pfref{istype}}
+%              \end{pfsteps*}
+%              \resetpfcounter
+%           \item[\text{(\ref{rule:csyn-let}) through (\ref{rule:csyn-match})}] In each of these cases, we apply:
+%             \begin{itemize}
+%               \item Lemma \ref{lemma:candidate-expansion-type-validation} to or over all ce-type validation premises.
+%               \item The IH, part 2(a)(i) to or over all synthetic ce-expression validation premises.
+%               \item The IH, part 2(a)(ii) to or over all synthetic ce-rule validation premises.
+%               \item The IH, part 2(b)(i) to or over all analytic ce-expression validation premises.
+%             \end{itemize}
+%             We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}), Rule (\ref{rule:ruleType}), Lemma \ref{lemma:weakening-UP},  the identification convention and exchange as needed.
+%           \item[\text{(\ref{rule:csyn-splicede})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ce=\acesplicede{m}{n}{\ctau}$ \BY{assumption}
+%               \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
+%               \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+%             %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+%               \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+%               \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+%               \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expands}} \pflabel{hastype}
+%               \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%       \item We induct on the assumption. There is one case.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:crsyn})}] We have:
+%             \begin{pfsteps*}
+%               \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
+%               \item $r=\aematchrule{p}{e}$ \BY{assumption}
+%               \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
+%               \item $\csyn{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+%               \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
+%               \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
+%               \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
+%               \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption}\pflabel{gamma-disjoint3}
+%               \item $\domof{\Gcons{\Gamma}{\pctx}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
+%               \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint4}}\pflabel{hastype}
+%               \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
+%               \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%     \end{enumerate}
+%     \item  \begin{enumerate}
+%       \item We induct on the assumption.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:cana-subsume})}] We have:
+%             \begin{pfsteps*}
+%               \item $\csynX{\ce}{e}{\tau}$ \BY{assumption} \pflabel{esyn}
+%               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{esyn}}
+%             \end{pfsteps*}
+%           \item[\text{(\ref{rule:cana-let}) through (\ref{rule:eana-match})}] In each of these cases, we apply:
+%             \begin{itemize}
+%               \item Lemma \ref{lemma:candidate-expansion-type-validation} to or over all ce-type validation premises.
+%               \item The IH, part 2(a)(i) to or over all synthetic ce-expression validation premises.
+%               \item The IH, part 2(a)(ii) to or over all synthetic ce-rule validation premises.
+%               \item The IH, part 2(b)(i) to or over all analytic ce-expression validation premises.
+%             \end{itemize}
+%             We then derive the conclusion by applying Rules (\ref{rules:hastypeUP}), Rule (\ref{rule:ruleType}), Lemma \ref{lemma:weakening-UP},  the identification convention and exchange as needed.
+%           \item[\text{(\ref{rule:cana-splicede})}] We have:
+%             \begin{pfsteps*}
+%               \item $\ce=\acesplicede{m}{n}{\ctau}$ \BY{assumption}
+%               \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption}
+%               \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+%               \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{assumption} \pflabel{istype}
+%             %  \item $\uetsmenv{\Delta_\text{app}}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
+%               \item $\Delta \cap \Delta_\text{app}=\emptyset$ \BY{assumption} \pflabel{delta-disjoint}
+%               \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
+%               \item $\hastypeU{\Delta_\text{app}}{\Gamma_\text{app}}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expands}, \pfref{delta-disjoint}, \pfref{gamma-disjoint} and \pfref{istype}} \pflabel{hastype}
+%               \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$ \BY{Lemma \ref{lemma:weakening-UP} over $\Delta$ and $\Gamma$ and exchange on \pfref{hastype}}
+%             \end{pfsteps*}
+%             \resetpfcounter
+%         \end{byCases}
+%       \item We induct on the assumption. There is one case.
+%         \begin{byCases}
+%           \item[\text{(\ref{rule:crana})}] We have:    
+%             \begin{pfsteps*}
+%                 \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
+%                 \item $r=\aematchrule{p}{e}$ \BY{assumption}
+%                 \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
+%                 \item $\cana{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+%                 \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau'}$ \BY{assumption} \pflabel{istype}
+%                 \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption}\pflabel{gamma-disjoint3}
+%                 \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
+%                 \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
+%                 \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
+%                 \item $\domof{\Gcons{\Gamma}{\pctx}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
+%                 \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(b)(i) on \pfref{cvalidE}, \pfref{delta-disjoint}, \pfref{gamma-disjoint4} and \pfref{istype}}\pflabel{hastype}
+%                 \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
+%                 \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
+%               \end{pfsteps*}
+%               \resetpfcounter
 
-        \end{byCases}
-    \end{enumerate}
-  \end{enumerate}
-\end{enumerate}
+%         \end{byCases}
+%     \end{enumerate}
+%   \end{enumerate}
+% \end{enumerate}
 
-We must now show that the induction is well-founded. All applications of the IH are on subterms except the following.  
+% We must now show that the induction is well-founded. All applications of the IH are on subterms except the following.  
 
-\begin{itemize}
-\item The only cases in the proof of part 1 that invoke the IH, part 2 are Case (\ref{rule:esyn-apuetsm}) in the proof of part 1(a)(i) and Case (\ref{rule:eana-lit}) in the proof of part 1(b)(i). The only cases in the proof of part 2 that invoke the IH, part 1 are Case (\ref{rule:csyn-splicede}) in the proof of part 2(a)(i) and Case (\ref{rule:cana-splicede}) in the proof of part 2(b)(i). We can show that the following metric on the judgements that we induct on is stable in one direction and strictly decreasing in the other direction:
-\begin{align*}
-\sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
-\sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}\\
-\sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
-\end{align*}
-where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
-\begin{align*}
-\sizeof{\ux} & = 0\\
-\sizeof{\auasc{\utau}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auletsyn{\ux}{\ue}{\ue'}} & = \sizeof{\ue} + \sizeof{\ue'}\\
-\sizeof{\auanalam{\ux}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\aulam{\utau}{\ux}{\ue}} &= \sizeof{\ue}\\
-\sizeof{\auap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
-\sizeof{\autlam{\ut}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autap{\ue}{\utau}} & = \sizeof{\ue}\\
-\sizeof{\auanafold{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
-%\end{align*}
-%\begin{align*}
-\sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auanain{\ell}{\ue}} & = \sizeof{\ue}\\
-%\sizeof{\aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
-\sizeof{\aumatchwithb{n}{\ue}{\seqschemaX{\urv}}} & = \sizeof{\ue} + \sum_{1 \leq i \leq n} \sizeof{r_i}\\
-\sizeof{\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auimplicite{\tsmv}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\autsmap{b}{\tsmv}} & = \sizeof{b}\\
-\sizeof{\auelit{b}} & = \sizeof{b}\\
-\sizeof{\audefuptsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
-\sizeof{\auimplicitp{\tsmv}{\ue}} & = \sizeof{\ue}
-\end{align*}
-and $\sizeof{r}$ is defined as follows:
-\begin{align*}
-\sizeof{\aumatchrule{\upv}{\ue}} & = \sizeof{\ue}
-\end{align*}
+% \begin{itemize}
+% \item The only cases in the proof of part 1 that invoke the IH, part 2 are Case (\ref{rule:esyn-apuetsm}) in the proof of part 1(a)(i) and Case (\ref{rule:eana-lit}) in the proof of part 1(b)(i). The only cases in the proof of part 2 that invoke the IH, part 1 are Case (\ref{rule:csyn-splicede}) in the proof of part 2(a)(i) and Case (\ref{rule:cana-splicede}) in the proof of part 2(b)(i). We can show that the following metric on the judgements that we induct on is stable in one direction and strictly decreasing in the other direction:
+% \begin{align*}
+% \sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
+% \sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
+% \sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}\\
+% \sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
+% \end{align*}
+% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
+% \begin{align*}
+% \sizeof{\ux} & = 0\\
+% \sizeof{\auasc{\utau}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\auletsyn{\ux}{\ue}{\ue'}} & = \sizeof{\ue} + \sizeof{\ue'}\\
+% \sizeof{\auanalam{\ux}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\aulam{\utau}{\ux}{\ue}} &= \sizeof{\ue}\\
+% \sizeof{\auap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
+% \sizeof{\autlam{\ut}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\autap{\ue}{\utau}} & = \sizeof{\ue}\\
+% \sizeof{\auanafold{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\auunfold{\ue}} & = \sizeof{\ue}\\
+% %\end{align*}
+% %\begin{align*}
+% \sizeof{\autpl{\labelset}{\mapschema{\ue}{i}{\labelset}}} & = \sum_{i \in \labelset} \sizeof{\ue_i}\\
+% \sizeof{\aupr{\ell}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\auanain{\ell}{\ue}} & = \sizeof{\ue}\\
+% %\sizeof{\aucase{\labelset}{\utau}{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}} & = \sizeof{\ue} + \sum_{i \in \labelset} \sizeof{\ue_i}\\
+% \sizeof{\aumatchwithb{n}{\ue}{\seqschemaX{\urv}}} & = \sizeof{\ue} + \sum_{1 \leq i \leq n} \sizeof{r_i}\\
+% \sizeof{\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\auimplicite{\tsmv}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\autsmap{b}{\tsmv}} & = \sizeof{b}\\
+% \sizeof{\auelit{b}} & = \sizeof{b}\\
+% \sizeof{\audefuptsm{\utau}{\eparse}{\tsmv}{\ue}} & = \sizeof{\ue}\\
+% \sizeof{\auimplicitp{\tsmv}{\ue}} & = \sizeof{\ue}
+% \end{align*}
+% and $\sizeof{r}$ is defined as follows:
+% \begin{align*}
+% \sizeof{\aumatchrule{\upv}{\ue}} & = \sizeof{\ue}
+% \end{align*}
 
-Going from part 1 to part 2, the metric remains stable:
-\begin{align*}
- & \sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
-=& \sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\auelit{b}}{e}{\tau}}\\
-=& \sizeof{\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}}\\
-=&\sizeof{b}\end{align*}
+% Going from part 1 to part 2, the metric remains stable:
+% \begin{align*}
+%  & \sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\autsmap{b}{\tsmv}}{e}{\tau}}\\
+% =& \sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\auelit{b}}{e}{\tau}}\\
+% =& \sizeof{\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}}\\
+% =&\sizeof{b}\end{align*}
 
-Going from part 2 to part 1, in each case we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgements $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ and $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, respectively. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
-\[\sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}}\]
-and
-\[\sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}}\]
-i.e. by the definitions above, 
-\[\sizeof{\ue} < \sizeof{b}\]
+% Going from part 2 to part 1, in each case we have that $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ and the IH is applied to the judgements $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ and $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, respectively. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
+% \[\sizeof{\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}}\]
+% and
+% \[\sizeof{\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} < \sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}}\]
+% i.e. by the definitions above, 
+% \[\sizeof{\ue} < \sizeof{b}\]
 
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to delimit each literal body.
-\begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-B} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
+% This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the following condition, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to delimit each literal body.
+% \begin{condition}[Expression Parsing Monotonicity]\label{condition:body-parsing-B} If $\parseUExp{b}{\ue}$ then $\sizeof{\ue} < \sizeof{b}$.\end{condition}
 
-Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-B}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
-\item In Case (\ref{rule:eana-subsume}) of the proof of part 1(b)(i), we apply the IH, part 1(a)(i), with $\ue=\ue$. This is well-founded because all applications of the IH, part 1(b)(i) elsewhere in the proof are on strictly smaller terms.
-\item Similarly, in Case (\ref{rule:cana-subsume}) of the proof of part 2(b)(i), we apply the IH, part 2(a)(i), with $\ce=\ce$. This is well-founded because all applications of the IH, part 2(b)(i) elsewhere in the proof are on strictly smaller terms.
-\end{itemize}
-\end{proof} 
+% Combining Conditions \ref{condition:body-subsequences} and \ref{condition:body-parsing-B}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
+% \item In Case (\ref{rule:eana-subsume}) of the proof of part 1(b)(i), we apply the IH, part 1(a)(i), with $\ue=\ue$. This is well-founded because all applications of the IH, part 1(b)(i) elsewhere in the proof are on strictly smaller terms.
+% \item Similarly, in Case (\ref{rule:cana-subsume}) of the proof of part 2(b)(i), we apply the IH, part 2(a)(i), with $\ce=\ce$. This is well-founded because all applications of the IH, part 2(b)(i) elsewhere in the proof are on strictly smaller terms.
+% \end{itemize}
+% \end{proof} 
 
