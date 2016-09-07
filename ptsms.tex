@@ -77,7 +77,7 @@ The expansion is:
 val y = List.Cons(3, List.Cons(4, List.Cons(5, List.Nil)))
 val x = List.Cons(1, List.Cons(2, y))
 \end{lstlisting}
-There is no need to use explicit \li{fold} and \li{inj} operators in this expansion, because the expansion projects the constuctors out of the provided module parameter. The TSM itself did not assume that the module would be named \li{List} (indeed, internally, it refers to it as \li{L}.)
+There is no need to use explicit \li{fold} and \li{inj} operators in this expansion, because the expansion projects the constructors out of the provided module parameter. The TSM itself did not assume that the module would be named \li{List} (indeed, internally, it refers to it as \li{L}.)
 
 This makes matters simpler for the TSM provider, but there is a syntactic cost associated with supplying a module parameter at each TSM application site. To reduce this cost, VerseML supports partial parameter application in TSM abbreviations. For example, we can define \li{#\dolla#list} by partially applying \li{#\dolla#list'} as follows:
 \begin{lstlisting}[numbers=none]
@@ -1178,13 +1178,13 @@ The rule for applying an unexpanded peTSM expression $\uepsilon$ to a generalize
   \decodePCEExp{e_\text{pproto}}{\pce}\\\\
   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
   \segOK{\segof{\ce}}{b}\\
-  \cvalidEP{\Omega_\text{params}}{\esceneP{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
+  \cvalidEP{\Omega_\text{params}}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
 }{
   \expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{proto}}
 }
 \end{equation*}
 
-The first two premises simply deconstruct $\uOmega$ and $\uPsi$. Next, we expand $\uepsilon$ according to the rules already described above. The resulting TSM expression, $\epsilon$, must be defined at a type (i.e. all parameters must be specified.)
+The first two premises simply deconstruct $\uOmega$ and $\uPsi$. Next, we expand $\uepsilon$ according to the unexpanded peTSM expression expansion rules given above. The resulting TSM expression, $\epsilon$, must be defined at a type (i.e. no parameters must remain.)
 
 The fourth premise performs \emph{peTSM expression normalization}. Normalization is defined in terms of a simple structural dynamics for peTSM expressions as follows:
 \begin{equation*}\tag{\ref{rule:tsmexpEvalsExp}}
@@ -1318,9 +1318,9 @@ The rule governing ppTSM application is similar:
   \tsmdefof{\epsilon_\text{normal}}=a\\
   \Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
-  \decodeCEPat{\ecand}{\cpv}\\\\
-  \prepcp{\Omega_\text{app}}{\Phi}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
+  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{e_\text{pproto}}}\\
+  \decodePCEPat{e_\text{pproto}}{\pcp}\\\\
+  \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
       \segOK{\segof{\cpv}}{b}\\
   \cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}
 }{
@@ -1361,7 +1361,7 @@ Notice on the third row that the encoding of the proto-expansion, $\ecand$, deco
 &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
 &&& \acemcon{X} & \mcon{X} & \text{constructor component}\\
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
-&&& \acesplicedc{m}{n} & \splicedc{m}{n} & \text{spliced constructor}\ECC
+&&& \acesplicedc{m}{n}{\cekappa} & \splicedc{m}{n}{\cekappa} & \text{spliced constructor}\ECC
 \end{array}\]
 \caption[Syntax of proto-kinds and proto-constructors in $\miniVerseParam$]{Syntax of proto-kinds and proto-constructors in $\miniVerseParam$.}
 \label{fig:P-ce-kinds-constructors}
@@ -1378,15 +1378,15 @@ Notice on the third row that the encoding of the proto-expansion, $\ecand$, deco
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
 &&& \aceclam{\cekappa}{u}{\ce} & \clam{u}{\cekappa}{\ce} & \text{constructor abstraction}\\
 &&& \acecap{\ce}{\cec} & \cAp{\ce}{\cec} & \text{constructor application}\\
-&&& \acefold{t}{\ctau}{\ce} & \fold{\ce} & \text{fold}\\
+&&& \acefold{\ce} & \fold{\ce} & \text{fold}\\
 &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
 &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
 &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
 &&& \aceanain{\ell}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
-&&& \acematchwith{n}{\ctau}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\
+&&& \acematchwith{n}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\
 &&& \acemval{X} & \mval{X} & \text{value component}\\
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
-&&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced expression}\ECC\\
+&&& \acesplicede{m}{n}{\ctau} & \splicede{m}{n}{\ctau} & \text{spliced expression}\ECC\\
 \mathsf{PrRule} & \crv & ::= & \acematchrule{p}{\ce} & \matchrule{p}{\ce} & \text{rule}\\
 \mathsf{PrPat} & \cpv & ::= & \acewildp & \wildp & \text{wildcard pattern}\\
 &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
@@ -1394,7 +1394,7 @@ Notice on the third row that the encoding of the proto-expansion, $\ecand$, deco
 &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
 &&& \acemval{X} & \mval{X} & \text{value component}\\
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
-&&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced pattern} \ECC
+&&& \acesplicedp{m}{n}{\ctau} & \splicedp{m}{n}{\ctau} & \text{spliced pattern} \ECC
 \end{array}\]
 \caption[Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$]{Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$.}
 \label{fig:P-candidate-terms}
@@ -1426,10 +1426,58 @@ $\arraycolsep=4pt\begin{array}{ll}
 \end{array}$
 \vspace{10px}
 
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{constructor splicing scenes}, $\cscenev$, are of the form $\tsceneUP{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\uOmega}{\uPhi}{b}$. Their purpose is to ``remember'', during proto-expansion validation, the contexts and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsP-apuetsm}) and (\ref{rule:patExpandsP-apuptsm}) above), because these are necessary to validate references to spliced terms. We write $\csfrom{\escenev}$ for the constructor splicing scene constructed by dropping the TSM contexts from $\escenev$:
-\[\csfrom{\esceneP{\uOmega}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uOmega}{b}\]
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\Omega}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{constructor splicing scenes}, $\cscenev$, are of the form $\csceneP{\Omega}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\uOmega}{\uPhi}{b}$. Their purpose is to ``remember'', during proto-expansion validation, the contexts and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsP-apuetsm}) and (\ref{rule:patExpandsP-apuptsm}) above), because these are necessary to validate references to spliced terms.
 
-The rules governing these judgements are reproduced in Appendix \ref{appendix:P-proto-expansion-validation}.
+We write $\csfrom{\escenev}$ for the constructor splicing scene constructed by dropping the TSM contexts from $\escenev$:
+\[\csfrom{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}} = \csceneP{\OParams}{\uOmega}{b}\]
+
+The rules governing references to spliced terms are reproduced below:
+\begin{equation*}\tag{\ref{rule:cvalidK-spliced}}
+\inferrule{
+  \parseUKind{\bsubseq{b}{m}{n}}{\ukappa}\\
+  \kExpands{\uOmega}{\ukappa}{\kappa}\\\\
+  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+}{
+  \cvalidK{\Omega}{\csceneP{\OParams}{\uOmega}{b}}{\acesplicedk{m}{n}}{\kappa}
+}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidC-spliced}}
+\inferrule{
+  \cscenev=\csceneP{\OParams}{\uOmega}{b}\\
+  \cvalidK{\OParams}{\cscenev}{\cekappa}{\kappa}\\
+  \parseUCon{\bsubseq{b}{m}{n}}{\uc}\\
+  \cExpands{\uOmega}{\uc}{c}{\kappa}\\\\
+  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+}{
+  \cvalidC{\Omega}{\cscenev}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}
+}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidE-P-splicede}}
+\inferrule{
+  \escenev = \esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}\\
+  \cvalidC{\OParams}{\csfrom{\escenev}}{\ctau}{\tau}{\akty}\\\\
+  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
+  \expandsP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
+  \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
+  \domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset
+}{
+  \cvalidEP{\Omega}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
+}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidPP-spliced}}
+\inferrule{
+  \cvalidC{\OParams}{\csceneP{\OParams}{\uOmega}{b}}{\ctau}{\tau}{\akty}\\
+  \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
+  \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
+}{
+  \cvalidPP{\uOmega'}{\pscene{\uOmega}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
+}
+\end{equation*}
+
+
+Notice that the kind/type annotations on spliced terms can refer to the provided parameters, but not to bindings local to the expansion (just like the spliced terms themselves.)
 
 \subsection{Metatheory}
 A more detailed account of the metatheory is given in Appendix \ref{appendix:metatheory-P}. We will summarize the key theorems below.
@@ -1505,7 +1553,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
   \item $\decodePCEExp{e_\text{pproto}}{\pce}$
   \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-  \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$
+  \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$
   \item $e = [\omega]e'$
   \item $\tau = [\omega]\tau_\text{proto}$
   \item (\textbf{Context Independence}) $\domof{\Omega_\text{app}} \cap \domof{\Omega_\text{params}} = \emptyset$
@@ -1528,8 +1576,8 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}$
   \item $\encodeBody{b}{\ebody}$
   \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
-  \item $\decodeCEPat{\ecand}{\cpv}$
-  \item $\prepcp{\Omega_\text{app}}{\Phi}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
+  \item $\decodeCEPat{\ecand}{\pcp}$
+  \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
   \item $\cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
   \item $\tau = [\omega]\tau_\text{proto}$
@@ -1544,19 +1592,19 @@ Spliced terms have access only to the bindings at the application site.
 \begin{theorem}[peTSM Shadowing Prohibition]
 ~
 \begin{enumerate}
-\item If $\cvalidK{\Omega}{\tsceneP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{b}}{\acesplicedk{m}{n}}{\kappa}$ then:
+\item If $\cvalidK{\Omega}{\csceneP{\OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{b}}{\acesplicedk{m}{n}}{\kappa}$ then:
   \begin{enumerate}
     \item $\parseUKind{\bsubseq{b}{m}{n}}{\ukappa}$
     \item $\kExpands{\uOmega}{\ukappa}{\kappa}$
     \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$
   \end{enumerate}
-\item If $\cvalidC{\Omega}{\tsceneP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{b}}{\acesplicedc{m}{n}}{c}{\kappa}$ then:
+\item If $\cvalidC{\Omega}{\csceneP{\OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{b}}{\acesplicedc{m}{n}{\cekappa}}{c}{\kappa}$ then:
   \begin{enumerate}
     \item $\parseUCon{\bsubseq{b}{m}{n}}{\uc}$
     \item $\cExpands{\uOmega}{\uc}{c}{\kappa}$
     \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$
   \end{enumerate}
-\item If $\cvalidEP{\Omega}{\esceneP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}$ then:
+\item If $\cvalidEP{\Omega}{\esceneP{\OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
   \begin{enumerate}
     \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
     \item $\expandsP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}$

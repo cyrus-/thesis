@@ -25,7 +25,7 @@
 \newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{S}}
 \newcommand{\miniVerseParam}{\mathsf{miniVerse}_\textbf{P}}
 \newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
-\newcommand{\miniVerseUB}{\mathsf{miniVerse}_\textbf{U}^\textbf{B}}
+\newcommand{\miniVerseUB}{\mathsf{miniVerse}_\textbf{S}^\textbf{B}}
 \newcommand{\miniVersePH}{\mathsf{miniVerse}_\textbf{PH}}
 
 % General abstract syntax
@@ -141,7 +141,7 @@
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
 \newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
 \newcommand{\aufold}[3]{\abopc{ufold}{#1.#2}{#3}}
-\newcommand{\acefold}[3]{\abopc{prfold}{#1.#2}{#3}}
+\newcommand{\acefold}[1]{\abop{prfold}{#1}}
 
 \newcommand{\auanafold}[1]{\abop{ufold}{#1}}
 \newcommand{\aceanafold}[1]{\abop{prfold}{#1}}
@@ -165,7 +165,7 @@
 \newcommand{\inj}[2]{\texttt{inj}[#1](#2)}
 \newcommand{\aein}[4]{\abopic{inj}{#1; #2}{#3}{#4}}
 \newcommand{\auin}[4]{\abopic{uinj}{#1; #2}{#3}{#4}}
-\newcommand{\acein}[4]{\abopic{prinj}{#1; #2}{#3}{#4}}
+\newcommand{\acein}[2]{\abopi{prinj}{#1}{#2}}
 
 \newcommand{\auanain}[2]{\abopp{uin}{#1}{#2}}
 \newcommand{\aceanain}[2]{\abopp{prinj}{#1}{#2}}
@@ -173,7 +173,7 @@
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
 \newcommand{\aecase}[4]{\abopic{case}{#1}{#2}{#3; #4}}
 \newcommand{\aucase}[4]{\abopic{ucase}{#1}{#2}{#3; #4}}
-\newcommand{\acecase}[4]{\abopic{prcase}{#1}{#2}{#3; #4}}
+\newcommand{\acecase}[3]{\abopi{prcase}{#1}{#2; #3}}
 
 % Expanded expressions
 \newcommand{\etxt}[1]{e_\text{#1}}
@@ -205,6 +205,7 @@
 \newcommand{\Ghyp}[2]{#1 : #2}
 \newcommand{\Gcons}[2]{{#1}\cup{#2}}
 \newcommand{\Gconsi}[2]{\cup_{#1} #2}
+\newcommand{\GIconsi}[2]{\uplus_{#1} #2}
 
 % Dynamics of miniVerseU
 \newcommand{\isvalU}[1]{#1~\mathsf{val}}
@@ -228,7 +229,7 @@
 % Unexpanded expressions
 \newcommand{\ue}{{\hat e}}
 \newcommand{\ux}{{\hat x}}
-\newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{by}~\texttt{static}~#3~\texttt{end}~\texttt{in}~#4}
+\newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
 \newcommand{\audefuetsm}[4]{\abopcc{usyntaxue}{#2}{#1}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
 \newcommand{\autsmap}[2]{\texttt{uapuetsm}[#1]\texttt{[}#2\texttt{]}}
@@ -294,17 +295,19 @@
 \newcommand{\ce}{\grave{e}}
 \newcommand{\ctau}{\grave{\tau}}
 
-\newcommand{\splicedt}[2]{\texttt{splicedt}\langle#1, #2\rangle}
+\newcommand{\splicedt}[2]{\texttt{splicedt}[#1; #2]}
 \newcommand{\asplicedt}[2]{\texttt{splicedt}[#1; #2]}
 \newcommand{\acesplicedt}[2]{\texttt{splicedt}[#1; #2]}
-\newcommand{\splicede}[2]{\texttt{splicede}\langle#1, #2\rangle}
+\newcommand{\splicede}[3]{\texttt{splicede}[#1; #2; #3]}
+\newcommand{\splicedet}[3]{\texttt{splicede}[#1; #2; #3]}
 \newcommand{\asplicede}[2]{\texttt{splicede}[#1; #2]}
-\newcommand{\acesplicede}[2]{\texttt{splicede}[#1; #2]}
-\newcommand{\splicedp}[2]{\texttt{splicedp}\langle#1, #2\rangle}
-\newcommand{\acesplicedp}[2]{\texttt{splicedp}[#1; #2]}
-\newcommand{\splicedc}[2]{\texttt{splicedc}\langle #1, #2 \rangle}
-\newcommand{\acesplicedc}[2]{\texttt{splicedc}[#1; #2]}
-\newcommand{\splicedk}[2]{\texttt{splicedk}\langle #1, #2 \rangle}
+\newcommand{\acesplicede}[3]{\texttt{splicede}[#1; #2; #3]}
+\newcommand{\acesplicedet}[3]{\texttt{anasplicede}[#1; #2]\texttt{\{}#3\texttt{\}}}
+\newcommand{\splicedp}[3]{\texttt{splicedp}[#1; #2; #3]}
+\newcommand{\acesplicedp}[3]{\texttt{splicedp}[#1; #2; #3]}
+\newcommand{\splicedc}[3]{\texttt{splicedc}[#1; #2; #3]}
+\newcommand{\acesplicedc}[3]{\texttt{splicedc}[#1; #2; #3]}
+\newcommand{\splicedk}[2]{\texttt{splicedk}[#1; #2]}
 \newcommand{\acesplicedk}[2]{\texttt{splicedk}[#1; #2]}
 
 \newcommand{\mtau}{\dot{\tau}}
@@ -341,7 +344,7 @@
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
 \newcommand{\aematchwith}[4]{\abopic{match}{#1}{#2}{#3; #4}}
 \newcommand{\aumatchwith}[4]{\abopic{umatch}{#1}{#2}{#3; #4}}
-\newcommand{\acematchwith}[4]{\abopic{prmatch}{#1}{#2}{#3; #4}}
+\newcommand{\acematchwith}[3]{\abopi{prmatch}{#1}{#2; #3}}
 
 \newcommand{\aumatchwithb}[3]{\abopi{umatch}{#1}{#2; #3}}
 \newcommand{\acematchwithb}[3]{\abopi{prmatch}{#1}{#2; #3}}
@@ -400,7 +403,7 @@
 \newcommand{\aceinjp}[2]{\abopi{prinjp}{#1}{#2}}
 
 \newcommand{\usyntaxueP}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for expressions}~\{#3\}~\texttt{in}~#4}
-\newcommand{\usyntaxup}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~\texttt{static}~#3~\texttt{end}~\texttt{in}~#4}
+\newcommand{\usyntaxup}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
 \newcommand{\audefuptsm}[4]{\abopcc{usyntaxup}{#2}{#1}{#3.#4}}
 \newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
 
@@ -410,7 +413,7 @@
 \newcommand{\expandsSG}[7]{#1~#2~{\vdash_{#3}}{\setlength{\fboxsep}{0px}\colorbox{lightgray}{$_{\mathstrut; #4}$}}~ #5 \leadsto #6 : #7}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
-\newcommand{\patExpands}[5]{\Delta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
+\newcommand{\patExpands}[5]{\uDelta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
 \newcommand{\xuptsmdef}[2]{\abop{sptsm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
 \newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{spTSMs}}
@@ -418,9 +421,13 @@
 
 \newcommand{\tParseResultPat}{\mathtt{ParseResultSP}} 
 \newcommand{\tCEPat}{\mathtt{PrPat}} % Typed expansion
+\newcommand{\tPCEPat}{\mathtt{PPrPat}}
 
 \newcommand{\decodeCEPat}[2]{#1 \uparrow_\mathsf{PrPat} #2}
 \newcommand{\encodeCEPat}[2]{#1 \downarrow_\mathsf{PrPat} #2}
+\newcommand{\decodePCEPat}[2]{#1 \uparrow_\mathsf{PPrPat} #2}
+\newcommand{\encodePCEPat}[2]{#1 \downarrow_\mathsf{PPrPat} #2}
+
 
 \newcommand{\cvalidP}[5]{\vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
 \newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Mapsto #7}
@@ -465,6 +472,7 @@
 \newcommand{\uI}{\mathcal{I}}
 \newcommand{\designate}[2]{#1 \hookrightarrow #2}
 \newcommand{\uIOK}[2]{#1 \vdash #2~\mathsf{designations}}
+
 
 % Kinds
 \newcommand{\kty}{\texttt{T}}
@@ -792,11 +800,11 @@
 \newcommand{\decodePCEExp}[2]{#1 \uparrow_\mathsf{PPrExpr} #2}
 \newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PPrExpr} #2}
 
-\newcommand{\pce}{\check{e}}
-\newcommand{\pcp}{\check{p}}
+\newcommand{\pce}{\dot{e}}
+\newcommand{\pcp}{\dot{p}}
 
 \newcommand{\prepce}[8]{#1 \vdash_{#2}^\mathsf{Exp} #3 \looparrowright_{#5} #4 ~?~ #6 \dashv #7 : #8}
-\newcommand{\prepcp}[6]{#1 \vdash_{#2}^\mathsf{Pat} \cdot \looparrowright_{#3} \cdot ~?~ #4 \dashv #5 : #6}
+\newcommand{\prepcp}[8]{#1 \vdash_{#2}^\mathsf{Pat} #3 \looparrowright_{#5} #4 ~?~ #6 \dashv #7 : #8}
 
 %\newcommand{\cvalidT}[4]{#1\vdash^{#2} #3 \leadsto #4~\mathsf{type}}
 % \newcommand{\cvalidE}[6]{#1~#2\vdash^{#3} #4 \leadsto #5 : #6}
@@ -807,7 +815,7 @@
 %\newcommand{\cvalidEX}[3]{\cvalidE{\Delta}{\Gamma}{\escenev}{#1}{#2}{#3}}
 %\newcommand{\escenev}{\mathbbmss{E}}
 %\newcommand{\tscenev}{\mathbbmss{T}}
-\newcommand{\esceneP}[4]{#1;\,#2;\,#3;\,#4}
+\newcommand{\esceneP}[5]{#1;\,#2;\,#3;\,#4;\,#5}
 \newcommand{\tsceneP}[2]{\tsceneU{#1}{#2}}
 \newcommand{\psceneP}[3]{#1;\,#2;\,#3}
 
@@ -829,13 +837,16 @@
 
 \newcommand{\pceexp}[1]{#1}
 \newcommand{\apceexp}[1]{\abop{prexp}{#1}}
+\newcommand{\apcepat}[1]{\abop{prpat}{#1}}
 
 \newcommand{\cekappa}{{\grave\kappa}}
 \newcommand{\cec}{{\grave c}}
 
-\newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{PrPat})}
+\newcommand{\tParseResultCEPat}{\mathtt{ParseResult}(\mathtt{PPrPat})}
 
 \newcommand{\cscenev}{\mathbbmss{C}}
+\newcommand{\csceneP}[3]{#1;\,#2;\,#3}
+\newcommand{\OParams}{\Omega_\text{params}}
 
 \newcommand{\cvalidK}[4]{#1 \vdash^{#2} #3 \leadsto #4~\mathsf{kind}}
 \newcommand{\cvalidKX}[2]{\cvalidK{\Omega}{\cscenev}{#1}{#2}}
@@ -897,3 +908,5 @@
 \newcommand{\segPat}[2]{\langle #1; #2; \mathsf{UPat}\rangle}
 \newcommand{\segCon}[2]{\langle #1; #2; \mathsf{UCon}\rangle}
 \newcommand{\segKind}[2]{\langle #1; #2; \mathsf{UKind} \rangle}
+
+\newcommand{\summaryOf}[1]{\mathsf{summary}(#1)}
