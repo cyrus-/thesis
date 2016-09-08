@@ -508,6 +508,12 @@ Our subsequent developments do not make mention of particular rules in the dynam
 %& \ux 
 & \ux & \text{identifier}\\
 &&
+%
+& \asc{\ue}{\utau} & \text{ascription}\\
+&&
+%
+& \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+&&
 %& \aulam{\utau}{\ux}{\ue} 
 & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
 &&
@@ -584,6 +590,8 @@ We write $\sizeof{b}$ for the length of $b$. The metafunction $\sizeof{\ue}$ com
 \[
 \begin{array}{ll}
 \sizeof{\ux} & = 0\\
+\sizeof{\asc{\ue}{\utau}} & = \sizeof{\ue}\\
+\sizeof{\letsyn{\ux}{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
 \sizeof{\lam{\ux}{\utau}{\ue}} &= \sizeof{\ue}\\
 \sizeof{\ap{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
 \sizeof{\Lam{\ut}{\ue}} & = \sizeof{\ue}\\
@@ -665,7 +673,7 @@ Similarly, the metafunction $\sizeof{\upv}$ computes the sum of the lengths of t
 \end{itemize}
 \end{grayparbox}
 \vspace{-10px}
-\subsubsection{Textual Syntax}\vspace{-3px} In addition to the stylized syntax, there is also a context-free textual syntax for the UL. We need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$\graytxtbox{~and $\parseUPatF{b}$}. 
+\subsubsection{Textual Syntax}\vspace{-3px} In addition to the stylized syntax, there is also a context-free textual syntax for the UL. For our purposes, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$\graytxtbox{~and $\parseUPatF{b}$}. 
 
 \begin{condition}[Textual Representability]\label{condition:textual-representability-SES} ~
 \begin{enumerate}
@@ -825,7 +833,25 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \begin{subequations}\label{rules:expandsU}
 \begin{equation}\label{rule:expandsU-var}
   \inferrule{ }{
-    \expandsSG{\Delta}{\Gamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}
+    \expandsSG{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsU-asc}
+  \inferrule{
+    \expandsTU{\uDelta}{\utau}{\tau}\\
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+  }{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\asc{\ue}{\utau}}{e}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsU-letsyn}
+  \inferrule{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue_1}{e_1}{\tau_1}\\
+    \expandsSG{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue_2}{e_2}{\tau_2}
+  }{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\letsyn{\ux}{\ue_1}{\ue_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-lam}
@@ -933,9 +959,10 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}
 }
 \end{equation}
-\begin{grayparbox}
+\begin{grayparbox}\vspace{-5px}
 \begin{equation}\label{rule:expandsU-match}
 \graybox{\inferrule{
+  \uDelta = \uDD{\uD}{\Delta}\\\\
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\
   \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
@@ -1170,6 +1197,8 @@ $\arraycolsep=2pt\begin{array}{lllllll}
 % \LCC &&& \lightgray & \lightgray & \lightgray\\
 &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced type ref.}\\%\ECC
 \mathsf{PrExp} & \ce & ::= & x & x & \text{variable}\\
+&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
 &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
@@ -1285,7 +1314,7 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, \graytxtbox{or proto-pattern, $\summaryOf{\cpv}$,} is the finite set of references to spliced types, expressions \graytxtbox{and patterns} that it mentions.
 
 \subsubsection{Segmentations}
-A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by the splice summary.
+A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by its splice summary.
 
 
 % Segments consist of two natural numbers and a sort, i.e. segments are of the form $\segExp{m}{n}$ or $\segTyp{m}{n}$\graytxtbox{ or $\segPat{m}{n}$}.
@@ -1346,7 +1375,7 @@ A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indica
 The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
 
 
-\subsection{Proto-Type Validation}
+\subsection{Proto-Type Validation}\label{appendix:proto-type-validation-SES}
 %Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
 \emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$.
 
@@ -1525,6 +1554,24 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
 }
 \end{equation}
+\begin{equation}\label{rule:cvalidE-U-asc}
+\inferrule{
+  \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+  \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}
+}{
+  \cvalidE{\Delta}{\Gamma}{\escenev}{\aceasc{\ctau}{\ce}}{e}{\tau}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidE-U-letsyn}
+  \inferrule{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_1}{e_1}{\tau_1}\\
+    \cvalidE{\Delta}{\Gamma, x : \tau_1}{\ce_2}{e_2}{\tau_2}
+  }{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\aceletsyn{x}{\ce_1}{\ce_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
+  }
+\end{equation}
 \begin{equation}\label{rule:cvalidE-U-lam}
 \inferrule{
   \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
@@ -1614,9 +1661,9 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \begin{equation}\label{rule:cvalidE-U-splicede}
 \inferrule{
   \cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}\\
-  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}\\
+  \escenev=\esceneSGB{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}\\
   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}\\\\
+  \expandsSG{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
   \Delta \cap \Delta_\text{app} = \emptyset\\
   \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset
 }{
@@ -1648,7 +1695,7 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \end{equation}
 \end{grayparbox}
 \vspace{-5px}\begin{grayparbox}
-\subsection{Proto-Pattern Validation}
+\subsection{Proto-Pattern Validation}\label{appendix:proto-pattern-validation-P}
 \emph{Pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\uDelta}{\uPhi}{b}$.
 
 \vspace{10px}\noindent\fbox{\strut$\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$}~~$\cpv$ has expansion $p$ matching against $\tau$ generating hypotheses $\upctx$
@@ -1765,7 +1812,7 @@ If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ an
 \end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:cvalidT-U}).
 \begin{byCases}
-\item[\text{(\ref{rule:cvalidT-U-tvar})}] We have 
+\item[\text{(\ref{rule:cvalidT-U-tvar})}] ~
 \begin{pfsteps*}
    \item $\Delta=\Delta', \Dhyp{t}$ \BY{assumption}
    \item $\ctau=t$ \BY{assumption}
@@ -2026,6 +2073,28 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
 \end{pfsteps}
 \resetpfcounter
 
+\item[\text{(\ref{rule:expandsU-asc})}] ~
+\begin{pfsteps}
+  \item \ue=\asc{\ue'}{\utau} \BY{assumption}
+  \item \expandsTU{\uDelta}{\utau}{\tau} \BY{assumption} \pflabel{expandsTU}
+  \item \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue'}{e}{\tau} \BY{assumption} \pflabel{expandsSG}
+  \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsSG}}
+\end{pfsteps}
+\resetpfcounter
+
+\item[\text{(\ref{rule:expandsU-letsyn})}] ~
+\begin{pfsteps}
+  \item \ue=\letsyn{\ux}{\ue_1}{\ue_2} \BY{assumption}
+  \item e =   \aeap{\aelam{\tau_1}{x}{e_2}}{e_1} \BY{assumption}
+  \item     \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue_1}{e_1}{\tau_1} \BY{assumption} \pflabel{expandsSG1}
+  \item     \expandsSG{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue_2}{e_2}{\tau} \BY{assumption} \pflabel{expandsSG2}
+  \item \hastypeU{\Delta}{\Gamma}{e_1}{\tau_1} \BY{IH, part 1(a) on \pfref{expandsSG1}} \pflabel{hastype1}
+  \item \hastypeU{\Delta}{\Gamma, x : \tau}{e_2}{\tau} \BY{IH, part 1(a) on \pfref{expandsSG2}} \pflabel{hastype2}
+  \item \hastypeU{\Delta}{\Gamma}{\aelam{\tau_1}{x}{e_2}}{\aparr{\tau_1}{\tau}} \BY{Rule (\ref{rule:hastypeU-lam}) on \pfref{hastype2}} \pflabel{hastype3}
+  \item \hastypeU{\Delta}{\Gamma}{\aeap{\aelam{\tau_1}{x}{e_2}}{e_1}}{\tau} \BY{Rule (\ref{rule:hastypeU-ap}) on \pfref{hastype3} and \pfref{hastype1}}
+\end{pfsteps}
+\resetpfcounter
+
 \item[\text{(\ref{rule:expandsU-lam})}] ~
 \begin{pfsteps}
   \item \ue=\lam{\ux}{\utau_1}{\ue'} \BY{assumption}
@@ -2055,7 +2124,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
 
 \item[\text{(\ref{rule:expandsU-tlam})}~\textbf{through}~\text{(\ref{rule:expandsU-case})}] These cases follow analagously, i.e. we apply Lemma \ref{lemma:type-expansion-U} to or over the type expansion premises and the IH part 1(a) to or over the typed expression expansion premises and then apply the corresponding typing rule in Rules (\ref{rule:hastypeU-tlam}) through (\ref{rule:hastypeU-case}).
 \\
-\item[\text{(\ref{rule:expandsU-syntax})}] We have 
+\item[\text{(\ref{rule:expandsU-syntax})}] ~ 
 \begin{pfsteps}
   \item \ue=\uesyntax{\tsmv}{\utau'}{\eparse}{\ue'} \BY{assumption}
   \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
@@ -2068,7 +2137,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
 \end{pfsteps}
 \resetpfcounter 
 
-\item[\text{(\ref{rule:expandsU-tsmap})}] We have 
+\item[\text{(\ref{rule:expandsU-tsmap})}] ~ 
 \begin{pfsteps}
   \item \ue=\utsmap{\tsmv}{b} \BY{assumption}
   \item \uA = \uA', \vExpands{\tsmv}{a} \BY{assumption}
@@ -3625,12 +3694,12 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 \mathsf{UExp} & \ue & ::= 
 %& \ux 
 & \ux & \text{identifier}\\
-% &&
-%& \auasc{\utau}{\ue} 
-% & \asc{\ue}{\utau} & \text{ascription}\\
-% &&
-%& \auletsyn{\ux}{\ue}{\ue} 
-% & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+&&
+% & \auasc{\utau}{\ue} 
+& \asc{\ue}{\utau} & \text{ascription}\\
+&&
+% & \auletsyn{\ux}{\ue}{\ue} 
+& \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
 % &&
 %& \auanalam{\ux}{\ue} 
 % & \analam{\ux}{\ue} & \text{abstraction (unannotated)}\\
@@ -3803,7 +3872,11 @@ The metafunction $\sizeof{\uM}$ computes the sum of the lengths of expression li
 \sizeof{\uX} & = 0\\
 \sizeof{\struct{\uc}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\seal{\uM}{\usigma}} & = \sizeof{\uM}\\
-\sizeof{\mlet{\uX}{\uM}{\uM'}{\usigma}} & = \sizeof{\uM} + \sizeof{\uM'}
+\sizeof{\mlet{\uX}{\uM}{\uM'}{\usigma}} & = \sizeof{\uM} + \sizeof{\uM'}\\
+\sizeof{\defpetsm{\tsmv}{\urho}{e}{\uM}} & = \sizeof{\uM}\\
+\sizeof{\uletpetsm{\tsmv}{\uepsilon}{\uM}} & = \sizeof{\uM}\\
+\sizeof{\defpptsm{\tsmv}{\urho}{e}{\uM}} & = \sizeof{\uM}\\
+\sizeof{\uletpptsm{\tsmv}{\uepsilon}{\uM}} & = \sizeof{\uM}
 \end{array}
 \]
 and $\sizeof{\ue}$ computes the sum of the lengths of expression literal bodies in $\ue$:
@@ -4267,10 +4340,28 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
     \expandsP{\uOmega, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\uPhi}{\ux}{x}{\tau}
   }
 \end{equation}
+\begin{equation}\label{rule:expandsP-asc}
+  \inferrule{
+    \cExpands{\uOmega}{\utau}{\tau}{\akty}\\
+    \expandsP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+  }{
+    \expandsP{\uOmega}{\uPsi}{\uPhi}{\asc{\ue}{\utau}}{e}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:expandsP-letsyn}
+  \inferrule{
+    \expandsP{\uOmega}{\uPsi}{\uPhi}{\ue_1}{e_1}{\tau_1}\\
+    \expandsP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue_2}{e_2}{\tau_2}
+  }{
+    \expandsP{\uOmega}{\uPsi}{\uPhi}{\letsyn{\ux}{\ue_1}{\ue_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
+  }
+\end{equation}
 %Functions with an argument type annotation can appear in synthetic position.
 \begin{equation}\label{rule:expandsP-lam}
   \inferrule{
-    \tExpandsPX{\utau_1}{\tau_1}\\
+    \cExpands{\uOmega}{\utau_1}{\tau_1}{\akty}\\
     \expandsP{\uOmega, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue}{e}{\tau_2}
   }{
     \expandsPX{\lam{\ux}{\utau_1}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
@@ -4355,7 +4446,9 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 %Match expressions can appear in synthetic position.
 \begin{equation}\label{rule:expandsP-match}
   \inferrule{
+    \uOmega = \uOmegaEx{\uD}{\uG}{\uM}{\Omega}\\\\
     \expandsPX{\ue}{e}{\tau}\\
+    \haskind{\Omega}{\tau'}{\akty}\\
     \{\rsynPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
     \expandsPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
@@ -5109,8 +5202,8 @@ The following metafunction extracts the TSM name from a TSM expression.
 \[\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{PrExp} & \ce & ::= & x & x & \text{variable}\\
-% &&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
-% &&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
+&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
 % &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
@@ -5581,6 +5674,24 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
 \begin{equation}\label{rule:cvalidE-P-var}
   \inferrule{ }{ 
     \cvalidEP{\Omega, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:cvalidE-P-asc}
+\inferrule{
+  \cvalidC{\Omega}{\csfrom{\escenev}}{\ctau}{\tau}{\akty}\\
+  \cvalidEP{\Omega}{\escenev}{\ce}{e}{\tau}
+}{
+  \cvalidEP{\Omega}{\escenev}{\aceasc{\ctau}{\ce}}{e}{\tau}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidE-P-letsyn}
+  \inferrule{
+    \cvalidEP{\Omega}{\escenev}{\ce_1}{e_1}{\tau_1}\\
+    \cvalidEP{\Omega, x : \tau_1}{\ce_2}{e_2}{\tau_2}
+  }{
+    \cvalidEP{\Omega}{\escenev}{\aceletsyn{x}{\ce_1}{\ce_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-P-lam}
@@ -6089,12 +6200,12 @@ The stylized syntax extends the stylized syntax of the $\miniVersePat$ UL given 
 \mathsf{UExp} & \ue & ::= 
 %& \cdots 
 & \cdots & \text{(as in $\miniVersePat$)}\\
-&&
+% &&
 %& \auasc{\utau}{\ue} 
-& \asc{\ue}{\utau} & \text{ascription}\\
-&&
+% & \asc{\ue}{\utau} & \text{ascription}\\
+% &&
 %& \auletsyn{\ux}{\ue}{\ue} 
-& \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+% & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
 &&& \implicite{\tsmv}{\ue} & \text{seTSM designation}\\
 &&& \implicitp{\tsmv}{\ue} & \text{spTSM designation}\\
 &&& \lit{b} & \text{seTSM unadorned literal}\\
@@ -6141,8 +6252,8 @@ The stylized syntax extends the stylized syntax of the $\miniVersePat$ UL given 
 We write $\sizeof{b}$ for the length of $b$. The metafunction $\sizeof{\ue}$ computes the sum of the lengths of expression literal bodies in $\ue$. It is defined by extending the definition given in Sec. \ref{appendix:SES-syntax} with the following additional cases:
 \[
 \begin{array}{ll}
-\sizeof{\asc{\ue}{\utau}} & = \sizeof{\ue}\\
-\sizeof{\letsyn{\ux}{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
+% \sizeof{\asc{\ue}{\utau}} & = \sizeof{\ue}\\
+% \sizeof{\letsyn{\ux}{\ue_1}{\ue_2}} & = \sizeof{\ue_1} + \sizeof{\ue_2}\\
 \sizeof{\implicite{\tsmv}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\implicitp{\tsmv}{\ue}} & = \sizeof{\ue}\\
 \sizeof{\lit{b}} & = \sizeof{b}
@@ -6536,39 +6647,41 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
 
 \section{Proto-Expansion Validation}
 \subsection{Syntax of Proto-Expansions}
-\[\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{PrTyp} & \ctau & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-% &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
-% &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
-% &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
-% &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
-% &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
-%\LCC &&& \gray & \gray & \gray\\
-% &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\%\ECC
-\mathsf{PrExp} & \ce & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
-&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
-% &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
-% &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction (annotated)}\\
-% &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
-% &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
-% &&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
-% &&& \aceanafold{\ce} & \fold{\ce} & \text{fold}\\
-% &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
-% &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
-% &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
-% &&& \aceanain{\ell}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
-% &&& \acematchwithb{n}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\%\LCC &&& \gray & \gray & \gray\\
-% &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\%\ECC
-% &&& \acesplicedet{m}{n}{\ctau} & \splicedet{m}{n}{\ctau} & \text{spliced (analytic)}\\
-\mathsf{PrRule} & \crv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-\mathsf{PrPat} & \cpv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-% &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
-% &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
-% &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
-% &&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced}
-\end{array}\]
+The syntax of proto-expansions was defined in Sec. \ref{appendix:proto-expansions-SES}.
+
+% \[\begin{array}{lllllll}
+% \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
+% \mathsf{PrTyp} & \ctau & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% % &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
+% % &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
+% % &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
+% % &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
+% % &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
+% %\LCC &&& \gray & \gray & \gray\\
+% % &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\%\ECC
+% \mathsf{PrExp} & \ce & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% &&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+% &&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
+% % &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
+% % &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction (annotated)}\\
+% % &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
+% % &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
+% % &&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
+% % &&& \aceanafold{\ce} & \fold{\ce} & \text{fold}\\
+% % &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
+% % &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
+% % &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
+% % &&& \aceanain{\ell}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
+% % &&& \acematchwithb{n}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\%\LCC &&& \gray & \gray & \gray\\
+% % &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\%\ECC
+% % &&& \acesplicedet{m}{n}{\ctau} & \splicedet{m}{n}{\ctau} & \text{spliced (analytic)}\\
+% \mathsf{PrRule} & \crv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% \mathsf{PrPat} & \cpv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% % &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
+% % &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
+% % &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
+% % &&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced}
+% \end{array}\]
 
 \subsubsection{Common Proto-Expansion Terms}
 Each expanded term, except variable patterns, maps onto a proto-expansion term. We refer to these as the \emph{common proto-expansion terms}. In particular:
@@ -6610,22 +6723,264 @@ Each expanded term, except variable patterns, maps onto a proto-expansion term. 
   \Cof{\aeinjp{\ell}{p}} & = \aceinjp{\ell}{\Cof{p}}
   \end{align*}
 \end{itemize}
+
+These definitions differ from those given in Sec. \ref{appendix:proto-expansions-SES} in that they include the type information necessary for bidirectional typechecking.
+
 \subsubsection{Proto-Expression Encoding and Decoding}
 The type $\tCEExp$ and the judgements $\encodeCondE{\ce}{e}$ and $\decodeCondE{e}{\ce}$ are characterized as described in Sec. \ref{appendix:proto-expansions-SES}.
 
 \subsubsection{Proto-Pattern Encoding and Decoding}
 The type $\tCEPat$ and the judgements $\encodeCEPat{\cpv}{e}$ and $\decodeCEPat{e}{\cpv}$ are characterized as described in Sec. \ref{appendix:proto-expansions-SES}.
 
-\subsubsection{Segmentations}
+\subsubsection{Splice Summaries}
+The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, or proto-pattern, $\summaryOf{\cpv}$, is the finite set of references to spliced types, expressions {and patterns} that it mentions.
 
-\subsection{Proto-Expansion Validation}
+\subsubsection{Segmentations}
+A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by its splice summary.
+
+\subsection{Proto-Expansion Validation}\label{appendix:proto-expansion-validation-BS}
 \subsubsection{Proto-Type Validation}
+The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{appendix:proto-type-validation-SES}.
 
 \subsubsection{Bidirectional Proto-Expression and Proto-Rule Validation}
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping unnecessary contexts from $\escenev$:
+\[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
+
+\noindent\fbox{$\strut\csynX{\ce}{e}{\tau}$}~~$\ce$ has expansion $e$ synthesizing type $\tau$
+\begin{subequations}\label{rules:csyn}
+\begin{equation}\label{rule:csyn-var}
+  \inferrule{ }{ 
+    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-asc}
+  \inferrule{
+    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+    \canaX{\ce}{e}{\tau}
+  }{
+    \csynX{\aceasc{\ctau}{\ce}}{e}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-let}
+  \inferrule{
+    \csynX{\ce}{e}{\tau}\\
+    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
+  }{
+    \csynX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-lam}
+  \inferrule{
+    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau_1}{\tau_1}\\
+    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
+  }{
+    \csynX{\acelam{\ctau_1}{x}{\ce}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-ap}
+  \inferrule{
+    \csynX{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}\\
+    \canaX{\ce_2}{e_2}{\tau_2}
+  }{
+    \csynX{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-tlam}
+  \inferrule{
+    \csyn{\Delta, \Dhyp{t}}{\Gamma}{\escenev}{\ce}{e}{\tau}
+  }{
+    \csynX{\acetlam{t}{\ce}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-tap}
+  \inferrule{
+    \csynX{\ce}{e}{\aall{t}{\tau}}\\
+    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}
+  }{
+    \csynX{\acetap{\ce}{\ctau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-unfold}
+  \inferrule{
+    \csynX{\ce}{e}{\arec{t}{\tau}}
+  }{
+    \csynX{\aceunfold{\ce}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-tpl}
+  \inferrule{
+    \tau = \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
+    \{\csynX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \csynX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:csyn-pr}
+  \inferrule{
+    \csynX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+  }{
+    \csynX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
+  }
+\end{equation}
+% \begin{equation}\label{rule:csyn-match}
+%   \inferrule{
+%     n > 0\\
+%     \csynX{\ce}{e}{\tau}\\
+%     \{\crsynX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+%   }{
+%     \csynX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%   }
+% \end{equation}
+\begin{equation}\label{rule:csyn-splicede}
+\inferrule{
+  \cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+  \escenev=\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}\\
+  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
+  \eana{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
+  \Delta \cap \Delta_\text{app} = \emptyset\\
+  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset
+}{
+  \csyn{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
+}
+\end{equation}
+\end{subequations}
+
+\noindent\fbox{$\strut\canaX{\ce}{e}{\tau}$}~~$\ce$ has expansion $e$ when analyzed against type $\tau$
+\begin{subequations}\label{rules:cana}
+\begin{equation}\label{rule:cana-subsume}
+  \inferrule{
+    \csynX{\ce}{e}{\tau}
+  }{
+    \canaX{\ce}{e}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:cana-let}
+  \inferrule{
+    \csynX{\ce}{e}{\tau}\\
+    \cana{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
+  }{
+    \canaX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
+  }
+\end{equation}
+% \begin{equation}\label{rule:cana-analam}
+%   \inferrule{
+%     \cana{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
+%   }{
+%     \canaX{\aceanalam{x}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
+%   }
+% \end{equation}
+\begin{equation}\label{rule:cana-tlam}
+  \inferrule{
+    \cana{\Delta, \Dhyp{t}}{\Gamma}{\escenev}{\ce}{e}{\tau}
+  }{
+    \canaX{\acetlam{t}{\ce}}{\aetlam{t}{e}}{\aall{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cana-fold}
+  \inferrule{
+    \canaX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
+  }{
+    \canaX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+  }
+\end{equation}
+\begin{equation}\label{rule:cana-tpl}
+  \inferrule{
+    \tau = \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
+    \{\canaX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
+  }{
+    \canaX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:cana-in}
+  \inferrule{
+    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
+    \canaX{\ce}{e}{\tau'}
+  }{
+    % \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
+    \canaX{\acein{\ell}{\ce}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\tau}
+  }
+\end{equation}
+\begin{equation}\label{rule:cana-match}
+  \inferrule{
+    \csynX{\ce}{e}{\tau}\\
+    \{\cranaX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
+  }{
+    \canaX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+  }
+\end{equation}
+\end{subequations}
+
+\noindent\fbox{$\strut\crana{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$}~~$\crv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$
+\begin{equation}\label{rule:crana}
+\inferrule{
+  \patType{\pctx}{p}{\tau}\\
+  \cana{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
+}{
+  \crana{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
+}
+\end{equation}
 
 \subsubsection{Proto-Pattern Validation}
+\emph{Pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\uDelta}{\uPhi}{b}$.
 
+\vspace{10px}\noindent\fbox{\strut$\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$}~~$\cpv$ has expansion $p$ matching against $\tau$ generating hypotheses $\upctx$
+\begin{subequations}\label{rules:cvalidP-B}
+\begin{equation}\label{rule:cvalidP-B-wild}
+\inferrule{ }{
+  \cvalidP{\uGG{\emptyset}{\emptyset}}{\pscenev}{\acewildp}{\aewildp}{\tau}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidP-B-fold}
+\inferrule{
+  \cvalidP{\upctx}{\pscenev}{\cpv}{p}{[\arec{t}{\tau}/t]\tau}
+}{
+  \cvalidP{\upctx}{\pscenev}{\acefoldp{\cpv}}{\aefoldp{p}}{\arec{t}{\tau}}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidP-B-tpl}
+\inferrule{
+  \tau = \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
+  \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
+}{
+% \left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
+  \cvalidP{\Gconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidP-B-in}
+\inferrule{
+  \cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}
+}{
+  \cvalidP{\upctx}{\pscenev}{\aceinjp{\ell}{\cpv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+}
+\end{equation}
+\begin{equation}\label{rule:cvalidP-B-spliced}
+\inferrule{
+  \cvalidT{\emptyset}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}\\
+  \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
+  \patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}
+}{
+  \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
+}
+\end{equation}
+\end{subequations}
 \section{Metatheory}
+
+
+% \subsubsection{Candidate Expansion Expressibility}
+% The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that synthesizes the same type under the same contexts and any expression splicing scene.
+% \begin{theorem}[Candidate Expansion Expression Expressibility]\label{lemma:ce-expressions-expressibility-B} Both of the following hold:
+% \begin{enumerate}
+% \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\csyn{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.
+% \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\crsyn{\Delta}{\Gamma}{\escenev}{\Cof{r}}{r}{\tau}{\tau'}$.
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). In each case, we apply the IH, part 1 to or over each typing premise, the IH, part 2 over each rule typing premise, Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise and then derive the conclusion by applying Rules (\ref{rules:csyn}) and Rule (\ref{rule:crsyn}) as needed.
+% \end{proof}
+
+% The following lemma establishes that every well-typed expanded pattern that generates no hypotheses can be expressed as a ce-pattern.
+% \begin{lemma}[Candidate Expansion Pattern Expressibility]\label{lemma:ce-pattern-expressibility-B} If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
+% \begin{proof} The proof is nearly identical to the proof of Lemma \ref{lemma:ce-pattern-expressibility-U}, differing only in that each mention of a rule in Rules (\ref{rules:cvalidP-UP}) is replaced by a mention of the corresponding rule in Rules (\ref{rules:cvalidP-B}).
+% \end{proof}
 
 % \subsubsection{Outer Surface Expressibility}
 % The following lemma establishes that each well-typed expanded pattern can be expressed as an unexpanded pattern matching values of the same type and generating the same hypotheses and corresponding sigil updates. The metafunction $\Uof{\pctx}$ was defined in \ref{sec:typed-expansion-UP}.

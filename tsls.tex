@@ -284,7 +284,7 @@ The typed rule expansion judgement is defined by the following rule:
 \end{equation*}
 (In this simple calculus, it would also be possible to allow match expressions to appear in synthetic position -- all of the branches would need to synthesize the same type. In a language with richer notions of type equality and subtyping, this requires greater care. To avoid this orthogonal concern, we do not formally consider this case.)
 
-The pattern expasion judgement, $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref{rules:patExpands-B}), and operates as described in Chapter \ref{chap:uptsms}. There is one new rule, governing the newly introduced unadorned pattern literal form. We will return to this rule below.
+The pattern expansion judgement, $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref{rules:patExpands-B}), and operates as described in Chapter \ref{chap:uptsms}. There is one new rule, governing the newly introduced unadorned pattern literal form. We will return to this rule below.
 
 \paragraph{Other Shared Forms} Other constructs of shared form have similar bidirectional rules, given in the appendix.
 
@@ -409,7 +409,7 @@ The following rule determines the TSM designated at the type that the expression
   }
 \end{equation*}
 
-Similarly, the following rule determines the TSM designated at the type that the pattern of unadorned literal form is matchinga against and applies it implicitly:
+Similarly, the following rule determines the TSM designated at the type that the pattern of unadorned literal form is matching against and applies it implicitly:
 \begin{equation*}\tag{\ref{rule:patExpands-B-lit}}
 \inferrule{
   \uPhi = \uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}\\\\
@@ -417,7 +417,7 @@ Similarly, the following rule determines the TSM designated at the type that the
   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
     \segOK{\segof{\cpv}}{b}\\
-  \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
+  \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
 }{
   \patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}
 }
@@ -428,329 +428,73 @@ Similarly, the following rule determines the TSM designated at the type that the
 
 
 
-\subsection{Syntax of Proto-Expansions}\label{sec:ce-syntax-B}
-\begin{figure}
-\[\begin{array}{lllllll}
-\textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
-\mathsf{PrTyp} & \ctau & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-% &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
-% &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
-% &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
-% &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
-% &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
-%\LCC &&& \gray & \gray & \gray\\
-% &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\%\ECC
-\mathsf{PrExp} & \ce & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
-&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
-% &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
-% &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction (annotated)}\\
-% &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
-% &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
-% &&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
-% &&& \aceanafold{\ce} & \fold{\ce} & \text{fold}\\
-% &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
-% &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
-% &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
-% &&& \aceanain{\ell}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
-% &&& \acematchwithb{n}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\%\LCC &&& \gray & \gray & \gray\\
-% &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\%\ECC
-&&& \acesplicedet{m}{n}{\ctau} & \splicedet{m}{n}{\ctau} & \text{spliced (analytic)}\\
-\mathsf{PrRule} & \crv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-\mathsf{PrPat} & \cpv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
-% &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
-% &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
-% &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
-% &&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced}
-\end{array}\]
-\caption[Syntax of proto-terms in Bidirectional $\miniVersePat$]{Syntax of proto-types, proto-expressions, proto-rules and proto-patterns in Bidirecitonal $\miniVersePat$.}
-\label{fig:B-candidate-terms}
-\end{figure}
+% \subsection{Syntax of Proto-Expansions}\label{sec:ce-syntax-B}
+% \begin{figure}
+% \[\begin{array}{lllllll}
+% \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
+% \mathsf{PrTyp} & \ctau & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% % &&& \aceparr{\ctau}{\ctau} & \parr{\ctau}{\ctau} & \text{partial function}\\
+% % &&& \aceall{t}{\ctau} & \forallt{t}{\ctau} & \text{polymorphic}\\
+% % &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
+% % &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
+% % &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
+% %\LCC &&& \gray & \gray & \gray\\
+% % &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced}\\%\ECC
+% \mathsf{PrExp} & \ce & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% &&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+% &&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
+% % &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
+% % &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction (annotated)}\\
+% % &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
+% % &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
+% % &&& \acetap{\ce}{\ctau} & \App{\ce}{\ctau} & \text{type application}\\
+% % &&& \aceanafold{\ce} & \fold{\ce} & \text{fold}\\
+% % &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
+% % &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
+% % &&& \acepr{\ell}{\ce} & \prj{\ce}{\ell} & \text{projection}\\
+% % &&& \aceanain{\ell}{\ce} & \inj{\ell}{\ce} & \text{injection}\\
+% % &&& \acematchwithb{n}{\ce}{\seqschemaX{\urv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\%\LCC &&& \gray & \gray & \gray\\
+% % &&& \acesplicede{m}{n} & \splicede{m}{n} & \text{spliced}\\%\ECC
+% % &&& \acesplicedet{m}{n}{\ctau} & \splicedet{m}{n}{\ctau} & \text{spliced (analytic)}\\
+% \mathsf{PrRule} & \crv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% \mathsf{PrPat} & \cpv & ::= & \cdots & \cdots & \text{(as in $\miniVersePat$)}\\
+% % &&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
+% % &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
+% % &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
+% % &&& \acesplicedp{m}{n} & \splicedp{m}{n} & \text{spliced}
+% \end{array}\]
+% \caption[Syntax of proto-terms in Bidirectional $\miniVersePat$]{Syntax of proto-types, proto-expressions, proto-rules and proto-patterns in Bidirecitonal $\miniVersePat$.}
+% \label{fig:B-candidate-terms}
+% \end{figure}
 
-Figure \ref{fig:B-candidate-terms} defines the syntax of candidate expansion types (or \emph{ce-types}), $\ctau$, candidate expansion expressions (or \emph{ce-expressions}), $\ce$, candidate expansion rules (or \emph{ce-rules}), $\crv$, and candidate expansion patterns (or \emph{ce-patterns}), $\cpv$. %The syntax of ce-types is identical to that given in Figure \ref{fig:U-candidate-terms}, which was described in Sec. \ref{sec:ce-syntax-U}. 
-Candidate expansion terms are identified up to $\alpha$-equivalence in the usual manner.
+\subsection{Bidirectional Proto-Expansion Validation}\label{sec:ce-validation-B}
+The syntax of proto-expansions was defined in Sec. \ref{sec:ce-syntax-UP}.
 
-Each inner core form, except for the variable pattern form, maps onto a candidate expansion form. 
-\todo{write this}
+The \emph{bidirectional proto-expansion validation judgements} validate proto-terms and simultaneously generate their final expansions.
 
-\subsection{Bidirectional Candidate Expansion Validation}\label{sec:ce-validation-B}
-The \emph{bidirectional candidate expansion validation judgements} validate ce-terms and simultaneously generate their final expansions.
-\[\begin{array}{ll}
+\vspace{10px}\noindent$\arraycolsep=2pt\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ is well-formed and has expansion $\tau$ assuming $\Delta$ and type}\\
-& \text{splicing scene $\tscenev$}\\
-\csynX{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ and synthesizes type $\tau$ assuming $\Delta$ and $\Gamma$}\\
-& \text{and expression splicing scene $\escenev$}\\
-\canaX{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ when analyzed against type $\tau$ assuming $\Delta$}\\
-& \text{and $\Gamma$ and expression splicing scene $\escenev$}\\
-%\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ and type $\tau$ assuming $\Delta$ and $\Gamma$ and expression}\\
-%& \text{splicing scene $\escenev$}\\
-\crsyn{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
-& \text{synthesized type $\tau'$ assuming $\Delta$ and $\Gamma$ and $\escenev$}\\
-\crana{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ and takes values of type $\tau$ to values of}\\
-& \text{type $\tau'$ when $\tau'$ is provided for analysis assuming $\Delta$ and $\Gamma$}\\
-& \text{and $\escenev$}\\
-\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ expands to $p$ and matches values of type $\tau$ generating}\\
-& \text{assumptions $\upctx$ assuming pattern splicing scene $\pscenev$}
-\end{array}\]
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$, \emph{type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\Delta}{\uPhi}{b}$. Their purpose is to ``remember'', during candidate expansion validation, the contexts, TSM environments and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsUP-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping the unexpanded typing context and TSM environments from $\escenev$:
-\[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
+\cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ has well-formed expansion $\tau$}\\
+\csynX{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ synthesizing type $\tau$}\\
+\canaX{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ when analyzed against type $\tau$}\\
+\crana{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$}\\
+\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ has expansion $p$ matching against $\tau$ generating assumptions $\upctx$}
+\end{array}$\vspace{10px}
 
-\subsubsection{Candidate Expansion Type Validation}
-The \emph{ce-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\tau}$, is inductively defined by Rules (\ref{rules:cvalidT-U}), which were defined in Sec. \ref{sec:ce-validation-U}.
-
-\subsubsection{Bidirectional Candidate Expansion Expression Validation}
-Like the bidirectionally typed expression expansion judgements, the bidirectional ce-expression validation judgements distinguish type synthesis from type analysis. The \emph{synthetic ce-expression validation judgement}, $\csynX{\ce}{e}{\tau}$, and the \emph{analytic ce-expression validation judgement}, $\canaX{\ce}{e}{\tau}$, are defined mutually inductively with Rules (\ref{rules:esyn}) and Rules (\ref{rules:eana}) by Rules (\ref{rules:csyn}) and Rules (\ref{rules:cana}), respectively, as follows.
-
-\paragraph{Type Synthesis} \begin{subequations}\label{rules:csyn}
-Synthetic ce-expression validation is governed by the following rules.
-\begin{equation}\label{rule:csyn-var}
-  \inferrule{ }{ 
-    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-asc}
-  \inferrule{
-    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
-    \canaX{\ce}{e}{\tau}
-  }{
-    \csynX{\aceasc{\ctau}{\ce}}{e}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-let}
-  \inferrule{
-    \csynX{\ce}{e}{\tau}\\
-    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
-  }{
-    \csynX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-lam}
-  \inferrule{
-    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau_1}{\tau_1}\\
-    \csyn{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
-  }{
-    \csynX{\acelam{\ctau_1}{x}{\ce}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-ap}
-  \inferrule{
-    \csynX{\ce_1}{e_1}{\aparr{\tau_2}{\tau}}\\
-    \canaX{\ce_2}{e_2}{\tau_2}
-  }{
-    \csynX{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-tlam}
-  \inferrule{
-    \csyn{\Delta, \Dhyp{t}}{\Gamma}{\escenev}{\ce}{e}{\tau}
-  }{
-    \csynX{\acetlam{t}{\ce}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-tap}
-  \inferrule{
-    \csynX{\ce}{e}{\aall{t}{\tau}}\\
-    \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}
-  }{
-    \csynX{\acetap{\ce}{\ctau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-unfold}
-  \inferrule{
-    \csynX{\ce}{e}{\arec{t}{\tau}}
-  }{
-    \csynX{\aceunfold{\ce}}{\aeunfold{e}}{[\arec{t}{\tau}/t]\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-tpl}
-  \inferrule{
-    \{\csynX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \csynX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-pr}
-  \inferrule{
-    \csynX{\ce}{e}{\aprod{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }{
-    \csynX{\acepr{\ell}{\ce}}{\aepr{\ell}{e}}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-match}
-  \inferrule{
-    n > 0\\
-    \csynX{\ce}{e}{\tau}\\
-    \{\crsynX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \csynX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:csyn-splicede}
+These judgements are defined by rules given in Appendix \ref{appendix:proto-expansion-validation-BS}. Most rules follow the corresponding typed expansion rule. The main rule of interest here is the rule governing references to spliced expressions, reproduced below:
+\begin{equation*}\tag{\ref{rule:csyn-splicede}}
 \inferrule{
-  \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
-  \esyn{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
-    \Delta \cap \Delta_\text{app} = \emptyset\\
-  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset\\
-}{
-  \csyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}
-}
-\end{equation}
-\end{subequations}
-
-Rules (\ref{rule:csyn-var}) through (\ref{rule:csyn-match}) are analagous to Rules (\ref{rule:esyn-var}) through (\ref{rule:esyn-match}). Rule (\ref{rule:csyn-splicede}) governs references to spliced unexpanded expressions in synthetic position, and can be understood as described in Sec. \ref{sec:ce-validation-U}.
-
-
-\paragraph{Type Analysis} \begin{subequations}\label{rules:cana}
-Analytic ce-expression validation is governed by the following rules.
-\begin{equation}\label{rule:cana-subsume}
-  \inferrule{
-    \csynX{\ce}{e}{\tau}
-  }{
-    \canaX{\ce}{e}{\tau}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-let}
-  \inferrule{
-    \csynX{\ce}{e}{\tau}\\
-    \cana{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{\ce'}{e'}{\tau'}
-  }{
-    \canaX{\aceletsyn{x}{\ce}{\ce'}}{\aeap{\aelam{\tau}{x}{e'}}{e}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-analam}
-  \inferrule{
-    \cana{\Delta}{\Gamma, \Ghyp{x}{\tau_1}}{\escenev}{\ce}{e}{\tau_2}
-  }{
-    \canaX{\aceanalam{x}{\ue}}{\aelam{\tau_1}{x}{e}}{\aparr{\tau_1}{\tau_2}}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-tlam}
-  \inferrule{
-    \cana{\Delta, \Dhyp{t}}{\Gamma}{\escenev}{\ce}{e}{\tau}
-  }{
-    \canaX{\acetlam{t}{\ce}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-fold}
-  \inferrule{
-    \canaX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
-  }{
-    \canaX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-tpl}
-  \inferrule{
-    \{\canaX{\ce_i}{e_i}{\tau_i}\}_{i \in \labelset}
-  }{
-    \canaX{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}}{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-in}
-  \inferrule{
-    \canaX{\ce}{e}{\tau}
-  }{
-    \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
-    %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-match}
-  \inferrule{
-    \csynX{\ce}{e}{\tau}\\
-    \{\cranaX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-  }{
-    \canaX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
-  }
-\end{equation}
-\begin{equation}\label{rule:cana-splicede}
-\inferrule{
+  \cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+  \escenev=\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}\\
   \parseUExp{\bsubseq{b}{m}{n}}{\ue}\\
   \eana{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\\\
-    \Delta \cap \Delta_\text{app} = \emptyset\\
-  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset\\
+  \Delta \cap \Delta_\text{app} = \emptyset\\
+  \domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset
 }{
-  \cana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\acesplicede{m}{n}}{e}{\tau}
+  \csyn{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}
 }
-\end{equation}
-\end{subequations}
-
-Rules (\ref{rule:cana-subsume}) through (\ref{rule:cana-match}) are analagous to Rules (\ref{rule:eana-subsume}) through (\ref{rule:eana-match}). Rule (\ref{rule:cana-splicede}) governs references to spliced unexpanded expressions in analytic position. 
-
-\subsubsection{Bidirectional Candidate Expansion Rule Validation}
-The \emph{synthetic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:esyn}) by the following rule.
-\begin{equation}\label{rule:crsyn}
-\inferrule{
-  \patType{\pctx}{p}{\tau}\\
-  \csyn{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
-}{
-  \crsyn{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
-
-The \emph{analytic ce-rule validation judgement} is defined mutually inductively with Rules (\ref{rules:eana}) by the following rule.
-\begin{equation}\label{rule:crana}
-\inferrule{
-  \patType{\pctx}{p}{\tau}\\
-  \cana{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
-}{
-  \crana{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
-}
-\end{equation}
-
-\subsubsection{Candidate Expansion Pattern Validation}
-The \emph{ce-pattern validation judgement} is inductively defined by the following rules, which are written identically to Rules (\ref{rules:cvalidP-UP}).
-\begin{subequations}\label{rules:cvalidP-B}
-\begin{equation}\label{rule:cvalidP-B-wild}
-\inferrule{ }{
-  \cvalidP{\uGG{\emptyset}{\emptyset}}{\pscenev}{\acewildp}{\aewildp}{\tau}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-B-fold}
-\inferrule{
-  \cvalidP{\upctx}{\pscenev}{\cpv}{p}{[\arec{t}{\tau}/t]\tau}
-}{
-  \cvalidP{\upctx}{\pscenev}{\acefoldp{\cpv}}{\aefoldp{p}}{\arec{t}{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-B-tpl}
-\inferrule{
-  \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
-}{
-\left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-B-in}
-\inferrule{
-  \cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}
-}{
-  \cvalidP{\upctx}{\pscenev}{\aceinjp{\ell}{\cpv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
-}
-\end{equation}
-\begin{equation}\label{rule:cvalidP-B-spliced}
-\inferrule{
-  \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
-  \patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}
-}{
-  \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\acesplicedp{m}{n}}{p}{\tau}
-}
-\end{equation}
-\end{subequations}
-
-\subsubsection{Candidate Expansion Expressibility}
-The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that synthesizes the same type under the same contexts and any expression splicing scene.
-\begin{theorem}[Candidate Expansion Expression Expressibility]\label{lemma:ce-expressions-expressibility-B} Both of the following hold:
-\begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\csyn{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.
-\item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\crsyn{\Delta}{\Gamma}{\escenev}{\Cof{r}}{r}{\tau}{\tau'}$.
-\end{enumerate}
-\end{theorem}
-\begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). In each case, we apply the IH, part 1 to or over each typing premise, the IH, part 2 over each rule typing premise, Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise and then derive the conclusion by applying Rules (\ref{rules:csyn}) and Rule (\ref{rule:crsyn}) as needed.
-\end{proof}
-
-The following lemma establishes that every well-typed expanded pattern that generates no hypotheses can be expressed as a ce-pattern.
-\begin{lemma}[Candidate Expansion Pattern Expressibility]\label{lemma:ce-pattern-expressibility-B} If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\Delta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
-\begin{proof} The proof is nearly identical to the proof of Lemma \ref{lemma:ce-pattern-expressibility-U}, differing only in that each mention of a rule in Rules (\ref{rules:cvalidP-UP}) is replaced by a mention of the corresponding rule in Rules (\ref{rules:cvalidP-B}).
-\end{proof}
+\end{equation*}
+This rule is similar to Rule (\ref{rule:cvalidE-U-splicede}), which governed references to spliced expressions in $\miniVersePat$. Notice that here, the unexpanded expression $\ue$ is analyzed against the type $\tau$.
 
 \subsection{Metatheory}
 The following theorem establishes that typed pattern expansion produces an expanded pattern that matches values of the specified type and generates the same hypotheses. It must be stated mutually with the corresponding theorem about candidate expansion patterns, because the judgements are mutually defined.

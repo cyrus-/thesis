@@ -488,6 +488,7 @@ Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tsmap}) are adapted 
 There is one new common unexpanded expression form in $\miniVersePat$: the unexpanded match form. Rule (\ref{rule:expandsU-match}) governs this form:
 \begin{equation*}\tag{\ref{rule:expandsU-match}}
 \inferrule{
+  \uDelta = \uDD{\uD}{\Delta}\\\\
   \expandsUP{\uDelta}{\uGamma}{\uPhi}{\uPsi}{\ue}{e}{\tau}\\
   \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
@@ -782,13 +783,15 @@ The main proto-expansion form of interest here, highlighted in yellow, is the pr
 
 \subsection{Proto-Expansion Validation}\label{sec:ce-validation-UP}
 The \emph{proto-expansion validation judgements} validate proto-expansion terms and simultaneously generate their final expansions.
-\[\arraycolsep=2pt\begin{array}{ll}
+
+\vspace{10px}\noindent$\arraycolsep=2pt\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \cvalidT{\Delta}{\tscenev}{\ctau}{\tau} & \text{$\ctau$ has well-formed expansion $\tau$}\\
 \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau} & \text{$\ce$ has expansion $e$ of type $\tau$}\\
 \cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'} & \text{$\crv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$}\\
 \cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau} & \text{$\cpv$ has expansion $p$ matching against $\tau$ generating assumptions $\upctx$}
-\end{array}\]
+\end{array}$\vspace{10px}
+
 \emph{Type splicing scenes}, $\tscenev$, are of the form $\tsceneUP{\uDelta}{b}$. \emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$. \emph{Pattern splicing scenes}, $\pscenev$, are of the form $\pscene{\uDelta}{\uPhi}{b}$. As in $\miniVerseUE$, their purpose is to ``remember'', during proto-expansion validation, the contexts and the literal body from the TSM application site (cf. Rules (\ref{rule:expandsU-tsmap}) and (\ref{rule:patExpands-apuptsm})), because these are necessary to validate references to spliced terms. We write $\tsfrom{\escenev}$ for the type splicing scene constructed by dropping unnecessary contexts from $\escenev$:
 \[\tsfrom{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}} = \tsceneUP{\uDelta}{b}\]
 

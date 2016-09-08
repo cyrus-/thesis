@@ -654,6 +654,12 @@ The Progress condition ensures that evaluating a well-typed expanded expression 
 %& \ux 
 & \ux & \text{identifier}\\
 &&
+%
+& \asc{\ue}{\utau} & \text{ascription}\\
+&&
+%
+& \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+&&
 %& \aulam{\utau}{\ux}{\ue} 
 & \lam{\ux}{\utau}{\ue} & \text{abstraction}\\
 &&
@@ -700,11 +706,11 @@ The Progress condition ensures that evaluating a well-typed expanded expression 
 
 A $\miniVerseUE$ program ultimately evaluates as a well-typed expanded expression. However, the programmer does not construct this expanded expression directly. Instead, the programmer constructs an \emph{unexpanded expression}, $\ue$, which might contain \emph{unexpanded types}, $\utau$. Figure \ref{fig:U-unexpanded-terms} defines the relevant forms.
 
-Unexpanded types and expressions are \textbf{not} abstract binding trees -- we do \textbf{not} define notions of renaming, alpha-equivalence or substitution (because unexpanded expressions remain ``partially parsed'' due to the presence of literal bodies, $b$, from which spliced terms might be extracted during typed expansion.) In fact, unexpanded types and expressions do not mention variables at all, but rather \emph{type identifiers}, $\ut$, and \emph{expression identifiers}, $\ux$. Identifiers will be given meaning by expansion to variables during typed expansion. The distinction between identifiers and variables will be technically crucial. %We \textbf{cannot} adopt the usual definitions of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below. %identifiers are given meaning by expansion to variables. %In other words, unexpanded expressions are not abstract binding trees, nor sequences of characters, but a ``transitional'' structure with some characteristics of each of these. 
+Unexpanded types and expressions are \textbf{not} abstract binding trees -- we do \textbf{not} define notions of renaming, alpha-equivalence or substitution for unexpanded terms. This is because unexpanded expressions remain ``partially parsed'' due to the presence of literal bodies, $b$, from which spliced terms might be extracted during typed expansion. In fact, unexpanded types and expressions do not involve variables at all, but rather \emph{type identifiers}, $\ut$, and \emph{expression identifiers}, $\ux$. Identifiers are given meaning by expansion to variables during typed expansion, as we will see below. This distinction between identifiers and variables will be technically crucial. %We \textbf{cannot} adopt the usual definitions of $\alpha$-renaming of identifiers, because unexpanded types and expressions are still in a ``partially parsed'' state -- the literal bodies, $b$, within an unexpanded expression might contain spliced subterms that are ``surfaced'' by a TSM only during typed expansion, as we will detail below. %identifiers are given meaning by expansion to variables. %In other words, unexpanded expressions are not abstract binding trees, nor sequences of characters, but a ``transitional'' structure with some characteristics of each of these. 
 %For this reason, we will need to handle generating fresh variables explicitly at binding sites in our semantics. %To do so, we distinguish \emph{type identifiers}, $\ut$, and \emph{expression identifiers}, $\ux$, from type variables, $t$, and expression variables, $x$. identifiers will be given meaning by expansion to variables (which, in turn, are given meaning by substitution, as described above). 
 
 
-All of the unexpanded forms in Figure \ref{fig:U-unexpanded-terms} except the two TSM-related forms highlighted in yellow map onto expanded forms. We refer to these as the \emph{common forms}. The mapping is given explicitly in Appendix \ref{appendix:SES-shared-forms}.
+Most of the unexpanded forms in Figure \ref{fig:U-unexpanded-terms}  mirror the expanded forms. We refer to these as the \emph{common forms}. The mapping from expanded forms to common unexpanded forms is defined explicitly in Appendix \ref{appendix:SES-shared-forms}.
 
 % There are only two unexpanded expression forms, highlighted in gray in Figure \ref{fig:U-unexpanded-terms}, that do not correspond to expanded expression forms -- the seTSM definition form and the seTSM application form. %These are the ``interesting'' forms. % These are the ``interesting'' forms. % Let us define this correspondence by the metafunction $\Uof{e}$:
 %\[
@@ -827,10 +833,28 @@ The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is 
 %\begin{theorem}[Typed Expression Expansion] If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\ue}{e}{\tau}$ and $\uetsmenv{\Delta}{\uPsi}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.\end{theorem}
 %\begin{proof} This is the first part of Theorem \ref{thm:typed-expansion-U}, defined and proven below.\end{proof}
 
-\paragraph{Common Forms} Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-case}) handle unexpanded expressions of common form. The first five of these rules are reproduced below:
+\paragraph{Common Forms} Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-case}) handle unexpanded expressions of common form, as well as ascriptions and let binding. The first five of these rules are reproduced below:
 %Each of these rules is based on the corresponding typing rule, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-case}), respectively. For example, the following typed expansion rules are based on the typing rules (\ref{rule:hastypeU-var}), (\ref{rule:hastypeU-lam}) and (\ref{rule:hastypeU-ap}), respectively:% for unexpanded expressions of variable, function and application form, respectively: 
 \begin{equation*}\tag{\ref{rule:expandsU-var}}
   \inferrule{ }{\expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau}}{\uPsi}{\ux}{x}{\tau}}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-asc}}
+  \inferrule{
+    \expandsTU{\uDelta}{\utau}{\tau}\\
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+  }{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\asc{\ue}{\utau}}{e}{\tau}
+  }
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:expandsU-letsyn}}
+  \inferrule{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue_1}{e_1}{\tau_1}\\
+    \expandsSG{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue_2}{e_2}{\tau_2}
+  }{
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\letsyn{\ux}{\ue_1}{\ue_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
+  }
 \end{equation*}
 \begin{equation*}\tag{\ref{rule:expandsU-lam}}
   \inferrule{
@@ -846,22 +870,8 @@ The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is 
     \expandsUX{\ap{\ue_1}{\ue_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation*}
-\begin{equation*}\tag{\ref{rule:expandsU-tlam}}
-  \inferrule{
-    \expandsU{\uDelta, \uDhyp{\ut}{t}}{\uGamma}{\uPsi}{\ue}{e}{\tau}
-  }{
-    \expandsUX{\Lam{\ut}{\ue}}{\aetlam{t}{e}}{\aall{t}{\tau}}
-  }
-\end{equation*}
-\begin{equation*}\tag{\ref{rule:expandsU-tap}}
-  \inferrule{
-    \expandsUX{\ue}{e}{\aall{t}{\tau}}\\
-    \expandsTU{\uDelta}{\utau'}{\tau'}
-  }{
-    \expandsUX{\App{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
-  }
-\end{equation*}
-These rules are entirely straightforward, mirroring the corresponding typing rules, i.e. Rules (\ref{rules:hastypeU}). In particular, observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and each premise corresponds to a premise of the corresponding typing rule. %Type formation premises in the typing rule give rise to  type expansion premises in the corresponding typed expansion rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. 
+
+The rules for the remaining expressions of common form are entirely straightforward, mirroring the corresponding typing rules, i.e. Rules (\ref{rules:hastypeU}). %In particular, observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and each premise corresponds to a premise of the corresponding typing rule. %Type formation premises in the typing rule give rise to  type expansion premises in the corresponding typed expansion rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. 
 The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The seTSM context, $\uPsi$, passes opaquely through these rules (we will define seTSM contexts below.) As such, the corresponding cases in the proof of Theorem \ref{thm:typed-expansion-short-U} are by straightforward induction and application of the corresponding typing rule. %Rules (\ref{rules:expandsTU}) could similarly have been generated by mechanically transforming Rules (\ref{rules:istypeU}).
 
 % We can express this scheme more precisely with the rule transformation given in Appendix \ref{appendix:SES-uexps}. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
@@ -1236,6 +1246,8 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedt{m}{n} & \splicedt{m}{n} & \text{spliced type ref.}\\\ECC
 \mathsf{PrExp} & \ce & ::= & x & x & \text{variable}\\
+&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
 &&& \acetlam{t}{\ce} & \Lam{t}{\ce} & \text{type abstraction}\\
@@ -1394,13 +1406,31 @@ If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ an
 \subsubsection{Proto-Expression Validation}
 The \emph{proto-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, is defined mutually inductively with the typed expansion judgement by Rules (\ref*{rules:cvalidE-U}) as follows.% This is necessary because a typed expansion judgement appears as a premise in Rule (\ref{rule:cvalidE-U-splicede}) below, and a proto-expression validation judgement appears as a premise in Rule (\ref{rule:expandsU-tsmap}) above.
 
-\paragraph{Common Forms} Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}) validate proto-expressions of common form. The first three of these rules are reproduced below:
+\paragraph{Common Forms} Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}) validate proto-expressions of common form, as well as ascriptions and let binding. The first five of these rules are reproduced below:
 %For each expanded expression form defined in Figure \ref{fig:U-expanded-terms}, Figure \ref{fig:U-candidate-terms} defines a corresponding proto-expression form. The validation rules for proto-expressions of these forms are each based on the corresponding typing rule in Rules (\ref{rules:hastypeU}). For example, the validation rules for proto-expressions of variable, function and function application form  are based on Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-ap}), respectively:
 %\begin{subequations}%\label{rules:cvalidE-U}
 \begin{equation*}\tag{\ref{rule:cvalidE-U-var}}
 \inferrule{ }{
   \cvalidE{\Delta}{\Gamma, \Ghyp{x}{\tau}}{\escenev}{x}{x}{\tau}
 }
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-asc}}
+\inferrule{
+  \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
+  \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}
+}{
+  \cvalidE{\Delta}{\Gamma}{\escenev}{\aceasc{\ctau}{\ce}}{e}{\tau}
+}
+\end{equation*}
+\begin{equation*}\tag{\ref{rule:cvalidE-U-letsyn}}
+  \inferrule{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\ce_1}{e_1}{\tau_1}\\
+    \cvalidE{\Delta}{\Gamma, x : \tau_1}{\ce_2}{e_2}{\tau_2}
+  }{
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\aceletsyn{x}{\ce_1}{\ce_2}}{
+      \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
+    }{\tau_2}
+  }
 \end{equation*}
 \begin{equation*}\tag{\ref{rule:cvalidE-U-lam}}
 \inferrule{
@@ -1418,7 +1448,7 @@ The \emph{proto-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\esc
     \cvalidE{\Delta}{\Gamma}{\escenev}{\aceap{\ce_1}{\ce_2}}{\aeap{e_1}{e_2}}{\tau'}
   }
 \end{equation*}
-Once again, these rules mirror the typing rules, i.e. Rules (\ref{rules:hastypeU}). The expression splicing scene, $\escenev$, passes opaquely through these rules.
+Once again, the rules for common forms mirror the typing rules, i.e. Rules (\ref{rules:hastypeU}). The expression splicing scene, $\escenev$, passes opaquely through these rules.
 
 
 Notice that in Rule (\ref{rule:cvalidE-U-var}), only variables tracked by the proto-expansion typing context, $\Gamma$, are validated. Variables  in the application site unexpanded typing context, which appears within the expression splicing scene $\escenev$, are not validated. Indeed, $\escenev$ is not inspected by any of the rules above. This achieves \emph{context-independent expansion} as described in Sec. \ref{sec:uetsms-validation} -- seTSMs cannot impose ``hidden constraints'' on the application site unexpanded typing context, because the variable bindings at the application site are not directly available to proto-expansions.

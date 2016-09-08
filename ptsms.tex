@@ -818,12 +818,12 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 \mathsf{UExp} & \ue & ::= 
 %& \ux 
 & \ux & \text{identifier}\\
-% &&
-%& \auasc{\utau}{\ue} 
-% & \asc{\ue}{\utau} & \text{ascription}\\
-% &&
-%& \auletsyn{\ux}{\ue}{\ue} 
-% & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
+&&
+% & \auasc{\utau}{\ue} 
+& \asc{\ue}{\utau} & \text{ascription}\\
+&&
+% & \auletsyn{\ux}{\ue}{\ue} 
+& \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
 % &&
 %& \auanalam{\ux}{\ue} 
 % & \analam{\ux}{\ue} & \text{abstraction (unannotated)}\\
@@ -1371,6 +1371,8 @@ Notice on the third row that the encoding of the proto-expansion, $\ecand$, deco
 \[\arraycolsep=4pt\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{PrExp} & \ce & ::= & x & x & \text{variable}\\
+&&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
+&&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
 % &&& \aceasc{\ctau}{\ce} & \asc{\ce}{\ctau} & \text{ascription}\\
 % &&& \aceletsyn{x}{\ce}{\ce} & \letsyn{x}{\ce}{\ce} & \text{value binding}\\
 % &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
