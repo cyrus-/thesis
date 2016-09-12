@@ -93,6 +93,9 @@
 \newcommand{\seqschemaXx}[2]{\{#1(#2_i)\}_{1 \leq i \leq n}}
 \newcommand{\seqschemajX}[1]{\seqschema{#1}{j}{1}{n}}
 
+\newcommand{\sseq}[2]{\{#1\}_{0 \leq i < #2}}
+\newcommand{\sseqS}[3]{\{#1\}_{#2 \leq i < #3}}
+
 % Expanded/Unexpanded/Candidate expressions
 \newcommand{\asc}[2]{#1 : #2}
 \newcommand{\auasc}[2]{\abopc{uasc}{#1}{#2}}
@@ -139,7 +142,7 @@
 
 \newcommand{\foldt}[2]{\texttt{fold}_{#1}(#2)}
 \newcommand{\fold}[1]{\texttt{fold}(#1)}
-\newcommand{\aefold}[3]{\abopc{fold}{#1.#2}{#3}}
+\newcommand{\aefold}[1]{\abop{fold}{#1}}
 \newcommand{\aufold}[3]{\abopc{ufold}{#1.#2}{#3}}
 \newcommand{\acefold}[1]{\abop{prfold}{#1}}
 
@@ -163,7 +166,7 @@
 
 \newcommand{\injt}[3]{\texttt{inj}_{#1}~#2 \cdot #3}
 \newcommand{\inj}[2]{\texttt{inj}[#1](#2)}
-\newcommand{\aein}[4]{\abopic{inj}{#1; #2}{#3}{#4}}
+\newcommand{\aein}[2]{\abopi{inj}{#1}{#2}}
 \newcommand{\auin}[4]{\abopic{uinj}{#1; #2}{#3}{#4}}
 \newcommand{\acein}[2]{\abopi{prinj}{#1}{#2}}
 
@@ -171,7 +174,7 @@
 \newcommand{\aceanain}[2]{\abopp{prinj}{#1}{#2}}
 
 \newcommand{\caseof}[2]{\texttt{case}~#1~#2}
-\newcommand{\aecase}[4]{\abopic{case}{#1}{#2}{#3; #4}}
+\newcommand{\aecase}[3]{\abopi{case}{#1}{#2; #3}}
 \newcommand{\aucase}[4]{\abopic{ucase}{#1}{#2}{#3; #4}}
 \newcommand{\acecase}[3]{\abopi{prcase}{#1}{#2; #3}}
 
@@ -342,7 +345,7 @@
 
 % Pattern matching
 \newcommand{\matchwith}[2]{\texttt{match}~#1~#2}
-\newcommand{\aematchwith}[4]{\abopic{match}{#1}{#2}{#3; #4}}
+\newcommand{\aematchwith}[3]{\abopi{match}{#1}{#2; #3}}
 \newcommand{\aumatchwith}[4]{\abopic{umatch}{#1}{#2}{#3; #4}}
 \newcommand{\acematchwith}[3]{\abopi{prmatch}{#1}{#2; #3}}
 
@@ -357,11 +360,11 @@
 \newcommand{\dashVx}{\text{\reflectbox{$\Vdash$}}}
 \newcommand{\dashV}{~\dashVx~}
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Mapsto #5}
-\newcommand{\patType}[3]{\Delta \vdash #2 : #3 \dashV #1}
-\newcommand{\patTypeD}[4]{#1 \vdash #3 : #4 \dashV #2}
+\newcommand{\patType}[3]{#2 : #3 \dashV #1}
+\newcommand{\patTypeD}[4]{#3 : #4 \dashV #2}
 \newcommand{\ruleTypeP}[4]{#1 \vdash #2 : #3 \Mapsto #4}
-\newcommand{\patTypeP}[3]{\Omega \vdash #2 : #3 \dashV #1}
-\newcommand{\patTypePC}[4]{#1 \vdash #3 : #4 \dashV #2}
+\newcommand{\patTypeP}[3]{#2 : #3 \dashV #1}
+\newcommand{\patTypePC}[4]{#3 : #4 \dashV #2}
 % \newcommand{\pctx}{\varUpsilon}
 \newcommand{\pctx}{\Gamma}
 
@@ -413,7 +416,7 @@
 \newcommand{\expandsSG}[7]{#1~#2~{\vdash_{#3}}{\setlength{\fboxsep}{0px}\colorbox{lightgray}{$_{\mathstrut; #4}$}}~ #5 \leadsto #6 : #7}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
-\newcommand{\patExpands}[5]{\uDelta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
+\newcommand{\patExpands}[5]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#1}
 \newcommand{\xuptsmdef}[2]{\abop{sptsm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
 \newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{spTSMs}}
@@ -429,7 +432,7 @@
 \newcommand{\encodePCEPat}[2]{#1 \downarrow_\mathsf{PPrPat} #2}
 
 
-\newcommand{\cvalidP}[5]{\vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
+\newcommand{\cvalidP}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}\,{#1}}
 \newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Mapsto #7}
 \newcommand{\cvalidRP}[6]{#1 \vdash^{#2} #3 \leadsto #4 : #5 \Mapsto #6}
 \newcommand{\crsyn}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
@@ -717,8 +720,8 @@
 \newcommand{\rsynP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
 \newcommand{\rsynPX}[4]{\rsynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
 
-\newcommand{\pExpandsSP}[6]{#1 \vdash_{#2} #3 \leadsto #4 : #5 \dashV #6}
-\newcommand{\patExpandsP}[5]{\uOmega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
+\newcommand{\pExpandsSP}[6]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#6}
+\newcommand{\patExpandsP}[5]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#1}
 
 \newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
 \newcommand{\uMhyp}[3]{#1 \leadsto #2 : #3}
@@ -878,8 +881,8 @@
 
 \newcommand{\csfrom}[1]{\mathsf{cs}(#1)}
 
-\newcommand{\cvalidPPE}[5]{\Omega \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
-\newcommand{\cvalidPP}[5]{\Omega_\text{params} \vdash^{#2} #3 \leadsto #4 : #5~\dashVx^{\,#1}}
+\newcommand{\cvalidPPE}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}{\,#1}}
+\newcommand{\cvalidPP}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}{\,#1}}
 
 \newcommand{\isvalP}[1]{#1~\mathsf{val}}
 
@@ -910,3 +913,9 @@
 \newcommand{\segKind}[2]{\langle #1; #2; \mathsf{UKind} \rangle}
 
 \newcommand{\summaryOf}[1]{\mathsf{summary}(#1)}
+
+\newcommand{\nty}{n_\text{ty}}
+\newcommand{\ntyj}{n_\text{ty,$j$}}
+\newcommand{\nexp}{n_\text{exp}}
+\newcommand{\nexpj}{n_\text{exp,$j$}}
+\newcommand{\nrules}{n}

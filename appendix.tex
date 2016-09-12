@@ -68,7 +68,7 @@ This section defines $\miniVersePat$, the language of Chapter \ref{chap:uptsms}.
 &&& \aetap{e}{\tau} 
 %& \App{e}{\tau} 
 & \text{type application}\\
-&&& \aefold{t}{\tau}{e} 
+&&& \aefold{e} 
 %& \fold{e} : \tau 
 & \text{fold}\\
 &&& \aeunfold{e} 
@@ -80,17 +80,17 @@ This section defines $\miniVersePat$, the language of Chapter \ref{chap:uptsms}.
 &&& \aepr{\ell}{e} 
 %& \prj{e}{\ell} 
 & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+&&& \aein{\ell}{e} 
 %& \inj{\ell}{e} 
 & \text{injection}\\
-&&& \aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}} 
+&&& \aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}} 
 %& \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} 
 & \text{case analysis}\\
 \LCC \lightgray & \lightgray & \lightgray 
 % & \lightgray 
 & \lightgray & \lightgray \\
 &&
-& \aematchwith{n}{\tau}{e}{\seqschemaX{r}}
+& \aematchwith{n}{e}{\seqschemaX{r}}
 % & \matchwith{e}{\seqschemaX{r}} 
 & \text{match}\\
 \mathsf{Rule} & r & ::= 
@@ -206,10 +206,10 @@ $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have
 \end{equation}
 \begin{equation}\label{rule:hastypeU-fold}
   \inferrule{\
-    \istypeU{\Delta, \Dhyp{t}}{\tau}\\
+    % \istypeU{\Delta, \Dhyp{t}}{\tau}\\
     \hastypeU{\Delta}{\Gamma}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \hastypeU{\Delta}{\Gamma}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeU-unfold}
@@ -235,29 +235,29 @@ $\isctxU{\Delta}{\Gamma}$ iff for each hypothesis $x : \tau \in \Gamma$, we have
 \end{equation}
 \begin{equation}\label{rule:hastypeU-in}
   \inferrule{
-    \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
-    \istypeU{\Delta}{\tau}\\
+    % \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
+    % \istypeU{\Delta}{\tau}\\
     \hastypeU{\Delta}{\Gamma}{e}{\tau}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+    \hastypeU{\Delta}{\Gamma}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeU-case}
   \inferrule{
     \hastypeU{\Delta}{\Gamma}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
-    \istypeU{\Delta}{\tau}\\
+    % \istypeU{\Delta}{\tau}\\
     \{\hastypeU{\Delta}{\Gamma, x_i : \tau_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \begin{grayparbox}
 \begin{equation}\label{rule:hastypeUP-match}
 \graybox{\inferrule{
   \hastypeU{\Delta}{\Gamma}{e}{\tau}\\
-  \istypeU{\Delta}{\tau'}\\
+  % \istypeU{\Delta}{\tau'}\\
   \{\ruleType{\Delta}{\Gamma}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
-}{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}}
+}{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}}
 \end{equation}
 \end{grayparbox}
 \end{subequations}
@@ -436,15 +436,15 @@ If $\patType{\pctx}{p}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\isctxU{\Delta}
 \end{proof}
 \end{grayparbox}
 
-Finally, the Regularity Lemma establishes that the type assigned to an expression under a well-formed typing context is well-formed. 
-\begin{lemma}[Regularity]\label{lemma:regularity-UP} ~
-\begin{enumerate}
-\item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau}$.
-\item \graytxtbox{If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau'}$.}
-\end{enumerate}
-\end{lemma}
-\begin{proof-sketch} By \graytxtbox{mutual} rule induction over Rules (\ref{rules:hastypeUP}) \graytxtbox{and Rule (\ref{rule:ruleType})}, and Lemma \ref{lemma:substitution-UP} \graytxtbox{and Lemma \ref{lemma:pattern-regularity-UP}}.
-\end{proof-sketch}
+% Finally, the Regularity Lemma establishes that the type assigned to an expression under a well-formed typing context is well-formed. 
+% \begin{lemma}[Regularity]\label{lemma:regularity-UP} ~
+% \begin{enumerate}
+% \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau}$.
+% \item \graytxtbox{If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ and $\isctxU{\Delta}{\Gamma}$ then $\istypeU{\Delta}{\tau'}$.}
+% \end{enumerate}
+% \end{lemma}
+% \begin{proof-sketch} By \graytxtbox{mutual} rule induction over Rules (\ref{rules:hastypeUP}) \graytxtbox{and Rule (\ref{rule:ruleType})}, and Lemma \ref{lemma:substitution-UP} \graytxtbox{and Lemma \ref{lemma:pattern-regularity-UP}}.
+% \end{proof-sketch}
 
 \subsection{Structural Dynamics}\vspace{-4px}
 The \emph{structural dynamics} is specified as a transition system, and is organized around judgements of the following form:
@@ -469,9 +469,9 @@ Our subsequent developments do not make mention of particular rules in the dynam
 \begin{enumerate}
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
 \item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
-\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$ and $\isvalU{e'}$. 
+\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$ and $\isvalU{e'}$. 
 \item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$ for each $i \in \labelset$.
-\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau'}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
+\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\ell}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
 \end{enumerate}\end{condition}
 
 
@@ -645,13 +645,13 @@ Similarly, the metafunction $\sizeof{\upv}$ computes the sum of the lengths of t
 \Uof{\aeap{e_1}{e_2}} & = \ap{\Uof{e_1}}{\Uof{e_2}}\\
 \Uof{\aetlam{t}{e}} & = \Lam{\sigilof{t}}{\Uof{e}}\\
 \Uof{\aetap{e}{\tau}} & = \App{\Uof{e}}{\Uof{\tau}}\\
-\Uof{\aefold{t}{\tau}{e}} & = \fold{\Uof e}\\
+\Uof{\aefold{e}} & = \fold{\Uof e}\\
 \Uof{\aeunfold{e}} & = \unfold{\Uof{e}}\\
 \Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \tpl{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
 \Uof{\aepr{\ell}{e}} & = \prj{\Uof{e}}{\ell}\\
-\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \inj{\ell}{\Uof{e}}\\
+\Uof{\aein{\ell}{e}} &= \inj{\ell}{\Uof{e}}\\
 \LCC \lightgray & \lightgray \\
-\Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \matchwith{\Uof{e}}{\seqschemaXx{\Uofv}{r}}\ECC
+\Uof{\aematchwith{n}{e}{\seqschemaX{r}}} & = \matchwith{\Uof{e}}{\seqschemaXx{\Uofv}{r}}\ECC
 \end{array}\]
 \end{itemize}
 \begin{grayparbox}
@@ -887,10 +887,10 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \end{equation}
 \begin{equation}\label{rule:expandsU-fold}
   \inferrule{
-    \istypeU{\Delta, \Dhyp{t}}{\tau}\\
+    % \istypeU{\Delta, \Dhyp{t}}{\tau}\\
     \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\fold{\ue}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-unfold}
@@ -916,25 +916,24 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \end{equation}
 \begin{equation}\label{rule:expandsU-in}
   \inferrule{
-  \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau'}\\\\
-   \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
-    \istypeU{\Delta}{\tau'}\\
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+   % \{\istypeU{\Delta}{\tau_i}\}_{i \in \labelset}\\
+    % \istypeU{\Delta}{\tau'}\\
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau'}
   }{
     % \left(\shortstack{
     %   $\uDelta~\uGamma~{\vdash_{\uPhi}}{\setlength{\fboxsep}{0px}\colorbox{lightgray}{$_{\mathstrut; \uPsi}$}}~ \inj{\ell}{\ue}$\\
     %   $\leadsto$\\
-    %   $\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}$\vspace{-1.2em}}\right)
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau'}{e}}{\tau}
+    %   $\aein{\ell}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}$\vspace{-1.2em}}\right)
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\inj{\ell}{\ue}}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau'}}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-case}
   \inferrule{
     \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
-    \istypeU{\Delta}{\tau}\\
+    % \istypeU{\Delta}{\tau}\\
     \{\expandsSG{\uDelta}{\uGamma, \uGhyp{\ux_i}{x_i}{\tau_i}}{\uPsi}{\uPhi}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\caseof{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\caseof{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \begin{equation}\label{rule:expandsU-syntax}
@@ -959,12 +958,11 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}
 }
 \end{equation}
-\begin{grayparbox}\vspace{-5px}
+\begin{grayparbox}
 \begin{equation}\label{rule:expandsU-match}
-\graybox{\inferrule{
-  \uDelta = \uDD{\uD}{\Delta}\\\\
+\inferrule{
   \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}\\
-  \istypeU{\Delta}{\tau'}\\
+  % \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{
   \expandsSG
@@ -974,11 +972,10 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
       {\seqschemaX{\urv}}
     }{\aematchwith
       {n}
-      {\tau'}
       {e}
       {\seqschemaX{r}}
     }{\tau'}
-}}
+}
 \end{equation}
 \begin{equation}\label{rule:expandsU-defuptsm}
 \graybox{\inferrule{
@@ -1239,12 +1236,12 @@ $\arraycolsep=2pt\begin{array}{lllllll}
   \Cof{\aeap{e_1}{e_2}} & = \aceap{\Cof{e_1}}{\Cof{e_2}}\\
   \Cof{\aetlam{t}{e}} & = \acetlam{t}{\Cof{e}}\\
   \Cof{\aetap{e}{\tau}} & = \acetap{\Cof{e}}{\Cof{\tau}}\\
-  \Cof{\aefold{t}{\tau}{e}} & = \acefold{\Cof e}\\
+  \Cof{\aefold{e}} & = \acefold{\Cof e}\\
   \Cof{\aeunfold{e}} & = \aceunfold{\Cof{e}}\\
   \Cof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\Cofv}{e}{i}{\labelset}}\\
-  \Cof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \acein{\ell}{\Cof{e}}\\
+  \Cof{\aein{\ell}{e}} &= \acein{\ell}{\Cof{e}}\\
   \LCC \lightgray & \lightgray \\
-  \Cof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}} \ECC
+  \Cof{\aematchwith{n}{e}{\seqschemaX{r}}} & = \acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}} \ECC
   \end{array}\]
   \end{itemize}
   \begin{grayparbox}
@@ -1608,7 +1605,7 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
     % \cvalidT{\Delta, \Dhyp{t}}{\tsfrom{\escenev}}{\ctau}{\tau}\\
     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \cvalidE{\Delta}{\Gamma}{\escenev}{\acefold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\acefold{\ce}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-unfold}
@@ -1636,7 +1633,6 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-in}
   \inferrule{
-    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau'}\\\\
     % \{\cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau_i}{\tau_i}\}_{i \in \labelset}\\
     % \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
     \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau'}
@@ -1644,9 +1640,9 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
     % \left(\shortstack{
     %   $\Delta~\Gamma \vdash^{\escenev} \acein{\ell}{\ce}$\\
     %   $\leadsto$\\
-    %   $\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}$\vspace{-1.2em}
+    %   $\aein{\ell}{e} : \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}$\vspace{-1.2em}
     % }\right)
-    \cvalidE{\Delta}{\Gamma}{\escenev}{\acein{\ell}{\ce}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\tau}
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\acein{\ell}{\ce}}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau'}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-case}
@@ -1655,7 +1651,7 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
     % \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau}{\tau}\\
     \{\cvalidE{\Delta}{\Gamma, x_i : \tau_i}{\escenev}{\ce_i}{e_i}{\tau}\}_{i \in \labelset}
   }{
-    \cvalidE{\Delta}{\Gamma}{\escenev}{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+    \cvalidE{\Delta}{\Gamma}{\escenev}{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-U-splicede}
@@ -1673,10 +1669,12 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \begin{grayparbox}
 \begin{equation}\label{rule:cvalidE-U-match}
 \graybox{\inferrule{
+  % \escenev = \esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGamma}{\uPsi}{\uPhi}{b}\\\\
+  % \istypeU{\Delta \cup \Delta_\text{app}}{\tau'}\\
   \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}\\
   % \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}\\\\
   \{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
-}{\cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}}
+}{\cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}}
 \end{equation}
 \end{grayparbox}
 \end{subequations}
@@ -1687,8 +1685,9 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \noindent\fbox{\strut$\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$}~~$\crv$ has expansion $r$ taking values of type $\tau$ to values of type $\tau'$
 \begin{equation}\label{rule:cvalidR-UP}
 \inferrule{
-  \patType{\pctx}{p}{\tau}\\
-  \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
+  % \escenev = \esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGamma}{\uPsi}{\uPhi}{b}\\\\
+  \patTypeD{\Delta \cup \Delta_\text{app}}{\pctx'}{p}{\tau}\\
+  \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx'}}{\escenev}{\ce}{e}{\tau'}
 }{
   \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
@@ -1800,7 +1799,7 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 
 % It is instructive to use this rule transformation to generate Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-ap}) above. We omit the remaining rules for common forms, i.e. Rules (\ref*{rule:cvalidE-U-tlam}) through (\ref*{rule:cvalidE-U-case}).
 
-\section{Metatheory}
+\section{Metatheory}\label{appendix:metatheory-SES}
 \subsection{Type Expansion}
 % The Type Expansion Lemma establishes that the expansion of an unexpanded type is a well-formed type.
 
@@ -1896,14 +1895,14 @@ If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ an
 \subsection{Typed Pattern Expansion}\label{appendix:SES-typed-pattern-expansion}
 \begin{theorem}[Typed Pattern Expansion]\label{thm:typed-pattern-expansion} ~
 \begin{enumerate}
-  \item If $\patExpands{\uGG{\uG}{\pctx}}{\uAP{\uA}{\Phi}}{\upv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
+  \item If $\pExpandsSP{\uDD{\uD}{\Delta}}{\uAS{\uA}{\Phi}}{\upv}{p}{\tau}{\uGG{\uG}{\pctx}}$ then $\patType{\pctx}{p}{\tau}$.
   \item If $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDD{\uD}{\Delta}}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof}
   By mutual rule induction over Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}).
   \begin{enumerate}
-  \item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
+  \item We induct on the premise. In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
     \item[\text{(\ref{rule:patExpands-var})}] ~
       \begin{pfsteps*}
@@ -2044,7 +2043,7 @@ This is established by appeal to Condition \ref{condition:body-subsequences}, wh
 \end{proof}
 
 \end{grayparbox}
-\subsection{Typed Expression Expansion}\label{appendix:SES-typed-expression-expansion}
+\subsection{Typed Expression Expansion}\label{appendix:SES-typed-expression-expansion-metatheory}
 \begin{theorem}[Typed Expansion (Full)]\label{thm:typed-expansion-full-U} ~
 \begin{enumerate}
   \item \begin{enumerate}
@@ -2161,14 +2160,14 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
     \item[\text{(\ref{rule:expandsU-match})}] ~
       \begin{pfsteps*}
         \item $\ue=\matchwith{\ue'}{\seqschemaX{\urv}}$ \BY{assumption}
-        \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
+        \item $e=\aematchwith{n}{e'}{\seqschemaX{r}}$ \BY{assumption}
         \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-        \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istype}
+        % \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istype}
         % \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption} \pflabel{expandsTU}
         \item $\{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption}\pflabel{ruleExpands}
         \item $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}}\pflabel{hasType}
         \item $\{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{IH, part 1(b) over \pfref{ruleExpands}}\pflabel{ruleType}
-        \item $\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hasType}, \pfref{istype} and \pfref{ruleType}}
+        \item $\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hasType} and \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
 
@@ -2294,16 +2293,16 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
     \item[\text{(\ref{rule:cvalidE-U-match})}] ~
       \begin{pfsteps*}
         \item $\ce=\acematchwith{n}{\ce'}{\seqschemaX{\crv}}$ \BY{assumption}
-        \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
-        \item $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce'}{e'}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+        \item $e=\aematchwith{n}{e'}{\seqschemaX{r}}$ \BY{assumption}
+        \item $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce'}{e'}{\tau'}$ \BY{assumption} \pflabel{cvalidE}        
+        % \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{assumption} \pflabel{istype}
         % \item $\cvalidT{\Delta}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption} \pflabel{cvalidT}
         \item $\{\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\crv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption} \pflabel{cvalidR}
         \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption} \pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
         \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{e'}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastype}
-        \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
         \item $\ruleType{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{r}{\tau'}{\tau}$ \BY{IH, part 2(b) on \pfref{cvalidR}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{ruleType}
-        \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hastype}, \pfref{istype}, \pfref{ruleType}}
+        \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{\aematchwith{n}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hastype} and \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
   \end{byCases}
@@ -2317,15 +2316,15 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
       \begin{pfsteps*}
         \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
-        \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
-        \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+        \item $\patType{\pctx'}{p}{\tau}$ \BY{assumption} \pflabel{patType}
+        \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx'}}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
         \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption}\pflabel{delta-disjoint}
-        \item $\domof{\Gamma} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
-        \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
+        \item $\domof{\Gamma} \cap \domof{\pctx'} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint1}
+        \item $\domof{\Gamma_\text{app}} \cap \domof{\pctx'} = \emptyset$ \BY{identification convention}\pflabel{gamma-disjoint2}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption}\pflabel{gamma-disjoint3}
-        \item $\domof{\Gcons{\Gamma}{\pctx}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
-        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint4}}\pflabel{hastype}
-        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx}}{e}{\tau'}$ \BY{exchange of $\pctx$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
+        \item $\domof{\Gcons{\Gamma}{\pctx'}} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{standard finite set definitions and identities on \pfref{gamma-disjoint1}, \pfref{gamma-disjoint2} and \pfref{gamma-disjoint3}}\pflabel{gamma-disjoint4}
+        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\pctx'}}{\Gamma_\text{app}}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint4}}\pflabel{hastype}
+        \item $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gcons{\Gamma}{\Gamma_\text{app}}}{\pctx'}}{e}{\tau'}$ \BY{exchange of $\pctx'$ and $\Gamma_\text{app}$ on \pfref{hastype}}\pflabel{hastype2}
         \item $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{hastype2}}
       \end{pfsteps*}
       \resetpfcounter
@@ -2395,7 +2394,7 @@ Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 % \item[\text{(\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in})}] In each of these cases, we apply Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise, the IH (part 1) to or over each typing premise, then apply the corresponding ce-expression validation rule in Rules (\ref{rule:cvalidE-UP-var}) through (\ref{rule:cvalidE-UP-in}).
 % \item[\text{(\ref{rule:hastypeUP-match})}] ~
 %   \begin{pfsteps}
-%   \item e = \aematchwith{n}{\tau}{e'}{\seqschemaX{r}} \BY{assumption}
+%   \item e = \aematchwith{n}{e'}{\seqschemaX{r}} \BY{assumption}
 %   \item \Cof{e} = \acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}} \BY{definition of $\Cof{e}$}
 %   \item \hastypeU{\Delta}{\Gamma}{e'}{\tau'} \BY{assumption} \pflabel{hasType}
 %   \item \istypeU{\Delta}{\tau} \BY{assumption} \pflabel{isType}
@@ -2403,7 +2402,7 @@ Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 %   \item \cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e'}}{e'}{\tau'} \BY{IH, part 1 on \pfref{hasType}} \pflabel{cvalidE}
 %   \item \cvalidT{\Delta}{\tsfrom{\escenev}}{\Cof{\tau}}{\tau} \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{isType}} \pflabel{cvalidT}
 %   \item \{\cvalidR{\Delta}{\Gamma}{\escenev}{\Cof{r_i}}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n} \BY{IH, part 2 over \pfref{ruleType}} \pflabel{cvalidR}
-%   \item \cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}}}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau} \BY{Rule (\ref{rule:cvalidE-UP-match}) on \pfref{cvalidE}, \pfref{cvalidT} and \pfref{cvalidR}}
+%   \item \cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}}}{\aematchwith{n}{e'}{\seqschemaX{r}}}{\tau} \BY{Rule (\ref{rule:cvalidE-UP-match}) on \pfref{cvalidE}, \pfref{cvalidT} and \pfref{cvalidR}}
 %   \end{pfsteps}
 % \end{byCases}
 % \resetpfcounter
@@ -2509,51 +2508,569 @@ Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 % \end{byCases}
 % \end{proof}
 
-\subsection{Reasoning Principles}
-The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
-
-\begin{theorem}[Typing, Segmentation and Context Independence]
-\label{thm:tsc-SES}
-If $\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\subsection{Reasoning Principles}\label{appendix:SES-reasoning-principles}
+\begin{lemma}[Proto-Type Expansion Decomposition] 
+\label{thm:proto-type-expansion-decomposition-SES}
+If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ and $\summaryOf{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
 \begin{enumerate}
-\item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+\item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+  \parseUTypF{\bsubseq{b}{m_i}{n_i}}
+}{\tau_i}}{n}$
+% \item $\sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}$
+\item $\tau = [\sseq{\tau_i/t_i}{n}]\tau'$ for some $\sseq{t_i}{n}$ and $\tau'$
+\item $\istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n}}{\tau'}$
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uDelta = \uDD{\uD}{\Delta_\text{app}}$ and $\tscenev=\tsceneU{\uDelta}{b}$.
+\begin{byCases}
+  \item[\text{(\ref{rule:cvalidT-U-tvar})}] 
+    \begin{pfsteps}
+    \item \ctau = t \BY{assumption}
+    \item \tau = t \BY{assumption}
+    \item \Delta = \Delta', \Dhyp{t} \BY{assumption}
+    \item \summaryOf{\ctau} = \{ \} \BY{definition}
+    \end{pfsteps}
+    \resetpfcounter
+    The conclusions hold as follows:
+    \begin{enumerate}
+    \item This conclusion holds trivially because $n=0$.
+    % \item This conclusion holds trivially because $n=0$.
+    \item Choose the empty set and $\tau'=t$.
+    \item $\istypeU{\Delta', \Dhyp{t}}{t}$ by Rule (\ref{rule:istypeU-var})
+    \end{enumerate}
+  \item[\text{(\ref{rule:cvalidT-U-parr})}] 
+    \begin{pfsteps}
+    \item \ctau = \aceparr{\ctau_1}{\ctau_2} \BY{assumption}
+    \item \tau = \aparr{\tau'_1}{\tau'_2} \BY{assumption}
+    \item \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau_1} \BY{assumption} \pflabel{cvalidT1}
+    \item \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau_2} \BY{assumption} \pflabel{cvalidT2}
+    \item \summaryOf{\ctau} = \summaryOf{\ctau_1} \cup \summaryOf{\ctau_2} \BY{definition} \pflabel{summaryOf}
+    \item \summaryOf{\ctau_1} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{0}{n'} \BY{definition} \pflabel{summaryOf1}
+    \item \summaryOf{\ctau_2} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{n'}{n} \BY{definition} \pflabel{summaryOf2}
+    \item \sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+  \parseUTypF{\bsubseq{b}{m_i}{n_i}}
+}{\tau_i}}{n'} 
+    \BY{IH on \pfref{cvalidT1} and \pfref{summaryOf1}}
+    \pflabel{expands1}
+    % \item \sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}
+    \item \tau'_1 = [\sseq{\tau_i/t_i}{n'}]\tau''_1 \text{~for some $\sseq{t_i}{n'}$ and $\tau''_1$}
+        \BY{IH on \pfref{cvalidT1} and \pfref{summaryOf1}}
+        \pflabel{decompose1}
+    \item \istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n'}}{\tau''_1}
+        \BY{IH on \pfref{cvalidT1} and \pfref{summaryOf1}}
+        \pflabel{istype1}
+    \item \sseqS{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+  \parseUTypF{\bsubseq{b}{m_i}{n_i}}
+}{\tau_i}}{n'}{n} 
+    \BY{IH on \pfref{cvalidT2} and \pfref{summaryOf2}}
+    \pflabel{expands2}
+    % \item \sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}
+    \item \tau'_2 = [\sseqS{\tau_i/t_i}{n'}{n}]\tau''_2 \text{~for some $\sseqS{t_i}{n'}{n}$ and $\tau''_2$}
+        \BY{IH on \pfref{cvalidT2} and \pfref{summaryOf2}}
+        \pflabel{decompose2}
+    \item \istypeU{\Delta \cup \sseqS{\Dhyp{t_i}}{n'}{n}}{\tau''_2}
+        \BY{IH on \pfref{cvalidT2} and \pfref{summaryOf2}}
+        \pflabel{istype2}
+    \item \tau_1' = [\sseq{\tau_i/t_i}{n}]\tau_1'' \BY{substitution properties and \pfref{decompose1}} \pflabel{fdecompose1}
+    \item \tau_2' = [\sseq{\tau_i/t_i}{n}]\tau_2'' \BY{substitution properties and \pfref{decompose2}} \pflabel{fdecompose2}
+    \item \aparr{\tau_1'}{\tau_2'} = [\sseq{\tau_i/t_i}{n}]\aparr{\tau_1''}{\tau_2''} \BY{substitution and \pfref{fdecompose1} and \pfref{fdecompose2}}
+    \pflabel{finaldecompose}
+    \item \istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n}}{\tau''_1} \BY{Weakening and \pfref{istype1}} \pflabel{istype3}
+    \item \istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n}}{\tau''_2} \BY{Weakening and \pfref{istype2}} \pflabel{istype4}
+    \item \istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n}}{\aparr{\tau''_1}{\tau''_2}} \BY{Rule (\ref{rule:istypeU-parr}) on \pfref{istype3} and \pfref{istype4}}
+    \pflabel{finalistype}
+    \end{pfsteps}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item \pfref{expands1} $\cup$ \pfref{expands2}
+      \item Choosing $\sseq{t_i}{n}$ and $\aparr{\tau''_1}{\tau''_2}$, by \pfref{finaldecompose}.
+      \item \pfref{finalistype}
+    \end{enumerate}
+    \resetpfcounter
+  \item[\text{(\ref{rule:cvalidT-U-all}) \textbf{through} (\ref{rule:cvalidT-U-sum})}] These cases follow by analagous inductive argument.
+  \item[\text{(\ref{rule:cvalidT-U-splicedt})}] ~
+  \begin{pfsteps}
+  \item \ctau = \acesplicedt{m}{n} \BY{assumption}
+  \item \summaryOf{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
+  \item \parseUTyp{\bsubseq{b}{m}{n}}{\utau} \BY{assumption} \pflabel{parseUTyp}
+  \item \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau} \BY{assumption} \pflabel{expandsTU}
+  \item \istypeU{\Delta, \Dhyp{t}}{t} \BY{Rule (\ref{rule:istypeU-var})} \pflabel{istype}
+  \end{pfsteps}
+  The conclusions hold as follows:
+  \begin{enumerate}
+    \item \pfref{parseUTyp} and \pfref{expandsTU}
+    \item Choose $\{t\}$ and $t$. Then $\tau = [\tau/t]t$ by definition.
+    \item \pfref{istype}
+  \end{enumerate}
+  \resetpfcounter
+\end{byCases}
+\end{proof}
+
+\begin{lemma}[Proto-Expression \graytxtbox{and Proto-Rule} Expansion Decomposition] 
+\label{thm:proto-expression-expansion-decomposition} ~
+\begin{enumerate}
+\item If $\cvalidE
+  {\Delta}{\Gamma}
+  {\esceneSG
+    {\uDD{\uD}{\Delta_\text{app}}}
+    {\uGG{\uG}{\Gamma_\text{app}}}
+    {\uPsi}{\uPhi}{b}
+  }{\ce}{e}{\tau}$ and \[\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
+  \begin{enumerate}
+    \item $\sseq{
+          \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
+          {
+            \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+          }{\tau'_i}
+        }{\nty}$
+    \item $\sseq{
+      \cvalidT{\emptyset}{
+        \tsceneUP
+          {\uDD
+            {\uD}{\Delta_\text{app}}
+          }{b}
+      }{
+        \ctau_i
+      }{\tau_i}
+    }{\nexp}$
+    \item $\sseq{
+      \expandsSG
+        {\uDD{\uD}{\Delta_\text{app}}}
+        {\uGG{\uG}{\Gamma_\text{app}}}
+        {\uPsi}
+        {\uPhi}
+        {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+        {e_i}
+        {\tau_i}
+    }{\nexp}$
+    \item $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+    \item $\hastypeU
+      {\Delta \cup \sseq{\Dhyp{t_i}}{\nty}}
+      {\Gamma \cup \sseq{x_i : \tau_i}{\nexp}}
+      {e'}{\tau}$
+  \end{enumerate}
+\end{enumerate}
+\begin{grayparbox}
+\begin{enumerate}
+\item[2.] If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and \[\summaryOf{\crv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
+  \begin{enumerate}
+    \item $\sseq{
+          \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
+          {
+            \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+          }{\tau'_i}
+        }{\nty}$
+    \item $\sseq{
+      \cvalidT{\emptyset}{
+        \tsceneUP
+          {\uDD
+            {\uD}{\Delta_\text{app}}
+          }{b}
+      }{
+        \ctau_i
+      }{\tau_i}
+    }{\nexp}$
+    \item $\sseq{
+      \expandsSG
+        {\uDD{\uD}{\Delta_\text{app}}}
+        {\uGG{\uG}{\Gamma_\text{app}}}
+        {\uPsi}
+        {\uPhi}
+        {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+        {e_i}
+        {\tau_i}
+    }{\nexp}$
+    \item $r = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]r'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+    \item $\ruleType
+      {\Delta \cup \sseq{\Dhyp{t_i}}{\nty}}
+      {\Gamma \cup \sseq{x_i : \tau_i}{\nexp}}
+      {r'}{\tau}{\tau'}$
+  \end{enumerate}
+\end{enumerate}
+\end{grayparbox}
+\end{lemma}
+\begin{proof} By rule induction over Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}). In the following, let $\uDelta=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma=\uGG{\uG}{\Gamma_\text{app}}$ and $\escenev=\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$.
+\begin{enumerate}
+\item \begin{byCases}
+  \item[\text{(\ref{rule:cvalidE-U-var})}] \begin{pfsteps}
+    \item \ce=x \BY{assumption}
+    \item e=x \BY{assumption}
+    \item \Gamma = \Gamma', x : \tau \BY{assumption}
+    \item \summaryOf{x}=\{ \} \BY{definition}
+  \end{pfsteps}
+  The conclusions hold as follows:
+  \begin{enumerate}
+    \item This conclusion holds trivially because $\nty=0$.
+    \item This conclusion holds trivially because $\nexp=0$.
+    \item This conclusion holds trivially because $\nexp=0$.
+    \item Choose the empty set, the empty set and $x$. 
+    \item $\hastypeU{\Delta}{\Gamma', x : \tau}{x}{\tau}$ by Rule (\ref{rule:hastypeU-var})
+  \end{enumerate}
+  \resetpfcounter
+  \item[\text{(\ref{rule:cvalidE-U-asc}) \textbf{through} (\ref{rule:cvalidE-U-case})}] These cases follow by straightforward inductive argument.
+  \item[\text{(\ref{rule:cvalidE-U-splicede})}] \begin{pfsteps}
+    \item \ce=\acesplicede{m}{n}{\ctau} \BY{assumption}
+    \item \summaryOf{\acesplicede{m}{n}{\ctau}} = \summaryOf{\ctau} \cup \{ \acesplicede{m}{n}{\ctau} \} \BY{definition}
+    \item \summaryOf{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \BY{definition} \pflabel{ctau}
+    \item \cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau} \BY{assumption} \pflabel{cvalidT}
+    \item \parseUExp{\bsubseq{b}{m}{n}}{\ue} \BY{assumption} \pflabel{parseUExp}
+    \item \expandsSG{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+    \BY{assumption} \pflabel{expandsSG}
+    \item \sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+  \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+}{\tau'_i}}{\nty}
+% \item $\sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}$
+   \BY{Lemma \ref{thm:proto-type-expansion-decomposition-SES} on \pfref{cvalidT} and \pfref{ctau}} \pflabel{parseUTyp}
+   \item \hastypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n_ty}}{\Gamma, x : \tau}{x}{\tau} \BY{Rule (\ref{rule:hastypeU-var})} \pflabel{hastypeU}
+  \end{pfsteps}
+  The conclusions hold as follows:
+  \begin{enumerate}
+    \item \pfref{parseUTyp}
+    \item \pfref{cvalidT}
+    \item \pfref{parseUExp} and \pfref{expandsSG}
+    \item Choosing $\sseq{t_i}{\nty}$, $\{x\}$ and $x$, we have $e = [\sseq{\tau'_i/t_i}{\nty}][e/x]x$ by definition.
+    \item \pfref{hastypeU}
+  \end{enumerate}
+  \resetpfcounter
+\end{byCases}
+\begin{grayparbox}
+\begin{byCases}
+  \item[\text{(\ref{rule:cvalidE-U-match})}] \begin{pfsteps*}
+    \item $\ce = \acematchwith{\nrules}{\ce'}{\seqschemaX{\crv}}$ \BY{assumption}
+    \item $e = \aematchwith{\nrules}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
+    % \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau'}$ \BY{assumption} \pflabel{istype}
+    \item $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
+    \item $\{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_j}{r_j}{\tau'}{\tau}\}_{1 \leq j \leq \nrules}$
+    \BY{assumption} \pflabel{cvalidR}
+    \item $\summaryOf{\acematchwith{\nrules}{\ce'}{\seqschemaX{\crv}}} = \summaryOf{\ce} \cup \bigcup_{0 \leq i < \nrules} \summaryOf{\crv_i}$ \BY{definition} 
+    \item $\summaryOf{\ce'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty'} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp'}$ \BY{definition} \pflabel{summaryOfscrut}
+    \item $\{\summaryOf{\crv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicede{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\nexpj}\}_{0 \leq j < \nrules}$ \BY{definition} \pflabel{summaryOfr}
+    \item $\sseq{
+              \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
+              {
+                \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+              }{\tau'_i}
+            }{\nty'}$
+        \BY{IH, part 1 on \pfref{cvalidE} and \pfref{summaryOfscrut}} \pflabel{c1scrut}
+    \item $\sseq{
+          \cvalidT{\emptyset}{
+            \tsceneUP
+              {\uDD
+                {\uD}{\Delta_\text{app}}
+              }{b}
+          }{
+            \ctau_i
+          }{\tau_i}
+        }{\nexp'}$
+            \BY{IH, part 1 on \pfref{cvalidE} and \pfref{summaryOfscrut}} \pflabel{c2scrut}
+    \item $\sseq{
+          \expandsSG
+            {\uDD{\uD}{\Delta_\text{app}}}
+            {\uGG{\uG}{\Gamma_\text{app}}}
+            {\uPsi}
+            {\uPhi}
+            {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+            {e_i}
+            {\tau_i}
+        }{\nexp'}$
+            \BY{IH, part 1 on \pfref{cvalidE} and \pfref{summaryOfscrut}} \pflabel{c3scrut}
+    \item $e' = [\sseq{\tau'_i/t_i}{\nty'}][\sseq{e_i/x_i}{\nexp'}]e''$ for some $\sseq{t_i}{\nty'}$ and $\sseq{x_i}{\nexp'}$ and $e''$
+        \BY{IH, part 1 on \pfref{cvalidE} and \pfref{summaryOfscrut}} \pflabel{c4scrut}
+    \item $\hastypeU
+          {\Delta \cup \sseq{\Dhyp{t_i}}{\nty'}}
+          {\Gamma \cup \sseq{x_i : \tau_i}{\nexp'}}
+          {e''}{\tau'}$
+              \BY{IH, part 1 on \pfref{cvalidE} and \pfref{summaryOfscrut}} \pflabel{c5scrut}
+    \item $\{\sseq{
+              \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
+              {
+                \parseUTypF{\bsubseq{b}{m'_{i,j}}{n'_{i,j}}}
+              }{\tau'_{i,j}}
+            }{\ntyj}\}_{0 \leq j < \nrules}$
+        \BY{IH, part 2 over \pfref{cvalidR} and \pfref{summaryOfr}} \pflabel{c1r}
+    \item $\{\sseq{
+          \cvalidT{\emptyset}{
+            \tsceneUP
+              {\uDD
+                {\uD}{\Delta_\text{app}}
+              }{b}
+          }{
+            \ctau_{i,j}
+          }{\tau_{i,j}}
+        }{\nexpj}\}_{0 \leq j < \nrules}$
+            \BY{IH, part 2 over \pfref{cvalidR} and \pfref{summaryOfr}} \pflabel{c2r}
+    \item $\{\sseq{
+          \expandsSG
+            {\uDD{\uD}{\Delta_\text{app}}}
+            {\uGG{\uG}{\Gamma_\text{app}}}
+            {\uPsi}
+            {\uPhi}
+            {\parseUExpF{\bsubseq{b}{m_{i,j}}{n_{i,j}}}}
+            {e_{i,j}}
+            {\tau_{i,j}}
+        }{\nexpj}\}_{0 \leq j < \nrules}$
+            \BY{IH, part 2 over \pfref{cvalidR} and \pfref{summaryOfr}} \pflabel{c3r}
+    \item $\{r_j = [\sseq{\tau'_{i,j}/t_{i,j}}{\ntyj}][\sseq{e_{i,j}/x_{i,j}}{\nexpj}]r_j'\}_{0 \leq j < \nrules}$ for some $\{\sseq{t_{i,j}}{\ntyj}\}_{0 \leq j < \nrules}$ and $\{\sseq{x_{i,j}}{\nexpj}\}_{0 \leq j < \nrules}$  and $\{r_j'\}_{0 \leq j < \nrules}$ 
+        \BY{IH, part 2 over \pfref{cvalidR} and \pfref{summaryOfr}} \pflabel{c4r}
+    \item $\{\ruleType
+          {\Delta \cup \sseq{\Dhyp{t_{i,j}}}{\ntyj}}
+          {\Gamma \cup \sseq{x_{i,j} : \tau_{i,j}}{\nexpj}}
+          {r_j'}{\tau'}{\tau}\}_{0 \leq j < \nrules}$
+              \BY{IH, part 2 over \pfref{cvalidR} and \pfref{summaryOfr}} \pflabel{c5r}
+    \item $e' = [\sseq{\tau'_i/t_i}{\nty'} \cup \{ \sseq{\tau_{i,j}/t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}][\sseq{e_i/x_i}{\nexp} \cup \{ \sseq{\tau_{i,j}/t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}]e''$ \BY{substitution properties and \pfref{c4scrut}} \pflabel{c4fscrut}
+    \item $\{r_j = [\sseq{\tau'_i/t_i}{\nty'} \cup \sseq{\tau'_{i,j}/t_{i,j}}{\ntyj}][\sseq{e_i/x_i}{\nexp} \cup \sseq{e_{i,j}/x_{i,j}}{\nexpj}]r_j'\}_{0 \leq j < \nrules}$ \BY{substitution properties and \pfref{c4r}} \pflabel{c4fr}
+    \item $e = [\sseq{\tau'_i/t_i}{\nty'} \cup \{ \sseq{\tau_{i,j}/t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}][\sseq{e_i/x_i}{\nexp'} \cup \{ \sseq{e_{i,j}/x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}]\aematchwith{\nrules}{e''}{\seqschemaX{r'}}$ \BY{\pfref{c4fscrut} and \pfref{c4fr} and definition of substitution} \pflabel{c4e}
+    \item $\hastypeU
+          {\Delta \cup \sseq{\Dhyp{t_i}}{\nty'} \cup \{ \sseq{t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}}
+          {\Gamma \cup \sseq{x_i : \tau_i}{\nexp'} \cup \{ \sseq{x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}}
+          {e''}{\tau'}$ \BY{Weakening on \pfref{c5scrut}} \pflabel{c5scrutf}
+    \item $\{\ruleType
+          {\Delta \cup \sseq{\Dhyp{t_i}}{\nty'} \cup \{ \sseq{t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}}
+          {\Gamma \cup \sseq{x_{i,j} : \tau_{i,j}}{\nexpj} \cup \{ \sseq{x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}}
+          {r_j'}{\tau'}{\tau}\}_{0 \leq j < \nrules}$ \BY{Weakening over \pfref{c5r}} \pflabel{c5rf}
+    \item $\hastypeU
+              {\Delta \cup \sseq{\Dhyp{t_i}}{\nty'} \cup \{ \sseq{t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}}
+              {\Gamma \cup \sseq{x_i : \tau_i}{\nexp'} \cup \{ \sseq{x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}}
+              {\aematchwith{\nrules}{e''}{\seqschemaX{r'}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{c5scrutf} and \pfref{c5rf}} \pflabel{c5ff}
+  \end{pfsteps*} 
+
+  The conclusions hold as follows:
+  \begin{enumerate}
+    \item $\text{\pfref{c1scrut}} \cup \bigcup_{0 \leq j < \nrules} \text{\pfref{c1r}}_j$
+    \item $\text{\pfref{c2scrut}} \cup \bigcup_{0 \leq j < \nrules} \text{\pfref{c2r}}_j$
+    \item $\text{\pfref{c3scrut}} \cup \bigcup_{0 \leq j < \nrules} \text{\pfref{c3r}}_j$
+    \item Choose:
+      \begin{enumerate}
+      \item $\sseq{t_i}{\nty'} \cup \{ \sseq{t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}$; and
+      \item $\sseq{x_i}{\nexp'} \cup \{ \sseq{x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}$; and 
+      \item $\aematchwith{\nrules}{e''}{\seqschemaX{r'}}$
+      \end{enumerate}
+      We have $e = [\sseq{\tau'_i/t_i}{\nty'} \cup \{ \sseq{\tau_{i,j}/t_{i,j}}{\ntyj} \}_{0 \leq j < \nrules}][\sseq{e_i/x_i}{\nexp'} \cup \{ \sseq{e_{i,j}/x_{i,j}}{\nexpj} \}_{0 \leq j < \nrules}]\aematchwith{\nrules}{e''}{\seqschemaX{r'}}$ by \pfref{c4e}.
+    \item \pfref{c5ff}
+  \end{enumerate}
+  \resetpfcounter
+\end{byCases}
+\end{grayparbox}
+\end{enumerate}
+\vspace{-2px}\begin{grayparbox}\vspace{2px}
+\begin{enumerate}
+\item[2.] By rule induction over the rule typing assumption. There is only one case. In the following, let $\uDelta=\uDD{\uD}{\Delta_\text{app}}$ and $\uGamma=\uGG{\uG}{\Gamma_\text{app}}$ and $\escenev=\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}$.
+  \begin{byCases}
+    \item[\text{(\ref{rule:cvalidR-UP})}] ~
+    \begin{pfsteps*}
+      \item $\crv = \acematchrule{p}{\ce}$ \BY{assumption}
+      \item $r=\aematchrule{p}{e}$ \BY{assumption}
+      \item $\patType{\pctx'}{p}{\tau}$ \BY{assumption} \pflabel{patType}
+      \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx'}}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalid}
+      \item $\summaryOf{\crv} = \summaryOf{\ce}$ \BY{definition}
+      \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOfce}
+      \item $\sseq{
+            \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
+            {
+              \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+            }{\tau'_i}
+          }{\nty}$
+          \BY{IH, part 1 on \pfref{cvalid} and \pfref{summaryOfce}}
+          \pflabel{c1e}
+      \item $\sseq{
+        \cvalidT{\emptyset}{
+          \tsceneUP
+            {\uDD
+              {\uD}{\Delta_\text{app}}
+            }{b}
+        }{
+          \ctau_i
+        }{\tau_i}
+      }{\nexp}$
+                \BY{IH, part 1 on \pfref{cvalid} and \pfref{summaryOfce}}
+          \pflabel{c2e}
+      \item $\sseq{
+        \expandsSG
+          {\uDD{\uD}{\Delta_\text{app}}}
+          {\uGG{\uG}{\Gamma_\text{app}}}
+          {\uPsi}
+          {\uPhi}
+          {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+          {e_i}
+          {\tau_i}
+      }{\nexp}$
+          \BY{IH, part 1 on \pfref{cvalid} and \pfref{summaryOfce}}
+          \pflabel{c3e}      
+      \item $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+          \BY{IH, part 1 on \pfref{cvalid} and \pfref{summaryOfce}}
+          \pflabel{c4e}
+      \item $\hastypeU
+        {\Delta \cup \sseq{\Dhyp{t_i}}{\nty}}
+        {\Gamma \cup \pctx' \cup \sseq{x_i : \tau_i}{\nexp}}
+        {e'}{\tau}$
+          \BY{IH, part 1 on \pfref{cvalid} and \pfref{summaryOfce}}
+          \pflabel{c5e}
+      \item $r=[\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]\aematchrule{p}{e'}$ \BY{substitution properties and \pfref{c4e}} \pflabel{c4r}
+      \item $\ruleType
+              {\Delta \cup \sseq{\Dhyp{t_i}}{\nty}}
+              {\Gamma \cup \sseq{x_i : \tau_i}{\nexp}}
+              {\aematchrule{p}{e'}}
+              {\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleType}) on \pfref{patType} and \pfref{c5e}} \pflabel{c5r}
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item \pfref{c1e}
+      \item \pfref{c2e}
+      \item \pfref{c3e}
+      \item Choosing $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $\aematchrule{p}{e'}$, by \pfref{c4r}
+      \item \pfref{c5r}
+    \end{enumerate}
+    \resetpfcounter
+  \end{byCases}
+\end{enumerate}
+\end{grayparbox}
+\end{proof}
+% \begin{equation}\label{rule:cvalidR-UP}
+% \inferrule{
+%   \patType{\pctx}{p}{\tau}\\
+%   \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\ce}{e}{\tau'}
+% }{
+%   \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
+% }
+% \end{equation}
+
+\begin{theorem}[seTSM Abstract Reasoning Principles]
+\label{thm:tsc-SES}
+If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\begin{enumerate}
+\item (\textbf{Typing 1}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$
 \item $\encodeBody{b}{\ebody}$
 \item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ 
+\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item \textbf{(Typing 2)} $\sseq{
+      \expandsTU{\uDD{\uD}{\Delta}}
+      {
+        \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+      }{\tau'_i}
+    }{\nty}$ and $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$
+\item \textbf{(Typing 3)} $\sseq{
+  \cvalidT{\emptyset}{
+    \tsceneUP
+      {\uDD
+        {\uD}{\Delta}
+      }{b}
+  }{
+    \ctau_i
+  }{\tau_i}
+}{\nexp}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\nexp}$
+\item \textbf{(Typing 4)} $\sseq{
+  \expandsSG
+    {\uDD{\uD}{\Delta}}
+    {\uGG{\uG}{\Gamma}}
+    {\uPsi}
+    {\uPhi}
+    {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+    {e_i}
+    {\tau_i}
+}{\nexp}$ and $\sseq{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}}{\nexp}$
+\item (\textbf{Capture Avoidance}) $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+\item (\textbf{Context Independence}) $\hastypeU
+  {\sseq{\Dhyp{t_i}}{\nty}}
+  {\sseq{x_i : \tau_i}{\nexp}}
+  {e'}{\tau}$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). There is only one rule that applies. In the following, let $\uDelta = \uDD{\uD}{\Delta}$ and $\uGamma = \uGG{\uG}{\Gamma}$.
+\begin{byCases}
+\item[\text{(\ref{rule:expandsU-tsmap})}] ~
+\begin{pfsteps*}
+  \item $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ \BY{assumption} \pflabel{uPsidef}
+  \item $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ \BY{assumption} \pflabel{expandsSG}
+  \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expansion-short-U} on \pfref{expandsSG}} \pflabel{hastype}
+  \item $\encodeBody{b}{\ebody}$ \BY{assumption} \pflabel{encodeBody}
+  \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessE}}\cdot{\ecand}}$ \BY{assumption} \pflabel{evalU}
+  \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption} \pflabel{decodeCondE}
+  \item $\segOK{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
+  \item $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
+  \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOf}
+  \item $\sseq{
+      \expandsTU{\uDD{\uD}{\Delta}}
+      {
+        \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+      }{\tau'_i}
+    }{\nty}$ \BY{Lemma \ref{thm:proto-expression-expansion-decomposition} on \pfref{cvalidE} and \pfref{summaryOf}} \pflabel{c1}
+\item $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$ \BY{Lemma \ref{lemma:type-expansion-U}, part 1 over \pfref{c1}} \pflabel{t1}
+\item $\sseq{
+  \cvalidT{\emptyset}{
+    \tsceneUP
+      {\uDD
+        {\uD}{\Delta}
+      }{b}
+  }{
+    \ctau_i
+  }{\tau_i}
+}{\nexp}$ \BY{Lemma \ref{thm:proto-expression-expansion-decomposition} on \pfref{cvalidE} and \pfref{summaryOf}} \pflabel{c2}
+\item $\emptyset \cap \Delta = \emptyset$ \BY{definition} \pflabel{emptyintersect}
+\item $\sseq{\istypeU{\Delta}{\tau_i}}{\nexp}$ \BY{Lemma \ref{lemma:type-expansion-U}, part 2 over \pfref{c2} and \pfref{emptyintersect}} \pflabel{t2}
+\item $\sseq{
+  \expandsSG
+    {\uDD{\uD}{\Delta}}
+    {\uGG{\uG}{\Gamma}}
+    {\uPsi}
+    {\uPhi}
+    {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+    {e_i}
+    {\tau_i}
+}{\nexp}$ \BY{Lemma \ref{thm:proto-expression-expansion-decomposition} on \pfref{cvalidE} and \pfref{summaryOf}} \pflabel{c3}
+\item $\sseq{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}}{\nexp}$ \BY{Theorem \ref{thm:typed-expansion-short-U} over \pfref{c3}} \pflabel{t3}
+\item $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$ \BY{Lemma \ref{thm:proto-expression-expansion-decomposition} on \pfref{cvalidE} and \pfref{summaryOf}} \pflabel{c4}
+\item $\hastypeU
+  {\sseq{\Dhyp{t_i}}{\nty}}
+  {\sseq{x_i : \tau_i}{\nexp}}
+  {e'}{\tau}$ \BY{Lemma \ref{thm:proto-expression-expansion-decomposition} on \pfref{cvalidE} and \pfref{summaryOf}} \pflabel{c5}
+\end{pfsteps*}
+The conclusions hold as follows:
+\begin{enumerate}
+  \item \pfref{uPsidef} and \pfref{hastype}
+  \item \pfref{encodeBody}
+  \item \pfref{evalU}
+  \item \pfref{decodeCondE}
+  \item \pfref{segOK}
+  \item \pfref{summaryOf}
+  \item \pfref{c1} and \pfref{t1}
+  \item \pfref{c2} and \pfref{t2}
+  \item \pfref{c3} and \pfref{t3}
+  \item \pfref{c4}
+  \item \pfref{c5}
+\end{enumerate}
+\end{byCases}
 \end{proof}
 
-The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
+% The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
 
-\begin{theorem}[Shadowing Prohibition]
-\label{thm:shadowing-prohibition-SES} ~
-\begin{enumerate}
-\item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
-\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
-\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
-\item $\Delta \cap \Delta_\text{app} = \emptyset$
-\end{enumerate}
-\item If $\cvalidE{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
-\begin{enumerate}
-\item $\cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}$
-\item $  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}$
-\item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
-\item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
-\item $\Delta \cap \Delta_\text{app} = \emptyset$
-\item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
-\end{enumerate}
-\end{enumerate}
-\end{theorem}
-\begin{proof} ~
-\begin{enumerate}
-\item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
-\item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
-\end{enumerate}
-\end{proof}
+% \begin{theorem}[Shadowing Prohibition]
+% \label{thm:shadowing-prohibition-SES} ~
+% \begin{enumerate}
+% \item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
+% \item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
+% \item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
+% \item $\Delta \cap \Delta_\text{app} = \emptyset$
+% \end{enumerate}
+% \item If $\cvalidE{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
+% \begin{enumerate}
+% \item $\cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}$
+% \item $  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}$
+% \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
+% \item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
+% \item $\Delta \cap \Delta_\text{app} = \emptyset$
+% \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
+% \end{enumerate}
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} ~
+% \begin{enumerate}
+% \item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of this rule.
+% \item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of this rule.
+% \end{enumerate}
+% \end{proof}
 
 \begin{grayparbox}
 The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
@@ -2687,7 +3204,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 & \text{constructor abstraction}\\
 &&& \aecap{e}{\kappa} %& \cAp{e}{\kappa} 
 & \text{constructor application}\\
-&&& \aefold{t}{\tau}{e} %& \fold{e} 
+&&& \aefold{e} %& \fold{e} 
 & \text{fold}\\
 &&& \aeunfold{e} %& \unfold{e} 
 & \text{unfold}\\
@@ -2697,10 +3214,10 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 &&& \aepr{\ell}{e} 
 %& \prj{e}{\ell} 
 & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+&&& \aein{\ell}{e} 
 %& \inj{\ell}{e} 
 & \text{injection}\\
-&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} 
+&&& \aematchwith{n}{e}{\seqschemaX{r}} 
 %& \matchwith{e}{\seqschemaX{r}} 
 & \text{match}\\
 &&& \amval{M} 
@@ -3339,10 +3856,10 @@ A well-formed unified context is one that can be constructed by some sequence of
 \end{equation}
 \begin{equation}\label{rule:hastypeP-fold}
   \inferrule{\
-    \haskind{\Omega, t :: \akty}{\tau}{\akty}\\
+    % \haskind{\Omega, t :: \akty}{\tau}{\akty}\\
     \hastypeP{\Omega}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \hastypeP{\Omega}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \hastypeP{\Omega}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeP-unfold}
@@ -3368,19 +3885,19 @@ A well-formed unified context is one that can be constructed by some sequence of
 \end{equation}
 \begin{equation}\label{rule:hastypeP-in}
   \inferrule{
-    \{\haskind{\Omega}{\tau_i}{\akty}\}_{i \in \labelset}\\
-    \haskind{\Omega}{\tau}{\akty}\\
+    % \{\haskind{\Omega}{\tau_i}{\akty}\}_{i \in \labelset}\\
+    % \haskind{\Omega}{\tau}{\akty}\\
     \hastypeP{\Omega}{e}{\tau}
   }{
-    \hastypeP{\Omega}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
+    \hastypeP{\Omega}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \ell \hookrightarrow \tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:hastypeP-match}
 \inferrule{
   \hastypeP{\Omega}{e}{\tau}\\
-  \haskind{\Omega}{\tau'}{\akty}\\
+  % \haskind{\Omega}{\tau'}{\akty}\\
   \{\ruleTypeP{\Omega}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
-}{\hastypeP{\Omega}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
+}{\hastypeP{\Omega}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation}
 \begin{equation}\label{rule:hastypeP-dyn}
 \inferrule{
@@ -3971,12 +4488,12 @@ Each expanded form, with a few minor exceptions noted below, maps onto an unexpa
 \Uof{\aeap{e_1}{e_2}} & = \ap{\Uof{e_1}}{\Uof{e_2}}\\
 \Uof{\aeclam{\kappa}{u}{e}} & = \clam{\sigilof{u}}{\Uof{\kappa}}{\Uof{e}}\\
 \Uof{\aecap{e}{c}} & = \cAp{\Uof{e}}{\Uof{c}}\\
-\Uof{\aefold{t}{\tau}{e}} & = \fold{\Uof e}\\
+\Uof{\aefold{e}} & = \fold{\Uof e}\\
 \Uof{\aeunfold{e}} & = \unfold{\Uof{e}}\\
 \Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \tpl{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
 \Uof{\aepr{\ell}{e}} & = \prj{\Uof{e}}{\ell}\\
-\Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \inj{\ell}{\Uof{e}}\\
-\Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \matchwith{\Uof{e}}{\seqschemaXx{\Uofv}{r}}\\
+\Uof{\aein{\ell}{e}} &= \inj{\ell}{\Uof{e}}\\
+\Uof{\aematchwith{n}{e}{\seqschemaX{r}}} & = \matchwith{\Uof{e}}{\seqschemaXx{\Uofv}{r}}\\
 \Uof{\amval{X}} & = \mval{\sigilof{X}}
 \end{align*}
 \end{itemize}
@@ -4400,7 +4917,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \inferrule{
     \expandsPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \expandsPX{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \expandsPX{\fold{\ue}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 
@@ -4434,24 +4951,23 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 % Values of labeled sum type can appear only in analytic position.
 \begin{equation}\label{rule:expandsP-in}
   \inferrule{
-    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
     \expandsPX{\ue'}{e'}{\tau'}
   }{
-    \expandsPX{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e'}}{\tau}
+    \expandsPX{\inj{\ell}{\ue}}{\aein{\ell}{e'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}
     % \uOmega \vdash_{\uPsi; \uPhi} \left(\shortstack{$\ue \leadsto $\\$\Leftarrow$\vspace{-1.2em}}\right)
-    %\expandsPX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+    %\expandsPX{\auanain{\ell}{\ue}}{\aein{\ell}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }
 \end{equation}
 
 %Match expressions can appear in synthetic position.
 \begin{equation}\label{rule:expandsP-match}
   \inferrule{
-    \uOmega = \uOmegaEx{\uD}{\uG}{\uM}{\Omega}\\\\
+    % \uOmega = \uOmegaEx{\uD}{\uG}{\uM}{\Omega}\\\\
     \expandsPX{\ue}{e}{\tau}\\
-    \haskind{\Omega}{\tau'}{\akty}\\
+    % \haskind{\Omega}{\tau'}{\akty}\\
     \{\rsynPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
-    \expandsPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+    \expandsPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
   }
 \end{equation}
 
@@ -5264,11 +5780,11 @@ Each expanded term, with a few exceptions noted below, maps onto a proto-expansi
   \Cof{\aeap{e_1}{e_2}} & = \aceap{\Cof{e_1}}{\Cof{e_2}}\\
   \Cof{\aeclam{\kappa}{u}{e}} & = \aceclam{\Cof{\kappa}}{u}{\Cof{e}}\\
   \Cof{\aecap{e}{c}} & = \acecap{\Cof{e}}{\Cof{c}}\\
-  \Cof{\aefold{t}{\tau}{e}} & = \acefold{\Cof e}\\
+  \Cof{\aefold{e}} & = \acefold{\Cof e}\\
   \Cof{\aeunfold{e}} & = \aceunfold{\Cof{e}}\\
   \Cof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\Cofv}{e}{i}{\labelset}}\\
-  \Cof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \acein{\ell}{\Cof{e}}\\
-  \Cof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}}\\
+  \Cof{\aein{\ell}{e}} &= \acein{\ell}{\Cof{e}}\\
+  \Cof{\aematchwith{n}{e}{\seqschemaX{r}}} & = \acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}}\\
   \Cof{\amval{X}} & = \acemval{X}
   \end{array}\]
   \item Each expanded rule, $r$, maps onto the proto-rule, $\Cof{r}$, as follows:
@@ -5730,7 +6246,7 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
   \inferrule{
     \cvalidEPX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \cvalidEPX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \cvalidEPX{\aceanafold{\ce}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-P-unfold}
@@ -5760,18 +6276,18 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
     \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
     \cvalidEPX{\ce'}{e'}{\tau'}
   }{
-    \cvalidEPX{\aceanain{\ell}{\ce'}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e'}}{\tau}
+    \cvalidEPX{\aceanain{\ell}{\ce'}}{\aein{\ell}{e'}}{\tau}
     %\left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} $\\$\leadsto$\\$ \Leftarrow $\vspace{-1.2em}}\right)
-    %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+    %\eanaX{\auanain{\ell}{\ue}}{\aein{\ell}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-P-match}
   \inferrule{
-    n > 0\\
+    % n > 0\\
     \cvalidEPX{\ce}{e}{\tau}\\
     \{\cvalidRP{\Omega}{\escenev}{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
-    \cvalidEPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+    \cvalidEPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
   }
 \end{equation}
 \begin{equation}\label{rule:cvalidE-P-mval}
@@ -6496,7 +7012,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
   \inferrule{
     \eanaX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \eanaX{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \eanaX{\fold{\ue}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:eana-S-tpl}
@@ -6508,10 +7024,9 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
 \end{equation}
 \begin{equation}\label{rule:eana-S-in}
   \inferrule{
-    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
     \eanaX{\ue}{e}{\tau'}
   }{
-    \eanaX{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e}}{\tau}
+    \eanaX{\inj{\ell}{\ue}}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}
   }
 \end{equation}
 \begin{equation}\label{rule:eana-S-match}
@@ -6519,7 +7034,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
     \esynX{\ue}{e}{\tau}\\
     \{\ranaX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
-    \eanaX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+    \eanaX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
   }
 \end{equation}
 \begin{equation}\label{rule:eana-S-defuetsm}
@@ -6702,14 +7217,14 @@ Each expanded term, except variable patterns, maps onto a proto-expansion term. 
   \Cof{\aeap{e_1}{e_2}} & = \aceap{\Cof{e_1}}{\Cof{e_2}}\\
   \Cof{\aetlam{t}{e}} & = \acetlam{t}{\Cof{e}}\\
   \Cof{\aetap{e}{\tau}} & = \acetap{\Cof{e}}{\Cof{\tau}}\\
-  \Cof{\aefold{t}{\tau}{e}} & = \aceasc{\acerec{t}{\Cof{\tau}}}{\acefold{\Cof e}}\\
+  \Cof{\aefold{e}} & = \aceasc{\acerec{t}{\Cof{\tau}}}{\acefold{\Cof e}}\\
   \Cof{\aeunfold{e}} & = \aceunfold{\Cof{e}}\\
   \Cof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \acetpl{\labelset}{\mapschemax{\Cofv}{e}{i}{\labelset}}\\
-  \Cof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \aceasc
+  \Cof{\aein{\ell}{e}} &= \aceasc
     {
       \acesum{\labelset}{\mapschemax{\Cofv}{\tau}{i}{\labelset}}
     }{\acein{\ell}{\Cof{e}}}\\
-  \Cof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} & = \aceasc{\Cof{\tau}}{\acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}}}
+  \Cof{\aematchwith{n}{e}{\seqschemaX{r}}} & = \aceasc{\Cof{\tau}}{\acematchwith{n}{\Cof{e}}{\seqschemaXx{\Cofv}{r}}}
   \end{array}\]
   \item Each expanded rule, $r$, maps onto the proto-rule, $\Cof{r}$, as follows:
   \begin{align*}
@@ -6828,7 +7343,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \csynX{\ce}{e}{\tau}\\
 %     \{\crsynX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 %   }{
-%     \csynX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%     \csynX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
 %   }
 % \end{equation}
 \begin{equation}\label{rule:csyn-splicede}
@@ -6880,7 +7395,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
   \inferrule{
     \canaX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
   }{
-    \canaX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+    \canaX{\aceanafold{\ce}}{\aefold{e}}{\arec{t}{\tau}}
   }
 \end{equation}
 \begin{equation}\label{rule:cana-tpl}
@@ -6893,11 +7408,10 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 \end{equation}
 \begin{equation}\label{rule:cana-in}
   \inferrule{
-    \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
     \canaX{\ce}{e}{\tau'}
   }{
-    % \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
-    \canaX{\acein{\ell}{\ce}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\tau}
+    % \left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} \aceanain{\ell}{\ce}$\\$\leadsto$\\$\aein{\ell} \Leftarrow \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$\vspace{-1.2em}}\right)
+    \canaX{\acein{\ell}{\ce}}{\aein{\ell}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}
   }
 \end{equation}
 \begin{equation}\label{rule:cana-match}
@@ -6905,7 +7419,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
     \csynX{\ce}{e}{\tau}\\
     \{\cranaX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
-    \canaX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+    \canaX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
   }
 \end{equation}
 \end{subequations}
@@ -6964,7 +7478,418 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 \end{equation}
 \end{subequations}
 \section{Metatheory}
+\subsection{Typed Pattern Expansion}\label{appendix:SES-typed-pattern-expansion}
+\begin{theorem}[Typed Pattern Expansion]\label{thm:typed-pattern-expansion-B} ~
+\begin{enumerate}
+  \item If $\pExpandsSP{\uDD{\uD}{\Delta}}{\uASI{\uA}{\Phi}{\uI}}{\upv}{p}{\tau}{\uGG{\uG}{\pctx}}$ then $\patType{\pctx}{p}{\tau}$.
+  \item If $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDD{\uD}{\Delta}}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+  By mutual rule induction over Rules (\ref{rules:patExpands-B}) and Rules (\ref{rules:cvalidP-B}
+  \begin{enumerate}
+  \item We induct on the premise. In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uASI{\uA}{\Phi}{\uI}$.
+  \begin{byCases}
+    \item[\text{(\ref{rule:patExpands-B-var}) \textbf{through} (\ref{rule:patExpands-B-apuptsm})}] These cases follow by identical argument to the corresponding cases of Theorem \ref{thm:typed-pattern-expansion}.
 
+    \item[\text{(\ref{rule:patExpands-B-lit})}]~
+    \resetpfcounter
+    \begin{pfsteps}
+      \item \upv = \lit{b} \BY{assumption}
+      \item \Phi = \Phi', \xuptsmbnd{a}{\tau}{\eparse} \BY{assumption}
+      \item \uI = \uI', \designate{\tau}{a} \BY{assumption}
+      \item   \encodeBody{b}{\ebody} \BY{assumption}
+      \item   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}} \BY{assumption}
+      \item  \decodeCEPat{\ecand}{\cpv} \BY{assumption}
+      \item  \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau} \BY{assumption} \pflabel{cvalidP}
+      \item \patType{\pctx}{p}{\tau} \BY{IH, part 2 on \pfref{cvalidP}}
+    \end{pfsteps}
+    \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-var})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\ux$ \BY{assumption}
+%         \item $p=x$ \BY{assumption}
+%         \item $\pctx=\Ghyp{x}{\tau}$ \BY{assumption}
+%         \item $\patType{\Ghyp{x}{\tau}}{x}{\tau}$ \BY{Rule (\ref{rule:patType-var})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-wild})}] ~
+%       \begin{pfsteps*}
+%         \item $p=\aewildp$ \BY{assumption}
+%         \item $\pctx = \emptyset$ \BY{assumption}
+%         \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-fold})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\foldp{\upv'}$ \BY{assumption}
+%         \item $p=\aefoldp{p'}$ \BY{assumption}
+%         \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{patExpands}
+%         \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-tpl})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\tplp{\mapschema{\upv}{i}{\labelset}}$ \BY{assumption}
+%         \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
+%         \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+%         \item $\{\patExpands{\uGG{\uG_i}{\pctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{patExpands}
+%         \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 1 over \pfref{patExpands}}\pflabel{patType}
+%         \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-in})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\injp{\ell}{\upv'}$ \BY{assumption}
+%         \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+%         \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+%         \item $\patExpands{\upctx}{\uPhi}{\upv'}{p'}{\tau'}$ \BY{assumption} \pflabel{patExpands}
+% %        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:patExpands-apuptsm})}] ~
+%       \begin{pfsteps*}
+%         \item $\upv=\utsmap{\tsmv}{b}$ \BY{assumption}
+%         \item $\uA=\uA', \vExpands{\tsmv}{a}$ \BY{assumption}
+%         \item $\Phi=\Phi', \xuptsmbnd{a}{\tau}{\eparse}$ \BY{assumption}
+%         \item $\encodeBody{b}{\ebody}$ \BY{assumption}
+%         \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption}
+%         \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
+%         \item $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDelta}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
+% %        \item $\uptsmenv{\Delta}{\Phi', \xuptsmbnd{a}{\tau}{\eparse}}$ \BY{assumption} \pflabel{env}
+%         \item $\patType{\pctx}{p}{\tau}$ \BY{IH, part 2 on \pfref{cvalidP}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+  \end{byCases}
+
+  \item We induct on the premise. All cases follow by identical argument to the corresponding cases of Theorem \ref{thm:typed-pattern-expansion}.
+%   \begin{byCases}
+%     \item[\text{(\ref{rule:cvalidP-B-wild})}] ~
+%       \begin{pfsteps*}
+%         \item $p=\aewildp$ \BY{assumption}
+%         \item $\pctx=\emptyset$ \BY{assumption}
+%         \item $\patType{\emptyset}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:patType-wild})}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-fold})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\acefoldp{\cpv'}$ \BY{assumption}
+%         \item $p=\aefoldp{p'}$ \BY{assumption}
+%         \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+%         % \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv'}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{cvalidP}
+%         \item $\patType{\pctx}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH, part 2 on \pfref{cvalidP}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:patType-fold}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-tpl})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$ \BY{assumption}
+%         \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
+%         \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+%         \item $\{\cvalidP{\uGG{\uG_i}{\pctx_i}}{\pscene{\uDelta}{\uPhi}{b}}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{cvalidP}
+%         \item $\pctx = \Gconsi{i \in \labelset}{\pctx_i}$ \BY{assumption}
+%         %\item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\{\patType{\pctx_i}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH, part 2 over \pfref{cvalidP}}\pflabel{patType}
+%         \item $\patType{\Gconsi{i \in \labelset}{\pctx_i}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:patType-tpl}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-in})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\aceinjp{\ell}{\cpv'}$ \BY{assumption}
+%         \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+%         \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+%         \item $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv'}{p'}{\tau'}$ \BY{assumption} \pflabel{cvalidP}
+% %        \item $\uptsmenv{\Delta}{\Phi}$ \BY{assumption} \pflabel{env}
+%         \item $\patType{\pctx}{p'}{\tau'}$ \BY{IH, part 2 on \pfref{cvalidP}} \pflabel{patType}
+%         \item $\patType{\pctx}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:patType-inj}) on \pfref{patType}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%     \item[\text{(\ref{rule:cvalidP-UP-spliced})}] ~
+%       \begin{pfsteps*}
+%         \item $\cpv=\acesplicedp{m}{n}{\ctau}$ \BY{assumption}
+%         \item $\cvalidT{\emptyset}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption}
+%         \item $\parseUExp{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption}
+%         \item $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+%         \item $\patType{\pctx}{p}{\tau}$ \BY{IH, part 1 on \pfref{patExpands}}
+%       \end{pfsteps*}
+%       \resetpfcounter
+%   \end{byCases}
+  \end{enumerate}
+The mutual induction can be shown to be well-founded by an argument nearly identical to that that given in the proof of Theorem \ref{thm:typed-pattern-expansion}, differing only in that the appeal to Condition \ref{condition:pattern-parsing} is replaced by an appeal to the analagous Condition \ref{condition:pattern-parsing-BS}.
+
+% showing that the following numeric metric on the judgements that we induct on is decreasing:
+% \begin{align*}
+% \sizeof{\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}} & = \sizeof{\upv}\\
+% \sizeof{{\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}}} & = \sizeof{b}
+% \end{align*}
+% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\upv}$ is the sum of the lengths of the literal bodies in $\upv$, as defined in Sec. \ref{appendix:SES-syntax}.
+
+% The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:patExpands-apuptsm}). There, we have that the metric remains stable: \begin{align*}
+%  & \sizeof{\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}}\\
+% =& \sizeof{{\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}}}\\
+% =&\sizeof{b}\end{align*}
+
+% The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cvalidP-UP-spliced}). There, we have that $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ and the IH is applied to the judgement $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$. Because the metric is stable when passing from part 1 to part 2, we must have that it is strictly decreasing in the other direction:
+% \[\sizeof{\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}} < \sizeof{{\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}}}\]
+% i.e. by the definitions above, 
+% \[\sizeof{\upv} < \sizeof{b}\]
+
+% This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
+\end{proof}
+\subsection{Typed Expression Expansion}\label{appendix:SES-typed-expression-expansion}
+\begin{theorem}[Typed Expansion (Full)]\label{thm:typed-expansion-full-U} ~
+\begin{enumerate}
+  \item \begin{enumerate}
+    \item If $\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+    \item If $\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\ue}{e}{\tau}$ and $\istypeU{\Delta}{\tau}$ then $\hastypeU{\Delta}{\Gamma}{e}{\tau}$.
+    \item If $\rana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau'}$ then $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$.
+  \end{enumerate}
+  \item \begin{enumerate}
+    \item If $\csyn{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
+    \item If $\cana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\istypeU{\Delta}{\tau}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\hastypeU{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{e}{\tau}$. 
+    \item If $\crana{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\istypeU{\Delta}{\tau'}$ and $\Delta \cap \Delta_\text{app}=\emptyset$ and $\domof{\Gamma} \cap \domof{\Gamma_\text{app}}=\emptyset$ then $\ruleType{\Dcons{\Delta}{\Delta_\text{app}}}{\Gcons{\Gamma}{\Gamma_\text{app}}}{r}{\tau}{\tau'}$.
+  \end{enumerate}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana-S}), Rule (\ref{rule:rana-S}), Rules (\ref{rules:csyn}), Rules (\ref{rules:cana}) and Rule (\ref{rule:crana}).
+
+\begin{enumerate}
+\item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
+  \begin{enumerate}
+    \item \todo{1a}
+    \item \todo{1b}
+    \item \todo{1c}
+  \end{enumerate}
+\item \todo{2}
+  \begin{enumerate}
+    \item \todo{2a}
+    \item \todo{2b}
+    \item \todo{2c}
+  \end{enumerate}
+\end{enumerate}
+\end{proof}
+
+% % \subsection{Expressibility}
+% The following lemma establishes that each type can be expressed as a well-formed proto-type, under the same type formation context and any type splicing scene.
+% \begin{lemma}[Proto-Expansion Type Expressibility]\label{lemma:proto-type-expressibility-U} If $\istypeU{\Delta}{\tau}$ then $\cvalidT{\Delta}{\tscenev}{\Cof{\tau}}{\tau}$. \end{lemma}
+% \begin{proof}
+% By rule induction over Rules (\ref{rules:istypeU}). In each case, we apply the IH on or over each premise, then apply the corresponding proto-type validation rule in Rules (\ref{rules:cvalidT-U}).
+% \end{proof}
+
+% The Type Expressibility Lemma establishes that every well-formed type, $\tau$, can be expressed as a well-formed unexpanded type, $\Uof{\tau}$. This requires defining the metafunction $\Uof{\Delta}$ which maps $\Delta$ onto an unexpanded type formation context as follows:
+% \begin{align*}
+% \Uof{\emptyset} &= \uDD{\emptyset}{\emptyset}\\
+% \Uof{\Delta, \Dhyp{t}} &= \Uof{\Delta}, \uDhyp{\sigilof{t}}{t}
+% \end{align*}
+% \begin{lemma}[Type Expressibility]\label{lemma:type-expressibility} If $\istypeU{\Delta}{\tau}$ then $\expandsTU{\Uof{\Delta}}{\Uof{\tau}}{\tau}$.\end{lemma}
+% \begin{proof} By rule induction over Rules (\ref{rules:istypeU}) using the definitions of $\Uof{\tau}$ and $\Uof{\Delta}$ above. In each case, we apply the IH to or over each premise, then apply the corresponding type expansion rule in Rules (\ref{rules:expandsTU}).\end{proof}
+
+
+% The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid proto-expression, $\Cof{e}$, that is assigned the same type under any expression splicing scene.
+% \begin{theorem}[Proto-Expansion Expression Expressibility]\label{theorem:proto-expressions-expressibility-U} If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.\end{theorem}
+% \begin{proof} By rule induction over Rules (\ref{rules:hastypeU}). The rule transformation above guarantees that this lemma holds by construction. In particular, in each case, we apply Lemma \ref{lemma:proto-type-expressibility-U} to or over each type formation premise, the IH to or over each typing premise, then apply the corresponding proto-expression validation rule in Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-case}).
+% \end{proof}
+
+% The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that is assigned the same type under any expression splicing scene.
+% \begin{theorem}[Candidate Expansion Expression Expressibility]\label{lemma:ce-expressions-expressibility-UP} Both of the following hold:
+% \begin{enumerate}
+% \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e}}{e}{\tau}$.
+% \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\cvalidR{\Delta}{\Gamma}{\escenev}{\Cof{r}}{r}{\tau}{\tau'}$.
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
+
+% For part 1, we induct on the assumption. 
+% \begin{byCases}
+% \item[\text{(\ref{rule:hastypeUP-var}) through (\ref{rule:hastypeUP-in})}] In each of these cases, we apply Lemma \ref{lemma:ce-type-expressibility-U} to or over each type formation premise, the IH (part 1) to or over each typing premise, then apply the corresponding ce-expression validation rule in Rules (\ref{rule:cvalidE-UP-var}) through (\ref{rule:cvalidE-UP-in}).
+% \item[\text{(\ref{rule:hastypeUP-match})}] ~
+%   \begin{pfsteps}
+%   \item e = \aematchwith{n}{e'}{\seqschemaX{r}} \BY{assumption}
+%   \item \Cof{e} = \acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}} \BY{definition of $\Cof{e}$}
+%   \item \hastypeU{\Delta}{\Gamma}{e'}{\tau'} \BY{assumption} \pflabel{hasType}
+%   \item \istypeU{\Delta}{\tau} \BY{assumption} \pflabel{isType}
+%   \item \{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n} \BY{assumption} \pflabel{ruleType}
+%   \item \cvalidE{\Delta}{\Gamma}{\escenev}{\Cof{e'}}{e'}{\tau'} \BY{IH, part 1 on \pfref{hasType}} \pflabel{cvalidE}
+%   \item \cvalidT{\Delta}{\tsfrom{\escenev}}{\Cof{\tau}}{\tau} \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{isType}} \pflabel{cvalidT}
+%   \item \{\cvalidR{\Delta}{\Gamma}{\escenev}{\Cof{r_i}}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n} \BY{IH, part 2 over \pfref{ruleType}} \pflabel{cvalidR}
+%   \item \cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\Cof{\tau}}{\Cof{e'}}{\seqschemaXx{\Cofv}{r}}}{\aematchwith{n}{e'}{\seqschemaX{r}}}{\tau} \BY{Rule (\ref{rule:cvalidE-UP-match}) on \pfref{cvalidE}, \pfref{cvalidT} and \pfref{cvalidR}}
+%   \end{pfsteps}
+% \end{byCases}
+% \resetpfcounter
+
+% For part 2, we induct on the assumption. There is only one case.
+% \begin{byCases}
+% \item[\text{(\ref{rule:ruleType})}] ~
+%   \begin{pfsteps}
+%     \item r = \aematchrule{p}{e} \BY{assumption}
+%     \item \Cof{r} = \acematchrule{p}{\Cof{e}} \BY{definition of $\Cof{r}$}
+%     \item \patType{\pctx}{p}{\tau} \BY{assumption} \pflabel{patType}
+%     \item \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx}}{e}{\tau'} \BY{assumption} \pflabel{hasType}
+%     \item \cvalidE{\Delta}{\Gcons{\Gamma}{\pctx}}{\escenev}{\Cof{e}}{e}{\tau'} \BY{IH, part 1 on \pfref{hasType}} \pflabel{cvalidE}
+%     \item \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\Cof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'} \BY{Rule (\ref{rule:cvalidR-UP}) on \pfref{patType} and \pfref{cvalidE}}
+%   \end{pfsteps}
+%   \resetpfcounter
+% \end{byCases}
+% \end{proof}
+
+% The following lemma establishes that every well-typed expanded pattern that generates no hypotheses can be expressed as a ce-pattern.
+% \begin{lemma}[Candidate Expansion Pattern Expressibility]\label{lemma:ce-pattern-expressibility-U} If $\patType{\emptyset}{p}{\tau}$ then $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\Cof{p}}{p}{\tau}$.\end{lemma}
+% \begin{proof} By rule induction over Rules (\ref{rules:patType}).
+% \begin{byCases}
+% \item[\text{(\ref{rule:patType-var})}] This case does not apply.
+% \item[\text{(\ref{rule:patType-wild})}] ~
+%   \begin{pfsteps*}
+%     \item $p=\aewildp$ \BY{assumption}
+%     \item $\Cof{p}=\acewildp$ \BY{definition of $\Cof{p}$}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\acewildp}{\aewildp}{\tau}$ \BY{Rule (\ref{rule:cvalidP-UP-wild})}
+%   \end{pfsteps*}
+%   \resetpfcounter
+% \item[\text{(\ref{rule:patType-fold})}] ~
+%   \begin{pfsteps*}
+%     \item $p=\aefoldp{p'}$ \BY{assumption}
+%     \item $\Cof{p}=\acefoldp{\Cof{p'}}$ \BY{definition of $\Cof{p}$}
+%     \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+%     \item $\patType{\emptyset}{p'}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{patType}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\Cof{p'}}{p}{[\arec{t}{\tau'}/t]\tau'}$ \BY{IH on \pfref{patType}} \pflabel{cvalidP}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\acefoldp{\Cof{p'}}}{\aefoldp{p'}}{\arec{t}{\tau'}}$ \BY{Rule (\ref{rule:cvalidP-UP-fold}) on \pfref{cvalidP}}
+%   \end{pfsteps*}
+%   \resetpfcounter
+% \item[\text{(\ref{rule:patType-tpl})}] ~
+%   \begin{pfsteps*}
+%     \item $p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$ \BY{assumption}
+%     \item $\Cof{p}=\acetpl{\labelset}{\mapschemax{\Cofv}{p}{i}{\labelset}}$ \BY{definition of $\Cof{p}$}
+%     \item $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ \BY{assumption}
+%     \item $\{\patType{\emptyset}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{assumption} \pflabel{patType}
+%     \item $\{\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\Cof{p_i}}{p_i}{\tau_i}\}_{i \in \labelset}$ \BY{IH over \pfref{patType}} \pflabel{cvalidP}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\acetpl{\labelset}{\mapschemax{\Cofv}{p}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}$ \BY{Rule (\ref{rule:cvalidP-UP-tpl}) on \pfref{cvalidP}}
+%   \end{pfsteps*}
+%   \resetpfcounter
+% \item[\text{(\ref{rule:patType-inj})}] ~
+%   \begin{pfsteps*}
+%     \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+%     \item $\Cof{p}=\aceinjp{\ell}{\Cof{p'}}$ \BY{definition of $\Cof{p}$}
+%     \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+%     \item $\patType{\emptyset}{p'}{\tau'}$ \BY{assumption}\pflabel{patType}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\Cof{p'}}{p'}{\tau'}$ \BY{IH on \pfref{patType}}\pflabel{cvalidP}
+%     \item $\cvalidP{\uGG{\emptyset}{\emptyset}}{\pscene{\uDelta}{\uPhi}{b}}{\aceinjp{\ell}{\Cof{p'}}}{\aeinjp{\ell}{p'}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}}$ \BY{Rule (\ref{rule:cvalidP-UP-in}) on \pfref{cvalidP}}
+%   \end{pfsteps*}
+%   \resetpfcounter
+% \end{byCases}
+% \end{proof}
+
+% \subsubsection{Expressibility}
+% The following lemma establishes that each well-typed expanded pattern can be expressed as an unexpanded pattern matching values of the same type and generating the same hypotheses and corresponding identifier updates. The metafunction $\Uof{\pctx}$ maps $\pctx$ to an unexpanded typing context as follows:
+% \begin{align*}
+% \Uof{\emptyset} & = \uGG{\emptyset}{\emptyset}\\
+% \Uof{\pctx, x : \tau} & = \Uof{\pctx}, \uGhyp{\sigilof{x}}{x}{\tau}\\
+% \Uof{\Gconsi{i \in \labelset}{\pctx_i}} & = \Gconsi{i \in \labelset}{\Uof{\pctx_i}}
+% \end{align*}
+% \begin{lemma}[Pattern Expressibility]\label{lemma:pattern-expressibility} If $\patType{\pctx}{p}{\tau}$ then $\patExpands{\Uof{\pctx}}{\uPhi}{\Uof{p}}{p}{\tau}$.\end{lemma}
+% \begin{proof} By rule induction over Rules (\ref{rules:patType}), using the definitions of $\Uof{\pctx}$ and $\Uof{p}$ given above. In each case, we can apply the IH to or over each premise, then apply the corresponding rule in Rules (\ref{rules:patExpands}).\end{proof}
+
+% We can now establish the Expressibility Theorem -- that each well-typed expanded expression, $e$, can be expressed as an unexpanded expression, $\ue$, and assigned the same type under the corresponding contexts.
+
+% \begin{theorem}[Expressibility] Both of the following hold:
+% \begin{enumerate}
+% \item If $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ then $\expandsUP{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau}$.
+% \item If $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$ then $\ruleExpands{\Uof{\Delta}}{\Uof{\Gamma}}{\uPsi}{\uPhi}{\Uof{r}}{r}{\tau}{\tau'}$.
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By mutual rule induction over Rules (\ref{rules:hastypeUP}) and Rule (\ref{rule:ruleType}). 
+
+% For part 1, we induct on the assumption. The rule transformation defined above guarantees that this part holds by its construction. In particular, in each case, we can apply Lemma \ref{lemma:type-expressibility} to or over each type formation premise, the IH (part 1) to or over each typing premise, the IH (part 2) over each rule typing premise, then apply the corresponding rule in Rules (\ref{rules:expandsUP}).
+
+% For part 2, we induct on the assumption. There is only one case:
+% \begin{byCases}
+% \item[(\ref{rule:ruleType})] ~
+% \begin{pfsteps*}
+% \item $r = \aematchrule{p}{e}$ \BY{assumption}
+% \item $\patType{\pctx}{p}{\tau}$ \BY{assumption} \pflabel{patType}
+% \item $\hastypeU{\Delta}{\Gamma \cup \pctx}{e}{\tau'}$ \BY{assumption} \pflabel{hasType}
+% \item $\Uof{\Gamma}=\uGG{\uG}{\Gamma}$, for some $\uG$ \BY{definition of $\Uof{\Gamma}$}
+% \item $\Uof{\pctx} =\uGG{\uG'}{\pctx}$, for some $\uG'$ \BY{definition of $\Uof{\pctx}$}
+% \item $\Uof{\Gamma \cup \pctx} = \uGG{\uG \uplus \uG'}{\Gamma \cup \pctx}$ \BY{definition of $\Uof{\pctx}$}
+% \item $\Uof{r} = \aumatchrule{\Uof{p}}{\Uof{e}}$ \BY{definition of $\Uof{r}$}
+% \item $\patExpands{\uGG{\uG'}{\pctx}}{\uPhi}{\Uof{p}}{p}{\tau}$ \BY{Lemma \ref{lemma:pattern-expressibility} on \pfref{patType}} \pflabel{patExpands}
+% \item $\expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx}}}{\uPsi}{\uPhi}{\Uof{e}}{e}{\tau'}$ \BY{IH, part 1 on \pfref{hasType}} \pflabel{expandsUP}
+% \item $\ruleExpands{\Uof{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\Uof{p}}{\Uof{e}}}{\aematchrule{p}{e}}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleExpands}) on \pfref{patExpands} and \pfref{expandsUP}}
+% \end{pfsteps*}
+% \resetpfcounter
+% \end{byCases}
+% \end{proof}
+
+\subsection{Reasoning Principles}
+The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+\begin{theorem}[Typing, Segmentation and Context Independence]
+\label{thm:tsc-B}
+If $\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\begin{enumerate}
+\item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+\item $\encodeBody{b}{\ebody}$
+\item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+\item $\decodeCondE{\ecand}{\ce}$
+\item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+\item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ 
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+\end{proof}
+
+The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+\begin{theorem}[Shadowing Prohibition]
+\label{thm:shadowing-prohibition-SES} ~
+\begin{enumerate}
+\item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
+\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
+\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\end{enumerate}
+\item If $\cvalidE{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
+\begin{enumerate}
+\item $\cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}$
+\item $  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}$
+\item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
+\item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
+\item $\Delta \cap \Delta_\text{app} = \emptyset$
+\item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
+\end{enumerate}
+\end{enumerate}
+\end{theorem}
+\begin{proof} ~
+\begin{enumerate}
+\item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
+\item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
+\end{enumerate}
+\end{proof}
+
+\begin{grayparbox}
+The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
+
+\begin{theorem}[spTSM Typing and Segmentation]
+\label{thm:spTSM-Typing-Segmentation-B}
+If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+\begin{enumerate}
+        \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+        \item $\encodeBody{b}{\ebody}$
+        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\decodeCEPat{\ecand}{\cpv}$
+        \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+\end{enumerate}
+\end{theorem}
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
+\end{proof}
+\end{grayparbox}
 
 % \subsubsection{Candidate Expansion Expressibility}
 % The following lemma establishes that each well-typed expanded expression, $e$, can be expressed as a valid ce-expression, $\Cof{e}$, that synthesizes the same type under the same contexts and any expression splicing scene.
@@ -7269,7 +8194,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \esynPX{\ue}{e}{\tau}\\
 %     \{\rsynPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 %   }{
-%     \esynPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%     \esynPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
 %   }
 % \end{equation}
 
@@ -7420,7 +8345,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %   \inferrule{
 %     \eanaPX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \eanaPX{\fold{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \eanaPX{\fold{\ue}}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation}
 
@@ -7439,9 +8364,9 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \tau = \asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}\\\\
 %     \eanaPX{\ue'}{e'}{\tau'}
 %   }{
-%     \eanaPX{\inj{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}{e'}}{\tau}
+%     \eanaPX{\inj{\ell}{\ue}}{\aein{\ell}{e'}}{\tau}
 %     % \uOmega \vdash_{\uPsi; \uPhi} \left(\shortstack{$\ue \leadsto $\\$\Leftarrow$\vspace{-1.2em}}\right)
-%     %\eanaPX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%     %\eanaPX{\auanain{\ell}{\ue}}{\aein{\ell}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 %   }
 % \end{equation}
 
@@ -7451,7 +8376,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \esynPX{\ue}{e}{\tau}\\
 %     \{\ranaPX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 %   }{
-%     \eanaPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%     \eanaPX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
 %   }
 % \end{equation}
 
@@ -8447,7 +9372,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \csynPX{\ce}{e}{\tau}\\
 %     \{\crsynPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 %   }{
-%     \csynPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%     \csynPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:csynP-mval}
@@ -8507,7 +9432,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %   \inferrule{
 %     \canaPX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \canaPX{\aceanafold{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \canaPX{\aceanafold{\ce}}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:canaP-tpl}
@@ -8527,7 +9452,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %   }{
 %     \canaPX{\ce}{e}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 %     %\left(\shortstack{$\Delta~\Gamma \vdash^{\escenev} $\\$\leadsto$\\$ \Leftarrow $\vspace{-1.2em}}\right)
-%     %\eanaX{\auanain{\ell}{\ue}}{\aein{\labelset, \ell}{\ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}{e}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
+%     %\eanaX{\auanain{\ell}{\ue}}{\aein{\ell}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:canaP-match}
@@ -8535,7 +9460,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 %     \csynPX{\ce}{e}{\tau}\\
 %     \{\cranaPX{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
 %   }{
-%     \canaPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+%     \canaPX{\acematchwithb{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:canaP-splicede}

@@ -396,7 +396,7 @@ $\miniVerseUE$ consists of a language of \emph{unexpanded expressions} (the \emp
 &&& \aetap{e}{\tau} 
 %& \App{e}{\tau} 
 & \text{type application}\\
-&&& \aefold{t}{\tau}{e} 
+&&& \aefold{e} 
 %& \fold{e} : \tau 
 & \text{fold}\\
 &&& \aeunfold{e} 
@@ -408,10 +408,10 @@ $\miniVerseUE$ consists of a language of \emph{unexpanded expressions} (the \emp
 &&& \aepr{\ell}{e} 
 %& \prj{e}{\ell} 
 & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+&&& \aein{\ell}{e} 
 %& \inj{\ell}{e} 
 & \text{injection}\\
-&&& \aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}} 
+&&& \aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}} 
 %& \caseof{e}{\mapschemab{x}{e}{i}{\labelset}} 
 & \text{case analysis}
 \end{array}\]
@@ -527,7 +527,7 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively de
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
 %     \hastypeU{\Delta}{\Gamma}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \hastypeU{\Delta}{\Gamma}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \hastypeU{\Delta}{\Gamma}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation*}
 % \begin{equation*}\label{rule:hastypeU-unfold}
@@ -566,7 +566,7 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively de
 %     \istypeU{\Delta}{\tau}\\
 %     \{\hastypeU{\Delta}{\Gamma, x_i : \tau_i}{e_i}{\tau}\}_{i \in \labelset}
 %   }{
-%     \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+%     \hastypeU{\Delta}{\Gamma}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
 % \end{equation*}
 % \end{subequations}
@@ -574,7 +574,7 @@ The \emph{type formation judgement}, $\istypeU{\Delta}{\tau}$, is inductively de
 %Rules (\ref{rules:istypeU}) and (\ref{rules:hastypeU}) are syntax-directed, so we assume an inversion lemma for each rule as needed without stating it separately. 
 % The following standard lemmas also hold. 
 
-These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution, Decomposition and Regularity.
+These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution and Decomposition.
 
 \subsection{Structural Dynamics}\label{sec:dynamics-U}
 The \emph{structural dynamics} (a.k.a. the \emph{structural operational semantics} \cite{DBLP:journals/jlp/Plotkin04a}) of $\miniVerseUE$ is defined as a transition system by judgements of the following form:
@@ -606,9 +606,9 @@ The Canonical Forms condition characterizes well-typed values. Satisfying this c
 \begin{enumerate}
 \item If $\tau=\aparr{\tau_1}{\tau_2}$ then $e=\aelam{\tau_1}{x}{e'}$ and $\hastypeUCO{\Ghyp{x}{\tau_1}}{e'}{\tau_2}$.
 \item If $\tau=\aall{t}{\tau'}$ then $e=\aetlam{t}{e'}$ and $\hastypeUCO{\Dhyp{t}}{e'}{\tau'}$.
-\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{t}{\tau'}{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$ and $\isvalU{e'}$. 
+\item If $\tau=\arec{t}{\tau'}$ then $e=\aefold{e'}$ and $\hastypeUC{e'}{[\abop{rec}{t.\tau'}/t]\tau'}$ and $\isvalU{e'}$. 
 \item If $\tau=\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then $e=\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}$ and $\hastypeUC{e_i}{\tau_i}$ and $\isvalU{e_i}$ for each $i \in \labelset$.
-\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\labelset', \ell}{\ell}{\mapschema{\tau}{i}{\labelset'}; \ell \hookrightarrow \tau'}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
+\item If $\tau=\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}$ then for some label set $L'$ and label $\ell$ and type $\tau'$, we have that $\labelset=\labelset', \ell$ and $\tau=\asum{\labelset', \ell}{\mapschema{\tau}{i}{\labelset'}; \mapitem{\ell}{\tau'}}$ and $e=\aein{\ell}{e'}$ and $\hastypeUC{e'}{\tau'}$ and $\isvalU{e'}$.
 \end{enumerate}\end{condition}
 \endgroup
 
@@ -978,7 +978,7 @@ The type assigned in the conclusion of each rule above is identical to the type 
 %     \istypeU{\Delta, \Dhyp{t}}{\tau}\\
 %     \expandsUX{\ue}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \expandsUX{\aufold{t}{\tau}{\ue}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \expandsUX{\aufold{t}{\tau}{\ue}}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation*}
 % \begin{equation*}\label{rule:expandsU-unfold}
@@ -1531,7 +1531,7 @@ Together, these premises enforce the prohibition on shadowing as described in Se
 %     \cvalidT{\Delta, \Dhyp{t}}{\escenev}{\ctau}{\tau}\\
 %     \cvalidEX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \cvalidEX{\acefold{t}{\ctau}{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \cvalidEX{\acefold{t}{\ctau}{\ce}}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation*}
 % \begin{equation*}\label{rule:cvalidE-U-unfold}
@@ -1611,7 +1611,7 @@ Let us now consider Theorem \ref{thm:typed-expansion-short-U}, which was mention
 \end{theorem}
 \endgroup
 \begin{proof}
-By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules:cvalidE-U}). The full proof is given in Appendix \ref{appendix:typed-expression-expansion-SES}. We will reproduce the interesting cases below. 
+By mutual rule induction over Rules (\ref{rules:expandsU}) and Rules (\ref{rules:cvalidE-U}). The full proof is given in Appendix \ref{appendix:SES-typed-expression-expansion-metatheory}. We will reproduce the interesting cases below. 
 
 The proof of part 1 proceeds by inducting over the typed expansion assumption. The only interesting cases are those related to seTSM definition and application, reproduced below. In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ and $\uPsi=\uAS{\uA}{\Psi}$.
 
@@ -1824,51 +1824,146 @@ Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as need
 %\qed
 
 
-\subsubsection{Reasoning Principles}
-The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
+\subsubsection{Abstract Reasoning Principles}
+The following theorem summarizes the abstract reasoning principles that programmers can rely on when applying an seTSM. In particular, the programmer can be sure that:
+\begin{enumerate} 
+\item (\textbf{Typing 1}) The type of the expansion is consistent with the type annotation on the seTSM definition.
+\item (\textbf{Segmentation}) The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segments is in-bounds and non-overlapping.)
+\item (\textbf{Typing 2}) Each spliced type has a well-formed expansion at the application site.
+\item (\textbf{Typing 3}) Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
+\item (\textbf{Typing 4}) Each spliced expression is well-typed, and consistent with its type annotation.
+\item (\textbf{Capture Avoidance}) The final expansion can be decomposed into a context-independent term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this context-independent term in a capture avoiding manner.
+\item (\textbf{Context Independence}) The context-independent term is indeed well-typed independent of the application site contexts.
+\end{enumerate}
 
 \begingroup
 \def\thetheorem{\ref{thm:tsc-SES}}
-\begin{theorem}[seTSM Typing and Context Independence]
-If $\expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+\begin{theorem}[seTSM Abstract Reasoning Principles]
+If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
 \begin{enumerate}
-\item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+\item (\textbf{Typing 1}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$
 \item $\encodeBody{b}{\ebody}$
 \item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}$ 
+\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item \textbf{(Typing 2)} $\sseq{
+      \expandsTU{\uDD{\uD}{\Delta}}
+      {
+        \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+      }{\tau'_i}
+    }{\nty}$ and $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$
+\item \textbf{(Typing 3)} $\sseq{
+  \cvalidT{\emptyset}{
+    \tsceneUP
+      {\uDD
+        {\uD}{\Delta}
+      }{b}
+  }{
+    \ctau_i
+  }{\tau_i}
+}{\nexp}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\nexp}$
+\item \textbf{(Typing 4)} $\sseq{
+  \expandsU
+    {\uDD{\uD}{\Delta}}
+    {\uGG{\uG}{\Gamma}}
+    {\uPsi}
+    {\parseUExpF{\bsubseq{b}{m_i}{n_i}}}
+    {e_i}
+    {\tau_i}
+}{\nexp}$ and $\sseq{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}}{\nexp}$
+\item (\textbf{Capture Avoidance}) $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+\item (\textbf{Context Independence}) $\hastypeU
+  {\sseq{\Dhyp{t_i}}{\nty}}
+  {\sseq{x_i : \tau_i}{\nexp}}
+  {e'}{\tau}$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+\begin{proof} The proof, which involves auxiliary lemmas about the decomposition of proto-types and proto-expressions, is given in Appendix \ref{appendix:SES-reasoning-principles}.
 \end{proof}
 \endgroup
 
-The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
-\begingroup
-\def\thetheorem{\ref{thm:shadowing-prohibition-SES}}
-\begin{theorem}[Shadowing Prohibition] ~
-\begin{enumerate}
-\item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
-\item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
-\item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
-\item $\Delta \cap \Delta_\text{app} = \emptyset$
-\end{enumerate}
-\item If $\cvalidE{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
-\begin{enumerate}
-\item $\cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}$
-\item $  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}$
-\item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
-\item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
-\item $\Delta \cap \Delta_\text{app} = \emptyset$
-\item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
-\end{enumerate}
-\end{enumerate}
-\end{theorem}
-\begin{proof} ~
-\begin{enumerate}
-\item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
-\item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
-\end{enumerate}
-\end{proof}
-\endgroup
+% The following theorem establishes that every valid proto-type generates a final expansion that can be decomposed into a context-independent term and context-dependent sub-terms, all of which arise from references to spliced types as summarized by the splice summary.
+
+% \begingroup
+% \def\thetheorem{\ref{thm:proto-type-expansion-decomposition-SES}}
+% \begin{theorem}[Proto-Type Expansion Decomposition] 
+% If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ and $\summaryOf{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
+% \begin{enumerate}
+% \item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+%   \parseUTypF{\bsubseq{b}{m_i}{n_i}}
+% }{\tau_i}}{n}$
+% % \item $\sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}$
+% \item $\tau = [\sseq{\tau_i/t_i}{n}]\tau'$ for some $\sseq{t_i}{n}$ and $\tau'$
+% \item $\istypeU{\Delta \cup \sseq{\Dhyp{t_i}}{n}}{\tau'}$
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof}
+% By rule induction over Rules (\ref{rules:cvalidT-U}).
+% \begin{byCases}
+%   \item[\text{(\ref{rule:cvalidT-U-tvar}) \textbf{through} (\ref{rule:cvalidT-U-sum})}] These cases follow by straightforward inductive argument (see appendix.)
+%   \item[\text{(\ref{rule:cvalidT-U-splicedt})}] ~
+%   \begin{pfsteps}
+%   \item \ctau = \acesplicedt{m}{n} \BY{assumption}
+%   \item \summaryOf{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
+%   \item \parseUTyp{\bsubseq{b}{m}{n}}{\utau} \BY{assumption} \pflabel{parseUTyp}
+%   \item \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau} \BY{assumption} \pflabel{expandsTU}
+%   \item \istypeU{\Delta, \Dhyp{t}}{t} \BY{Rule (\ref{rule:istypeU-var})} \pflabel{istype}
+%   \end{pfsteps}
+%   The conclusions hold as follows:
+%   \begin{enumerate}
+%     \item \pfref{parseUTyp} and \pfref{expandsTU}
+%     \item Choose $t$ and $t$. Then $\tau = [\tau/t]t$ by definition.
+%     \item \pfref{istype}
+%   \end{enumerate}
+% \end{byCases}
+% \end{proof}
+% \endgroup
+
+% The following theorem, together with Theorem \ref{thm:typed-expansion-short-U}, establishes \textbf{Typing}, \textbf{Segmentation} and \textbf{Context Independence} as discussed in Sec. \ref{sec:uetsms-validation}.
+
+% \begingroup
+% \def\thetheorem{\ref{thm:tsc-SES}}
+% \begin{theorem}[seTSM Typing and Context Independence]
+% If $\expandsU{\uDelta}{\uGamma}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
+% \begin{enumerate}
+% \item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
+% \item $\encodeBody{b}{\ebody}$
+% \item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+% \item $\decodeCondE{\ecand}{\ce}$
+% \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+% \item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneU{\uDelta}{\uGamma}{\uPsi}{b}}{\ce}{e}{\tau}$ 
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By rule induction over Rules (\ref{rules:expandsU}). The only rule that applies is Rule (\ref{rule:expandsU-tsmap}). The conclusions of the theorem are the premises of this rule.
+% \end{proof}
+% \endgroup
+
+% The following theorem establishes a prohibition on \textbf{Shadowing} as discussed in Sec. \ref{sec:uetsms-validation}.
+% \begingroup
+% \def\thetheorem{\ref{thm:shadowing-prohibition-SES}}
+% \begin{theorem}[Shadowing Prohibition] ~
+% \begin{enumerate}
+% \item If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\acesplicedt{m}{n}}{\tau}$ then:\begin{enumerate}
+% \item $\parseUTyp{\bsubseq{b}{m}{n}}{\utau}$
+% \item $\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau}$
+% \item $\Delta \cap \Delta_\text{app} = \emptyset$
+% \end{enumerate}
+% \item If $\cvalidE{\Delta}{\Gamma}{\escenev}{\acesplicede{m}{n}{\ctau}}{e}{\tau}$ then:
+% \begin{enumerate}
+% \item $\cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau}$
+% \item $  \escenev=\esceneU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{b}$
+% \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$
+% \item $\expandsU{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\ue}{e}{\tau}$
+% \item $\Delta \cap \Delta_\text{app} = \emptyset$
+% \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$
+% \end{enumerate}
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} ~
+% \begin{enumerate}
+% \item By rule induction over Rules (\ref{rules:cvalidT-U}). The only rule that applies is Rule (\ref{rule:cvalidT-U-splicedt}). The conclusions are the premises of tihs rule.
+% \item By rule induction over Rules (\ref{rules:cvalidE-U}). The only rule that applies is Rule (\ref{rule:cvalidE-U-splicede}). The conclusions are the premises of tihs rule.
+% \end{enumerate}
+% \end{proof}
+% \endgroup

@@ -213,16 +213,16 @@ This can be understood as binding all of the variables in $p$ for use within $e$
 % &&& \aeap{e}{e} & \ap{e}{e} & \text{application}\\
 % &&& \aetlam{t}{e} & \Lam{t}{e} & \text{type abstraction}\\
 % &&& \aetap{e}{\tau} & \App{e}{\tau} & \text{type application}\\
-% &&& \aefold{t}{\tau}{e} & \fold{e} & \text{fold}\\
+% &&& \aefold{e} & \fold{e} & \text{fold}\\
 % &&& \aeunfold{e} & \unfold{e} & \text{unfold}\\
 % &&& \aetpl{\labelset}{\mapschema{e}{i}{\labelset}} & \tpl{\mapschema{e}{i}{\labelset}} & \text{labeled tuple}\\
 % &&& \aepr{\ell}{e} & \prj{e}{\ell} & \text{projection}\\
-% &&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} & \inj{\ell}{e} & \text{injection}\\
+% &&& \aein{\ell}{e} & \inj{\ell}{e} & \text{injection}\\
 % \LCC \lightgray & \lightgray & \lightgray 
 %& \lightgray 
 % & \lightgray & \lightgray \\
 &&
-& \aematchwith{n}{\tau}{e}{\seqschemaX{r}}
+& \aematchwith{n}{e}{\seqschemaX{r}}
 % & \matchwith{e}{\seqschemaX{r}} 
 & \text{match}\\
 \mathsf{Rule} & r & ::= 
@@ -284,9 +284,9 @@ The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types
 \begin{equation*}\tag{\ref{rule:hastypeUP-match}}
 \inferrule{
   \hastypeU{\Delta}{\Gamma}{e}{\tau}\\
-  \istypeU{\Delta}{\tau'}\\
+  % \istypeU{\Delta}{\tau'}\\
   \{\ruleType{\Delta}{\Gamma}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
-}{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
+}{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation*}  
 % \end{subequations}
 The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{The second premise of Rule (\ref{rule:hastypeUP-match}), and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$, the type $\tau'$ is arbitrary. In all other cases, $\tau'$ can be determined by assigning types to the  branch expressions.} The third premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$ according to the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
@@ -490,7 +490,7 @@ There is one new common unexpanded expression form in $\miniVersePat$: the unexp
 \inferrule{
   \uDelta = \uDD{\uD}{\Delta}\\\\
   \expandsUP{\uDelta}{\uGamma}{\uPhi}{\uPsi}{\ue}{e}{\tau}\\
-  \istypeU{\Delta}{\tau'}\\
+  % \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
 }{
   \expandsUP
@@ -500,7 +500,7 @@ There is one new common unexpanded expression form in $\miniVersePat$: the unexp
       {\seqschemaX{\urv}}
     }{\aematchwith
       {n}
-      {\tau'}
+      % {\tau'}
       {e}
       {\seqschemaX{r}}
     }{\tau'}
@@ -807,7 +807,7 @@ Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-splicede}) were de
   \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}\\
   % \cvalidT{\Delta}{\tsfrom{\escenev}}{\ctau'}{\tau'}\\\\
   \{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
-}{\cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}}
+}{\cvalidE{\Delta}{\Gamma}{\escenev}{\acematchwith{n}{\ce}{\seqschemaX{\crv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation*}
 Rule (\ref{rule:cvalidR-UP}) governs proto-rules:
 \begin{equation*}\tag{\ref{rule:cvalidR-UP}}
@@ -861,7 +861,7 @@ Notice that proto-rules bind expanded patterns, rather than proto-patterns. This
 %     \cvalidT{\Delta, \Dhyp{t}}{\escenev}{\ctau}{\tau}\\
 %     \cvalidEX{\ce}{e}{[\arec{t}{\tau}/t]\tau}
 %   }{
-%     \cvalidEX{\acefold{t}{\ctau}{\ce}}{\aefold{t}{\tau}{e}}{\arec{t}{\tau}}
+%     \cvalidEX{\acefold{t}{\ctau}{\ce}}{\aefold{e}}{\arec{t}{\tau}}
 %   }
 % \end{equation}
 % \begin{equation}\label{rule:cvalidE-UP-unfold}
@@ -899,7 +899,7 @@ Notice that proto-rules bind expanded patterns, rather than proto-patterns. This
 %     \cvalidEX{\ce}{e}{\asum{\labelset}{\mapschema{\tau}{i}{\labelset}}}\\
 %     \{\cvalidE{\Delta}{\Gamma, \Ghyp{x_i}{\tau_i}}{\escenev}{\ue_i}{e_i}{\tau}\}_{i \in \labelset}
 %   }{
-%     \cvalidEX{\acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{\tau}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
+%     \cvalidEX{\acecase{\labelset}{\tau}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}}{\aecase{\labelset}{e}{\mapschemab{x}{e}{i}{\labelset}}}{\tau}
 %   }
 % \end{equation}
 % \end{subequations}
@@ -958,14 +958,14 @@ The following theorem establishes that typed pattern expansion produces an expan
 \def\thetheorem{\ref{thm:typed-pattern-expansion}}
 \begin{theorem}[Typed Pattern Expansion] ~
 \begin{enumerate}
-  \item If $\patExpands{\uGG{\uG}{\pctx}}{\uAP{\uA}{\Phi}}{\upv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
+  \item If $\pExpandsSP{\uDD{\uD}{\Delta}}{\uAS{\uA}{\Phi}}{\upv}{p}{\tau}{\uGG{\uG}{\pctx}}$ then $\patType{\pctx}{p}{\tau}$.
   \item If $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDD{\uD}{\Delta}}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ then $\patType{\pctx}{p}{\tau}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof}
   By mutual rule induction on Rules (\ref{rules:patExpands}) and Rules (\ref{rules:cvalidP-UP}). The full proof is given in Appendix \ref{appendix:SES-typed-pattern-expansion}. We will reproduce only the interesting cases below.
   \begin{enumerate}
-  \item The only interesting case in the proof of part 1 is the case for spTSM application. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
+  \item The only interesting case in the proof of part 1 is the case for spTSM application. In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
 %     \item[\text{(\ref{rule:patExpands-var})}] ~
 %       \begin{pfsteps*}
@@ -1031,7 +1031,7 @@ The following theorem establishes that typed pattern expansion produces an expan
       \resetpfcounter
   \end{byCases}
 
-  \item The only interesting case in the proof of part 2 is the case for spliced patterns. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and and $\uDelta=\uDD{\uD}{\Delta}$ and $\uPhi=\uAP{\uA}{\Phi}$.
+  \item The only interesting case in the proof of part 2 is the case for spliced patterns. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uDelta=\uDD{\uD}{\Delta}$ and $\uPhi=\uAP{\uA}{\Phi}$.
   \begin{byCases}
 %     \item[\text{(\ref{rule:cvalidP-UP-wild})}] ~
 %       \begin{pfsteps*}
@@ -1136,14 +1136,14 @@ By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleEx
     \item[\text{(\ref{rule:expandsU-match})}] ~
       \begin{pfsteps*}
         \item $\ue=\matchwith{\ue'}{\seqschemaX{\urv}}$ \BY{assumption}
-        \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
+        \item $e=\aematchwith{n}{e'}{\seqschemaX{r}}$ \BY{assumption}
         \item $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue'}{e'}{\tau'}$ \BY{assumption} \pflabel{expandsUP}
-        \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istype}
+        % \item $\istypeU{\Delta}{\tau}$ \BY{assumption}\pflabel{istype}
         % \item $\expandsTU{\uDelta}{\utau}{\tau}$ \BY{assumption} \pflabel{expandsTU}
         \item $\{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption}\pflabel{ruleExpands}
         \item $\hastypeU{\Delta}{\Gamma}{e'}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsUP}}\pflabel{hasType}
         \item $\{\ruleType{\Delta}{\Gamma}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{IH, part 1(b) over \pfref{ruleExpands}}\pflabel{ruleType}
-        \item $\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hasType}, \pfref{istype} and \pfref{ruleType}}
+        \item $\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hasType} and \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
 
@@ -1181,16 +1181,16 @@ By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleEx
     \item[\text{(\ref{rule:cvalidE-U-match})}] ~
       \begin{pfsteps*}
         \item $\ce=\acematchwith{n}{\ce'}{\seqschemaX{\crv}}$ \BY{assumption}
-        \item $e=\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}$ \BY{assumption}
+        \item $e=\aematchwith{n}{e'}{\seqschemaX{r}}$ \BY{assumption}
         \item $\cvalidE{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce'}{e'}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
         % \item $\cvalidT{\Delta}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption} \pflabel{cvalidT}
         \item $\{\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\crv_i}{r_i}{\tau'}{\tau}\}_{1 \leq i \leq n}$ \BY{assumption} \pflabel{cvalidR}
         \item $\Delta \cap \Delta_\text{app} = \emptyset$ \BY{assumption} \pflabel{delta-disjoint}
         \item $\domof{\Gamma} \cap \domof{\Gamma_\text{app}} = \emptyset$ \BY{assumption} \pflabel{gamma-disjoint}
         \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{e'}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidE}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{hastype}
-        \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
+        % \item $\istypeU{\Delta \cup \Delta_\text{app}}{\tau}$ \BY{Lemma \ref{lemma:candidate-expansion-type-validation} on \pfref{cvalidT}} \pflabel{istype}
         \item $\ruleType{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{r}{\tau'}{\tau}$ \BY{IH, part 2(b) on \pfref{cvalidR}, \pfref{delta-disjoint} and \pfref{gamma-disjoint}} \pflabel{ruleType}
-        \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{\aematchwith{n}{\tau}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hastype}, \pfref{istype}, \pfref{ruleType}}
+        \item $\hastypeU{\Delta \cup \Delta_\text{app}}{\Gamma \cup \Gamma_\text{app}}{\aematchwith{n}{e'}{\seqschemaX{r}}}{\tau}$ \BY{Rule (\ref{rule:hastypeUP-match}) on \pfref{hastype} and \pfref{ruleType}}
       \end{pfsteps*}
       \resetpfcounter
     % \item[\text{(\ref{rule:cvalidE-U-splicede})}] ~

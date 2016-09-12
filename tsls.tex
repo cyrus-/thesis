@@ -1,5 +1,5 @@
 % !TEX root = omar-thesis.tex
-\chapter{Simple TSM Implicits}\label{chap:tsls}
+\chapter{TSM Implicits}\label{chap:tsls}
 Using TSMs, as described in the previous chapters, a library provider can control the expansion of generalized literal forms. To do so, library clients must explicitly prefix each literal form with a TSM name and, in some cases, several parameters. In situations where the client is repeatedly applying a TSM to small literal forms, this can be costly. For example, list literals are often small, so applying \li{#\dolla#intlist} repeatedly can be distracting and syntactically costly.
 
 To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one expression TSM and one pattern TSM as that type's \emph{designated TSMs} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TSM name (an \emph{unadorned literal form}), it implicitly applies the TSM designated at the type that the expression or pattern is being checked against. 
@@ -151,7 +151,7 @@ As in $\miniVersePat$, there is also a textual syntax for the UL, characterized 
 % \Uof{\aefold{t}{\tau}{e}} & = \auasc{\aurec{\sigilof{t}}{\Uof{\tau}}}{\auanafold{\Uof e}}\\
 % \Uof{\aeunfold{e}} & = \auunfold{\Uof{e}}\\
 % \Uof{\aetpl{\labelset}{\mapschema{e}{i}{\labelset}}} & = \autpl{\labelset}{\mapschemax{\Uofv}{e}{i}{\labelset}}\\
-% \Uof{\aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e}} &= \auasc{\ausum{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}}{\auanain{\ell}{\Uof{e}}}\\
+% \Uof{\aein{\ell}{e}} &= \auasc{\ausum{\labelset}{\mapschemax{\Uofv}{\tau}{i}{\labelset}}}{\auanain{\ell}{\Uof{e}}}\\
 % \Uof{\aematchwith{n}{\tau}{e}{\seqschemaX{r}}} &= \auasc{{\Uof{\tau}}}{\aumatchwithb{n}{\Uof{e}}{\seqschemaXx{\Uofv}{r}}}\\
 % \end{align*}
 % Notice that some type arguments that appear in $e$ appear within a type ascription in $\Uof{e}$. 
@@ -269,7 +269,7 @@ The following rule governs match expressions, which  must appear in analytic pos
     \esynX{\ue}{e}{\tau}\\
     \{\ranaX{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}
   }{
-    \eanaX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{\tau'}{e}{\seqschemaX{r}}}{\tau'}
+    \eanaX{\matchwith{\ue}{\seqschemaX{\urv}}}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}
   }
 \end{equation*}
 The typed rule expansion judgement is defined by the following rule:
@@ -496,6 +496,8 @@ These judgements are defined by rules given in Appendix \ref{appendix:proto-expa
 This rule is similar to Rule (\ref{rule:cvalidE-U-splicede}), which governed references to spliced expressions in $\miniVersePat$. Notice that here, the unexpanded expression $\ue$ is analyzed against the type $\tau$.
 
 \subsection{Metatheory}
+
+
 The following theorem establishes that typed pattern expansion produces an expanded pattern that matches values of the specified type and generates the same hypotheses. It must be stated mutually with the corresponding theorem about candidate expansion patterns, because the judgements are mutually defined.
 \begin{theorem}[Typed Pattern Expansion]\label{thm:typed-pattern-expansion-B} Both of the following hold:
 \begin{enumerate}

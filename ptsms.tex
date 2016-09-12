@@ -336,7 +336,7 @@ We will now define a reduced dialect of VerseML called $\miniVerseParam$ that su
 & \text{constructor abstraction}\\
 &&& \aecap{e}{c} %& \cAp{e}{c} 
 & \text{constructor application}\\
-&&& \aefold{t}{\tau}{e} %& \fold{e} 
+&&& \aefold{e} %& \fold{e} 
 & \text{fold}\\
 &&& \aeunfold{e} %& \unfold{e} 
 & \text{unfold}\\
@@ -346,10 +346,10 @@ We will now define a reduced dialect of VerseML called $\miniVerseParam$ that su
 &&& \aepr{\ell}{e} 
 %& \prj{e}{\ell} 
 & \text{projection}\\
-&&& \aein{\labelset}{\ell}{\mapschema{\tau}{i}{\labelset}}{e} 
+&&& \aein{\ell}{e} 
 %& \inj{\ell}{e} 
 & \text{injection}\\
-&&& \aematchwith{n}{\tau}{e}{\seqschemaX{r}} 
+&&& \aematchwith{n}{e}{\seqschemaX{r}} 
 %& \matchwith{e}{\seqschemaX{r}} 
 & \text{match}\\
 &&& \amval{M} 
