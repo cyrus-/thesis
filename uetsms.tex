@@ -1827,13 +1827,13 @@ Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as need
 \subsubsection{Abstract Reasoning Principles}
 The following theorem summarizes the abstract reasoning principles that programmers can rely on when applying an seTSM. In particular, the programmer can be sure that:
 \begin{enumerate} 
-\item (\textbf{Typing 1}) The type of the expansion is consistent with the type annotation on the seTSM definition.
-\item (\textbf{Segmentation}) The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segments is in-bounds and non-overlapping.)
-\item (\textbf{Typing 2}) Each spliced type has a well-formed expansion at the application site.
-\item (\textbf{Typing 3}) Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
-\item (\textbf{Typing 4}) Each spliced expression is well-typed, and consistent with its type annotation.
-\item (\textbf{Capture Avoidance}) The final expansion can be decomposed into a context-independent term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this context-independent term in a capture avoiding manner.
-\item (\textbf{Context Independence}) The context-independent term is indeed well-typed independent of the application site contexts.
+\item \textbf{Typing 1}: The type of the expansion is consistent with the type annotation on the seTSM definition.
+\item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+\item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
+\item \textbf{Typing 3}: Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
+\item \textbf{Typing 4}: Each spliced expression has a well-typed expansion consistent with its type annotation.
+\item \textbf{Capture Avoidance}: The final expansion can be decomposed into a context-independent term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this context-independent term in a capture avoiding manner.
+\item \textbf{Context Independence}: The context-independent term is indeed well-typed independent of the application site contexts.
 \end{enumerate}
 
 \begingroup

@@ -1098,9 +1098,9 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \begin{equation}\label{rule:ruleExpands}
 \graybox{\inferrule{
   \patExpands{\uAS{\uG'}{\pctx'}}{\uPhi}{\upv}{p}{\tau}\\
-  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
+  \expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
 }{
-  \ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
+  \ruleExpands{\uDelta}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }}
 \end{equation}
 
@@ -1137,7 +1137,7 @@ Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expands
     %   $\Delta \vdash_{\uPhi} \tplp{\mapschema{\upv}{i}{\labelset}}$\\
     %   $\leadsto$\\
     %   $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$\vspace{-1.2em}}\right)
-    \patExpands{\Gconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+    \patExpands{\GIconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
   }
 }
 % \graybox{\inferrule{
@@ -1175,7 +1175,7 @@ Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expands
 
 \end{subequations}
 
-In Rule (\ref{rule:patExpands-tpl}), $\upctx_i$ is shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\Gconsi{i \in \labelset}{\upctx_i}$ is shorthand for \[\uGG{\GIconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] 
+In Rule (\ref{rule:patExpands-tpl}), $\upctx_i$ is shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\GIconsi{i \in \labelset}{\upctx_i}$ is shorthand for \[\uGG{\GIconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] 
 \end{grayparbox}
 
 
@@ -1718,7 +1718,7 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
   \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
 % \left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
-  \cvalidP{\Gconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+  \cvalidP{\GIconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
 }
 \end{equation}
 \begin{equation}\label{rule:cvalidP-UP-in}
@@ -3041,6 +3041,7 @@ The conclusions hold as follows:
   \item \pfref{c4}
   \item \pfref{c5}
 \end{enumerate}
+\resetpfcounter
 \end{byCases}
 \end{proof}
 
@@ -3073,23 +3074,304 @@ The conclusions hold as follows:
 % \end{proof}
 
 \begin{grayparbox}
-The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
-
-\begin{theorem}[spTSM Typing and Segmentation]
-\label{thm:spTSM-Typing-Segmentation}
-If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+\begin{lemma}[Proto-Pattern Expansion Decomposition]
+\label{lemma:proto-pattern-expansion-decomposition-S}
+If $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ and 
+\[ 
+\summaryOf{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}
+\]
+then all of the following hold:
 \begin{enumerate}
-        \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+    \item $\sseq{
+          \expandsTU{\uDelta}
+          {
+            \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+          }{\tau'_i}
+        }{\nty}$
+    \item $\sseq{
+      \cvalidT{\emptyset}{
+        \tsceneUP
+          {\uDelta}{b}
+      }{
+        \ctau_i
+      }{\tau_i}
+    }{\npat}$
+    \item $\sseq{
+      \patExpands
+        {\upctx_i}
+        {\uPhi}
+        {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+        {p_i}
+        {\tau_i}
+    }{\npat}$
+  \item $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
+\end{enumerate}
+\end{lemma}
+\begin{proof} By rule induction over Rules (\ref{rules:cvalidP-UP}). In the following, let $\pscenev=\pscene{\uDelta}{\uPhi}{b}$.
+\begin{byCases}
+  \item[\text{(\ref{rule:cvalidP-UP-wild})}] ~
+    \begin{pfsteps*}
+      \item $\cpv=\acewildp$ \BY{assumption}
+      \item $e = \aewildp$ \BY{assumption}
+      \item $\upctx = \uGG{\emptyset}{\emptyset}$ \BY{assumption}
+      \item $\summaryOf{\acewildp} = \emptyset$ \BY{definition}
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item This conclusion holds trivially because $\nty=0$.
+      \item This conclusion holds trivially because $\npat=0$.
+      \item This conclusion holds trivially because $\npat=0$.
+      \item This conclusion holds trivially because $\upctx=\emptyset$ and $\npat=0$.
+    \end{enumerate}
+    \resetpfcounter
+  \item[\text{(\ref{rule:cvalidP-UP-fold})}] ~
+    \begin{pfsteps*}
+      \item $\cpv=\acefoldp{\cpv'}$ \BY{assumption}
+      \item $p=\aefoldp{p'}$ \BY{assumption}
+      \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
+      \item $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{cvalidP}
+      \item $\summaryOf{\acefoldp{\cpv'}} = \summaryOf{\cpv'}$ \BY{definition} \pflabel{summaryOf}
+      \item $\summaryOf{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\sseq{
+            \expandsTU{\uDelta}
+            {
+              \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+            }{\tau'_i}
+          }{\nty}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c1}
+      \item $\sseq{
+        \cvalidT{\emptyset}{
+          \tsceneUP
+            {\uDelta}{b}
+        }{
+          \ctau_i
+        }{\tau_i}
+      }{\npat}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c2}
+      \item $\sseq{
+        \patExpands
+          {\upctx_i}
+          {\uPhi}
+          {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+          {p_i}
+          {\tau_i}
+      }{\npat}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c3}
+    \item $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}}\pflabel{c4}\end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+    \item \pfref{c1}
+    \item \pfref{c2}
+    \item \pfref{c3}
+    \item \pfref{c4}
+    \end{enumerate}
+    \resetpfcounter
+  \item[\text{(\ref{rule:cvalidP-UP-tpl})}] ~
+    \begin{pfsteps*}
+      \item $\cpv=\acetplp{\labelset}{\mapschema{\cpv}{j}{\labelset}}$ \BY{assumption}
+      \item $p=\aetplp{\labelset}{\mapschema{p}{j}{\labelset}}$ \BY{assumption}
+      \item $\tau = \aprod{\labelset}{\mapschema{\tau}{j}{\labelset}}$ \BY{assumption}
+      \item $\upctx=\GIconsi{j \in \labelset}{\upctx_j}$ \BY{assumption} \pflabel{Gconsi}
+      \item $\{\cvalidP{\upctx_j}{\pscenev}{\cpv_j}{p_j}{\tau_j}\}_{j \in \labelset}$ \BY{assumption} \pflabel{cvalidP}
+      \item $\summaryOf{\acetplp{\labelset}{\mapschema{\cpv}{j}{\labelset}}} = \bigcup_{j \in \labelset} \summaryOf{\cpv_j}$ \BY{definition}
+      \item $\{ \summaryOf{\cpv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicedp{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\npatj} \}_{j \in \labelset}$ \BY{definition}\pflabel{summaryOf2}
+      \item $\npat = \Sigma_{j \in \labelset} \npatj$ \BY{definition}
+      \item $\{\sseq{
+            \expandsTU{\uDelta}
+            {
+              \parseUTypF{\bsubseq{b}{m'_{i,j}}{n'_{i,j}}}
+            }{\tau'_{i,j}}
+          }{\ntyj}\}_{j \in \labelset}$ \BY{IH over \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c1}
+      \item $\{\sseq{
+        \cvalidT{\emptyset}{
+          \tsceneUP
+            {\uDelta}{b}
+        }{
+          \ctau_{i,j}
+        }{\tau_{i,j}}
+      }{\npatj}\}_{j \in \labelset}$ \BY{IH over \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c2}
+      \item $\{\sseq{
+        \patExpands
+          {\upctx_{i,j}}
+          {\uPhi}
+          {\parseUPatF{\bsubseq{b}{m_{i,j}}{n_{i,j}}}}
+          {p_{i,j}}
+          {\tau_{i,j}}
+      }{\npatj}\}_{j \in \labelset}$ \BY{IH over \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c3}
+    \item $\{\upctx_j = \biguplus_{0 \leq i < \npatj} \upctx_{i,j}\}_{j \in \labelset}$ \BY{IH over \pfref{cvalidP} and \pfref{summaryOf2}}\pflabel{c4}
+    \item $\biguplus{j \in \labelset} \upctx_{j} = \biguplus_{j \in \labelset} \biguplus{i \in \npatj} \upctx_{i,j}$ \BY{definition and \pfref{c4}}\pflabel{c4x}
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item $\bigcup_{j \in \labelset} \bigcup_{i \in \ntyj} \text{\pfref{c1}}_{i,j}$
+      \item $\bigcup_{j \in \labelset} \bigcup_{i \in \npatj} \text{\pfref{c2}}_{i,j}$
+      \item $\bigcup_{j \in \labelset} \bigcup_{i \in \npatj} \text{\pfref{c3}}_{i,j}$
+      \item \pfref{c4x}
+    \end{enumerate}
+    \resetpfcounter
+  \item[\text{(\ref{rule:cvalidP-UP-in})}]
+    \begin{pfsteps*}
+      \item $\cpv=\aceinjp{\ell}{\cpv'}$ \BY{assumption}
+      \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
+      \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
+      \item $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau'}$ \BY{assumption} \pflabel{cvalidP}
+      \item $\summaryOf{\aceinjp{\ell}{\cpv'}} = \summaryOf{\cpv'}$ \BY{definition} \pflabel{summaryOf}
+      \item $\summaryOf{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\sseq{
+            \expandsTU{\uDelta}
+            {
+              \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+            }{\tau'_i}
+          }{\nty}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c1}
+      \item $\sseq{
+        \cvalidT{\emptyset}{
+          \tsceneUP
+            {\uDelta}{b}
+        }{
+          \ctau_i
+        }{\tau_i}
+      }{\npat}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c2}
+      \item $\sseq{
+        \patExpands
+          {\upctx_i}
+          {\uPhi}
+          {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+          {p_i}
+          {\tau_i}
+      }{\npat}$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}} \pflabel{c3}
+    \item $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$ \BY{IH on \pfref{cvalidP} and \pfref{summaryOf2}}\pflabel{c4}\end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+    \item \pfref{c1}
+    \item \pfref{c2}
+    \item \pfref{c3}
+    \item \pfref{c4}
+    \end{enumerate}
+    \resetpfcounter
+  \item[\text{(\ref{rule:cvalidP-UP-spliced})}] ~
+    \begin{pfsteps*}
+      \item $\cpv=\acesplicedp{m}{n}{\ctau}$ \BY{assumption}
+      \item $\cvalidT{\emptyset}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption} \pflabel{cvalidT}
+      \item $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption} \pflabel{parseUPat}
+      \item $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+      \item $\summaryOf{\acesplicedp{m}{n}{\ctau}} = \summaryOf{\ctau} \cup \{ \acesplicedp{m}{n}{\ctau} \}$ \BY{definition} \pflabel{summaryOf}
+      \item $\summaryOf{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
+  \parseUTypF{\bsubseq{b}{m_i}{n_i}}
+}{\tau_i}}{n}$ \BY{Lemma \ref{thm:proto-type-expansion-decomposition-SES} on \pfref{cvalidT} and \pfref{summaryOf2}} \pflabel{expandsTU}
+% \item $\sseq{\istypeU{\Delta_\text{app}}{\tau_i}}{n}$
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item \pfref{expandsTU}
+      \item \pfref{cvalidT}
+      \item \pfref{parseUPat} and \pfref{patExpands}
+      \item This conclusion holds by \pfref{patExpands} because $\npat=1$.
+    \end{enumerate}
+    \resetpfcounter
+\end{byCases}
+\end{proof}
+
+\begin{theorem}[spTSM Abstract Reasoning Principles]
+\label{thm:spTSM-Typing-Segmentation}
+If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
+\begin{enumerate}
+        \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
         \item $\encodeBody{b}{\ebody}$
         \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item (\textbf{Typing 2}) $\sseq{
+              \expandsTU{\uDelta}
+              {
+                \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+              }{\tau'_i}
+            }{\nty}$ and $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$
+        \item (\textbf{Typing 3}) $\sseq{
+          \cvalidT{\emptyset}{
+            \tsceneUP
+              {\uDelta}{b}
+          }{
+            \ctau_i
+          }{\tau_i}
+        }{\npat}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\npat}$
+        \item (\textbf{Typing 4}) $\sseq{
+          \patExpands
+            {\upctx_i}
+            {\uPhi}
+            {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+            {p_i}
+            {\tau_i}
+        }{\npat}$ and $\sseq{\patType{\upctx_i}{p_i}{\tau_i}}{\npat}$
+      \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). There is only one rule that applies.
+\begin{byCases}
+  \item[\text{(\ref{rule:patExpands-apuptsm})}] 
+    \begin{pfsteps*}
+      \item $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
+      \item $\uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ \BY{assumption} \pflabel{uPhidef}
+      \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion} on \pfref{patExpands}} \pflabel{patType}
+      \item $\encodeBody{b}{\ebody}$ \BY{assumption} \pflabel{encodeBody}
+      \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption} \pflabel{evalU}
+      \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption} \pflabel{decodeCEPat}
+      \item $\segOK{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
+      \item $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
+      \item $\summaryOf{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}}{\npat}$ \BY{definition}\pflabel{summaryOf}
+      \item $\sseq{
+            \expandsTU{\uDelta}
+            {
+              \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+            }{\tau'_i}
+          }{\nty}$ \BY{Lemma \ref{lemma:proto-pattern-expansion-decomposition-S} on \pfref{cvalidP} and \pfref{summaryOf}}\pflabel{c1}
+      \item $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$ \BY{Lemma \ref{lemma:type-expansion-U}, part 1 over \pfref{c1}}\pflabel{t1}
+      \item $\sseq{
+        \cvalidT{\emptyset}{
+          \tsceneUP
+            {\uDelta}{b}
+        }{
+          \ctau_i
+        }{\tau_i}
+      }{\npat}$  \BY{Lemma \ref{lemma:proto-pattern-expansion-decomposition-S} on \pfref{cvalidP} and \pfref{summaryOf}}\pflabel{c2}
+      \item $\sseq{\istypeU{\Delta}{\tau_i}}{\npat}$ \BY{Lemma \ref{lemma:type-expansion-U}, part 2 over \pfref{c2}}\pflabel{t2}
+      \item $\sseq{
+        \patExpands
+          {\upctx_i}
+          {\uPhi}
+          {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+          {p_i}
+          {\tau_i}
+      }{\npat}$ \BY{Lemma \ref{lemma:proto-pattern-expansion-decomposition-S} on \pfref{cvalidP} and \pfref{summaryOf}}\pflabel{c3}
+    \item $\sseq{\patType{\upctx_i}{p_i}{\tau_i}}{\npat}$ \BY{Theorem \ref{thm:typed-pattern-expansion} over \pfref{c3}}\pflabel{t3}
+    \item $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$ \pflabel{c4}
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+      \item \pfref{uPhidef} and \pfref{patType}
+      \item \pfref{encodeBody}
+      \item \pfref{evalU}
+      \item \pfref{decodeCEPat}
+      \item \pfref{segOK}
+      \item \pfref{summaryOf}
+      \item \pfref{c1} and \pfref{t1}
+      \item \pfref{c2} and \pfref{t2}
+      \item \pfref{c3} and \pfref{t3}
+      \item \pfref{c4}
+    \end{enumerate}
+    \resetpfcounter
+\end{byCases}
 \end{proof}
 \end{grayparbox}
 
+% \inferrule{
+%   \uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}\\\\
+%   \encodeBody{b}{\ebody}\\
+%   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
+%   \decodeCEPat{\ecand}{\cpv}\\\\
+%     \segOK{\segof{\cpv}}{b}\\
+%   \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
+% }{
+%   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
+% }}
 
 \chapter{$\miniVerseParam$}\label{appendix:miniVerseParam}
 
@@ -6340,7 +6622,7 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
   p=\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}\\\\
   \{\cvalidPP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
-  \cvalidPP{\Gconsi{i \in \labelset}{\uOmega_i}}{\pscenev}{\cpv}{p}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
+  \cvalidPP{\GIconsi{i \in \labelset}{\uOmega_i}}{\pscenev}{\cpv}{p}{\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}}
   %\cvalidPP{}{\cpv}{p}{}
 %\left(\shortstack{$\vdash^{\pscenev} $\\$\leadsto$\\$ :~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
 }
@@ -7124,7 +7406,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
     \tau = \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}\\\\
   \{\patExpands{{\upctx_i}}{\uPhi}{\upv_i}{p_i}{\tau_i}\}_{i \in \labelset}\\
 }{
-    \patExpands{\Gconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+    \patExpands{\GIconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
 }
 \end{equation}
 \begin{equation}\label{rule:patExpands-B-in}
@@ -7457,7 +7739,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
   \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
 % \left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
-  \cvalidP{\Gconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+  \cvalidP{\GIconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
 }
 \end{equation}
 \begin{equation}\label{rule:cvalidP-B-in}

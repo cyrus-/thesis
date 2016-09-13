@@ -167,8 +167,8 @@ To maintain a reasonable type discipline, proto-expansion validation  checks:
 %In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). 
 To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining TSM expansions directly, the validation process restricts variable patterns (e.g. \lstinline{name} and \lstinline{ssn} above): variable patterns can occur only in spliced patterns (just as variables bound at the use site can only appear in spliced expressions when using an expression TSM.) Indeed, there is no constructor for the type \li{proto_pat} corresponding to a variable pattern. This prohibition on ``hidden bindings'' is beneficial because the client can rely on the fact that no variables other than those that appear directly within the pattern at the application site are bound in the corresponding branch expression. This prohibition on hidden bindings is analagous to the prohibition on shadowing discussed in Sec. \ref{sec:uetsms-validation} (differing in that it is concerned with the bindings visible to the corresponding branch expression, rather than to spliced expressions.)
 
-\subsubsection{Context Independence}
-In VerseML, patterns are context-independent by construction (i.e. there is no way to refer to the surrounding bindings from within a pattern). It is only in the type annotations on spliced patterns that we need to enforce context independence.  (In languages that support, e.g., arbitrary expressions as \emph{guards} within patterns (e.g. OCaml \cite{ocaml-manual}), or in languages that support pattern synonyms, it would be necessary also to enforce context independence for these constructs as well.) 
+% \subsubsection{Context Independence}
+% In VerseML, patterns are context-independent by construction (i.e. there is no way to refer to the surrounding bindings from within a pattern). It is only in the type annotations on spliced patterns that we need to enforce context independence.  (In languages that support, e.g., arbitrary expressions as \emph{guards} within patterns (e.g. OCaml \cite{ocaml-manual}), or in languages that support pattern synonyms, it would be necessary also to enforce context independence for these constructs as well.) 
 
 \subsection{Final Expansion}\label{sec:ptsms-final-expansion}
 If validation succeeds, the semantics generates the \emph{final expansion} of the pattern where the references to spliced patterns in the proto-pattern have been replaced by their respective final expansions. For example, the final expansion of \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} is:
@@ -488,7 +488,7 @@ Rules (\ref{rule:expandsU-var}) through (\ref{rule:expandsU-tsmap}) are adapted 
 There is one new common unexpanded expression form in $\miniVersePat$: the unexpanded match form. Rule (\ref{rule:expandsU-match}) governs this form:
 \begin{equation*}\tag{\ref{rule:expandsU-match}}
 \inferrule{
-  \uDelta = \uDD{\uD}{\Delta}\\\\
+  % \uDelta = \uDD{\uD}{\Delta}\\\\
   \expandsUP{\uDelta}{\uGamma}{\uPhi}{\uPsi}{\ue}{e}{\tau}\\
   % \istypeU{\Delta}{\tau'}\\
   \{\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv_i}{r_i}{\tau}{\tau'}\}_{1 \leq i \leq n}\\
@@ -550,9 +550,9 @@ The typed rule expansion judgement is defined by Rule (\ref{rule:ruleExpands}), 
 \begin{equation*}\tag{\ref{rule:ruleExpands}}
 \inferrule{
   \patExpands{\uAS{\uG'}{\pctx'}}{\uPhi}{\upv}{p}{\tau}\\
-  \expandsUP{\uDD{\uD}{\Delta}}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
+  \expandsUP{\uDelta}{\uGG{\uGcons{\uG}{\uG'}}{\Gcons{\Gamma}{\pctx'}}}{\uPsi}{\uPhi}{\ue}{e}{\tau'} 
 }{
-  \ruleExpands{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
+  \ruleExpands{\uDelta}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
 \end{equation*}
 Because unexpanded terms mention only expression identifiers, which are given meaning by expansion to variables, the pattern typing rules must generate both a identifier expansion context, $\uG'$, and a typing context, $\pctx'$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
@@ -907,7 +907,7 @@ Notice that proto-rules bind expanded patterns, rather than proto-patterns. This
 
 
 \subsubsection{Proto-Pattern Validation}
-spTSMs generate candidate expansions of proto-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{proto-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:patExpands-apuptsm}), validates proto-patterns by checking that the pattern matches values of type $\tau$, and simultaneously generates the final expansion, $p$, and the hypotheses $\upctx$. Hypotheses can be generated only by spliced subpatterns, so there is no proto-pattern form corresponding to variable patterns (this is also why $\upctx$ appears as a superscript.)
+spTSMs generate candidate expansions of proto-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{proto-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:patExpands-apuptsm}), validates proto-patterns by checking that the pattern matches values of type $\tau$, and simultaneously generates the final expansion, $p$, and the hypotheses $\upctx$. Hypotheses can be generated only by spliced subpatterns, so there is no proto-pattern form corresponding to variable patterns.
 
 The proto-pattern validation judgement is defined mutually inductively with Rules (\ref{rules:patExpands}) by Rules (\ref{rules:cvalidP-UP}), reproduced below.
 \begin{equation*}\tag{\ref{rule:cvalidP-UP-wild}}
@@ -1233,20 +1233,70 @@ The mutual induction can be shown to be well-founded essentially as described in
 \end{proof}
 
 \subsubsection{Reasoning Principles}
-The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
-
+The following theorem summarizes the abstract reasoning principles available to programmers when applying an spTSM. In particular:
+\begin{enumerate}
+  \item \textbf{Typing 1}: The final expansion matches values of the type specified by the spTSM's type annotation.
+  \item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+  \item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
+  \item \textbf{Typing 3}: Each type annotation on a reference to a spliced pattern has a well-formed expansion at the application site.
+  \item \textbf{Typing 4}: Each spliced pattern has a well-typed expansion consistent with its type annotation.
+  \item \textbf{No Hidden Bindings}: The hypotheses generated by the TSM application are exactly those generated by the spliced patterns.
+\end{enumerate}
 \begingroup
 \def\thetheorem{\ref{thm:spTSM-Typing-Segmentation}}
-\begin{theorem}[spTSM Typing and Segmentation]
-If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+\begin{theorem}[spTSM Abstract Reasoning Principles]
+% \label{thm:spTSM-Typing-Segmentation}
+If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
 \begin{enumerate}
-        \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+        \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
         \item $\encodeBody{b}{\ebody}$
         \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item (\textbf{Typing 2}) $\sseq{
+              \expandsTU{\uDelta}
+              {
+                \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
+              }{\tau'_i}
+            }{\nty}$ and $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$
+        \item (\textbf{Typing 3}) $\sseq{
+          \cvalidT{\emptyset}{
+            \tsceneUP
+              {\uDelta}{b}
+          }{
+            \ctau_i
+          }{\tau_i}
+        }{\npat}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\npat}$
+        \item (\textbf{Typing 4}) $\sseq{
+          \patExpands
+            {\upctx_i}
+            {\uPhi}
+            {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
+            {p_i}
+            {\tau_i}
+        }{\npat}$ and $\sseq{\patType{\upctx_i}{p_i}{\tau_i}}{\npat}$
+      \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
-\end{proof}
+\begin{proof} The proof is given in Appendix \ref{lemma:proto-pattern-expansion-decomposition-S}.\end{proof}
 \endgroup
+
+
+% The following theorem, together with Theorem \ref{thm:typed-pattern-expansion} part 1, establishes \textbf{Typing} and \textbf{Segmentation}, as discussed in Sec. \ref{sec:ptsms-validation}.
+
+% \begingroup
+% \def\thetheorem{\ref{thm:spTSM-Typing-Segmentation}}
+% \begin{theorem}[spTSM Typing and Segmentation]
+% If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then 
+% \begin{enumerate}
+%         \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
+%         \item $\encodeBody{b}{\ebody}$
+%         \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+%         \item $\decodeCEPat{\ecand}{\cpv}$
+%         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+% \end{enumerate}
+% \end{theorem}
+% \begin{proof} By rule induction over Rules (\ref{rules:patExpands}). The only rule that applies is Rule (\ref{rule:patExpands-apuptsm}). The conclusions are premises of this rule.
+% \end{proof}
+% \endgroup

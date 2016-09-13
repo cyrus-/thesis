@@ -416,7 +416,7 @@
 \newcommand{\expandsSG}[7]{#1~#2~{\vdash_{#3}}{\setlength{\fboxsep}{0px}\colorbox{lightgray}{$_{\mathstrut; #4}$}}~ #5 \leadsto #6 : #7}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
-\newcommand{\patExpands}[5]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#1}
+\newcommand{\patExpands}[5]{\uDelta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
 \newcommand{\xuptsmdef}[2]{\abop{sptsm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
 \newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{spTSMs}}
@@ -432,7 +432,7 @@
 \newcommand{\encodePCEPat}[2]{#1 \downarrow_\mathsf{PPrPat} #2}
 
 
-\newcommand{\cvalidP}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}\,{#1}}
+\newcommand{\cvalidP}[5]{#3 \leadsto #4 : #5~\dashVx^{#2}\,{#1}}
 \newcommand{\cvalidR}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 : #6 \Mapsto #7}
 \newcommand{\cvalidRP}[6]{#1 \vdash^{#2} #3 \leadsto #4 : #5 \Mapsto #6}
 \newcommand{\crsyn}[7]{#1~#2 \vdash^{#3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
@@ -720,8 +720,8 @@
 \newcommand{\rsynP}[7]{#1 \vdash_{#2; #3} #4 \leadsto #5 \Rightarrow #6 \Mapsto #7}
 \newcommand{\rsynPX}[4]{\rsynP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}{#4}}
 
-\newcommand{\pExpandsSP}[6]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#6}
-\newcommand{\patExpandsP}[5]{#3 \leadsto #4 : #5 \,\dashVx_{#2}\,#1}
+\newcommand{\pExpandsSP}[6]{#1 \vdash_{#2} #3 \leadsto #4 : #5 \dashV #6}
+\newcommand{\patExpandsP}[5]{\uOmega \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
 
 \newcommand{\uKhyp}[3]{#1 \leadsto #2 :: #3}
 \newcommand{\uMhyp}[3]{#1 \leadsto #2 : #3}
@@ -881,8 +881,8 @@
 
 \newcommand{\csfrom}[1]{\mathsf{cs}(#1)}
 
-\newcommand{\cvalidPPE}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}{\,#1}}
-\newcommand{\cvalidPP}[5]{#3 \leadsto #4 : #5~\dashVx_{#2}{\,#1}}
+\newcommand{\cvalidPPE}[5]{#3 \leadsto #4 : #5~\dashVx^{#2}{\,#1}}
+\newcommand{\cvalidPP}[5]{#3 \leadsto #4 : #5~\dashVx^{#2}{\,#1}}
 
 \newcommand{\isvalP}[1]{#1~\mathsf{val}}
 
@@ -919,3 +919,5 @@
 \newcommand{\nexp}{n_\text{exp}}
 \newcommand{\nexpj}{n_\text{exp,$j$}}
 \newcommand{\nrules}{n}
+\newcommand{\npat}{n_\text{pat}}
+\newcommand{\npatj}{n_\text{pat,$j$}}
