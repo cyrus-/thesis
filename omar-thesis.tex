@@ -247,7 +247,7 @@ Eric Van Wyk, University of Minnesota}
 % copyright notice generated automatically from Year and author.
 % permission added if \permission{} given.
 
-\keywords{syntax, parsing, type systems, module systems, pattern matching, bidirectional typing, macro systems, hygiene, metaprogramming, domain-specific languages}
+\keywords{syntax, parsing, type systems, module systems, macro systems, hygiene, pattern matching, bidirectional typing, metaprogramming}
 
 \maketitle
 
@@ -258,20 +258,20 @@ Eric Van Wyk, University of Minnesota}
 
 \begin{abstract}
 \noindent
-Language designers commonly define ``syntactic sugar'' for selected standard library constructs.   
+Languages commonly define ``syntactic sugar'' for select standard library constructs.   
 %, i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
-For example, the designers of Standard ML (SML) defined derived forms for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
-Third-party library providers are, justifiably, envious of this special arrangement -- they would like to be able to define syntactic sugar for constructing and pattern matching on values of the types that they have defined. 
+For example, Standard ML (SML) defines syntactic sugar that decreases the syntactic cost of constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
+Third-party library providers are, justifiably, envious of this arrangement -- they would like to be able to define syntactic sugar for constructing and pattern matching on values of user-defined types. 
 
-One approach is for these library providers to define ``library-specific'' syntax dialects. For example, the providers of a ``collections'' library might define a syntax dialect with derived forms for finite sets and dictionaries. The providers of a ``web programming'' library might define a syntax dialect with derived forms for HTML and JSON values. The problem is that library clients cannot combine dialects like these in a manner that conserves syntactic determinism, i.e. synactic conflicts can and do arise. Moreover, it can become difficult for library clients to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar derived forms, i.e. there are no clear principles of \emph{syntactic abstraction}. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+One approach that library providers can take is to define a ``library-specific'' syntax dialect. For example, the providers of a ``collections'' library might define a syntax dialect with syntactic sugar for finite sets and dictionaries. Similarly, the providers of a ``web programming'' library might define a syntax dialect with syntactic sugar for HTML and JSON values. The problem is that library clients cannot combine dialects like these in a manner that conserves syntactic determinism, i.e. synactic conflicts can and do arise. Moreover, it can become difficult for library clients to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar forms, i.e. there are no clear principles of \emph{syntactic abstraction}. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-In this work, we introduce and formally define \emph{typed syntax macros (TSMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (only contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows library clients to maintain:
+This work formally introduces \emph{typed syntax macros (TSMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TSM client to maintain:
 \begin{itemize}
-\item a \emph{type discipline}, meaning that clients can reason about types while holding literal expansions abstract; and 
-\item a \emph{hygienic binding discipline}, meaning that clients can be sure that:
+\item a \emph{type discipline}, meaning that the client can reason about types while holding literal expansions abstract; and 
+\item a \emph{hygienic binding discipline}, meaning that the client can be sure that:
   \begin{enumerate}
     \item  literal expansions do not shadow bindings that appear at the TSM application site; and 
-  \item literal expansions do not refer to application site bindings directly. Instead, all interactions with bindings external to the expansion go through either \emph{spliced subterms} or \emph{explicit parameters}. %Partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+  \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}. Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
