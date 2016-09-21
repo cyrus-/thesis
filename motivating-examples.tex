@@ -2,9 +2,8 @@
 
 \section{Cognitive Cost}\label{sec:syntactic-properties}
 \begin{quote}
-\emph{Typical views on formal languages are based on the premise that they are,
-above all, mathematical objects: a greater level of precision and technical
-complexity in logical investigations arises because they are precisely defined
+\emph{...a greater level of precision and technical
+complexity in logical investigations arises because [formal languages] are precisely defined
 mathematical objects. Yet it would seem that viewing formal languages
 exclusively from this point of view offers a very partial and limited explanation
 of the impact that their use (and uses of formalisms more generally
@@ -59,7 +58,7 @@ With that in mind, the family of list types are defined in VerseML as follows:
 \begin{lstlisting}[numbers=none]
 type list('a) = rec(self => Nil + Cons of 'a * self)
 \end{lstlisting}
-Here, \li{list} is a {type function} binding its type parameter to the type variable \li{'a}. We apply parameters in post-fix position (rather than in prefix position, as in SML.) For example, the type of integer lists is \li{list(int)}. This is equivalent, by substitution of \li{int} for \li{'a}, to the following \emph{recursive type}:
+Here, \li{list} is a {type function} binding its type parameter to the type variable \li{'a}. We apply parameters in post-fix position (rather than in prefix position, as in SML.) For example, the type of integer lists is \li{list(int)}. This is equivalent, by substitution of \li{int} for \li{'a} on the right side of the definition above, to the following \emph{recursive type}:
 \begin{lstlisting}[numbers=none]
 rec(self => Nil + Cons of int * self)
 \end{lstlisting}
@@ -69,20 +68,20 @@ The values of a recursive type \li{T} are \li{fold(e)}, where \li{e} is a value 
 \begin{lstlisting}[numbers=none]
 Nil + Cons of int * list(int)
 \end{lstlisting}
-The values of a labeled sum type \li{T} are injections \li{inj[Lbl](e)}, where \li{Lbl} is a label specified by one of the variants of \li{T} and \li{e} is a value of the corresponding type. the {labeled sum type} above specifies two \emph{variants}:
+The values of a labeled sum type \li{T} are injections \li{inj[Lbl](e)}, where \li{Lbl} is a label specified by one of the \emph{variants} specified by \li{T} and \li{e} is a value of the corresponding type. The {labeled sum type} above specifies two {variants}:
 \begin{enumerate}
 \item One variant, labeled \li{Nil}, takes values of \li{unit} type (we can omit \li{of unit}.) The only value of \li{unit} type is the trivial value \li{()}.  
 \item The other variant, labeled \li{Cons}, takes values of the \emph{product type} \li{int * list(int)}, the values of which are tuples. 
 \end{enumerate}
 
-Taken together, we can define two example values of type \li{list(int)} as follows:
+Let us now define two example values of type \li{list(int)}:
 \begin{lstlisting}[numbers=none]
 val nil_int : list(int) = fold(inj[Nil] ())
 val one_int : list(int) = fold(inj[Cons] (1, nil_int))
 \end{lstlisting}
 Here, \li{nil_int} is the empty list and \li{one_int} is a list containing a single integer, \li{1}. %We omitted the type ascriptions on the folds and injections because VerseML can infer them.
 
-One way to lower syntactic cost is to define the following polymorphic values, called the \emph{list value constructors}, which abstract away the folds and injections:
+One way to lower syntactic cost is to define the following polymorphic values, called the \emph{list value constructors}, which abstract away the necessary folds and injections:
 \begin{lstlisting}[numbers=none]
 val Nil : list('a) = fold(inj[Nil] ())
 fun Cons(x : 'a * list('a)) : list('a) => fold(inj[Cons] x)
@@ -116,7 +115,7 @@ fun map (f : 'a -> 'b) (xs : list('a)) : list('b) =>
 \end{lstlisting}
 %To avoid syntactic ambiguity, variables must not begin with an uppercase letter.
 
-We group the type and value definitions above, as well as some other standard utility functions like \li{append}, into a \emph{module} \li{List : LIST}, where \li{LIST} is the \emph{signature} defined in Figure \ref{fig:LIST}. These definitions are not privileged in any way by the language definition. %In particular, there are no list-specific derived forms built in to the textual syntax of VerseML. We will show how TSMs allow programmers to achieve a similar syntax for lists over the next several chapters.
+We group the type and value definitions above, as well as some other standard utility functions like \li{append}, into a \emph{module} \li{List : LIST}, where \li{LIST} is the \emph{signature} defined in Figure \ref{fig:LIST}. These definitions are not privileged in any way by the language definition. In particular, there are no list-specific derived forms built in to the textual syntax of VerseML. We will show how TSMs allow programmers to achieve a similar syntax for lists over the next several chapters.
 
 \begin{figure}[h!]
 \begin{lstlisting}[numbers=none]
@@ -180,14 +179,14 @@ First, regexes are usually identified up to their reduction to a normal form. Fo
 
 Second, it can be useful for performance reasons to maintain additional data alongside each regex (e.g. a corresponding finite automaton.) In fact, there may be many ways to represent regexes, each with different performance trade-offs, so we would like to provide a choice of representations behind a common interface.
 
-To achieve these goals, we turn to the VerseML module system, which is based directly on the SML module system (which is based on early work by MacQueen \cite{MacQueen:1984:MSM:800055.802036}.) In particular, we define the {signature} abbreviated \li{RX} in Figure \ref{fig:signature-RX}.
+To achieve these goals, we turn to the VerseML module system, which is based directly on the SML module system \cite{mthm97-for-dart,dreyer2005understanding} (which originates in early work by MacQueen \cite{MacQueen:1984:MSM:800055.802036}.) In particular, let us define the {signature} abbreviated \li{RX} in Figure \ref{fig:signature-RX}.
 %Notice that it exposes an interface otherwise  to the one available using a case type:
 
 \begin{figure}[ht]
 \begin{lstlisting}[deletekeywords={case}]
 (* abstract regex unfoldings *)
 type u('a) = UEmpty + UStr of string + USeq of 'a * 'a + 
-            UOr of 'a * 'a + UStar of 'a
+             UOr of 'a * 'a + UStar of 'a
 
 signature RX = 
 sig
@@ -208,7 +207,7 @@ module R1 : RX = struct (* ... *) end
 module R2 : RX = struct (* ... *) end
 \end{lstlisting}
 \vspace{-5px}
-\caption{Definition of the \lstinline{RX} signature and two example implementations.}
+\caption{The \lstinline{RX} signature and two example implementations.}
 \label{fig:signature-RX}
 \end{figure}
 
@@ -222,7 +221,7 @@ Because the identity of the representation type \lstinline{R.t} is held abstract
 
 
 
-Similarly, clients cannot interrogate the structure of a value \li{r : R.t} directly. Instead, the signature specifies a function \li{unfold_norm} that produces the \emph{normal unfolding} of a given regex, i.e. a value of type \li{R.t u} that exposes only the outermost form of the regex in normal form (this normal form invariant is specified only as an unenforced side condition that implementations are expected to obey, as is common practice in languages like ML.) Clients can pattern match over the {normal unfolding} in the familiar manner, as shown in Figure \ref{fig:is_dna_rx_prime}. 
+Similarly, clients cannot interrogate the structure of a value \li{r : R.t} directly. Instead, the signature specifies a function \li{R.unfold_norm} that produces the \emph{normal unfolding} of a given regex, i.e. a value of type \li{u(R.t)} that exposes only the outermost form of the regex in normal form (this normal form invariant is specified only as an unenforced side condition that implementations are expected to obey, as is common practice in languages like ML.) Clients can pattern match over the {normal unfolding} in the familiar manner, as shown in Figure \ref{fig:is_dna_rx_prime}. 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 fun is_dna_rx'(r : R.t) : boolean => 
@@ -244,7 +243,7 @@ fun is_dna_rx'(r : R.t) : boolean =>
 
 The normal unfolding suffices in situations where a client needs to examine only the outermost structure of a regex. However, in general, a client may want to pattern match more deeply into a regex. There are various ways to approach this problem. 
 
-One approach is to define auxiliary functions that construct $n$-deep unfoldings of \li{r}, where $n$ is the deepest level at which the client wishes to expose the normal structure of the regex. For example, it is easy to define a function \li{unfold_norm2 : R.t -> R.t u u} in terms of \li{R.unfold_norm} that allows pattern matching to depth $2$.\footnote{Defining an unfolding \emph{generic} in $n$ is a more subtle problem that is beyond the scope of this work.} 
+One approach is to define auxiliary functions that construct $n$-deep unfoldings of \li{r}, where $n$ is the deepest level at which the client wishes to expose the normal structure of the regex. For example, it is easy to define a function \li{unfold_norm2 : R.t -> u(u(R.t))} in terms of \li{R.unfold_norm} that allows pattern matching to depth $2$.\footnote{Defining an unfolding \emph{generic} in $n$ is a more subtle problem that is beyond the scope of this work.} 
 
 Another approach is to \emph{completely unfold} a value of type \li{t} by applying a function \li{view : R.t -> rx} that recursively applies \li{R.unfold_norm} to exhaustion. The type \li{rx} was defined in Figure \ref{fig:datatype-rx}.  Computing the complete unfolding (also called the \emph{view}) can have higher dynamic cost than computing an incomplete unfolding of appropriate depth, but it is also a simpler approach (i.e.   lower cognitive cost can justify higher dynamic cost.)
 
@@ -253,7 +252,7 @@ Another approach is to \emph{completely unfold} a value of type \li{t} by applyi
 \begin{lstlisting}[numbers=none]
 functor RXUtil(R : RX) = 
 struct
-  fun unfold_norm2(r : R.t) : R.t u u => (* ... *)
+  fun unfold_norm2(r : R.t) : u(u(R.t)) => (* ... *)
 
   fun view(r : R.t) : rx => 
     match R.unfold_norm r with 
