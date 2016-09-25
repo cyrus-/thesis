@@ -784,7 +784,6 @@ L_\mathtt{SE} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessE}\\
   \mapitem{\lbltxt{ParseError}}{\prodt{}}, 
   \mapitem{\lbltxt{SuccessE}}{\tCEExp}
 }\\
-\lbltxt{SuccessE}\cdot e & \defeq \aein{L_\mathtt{SE}}{\mathtt{SuccessE}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessE}}{\tCEExp}}{e}
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 
 \begin{grayparbox}
@@ -795,7 +794,6 @@ L_\mathtt{SP} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessP}\\
   \mapitem{\lbltxt{ParseError}}{\prodt{}}, 
   \mapitem{\lbltxt{SuccessP}}{\tCEPat}
 }\\
-\lbltxt{SuccessP}\cdot e & \defeq \aein{L_\mathtt{SP}}{\mathtt{SuccessP}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessP}}{\tCEPat}}{e}
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 \end{grayparbox}
 
@@ -950,8 +948,8 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 \inferrule{
   \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
-  \decodeCondE{\ecand}{\ce}\\\\
+ \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}\\
+   \decodeCondE{\ecand}{\ce}\\\\
     \segOK{\segof{\ce}}{b}\\
   \cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}
 }{
@@ -1164,7 +1162,7 @@ Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expands
 \graybox{\inferrule{
   \uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
     \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
@@ -1959,7 +1957,7 @@ If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ an
         \item $\uA=\uA', \vExpands{\tsmv}{a}$ \BY{assumption}
         \item $\Phi=\Phi', \xuptsmbnd{a}{\tau}{\eparse}$ \BY{assumption}
         \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption}
+        \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption}
         \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
         \item $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDelta}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
 %        \item $\uptsmenv{\Delta}{\Phi', \xuptsmbnd{a}{\tau}{\eparse}}$ \BY{assumption} \pflabel{env}
@@ -2142,7 +2140,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
   \item \uA = \uA', \vExpands{\tsmv}{a} \BY{assumption}
   \item \Psi=\Psi', \xuetsmbnd{a}{\tau}{\eparse} \BY{assumption}
   \item \encodeBody{b}{\ebody} \BY{assumption}
-  \item \evalU{\eparse(\ebody)}{{\lbltxt{SuccessE}}\cdot{\ecand}} \BY{assumption}
+  \item \evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessE}}{\ecand}} \BY{assumption}
   \item \decodeCondE{\ecand}{\ce} \BY{assumption}
   \item \cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau} \BY{assumption}\pflabel{cvalidE}
 %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption} \pflabel{uetsmenv}
@@ -2941,7 +2939,7 @@ If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv
 \begin{enumerate}
 \item (\textbf{Typing 1}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$
 \item $\encodeBody{b}{\ebody}$
-\item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+\item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
 \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
@@ -2986,7 +2984,7 @@ If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv
   \item $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ \BY{assumption} \pflabel{expandsSG}
   \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expansion-short-U} on \pfref{expandsSG}} \pflabel{hastype}
   \item $\encodeBody{b}{\ebody}$ \BY{assumption} \pflabel{encodeBody}
-  \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessE}}\cdot{\ecand}}$ \BY{assumption} \pflabel{evalU}
+  \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessE}}{\ecand}}$ \BY{assumption} \pflabel{evalU}
   \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption} \pflabel{decodeCondE}
   \item $\segOK{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
   \item $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
@@ -3275,7 +3273,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
         \item $\encodeBody{b}{\ebody}$
-        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
         \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
@@ -3312,7 +3310,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
       \item $\uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ \BY{assumption} \pflabel{uPhidef}
       \item $\patType{\pctx}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion} on \pfref{patExpands}} \pflabel{patType}
       \item $\encodeBody{b}{\ebody}$ \BY{assumption} \pflabel{encodeBody}
-      \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption} \pflabel{evalU}
+      \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption} \pflabel{evalU}
       \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption} \pflabel{decodeCEPat}
       \item $\segOK{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
@@ -4852,8 +4850,8 @@ L_\mathtt{P} & \defeq \lbltxt{ParseError}, \lbltxt{Success}\\
   \mapitem{\lbltxt{Success}}{t}
 }}\\
 \tParseResult{\tau} & \defeq \acapp{\tParseResultF}{\tau}\\
-\lbltxt{SuccessE}\cdot e & \defeq \aein{L_\mathtt{P}}{\mathtt{Success}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{Success}}{\tPProtoExpr}}{e}\\
-\lbltxt{SuccessP}\cdot e & \defeq \aein{L_\mathtt{P}}{\mathtt{Success}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{Success}}{\tCEPat}}{e}
+% \lbltxt{SuccessE}\cdot e & \defeq \aein{L_\mathtt{P}}{\mathtt{Success}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{Success}}{\tPProtoExpr}}{e}\\
+% \lbltxt{SuccessP}\cdot e & \defeq \aein{L_\mathtt{P}}{\mathtt{Success}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{Success}}{\tCEPat}}{e}
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 
 \subsubsection{TSM Contexts}
@@ -5288,7 +5286,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmdefof{\epsilon_\text{normal}}=a\\
   \Psi = \Psi', \petsmdefn{a}{\rho}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessE}}\cdot{e_\text{pproto}}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}\\
   \decodePCEExp{e_\text{pproto}}{\pce}\\\\
   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
   \segOK{\segof{\ce}}{b}\\
@@ -5510,7 +5508,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmdefof{\epsilon_\text{normal}}=a\\
   \Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{e_\text{pproto}}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}\\
   \decodePCEPat{e_\text{pproto}}{\pcp}\\\\
   \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
       \segOK{\segof{\cpv}}{b}\\
@@ -6779,7 +6777,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
     \item $\tsmdefof{\epsilon_\text{normal}}=a$ \BY{assumption}
     \item $\Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}$ \BY{assumption}
     \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-    \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption}
+    \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption}
     \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
     \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption}
     \item $\cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption}
@@ -6914,7 +6912,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
   \item $\tsmdefof{\epsilon_\text{normal}}=a$
   \item $\Psi = \Psi', \petsmdefn{a}{\rho}{\eparse}$
   \item $\encodeBody{b}{\ebody}$
-  \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessE}}\cdot{e_\text{pproto}}}$
+  \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$
   \item $\decodePCEExp{e_\text{pproto}}{\pce}$
   \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
@@ -6939,7 +6937,7 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\tsmdefof{\epsilon_\text{normal}}=a$
   \item $\Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}$
   \item $\encodeBody{b}{\ebody}$
-  \item $\evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+  \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}$
   \item $\decodeCEPat{\ecand}{\cpv}$
   \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
@@ -7229,7 +7227,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
 \inferrule{
   \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}\\
   \decodeCondE{\ecand}{\ce}\\\\
     \segOK{\segof{\ce}}{b}\\
   \cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}
@@ -7341,7 +7339,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
   \inferrule{
     \uPsi = \uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}\\
   \decodeCondE{\ecand}{\ce}\\\\
     \segOK{\segof{\ce}}{b}\\
   \cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}
@@ -7420,7 +7418,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
 \inferrule{
   \uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
     \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
@@ -7432,7 +7430,7 @@ The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is indu
 \inferrule{
   \uPhi = \uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
     \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
@@ -7781,7 +7779,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
       \item \Phi = \Phi', \xuptsmbnd{a}{\tau}{\eparse} \BY{assumption}
       \item \uI = \uI', \designate{\tau}{a} \BY{assumption}
       \item   \encodeBody{b}{\ebody} \BY{assumption}
-      \item   \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}} \BY{assumption}
+      \item   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}} \BY{assumption}
       \item  \decodeCEPat{\ecand}{\cpv} \BY{assumption}
       \item  \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau} \BY{assumption} \pflabel{cvalidP}
       \item \patType{\pctx}{p}{\tau} \BY{IH, part 2 on \pfref{cvalidP}}
@@ -8118,7 +8116,7 @@ If $\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then
 \begin{enumerate}
 \item (\textbf{Typing}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$
 \item $\encodeBody{b}{\ebody}$
-\item $\evalU{\ap{\eparse}{\ebody}}{\lbltxt{SuccessE}\cdot\ecand}$
+\item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
 \item (\textbf{Context Independence}) $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ 
@@ -8164,7 +8162,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ then
 \begin{enumerate}
         \item (\textbf{Typing}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$
         \item $\encodeBody{b}{\ebody}$
-        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
 \end{enumerate}

@@ -722,7 +722,7 @@ Rule (\ref{rule:patExpands-apuptsm}), below, governs spTSM application.
 \inferrule{
   \uPhi = \uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}\\\\
   \encodeBody{b}{\ebody}\\
-  \evalU{\ap{\eparse}{\ebody}}{{\lbltxt{SuccessP}}\cdot{\ecand}}\\
+  \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
   \segOK{\segof{\cpv}}{b}\\
   \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
@@ -730,17 +730,11 @@ Rule (\ref{rule:patExpands-apuptsm}), below, governs spTSM application.
   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
 }
 \end{equation*}
-where:
-\[
-\lbltxt{SuccessP}\cdot e \defeq \aein{L_\mathtt{SP}}{\mathtt{SuccessP}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{SuccessP}}{\tCEPat}}{e}
-\]
-
-\noindent
 This rule is similar to Rule (\ref{rule:expandsU-tsmap}), which governs seTSM application. Its premises can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise ensures that $\tsmv$ has been defined and extracts the type annotation and parse function.
 \item The second premise determines the encoding of the literal body, $\ebody$.
-\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. If parsing succeeds, i.e. a value of the form abbreviated $\lbltxt{SuccessP}\cdot\ecand$ (as shown) results from evaluation, then $\ecand$ will be a value of type $\tCEPat$ (assuming a well-formed spTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
+\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. If parsing succeeds, then $\ecand$ will be a value of type $\tCEPat$ (assuming a well-formed spTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
 
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
@@ -1022,7 +1016,7 @@ The following theorem establishes that typed pattern expansion produces an expan
         \item $\uA=\uA', \vExpands{\tsmv}{a}$ \BY{assumption}
         \item $\Phi=\Phi', \xuptsmbnd{a}{\tau}{\eparse}$ \BY{assumption}
         \item $\encodeBody{b}{\ebody}$ \BY{assumption}
-        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$ \BY{assumption}
+        \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption}
         \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
         \item $\cvalidP{\uGG{\uG}{\pctx}}{\pscene{\uDelta}{\uAP{\uA}{\Phi}}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
 %        \item $\uptsmenv{\Delta}{\Phi', \xuptsmbnd{a}{\tau}{\eparse}}$ \BY{assumption} \pflabel{env}
@@ -1250,7 +1244,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
         \item $\encodeBody{b}{\ebody}$
-        \item $\evalU{\eparse(\ebody)}{{\lbltxt{SuccessP}}\cdot{\ecand}}$
+        \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
         \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
