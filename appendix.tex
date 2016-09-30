@@ -1102,7 +1102,7 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 }}
 \end{equation}
 
-Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expandsU}).
+% Rule (\ref{rule:ruleExpands}) is defined mutually with Rules (\ref{rules:expandsU}).
 
 \subsubsection{Typed Pattern Expansion}
 % \vspace{8px}
@@ -3397,7 +3397,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 & \text{definition}
 \end{array}\]
 
-\subsubsection{Kinds and Constructors}
+\subsubsection{Kinds and Constructions}
 \[\begin{array}{lrlllll}
 \textbf{Sort} & & & \textbf{Operational Form} 
 %& \textbf{Stylized Form} 
@@ -3414,13 +3414,13 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 %&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
 &&& \akty 
 %& \kty
-& \text{types}\\
+& \text{type}\\
 &&& \aksing{\tau} 
 %& \ksing{\tau} 
 & \text{singleton}\\
 \mathsf{Con} & c, \tau & ::= & u 
 %& u 
-& \text{constructor variable}\\
+& \text{construction variable}\\
 &&& t 
 %& t 
 & \text{type variable}
@@ -3462,7 +3462,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 & \text{labeled sum}\\
 &&& \amcon{M} 
 %& \mcon{M} 
-& \text{constructor component}
+& \text{construction component}
 \end{array}\]
 \clearpage
 
@@ -3481,9 +3481,9 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 %& \ap{e}{e} 
 & \text{application}\\
 &&& \aeclam{\kappa}{u}{e} %& \clam{u}{\kappa}{e} 
-& \text{constructor abstraction}\\
+& \text{construction abstraction}\\
 &&& \aecap{e}{\kappa} %& \cAp{e}{\kappa} 
-& \text{constructor application}\\
+& \text{construction application}\\
 &&& \aefold{e} %& \fold{e} 
 & \text{fold}\\
 &&& \aeunfold{e} %& \unfold{e} 
@@ -3630,7 +3630,7 @@ A well-formed unified context is one that can be constructed by some sequence of
 \end{equation}
 \end{subequations}
 
-\subsubsection{Kinds and Constructors}
+\subsubsection{Kinds and Constructions}
 \noindent\fbox{$\strut\iskindX{\kappa}$}~~$\kappa$ is a kind
 \begin{subequations}\label{rules:iskind}
 \begin{equation}\label{rule:iskind-darr}
@@ -3875,7 +3875,7 @@ A well-formed unified context is one that can be constructed by some sequence of
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\cequalX{c}{c'}{\kappa}$}~~$c$ and $c'$ are definitionally equal as constructors of kind $\kappa$
+\noindent\fbox{$\strut\cequalX{c}{c'}{\kappa}$}~~$c$ and $c'$ are definitionally equal as constructions of kind $\kappa$
 \begin{subequations}\label{rules:cequal}
 \begin{equation}\label{rule:cequal-refl}
 \inferrule{
@@ -4016,7 +4016,7 @@ A well-formed unified context is one that can be constructed by some sequence of
 \subsubsection{Expressions, Rules and Patterns}
 % \noindent\fbox{$\strut\istypeP{\Omega}{\tau}$}~~$\tau$ is a type
 
-% \vspace{6px}\noindent Types, $\tau$, classify expressions. The constructors of kind $\akty$ coincide with the types of $\miniVerseParam$.
+% \vspace{6px}\noindent Types, $\tau$, classify expressions. The constructions of kind $\akty$ coincide with the types of $\miniVerseParam$.
 % \begin{equation}\label{rule:istypeP}
 % \inferrule{
 %   \haskindX{\tau}{\akty}
@@ -4027,7 +4027,7 @@ A well-formed unified context is one that can be constructed by some sequence of
 
 % \noindent\fbox{$\strut\tequalPX{\tau}{\tau'}$}~~$\tau$ and $\tau'$ are definitionally equal types
 
-% \vspace{6px}\noindent Type equality then coincides with constructor equality at kind $\akty$.
+% \vspace{6px}\noindent Type equality then coincides with construction equality at kind $\akty$.
 % \begin{equation}\label{rule:tequalP}
 % \inferrule{
 %   \cequalX{\tau}{\tau}{\akty}
@@ -4273,7 +4273,7 @@ The rules above are syntax-directed, so we assume an inversion lemma for each ru
 A \emph{substitution}, $\omega$, is a finite function that maps:
 \begin{itemize}
 \item each $X \in \domof{\omega}$ to a module expression subtitution, $M/X$; 
-\item each $u \in \domof{\omega}$ to a constructor substitution, $c/u$; and 
+\item each $u \in \domof{\omega}$ to a construction substitution, $c/u$; and 
 \item each $x \in \domof{\omega}$ to an expression substitution, $e/x$.
 \end{itemize}
 
@@ -4407,7 +4407,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 % \end{figure}
 % \begin{figure}[p] \vspace{-10px}
 
-\subsubsection{Stylized Syntax -- Unexpanded Kinds and Constructors}
+\subsubsection{Stylized Syntax -- Unexpanded Kinds and Constructions}
 \[\begin{array}{lrlllll}
 \textbf{Sort} & & 
 %& \textbf{Operational Form} 
@@ -4424,13 +4424,13 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 %&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
 &&
 %& \aukty 
-& \kty & \text{types}\\
+& \kty & \text{type}\\
 &&
 %& \auksing{\utau} 
 & \ksing{\utau} & \text{singleton}\\
 \mathsf{UCon} & \uc, \utau & ::= 
 %& \uu 
-& \uu & \text{constructor identifier}\\
+& \uu & \text{construction identifier}\\
 &&
 %& \ut 
 & \ut & \\
@@ -4474,10 +4474,10 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 & \sumt{\mapschema{\utau}{i}{\labelset}} & \text{labeled sum}\\
 &&
 %& \aumcon{\uX} 
-& \mcon{\uX} & \text{constructor component}
+& \mcon{\uX} & \text{construction component}
 \end{array}\]%\vspace{-15px}
-% \caption[Syntax of unexpanded kinds and constructors in $\miniVerseParam$]{Syntax of unexpanded kinds and constructors in $\miniVerseParam$.}\vspace{-10px}
-% \label{fig:P-unexpanded-kinds-constructors}
+% \caption[Syntax of unexpanded kinds and constructions in $\miniVerseParam$]{Syntax of unexpanded kinds and constructions in $\miniVerseParam$.}\vspace{-10px}
+% \label{fig:P-unexpanded-kinds-constructions}
 % \end{figure}
 \clearpage
 
@@ -4508,10 +4508,10 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 & \ap{\ue}{\ue} & \text{application}\\
 &&
 %& \auclam{\ukappa}{\uu}{\ue} 
-& \clam{\uu}{\ukappa}{\ue} & \text{constructor abstraction}\\
+& \clam{\uu}{\ukappa}{\ue} & \text{construction abstraction}\\
 &&
 %& \aucap{\ue}{\uc} 
-& \cAp{\ue}{\uc} & \text{constructor application}\\
+& \cAp{\ue}{\uc} & \text{construction application}\\
 &&
 %& \auanafold{\ue} 
 & \fold{\ue} & \text{fold}\\
@@ -4594,24 +4594,24 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 \mathsf{UMType} & \urho & ::= 
 %& \autype{\utau} 
 & \utau & \text{type annotation}\\
-&&
+% &&
 %& \aualltypes{\ut}{\urho} 
-& \alltypes{\ut}{\urho} & \text{type parameterization}\\
+% & \alltypes{\ut}{\urho} & \text{type parameterization}\\
 &&
 %& \auallmods{\usigma}{\uX}{\urho} 
 & \allmods{\uX}{\usigma}{\urho} & \text{module parameterization}\\
 \mathsf{UMExp} & \uepsilon & ::= 
 %& \abindref{\tsmv} 
-& \tsmv & \text{TSM binding reference}\\
-&&
+& \tsmv & \text{TSM identifier reference}\\
+% &&
 %& \auabstype{\ut}{\uepsilon} 
-& \abstype{\ut}{\uepsilon} & \text{type abstraction}\\
+% & \abstype{\ut}{\uepsilon} & \text{type abstraction}\\
 &&
 %& \auabsmod{\usigma}{\uX}{\uepsilon} 
 & \absmod{\uX}{\usigma}{\uepsilon} & \text{module abstraction}\\
-&&
+% &&
 %& \auaptype{\utau}{\uepsilon} 
-& \aptype{\uepsilon}{\utau} & \text{type application}\\
+% & \aptype{\uepsilon}{\utau} & \text{type application}\\
 &&
 %& \auapmod{\uM}{\uepsilon} 
 & \apmod{\uepsilon}{\uX} & \text{module application}%\ECC
@@ -4635,24 +4635,24 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 \mathsf{MType} & \rho & ::= & \aetype{\tau} 
 %& \tau 
 & \text{type annotation}\\
-&&& \aealltypes{t}{\rho} 
+% &&& \aealltypes{t}{\rho} 
 %& \alltypes{t}{\rho} 
-& \text{type parameterization}\\
+% & \text{type parameterization}\\
 &&& \aeallmods{\sigma}{X}{\rho} 
 %& \allmods{X}{\sigma}{\rho} 
 & \text{module parameterization}\\
 \mathsf{MExp} & \epsilon & ::= & \adefref{a} 
 %& a 
 & \text{TSM definition reference}\\
-&&& \aeabstype{t}{\epsilon} 
+% &&& \aeabstype{t}{\epsilon} 
 %& \abstype{t}{\epsilon} 
-& \text{type abstraction}\\
+% & \text{type abstraction}\\
 &&& \aeabsmod{\sigma}{X}{\epsilon} 
 %& \absmod{X}{\sigma}{\epsilon} 
 & \text{module abstraction}\\
-&&& \aeaptype{\tau}{\epsilon} 
+% &&& \aeaptype{\tau}{\epsilon} 
 %& \aptype{\epsilon}{\tau} 
-& \text{type application}\\
+% & \text{type application}\\
 &&& \aeapmod{M}{\epsilon} 
 %& \aptype{\epsilon}{M} 
 & \text{module application}%\ECC
@@ -4735,7 +4735,7 @@ Each expanded form, with a few minor exceptions noted below, maps onto an unexpa
 \Uof{\aseal{\sigma}{M}} & = \seal{\Uof{M}}{\Uof{\sigma}}\\
 \Uof{\amlet{\sigma}{M}{X}{M'}} & = \mlet{\sigilof{X}}{\Uof{M}}{\Uof{M'}}{\Uof{\sigma}}
 \end{align*}
-\item Each constructor variable, $u$, maps onto a unique {type identifier}, written $\sigilof{u}$.
+\item Each construction variable, $u$, maps onto a unique {type identifier}, written $\sigilof{u}$.
 \item Each kind, $\kappa$, maps onto an unexpanded kind, $\Uof{\kappa}$, as follows:
 \begin{align*}
 \Uof{\akdarr{\kappa}{u}{\kappa'}} & = \kdarr{\sigilof{u}}{\Uof{\kappa}}{\Uof{\kappa'}}\\
@@ -4744,7 +4744,7 @@ Each expanded form, with a few minor exceptions noted below, maps onto an unexpa
 \Uof{\akty} & = \kty\\
 \Uof{\aksing{\tau}} & = \ksing{\Uof{\tau}}
 \end{align*}
-\item Each constructor, $c$, except for constructors of the form $\amcon{M}$ where $M$ is not a module variable, maps onto an unexpanded type, $\Uof{c}$, as follows: 
+\item Each construction, $c$, except for constructions of the form $\amcon{M}$ where $M$ is not a module variable, maps onto an unexpanded type, $\Uof{c}$, as follows: 
   \begin{align*}
   \Uof{u} &= \sigilof{u}\\
   \Uof{\acabs{u}{c}} & = \cabs{\sigilof{u}}{\Uof{c}}\\
@@ -4811,12 +4811,12 @@ There is also a context-free textual syntax for the UL. We need only posit the e
 
 \subsection{Typed Expansion}\label{appendix:typed-expansion-P}
 \subsubsection{Unexpanded Unified Contexts}\label{appendix:u-unified-ctxs}
-A \emph{unexpanded unified context}, $\uOmega$, takes the form $\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$, where $\uMctx$ is a \emph{module identifier expansion context}, $\uD$ is a \emph{constructor identifier expansion context}, $\uG$ is an \emph{expression identifier expansion context}, and $\Omega$ is a unified context.
+A \emph{unexpanded unified context}, $\uOmega$, takes the form $\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$, where $\uMctx$ is a \emph{module identifier expansion context}, $\uD$ is a \emph{construction identifier expansion context}, $\uG$ is an \emph{expression identifier expansion context}, and $\Omega$ is a unified context.
 
 % \subsubsection{Identifier Expansion Contexts}
 A module identifier expansion context, $\uMctx$, is a finite function that maps each module identifier $\uX \in \domof{\uMctx}$ to the module identifier expansion $\vExpands{\uX}{X}$. We write $\uOmega, \uMhyp{\uX}{X}{\sigma}$ when $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$ as an abbreviation of \[\uOmegaEx{\uD}{\uG}{\uMctx \uplus \vExpands{\uX}{X}}{\Omega, X : \sigma}\]
 
-A constructor identifier expansion context, $\uD$, is a finite function that maps each constructor identifier $\uu \in \domof{\uD}$ to the constructor identifier expansion $\vExpands{\uu}{u}$. We write $\uOmega, \uKhyp{\uu}{u}{\kappa}$ when $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$ as an abbreviation of \[\uOmegaEx{\uD \uplus \vExpands{\uu}{u}}{\uG}{\uMctx}{\Omega, u :: \kappa}\]
+A construction identifier expansion context, $\uD$, is a finite function that maps each construction identifier $\uu \in \domof{\uD}$ to the construction identifier expansion $\vExpands{\uu}{u}$. We write $\uOmega, \uKhyp{\uu}{u}{\kappa}$ when $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$ as an abbreviation of \[\uOmegaEx{\uD \uplus \vExpands{\uu}{u}}{\uG}{\uMctx}{\Omega, u :: \kappa}\]
 
 An expression identifier expansion context, $\uG$, is a finite function that maps each expression identifier $\ux \in \domof{\uG}$ to the expression identifier expansion $\vExpands{\ux}{x}$. We write $\uOmega, \uGhyp{\ux}{x}{\tau}$ when $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$ as an abbreviation of \[\uOmegaEx{\uD}{\uG \uplus \vExpands{\ux}{x}}{\uMctx}{\Omega, x : \tau}\]
 
@@ -4967,7 +4967,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\subsubsection{Kind and Constructor Expansion}
+\subsubsection{Kind and Construction Expansion}
 \noindent\fbox{$\strut\kExpandsX{\ukappa}{\kappa}$}~~$\ukappa$ has well-formed expansion $\kappa$
 \begin{subequations}\label{rules:kExpands-B}
 \begin{equation}\label{rule:kExpands-B-darr}
@@ -5512,40 +5512,14 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \decodePCEPat{e_\text{pproto}}{\pcp}\\\\
   \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
       \segOK{\segof{\cpv}}{b}\\
-  \cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}
+  \cvalidPP{\uOmega'}{\psceneP{\Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}
 }{
   \patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{[\omega]\tau_\text{proto}}
 }
 \end{equation}
 \end{subequations}
 
-\subsubsection{TSM Types and Expressions}
-\noindent\fbox{$\strut\istsmty{\Omega}{\rho}$}~~$\rho$ is a TSM type
-\begin{subequations}\label{rules:istsmty}
-\begin{equation}\label{rule:istsmty-type}
-\inferrule{
-  \haskindX{\tau}{\akty}
-}{
-  \istsmty{\Omega}{\aetype{\tau}}
-}
-\end{equation}
-\begin{equation}\label{rule:istsmty-alltypes}
-\inferrule{
-  \istsmty{\Omega, t :: \akty}{\rho}
-}{
-  \istsmty{\Omega}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:istsmty-allmods}
-\inferrule{
-  \issig{\Omega}{\sigma}\\
-  \istsmty{\Omega, X : \sigma}{\rho}
-}{
-  \istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\end{subequations}
-
+\subsubsection{TSM Type and Expression Expansion}
 \noindent\fbox{$\strut\tsmtyExpands{\uOmega}{\urho}{\rho}$}~~$\urho$ has well-formed expansion $\rho$
 \begin{subequations}\label{rules:tsmtyExpands}
 \begin{equation}\label{rule:tsmtyExpands-type}
@@ -5555,13 +5529,13 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmtyExpands{\uOmega}{{\utau}}{\aetype{\tau}}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmtyExpands-alltypes}
-\inferrule{
-  \tsmtyExpands{\uOmega, \uKhyp{\ut}{t}{\akty}}{\urho}{\rho}
-}{
-  \tsmtyExpands{\uOmega}{\alltypes{\ut}{\urho}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmtyExpands-alltypes}
+% \inferrule{
+%   \tsmtyExpands{\uOmega, \uKhyp{\ut}{t}{\akty}}{\urho}{\rho}
+% }{
+%   \tsmtyExpands{\uOmega}{\alltypes{\ut}{\urho}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmtyExpands-allmods}
 \inferrule{
   \sigExpandsPX{\usigma}{\sigma}\\
@@ -5570,87 +5544,6 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmtyExpands{\uOmega}{\allmods{\uX}{\usigma}{\urho}}{\aeallmods{\sigma}{X}{\rho}}
 }
 \end{equation}
-\end{subequations}
-
-\noindent\fbox{$\strut\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$}~~$\epsilon$ is a peTSM expression at $\rho$
-\begin{subequations}\label{rules:hastsmtypeExp}
-\begin{equation}\label{rule:hastsmtypeExp-defref}
-\inferrule{ }{
-  \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-abstype}
-\inferrule{
-  \hastsmtypeExp{\Omega, t :: \akty}{\Psi}{\epsilon}{\rho}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-absmod}
-\inferrule{
-  \issigX{\sigma}\\
-  \hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon}{\rho}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-aptype}
-\inferrule{
-  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \haskindX{\tau}{\akty}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypeExp-apmod}
-\inferrule{
-  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \hassig{\Omega}{X}{\sigma}
-}{
-  \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-\end{subequations}
-
-\noindent\fbox{$\strut\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$}~~$\epsilon$ is a ppTSM expression at $\rho$
-\begin{subequations}\label{rules:hastsmtypePat}
-\begin{equation}\label{rule:hastsmtypePat-defref}
-\inferrule{ }{
-  \hastsmtypePat{\Omega}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-abstype}
-\inferrule{
-  \hastsmtypePat{\Omega, t :: \akty}{\Phi}{\epsilon}{\rho}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-absmod}
-\inferrule{
-  \issigX{\sigma}\\
-  \hastsmtypePat{\Omega, X : \sigma}{\Phi}{\epsilon}{\rho}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-aptype}
-\inferrule{
-  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \haskindX{\tau}{\akty}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
-}
-\end{equation}
-\begin{equation}\label{rule:hastsmtypePat-apmod}
-\inferrule{
-  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-  \hassig{\Omega}{X}{\sigma}
-}{
-  \hastsmtypePat{\Omega}{\Phi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-}
-\end{equation}
-
 \end{subequations}
 
 \noindent\fbox{$\strut\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho}$}~~$\uepsilon$ has peTSM expression expansion $\epsilon$ at $\rho$
@@ -5662,13 +5555,13 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmexpExpandsExp{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA, \mapitem{\tsmv}{\epsilon}}{\Psi}}{{\tsmv}}{\epsilon}{\rho}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-abstype}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-abstype}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpExpandsExp-absmod}
 \inferrule{
   \sigExpandsPX{\usigma}{\sigma}\\
@@ -5677,14 +5570,14 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmexpExpandsExp{\uOmega}{\uPsi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpExpandsExp-aptype}
-\inferrule{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \cExpandsX{\utau}{\tau}{\akty}
-}{
-  \tsmexpExpandsExp{\uOmega}{\uPsi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsExp-aptype}
+% \inferrule{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \cExpandsX{\utau}{\tau}{\akty}
+% }{
+%   \tsmexpExpandsExp{\uOmega}{\uPsi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpExpandsExp-apmod}
 \inferrule{
   \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
@@ -5704,13 +5597,13 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA, \mapitem{\tsmv}{\epsilon}}{\Phi}}{{\tsmv}}{\epsilon}{\rho}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-abstype}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-abstype}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPhi}{\uepsilon}{\epsilon}{\rho}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\abstype{\ut}{\uepsilon}}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpExpandsPat-absmod}
 \inferrule{
   \sigExpandsPX{\usigma}{\sigma}\\
@@ -5719,14 +5612,14 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \tsmexpExpandsPat{\uOmega}{\uPhi}{\absmod{\uX}{\usigma}{\uepsilon}}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpExpandsPat-aptype}
-\inferrule{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
-  \cExpandsX{\utau}{\tau}{\akty}
-}{
-  \tsmexpExpandsPat{\uOmega}{\uPhi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpExpandsPat-aptype}
+% \inferrule{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \cExpandsX{\utau}{\tau}{\akty}
+% }{
+%   \tsmexpExpandsPat{\uOmega}{\uPhi}{\aptype{\uepsilon}{\utau}}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho} 
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpExpandsPat-apmod}
 \inferrule{
   \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
@@ -5737,90 +5630,141 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal peTSM expression
-\begin{subequations}\label{rules:tsmexpNormalExp}
-\begin{equation}\label{rule:tsmexpNormalExp-defref}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-abstype}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-absmod}
-\inferrule{ }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-aptype}
+\subsubsection{Statics of the TSM Language}
+\noindent\fbox{$\strut\istsmty{\Omega}{\rho}$}~~$\rho$ is a TSM type
+\begin{subequations}\label{rules:istsmty}
+\begin{equation}\label{rule:istsmty-type}
 \inferrule{
-  \epsilon \neq \aeabstype{t}{\epsilon'}\\
-  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+  \haskindX{\tau}{\akty}
 }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
+  \istsmty{\Omega}{\aetype{\tau}}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpNormalExp-apmod}
+% \begin{equation}\label{rule:istsmty-alltypes}
+% \inferrule{
+%   \istsmty{\Omega, t :: \akty}{\rho}
+% }{
+%   \istsmty{\Omega}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:istsmty-allmods}
 \inferrule{
-  \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
-  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+  \issig{\Omega}{\sigma}\\
+  \istsmty{\Omega, X : \sigma}{\rho}
 }{
-  \tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
+  \istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho}}
 }
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\tsmexpNormalPat{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal ppTSM expression
-\begin{subequations}\label{rules:tsmexpNormalPat}
-\begin{equation}\label{rule:tsmexpNormalPat-defref}
+\noindent\fbox{$\strut\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$}~~$\epsilon$ is a peTSM expression at $\rho$
+\begin{subequations}\label{rules:hastsmtypeExp}
+\begin{equation}\label{rule:hastsmtypeExp-defref}
 \inferrule{ }{
-  \tsmexpNormalPat{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
+  \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpNormalPat-abstype}
-\inferrule{ }{
-  \tsmexpNormalPat{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalPat-absmod}
-\inferrule{ }{
-  \tsmexpNormalPat{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpNormalPat-aptype}
+% \begin{equation}\label{rule:hastsmtypeExp-abstype}
+% \inferrule{
+%   \hastsmtypeExp{\Omega, t :: \akty}{\Psi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:hastsmtypeExp-absmod}
 \inferrule{
-  \epsilon \neq \aeabstype{t}{\epsilon'}\\
-  \tsmexpNormalPat{\Omega}{\Psi}{\epsilon}
+  \issigX{\sigma}\\
+  \hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon}{\rho}
 }{
-  \tsmexpNormalPat{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
+  \hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
 }
 \end{equation}
-\begin{equation}\label{rule:tsmexpNormalPat-apmod}
+% \begin{equation}\label{rule:hastsmtypeExp-aptype}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \haskindX{\tau}{\akty}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
+% }
+% \end{equation}
+\begin{equation}\label{rule:hastsmtypeExp-apmod}
 \inferrule{
-  \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
-  \tsmexpNormalPat{\Omega}{\Psi}{\epsilon}
+  \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+  \hassig{\Omega}{X}{\sigma}
 }{
-  \tsmexpNormalPat{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
+  \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
 }
 \end{equation}
 \end{subequations}
+
+\noindent\fbox{$\strut\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$}~~$\epsilon$ is a ppTSM expression at $\rho$
+\begin{subequations}\label{rules:hastsmtypePat}
+\begin{equation}\label{rule:hastsmtypePat-defref}
+\inferrule{ }{
+  \hastsmtypePat{\Omega}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
+}
+\end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-abstype}
+% \inferrule{
+%   \hastsmtypePat{\Omega, t :: \akty}{\Phi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeabstype{t}{\epsilon}}{\aealltypes{t}{\rho}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:hastsmtypePat-absmod}
+\inferrule{
+  \issigX{\sigma}\\
+  \hastsmtypePat{\Omega, X : \sigma}{\Phi}{\epsilon}{\rho}
+}{
+  \hastsmtypePat{\Omega}{\Phi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+}
+\end{equation}
+% \begin{equation}\label{rule:hastsmtypePat-aptype}
+% \inferrule{
+%   \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aealltypes{t}{\rho}}\\
+%   \haskindX{\tau}{\akty}
+% }{
+%   \hastsmtypePat{\Omega}{\Phi}{\aeaptype{\tau}{\epsilon}}{[\tau/t]\rho}
+% }
+% \end{equation}
+\begin{equation}\label{rule:hastsmtypePat-apmod}
+\inferrule{
+  \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+  \hassig{\Omega}{X}{\sigma}
+}{
+  \hastsmtypePat{\Omega}{\Phi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+}
+\end{equation}
+
+\end{subequations}
+
+The following metafunction extracts the TSM name from a TSM expression.
+\begin{subequations}
+\begin{align}
+\tsmdefof{\adefref{a}} & = a \label{eqn:tsmdefof-adefref}\\
+% \tsmdefof{\aeabstype{t}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-abstype}\\
+\tsmdefof{\aeabsmod{\sigma}{X}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-absmod}\\
+% \tsmdefof{\aeaptype{\tau}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-aptype}\\
+\tsmdefof{\aeapmod{X}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-apmod}
+\end{align}
+\end{subequations}
+
+\subsubsection{Dynamics of the TSM Language}
 
 \noindent\fbox{$\strut\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ transitions to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpStepsExp}
-\begin{equation}\label{rule:tsmexpStepsExp-aptype-1}
-\inferrule{
-  \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpStepsExp-aptype-2}
-\inferrule{ }{
-  \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpStepsExp-aptype-1}
+% \inferrule{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpStepsExp-aptype-2}
+% \inferrule{ }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpStepsExp-apmod-1}
 \inferrule{
   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
@@ -5835,20 +5779,20 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ transitions to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ transitions to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpStepsPat}
-\begin{equation}\label{rule:tsmexpStepsPat-aptype-1}
-\inferrule{
-  \tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}
-}{
-  \tsmexpStepsPat{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
-}
-\end{equation}
-\begin{equation}\label{rule:tsmexpStepsPat-aptype-2}
-\inferrule{ }{
-  \tsmexpStepsPat{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
-}
-\end{equation}
+% \begin{equation}\label{rule:tsmexpStepsPat-aptype-1}
+% \inferrule{
+%   \tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpStepsPat{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}{\aeaptype{\tau}{\epsilon'}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:tsmexpStepsPat-aptype-2}
+% \inferrule{ }{
+%   \tsmexpStepsPat{\Omega}{\Psi}{\aeaptype{\tau}{\aeabstype{t}{\epsilon}}}{[\tau/t]\epsilon}
+% }
+% \end{equation}
 \begin{equation}\label{rule:tsmexpStepsPat-apmod-1}
 \inferrule{
   \tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}
@@ -5887,7 +5831,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpMultistepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpMultistepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpMultistepsPat}
 \begin{equation}\label{rule:tsmexpMultistepsPat-refl}
 \inferrule{ }{
@@ -5922,7 +5866,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 
 
-\noindent\fbox{$\strut\tsmexpEvalsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ normalizes to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpEvalsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ normalizes to $\epsilon'$
 \begin{equation}\label{rule:tsmexpEvalsPat}
 \inferrule{
   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
@@ -5932,16 +5876,78 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 }
 \end{equation}
 
-The following metafunction extracts the TSM name from a TSM expression.
-\begin{subequations}
-\begin{align}
-\tsmdefof{\adefref{a}} & = a \label{eqn:tsmdefof-adefref}\\
-\tsmdefof{\aeabstype{t}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-abstype}\\
-\tsmdefof{\aeabsmod{\sigma}{X}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-absmod}\\
-\tsmdefof{\aeaptype{\tau}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-aptype}\\
-\tsmdefof{\aeapmod{X}{\epsilon}} & = \tsmdefof{\epsilon} \label{eqn:tsmdefof-apmod}
-\end{align}
+
+\noindent\fbox{$\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal peTSM expression
+\begin{subequations}\label{rules:tsmexpNormalExp}
+\begin{equation}\label{rule:tsmexpNormalExp-defref}
+\inferrule{ }{
+  \tsmexpNormalExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
+}
+\end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-abstype}
+% \inferrule{ }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:tsmexpNormalExp-absmod}
+\inferrule{ }{
+  \tsmexpNormalExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
+}
+\end{equation}
+% \begin{equation}\label{rule:tsmexpNormalExp-aptype}
+% \inferrule{
+%   \epsilon \neq \aeabstype{t}{\epsilon'}\\
+%   \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+% }{
+%   \tsmexpNormalExp{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:tsmexpNormalExp-apmod}
+\inferrule{
+  \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
+  \tsmexpNormalExp{\Omega}{\Psi}{\epsilon}
+}{
+  \tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
+}
+\end{equation}
 \end{subequations}
+
+\noindent\fbox{$\tsmexpNormalPat{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal ppTSM expression
+\begin{subequations}\label{rules:tsmexpNormalPat}
+\begin{equation}\label{rule:tsmexpNormalPat-defref}
+\inferrule{ }{
+  \tsmexpNormalPat{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
+}
+\end{equation}
+% \begin{equation}\label{rule:tsmexpNormalPat-abstype}
+% \inferrule{ }{
+%   \tsmexpNormalPat{\Omega}{\Psi}{\aeabstype{t}{\epsilon}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:tsmexpNormalPat-absmod}
+\inferrule{ }{
+  \tsmexpNormalPat{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}
+}
+\end{equation}
+% \begin{equation}\label{rule:tsmexpNormalPat-aptype}
+% \inferrule{
+%   \epsilon \neq \aeabstype{t}{\epsilon'}\\
+%   \tsmexpNormalPat{\Omega}{\Psi}{\epsilon}
+% }{
+%   \tsmexpNormalPat{\Omega}{\Psi}{\aeaptype{\tau}{\epsilon}}
+% }
+% \end{equation}
+\begin{equation}\label{rule:tsmexpNormalPat-apmod}
+\inferrule{
+  \epsilon \neq \aeabsmod{\sigma}{X'}{\epsilon'}\\
+  \tsmexpNormalPat{\Omega}{\Psi}{\epsilon}
+}{
+  \tsmexpNormalPat{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
+}
+\end{equation}
+\end{subequations}
+
+
 \section{Proto-Expansion Validation}\label{appendix:P-proto-expansion-validation}
 \subsection{Syntax of Proto-Expansions}
 \subsubsection{Syntax -- Parameterized Proto-Expressions}
@@ -5949,7 +5955,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 % \LCC \color{Yellow}&\color{Yellow}&\color{Yellow}& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 \mathsf{PPrExpr} & \pce & ::= & \apceexp{\ce} & \pceexp{\ce} & \text{proto-expression}\\
-&&& \apcebindtype{t}{\pce} & \pcebindtype{t}{\pce} & \text{type binding}\\
+% &&& \apcebindtype{t}{\pce} & \pcebindtype{t}{\pce} & \text{type binding}\\
 &&& \apcebindmod{X}{\pce} & \pcebindmod{X}{\pce} & \text{module binding}%\ECC
 \end{array}\]
 
@@ -5958,22 +5964,22 @@ The following metafunction extracts the TSM name from a TSM expression.
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 % \LCC \color{Yellow}&\color{Yellow}&\color{Yellow}& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 \mathsf{PPrPat} & \pcp & ::= & \apcepat{\cpv} & {\cpv} & \text{proto-pattern}\\
-&&& \apcebindtype{t}{\pcp} & \pcebindtype{t}{\pcp} & \text{type binding}\\
+% &&& \apcebindtype{t}{\pcp} & \pcebindtype{t}{\pcp} & \text{type binding}\\
 &&& \apcebindmod{X}{\pcp} & \pcebindmod{X}{\pcp} & \text{module binding}%\ECC
 \end{array}\]
 
-\subsubsection{Syntax -- Proto-Kinds and Proto-Constructors}
+\subsubsection{Syntax -- Proto-Kinds and Proto-Constructions}
 \[\begin{array}{lrlllll}
 \textbf{Sort} & & & \textbf{Operational Form} & \textbf{Stylized Form} & \textbf{Description}\\
 \mathsf{PrKind} & \cekappa & ::= & \acekdarr{\cekappa}{u}{\cekappa} & \kdarr{u}{\cekappa}{\cekappa} & \text{dependent function}\\
 &&& \acekunit & \kunit & \text{nullary product}\\
 &&& \acekdbprod{\cekappa}{u}{\cekappa} & \kdbprod{u}{\cekappa}{\cekappa} & \text{dependent product}\\
 %&&& \akdprodstd & \kdprodstd & \text{labeled dependent product}\\
-&&& \acekty & \kty & \text{types}\\
+&&& \acekty & \kty & \text{type}\\
 &&& \aceksing{\ctau} & \ksing{\ctau} & \text{singleton}\\
 % \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedk{m}{n} & \splicedk{m}{n} & \text{spliced kind}\\%\ECC\\
-\mathsf{PrCon} & \cec, \ctau & ::= & u & u & \text{constructor variable}\\
+\mathsf{PrCon} & \cec, \ctau & ::= & u & u & \text{construction variable}\\
 &&& t & t & \text{type variable}\\
 % &&& \acecasc{\cekappa}{\cec} & \casc{\cec}{\cekappa} & \text{ascription}\\
 &&& \acecabs{u}{\cec} & \cabs{u}{\cec} & \text{abstraction}\\
@@ -5989,9 +5995,9 @@ The following metafunction extracts the TSM name from a TSM expression.
 &&& \acerec{t}{\ctau} & \rect{t}{\ctau} & \text{recursive}\\
 &&& \aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \prodt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled product}\\
 &&& \acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}} & \sumt{\mapschema{\ctau}{i}{\labelset}} & \text{labeled sum}\\
-&&& \acemcon{X} & \mcon{X} & \text{constructor component}\\
+&&& \acemcon{X} & \mcon{X} & \text{construction component}\\
 % \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
-&&& \acesplicedc{m}{n}{\cekappa} & \splicedc{m}{n}{\cekappa} & \text{spliced constructor}%\ECC
+&&& \acesplicedc{m}{n}{\cekappa} & \splicedc{m}{n}{\cekappa} & \text{spliced construction}%\ECC
 \end{array}\]
 
 \subsubsection{Syntax -- Proto-Expressions and Proto-Rules}
@@ -6003,8 +6009,8 @@ The following metafunction extracts the TSM name from a TSM expression.
 % &&& \aceanalam{x}{\ce} & \analam{x}{\ce} & \text{abstraction (unannotated)}\\
 &&& \acelam{\ctau}{x}{\ce} & \lam{x}{\ctau}{\ce} & \text{abstraction}\\
 &&& \aceap{\ce}{\ce} & \ap{\ce}{\ce} & \text{application}\\
-&&& \aceclam{\cekappa}{u}{\ce} & \clam{u}{\cekappa}{\ce} & \text{constructor abstraction}\\
-&&& \acecap{\ce}{\cec} & \cAp{\ce}{\cec} & \text{constructor application}\\
+&&& \aceclam{\cekappa}{u}{\ce} & \clam{u}{\cekappa}{\ce} & \text{construction abstraction}\\
+&&& \acecap{\ce}{\cec} & \cAp{\ce}{\cec} & \text{construction application}\\
 &&& \acefold{\ce} & \fold{\ce} & \text{fold}\\
 &&& \aceunfold{\ce} & \unfold{\ce} & \text{unfold}\\
 &&& \acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}} & \tpl{\mapschema{\ce}{i}{\labelset}} & \text{labeled tuple}\\
@@ -6037,7 +6043,7 @@ Each expanded term, with a few exceptions noted below, maps onto a proto-expansi
   \Cof{\akty} & = \acekty\\
   \Cof{\aksing{\tau}} & = \aceksing{\Cof{\tau}}
   \end{array}\]
-  \item Each constructor, $c$, maps onto a proto-constructor, $\Cof{c}$, as follows:
+  \item Each construction, $c$, maps onto a proto-construction, $\Cof{c}$, as follows:
   \[\arraycolsep=1pt\begin{array}{rl}
   \Cof{u} & = u\\
   \Cof{\acabs{u}{c}} & = \acecabs{u}{\Cof{c}}\\
@@ -6126,7 +6132,7 @@ Again, rather than picking a particular definition of $\tPCEPat$ and defining th
 \end{condition}
 
 \subsubsection{Splice Summaries}
-The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, or proto-pattern, $\summaryOf{\cpv}$, is the finite set of references to spliced kinds, constructors, expressions and patterns that it mentions.
+The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, or proto-pattern, $\summaryOf{\cpv}$, is the finite set of references to spliced kinds, constructions, expressions and patterns that it mentions.
 
 \subsubsection{Segmentations}
 A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by the splice summary.
@@ -6205,21 +6211,21 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 \begin{minipage}{0.42\textwidth}
 \noindent\fbox{$\strut\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$}\end{minipage}
 \begin{minipage}{0.58\textwidth}
-When applying peTSM $\epsilon$ at $\rho$, $\pce$ has deparameterization $\ce$ with parameter substitution $\omega$\end{minipage}
+When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepce}
 \begin{equation}\label{rule:prepce-ceexp}
 \inferrule{ }{
   \prepce{\Omega_\text{app}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\apceexp{\ce}}{\ce}{\adefref{a}}{\rho}{\emptyset}{\emptyset}
 }
 \end{equation}
-\begin{equation}\label{rule:prepce-alltypes}
-\inferrule{
-  \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\aealltypes{t}{\rho}}{\omega}{\Omega}\\
-  t \notin \domof{\Omega_\text{app}}
-}{
-  \prepce{\Omega_\text{app}}{\Psi}{\apcebindtype{t}{\pce}}{\ce}{\aeaptype{\tau}{\epsilon}}{\rho}{\omega, \tau/t}{\Omega, t :: \akty}
-}
-\end{equation}
+% \begin{equation}\label{rule:prepce-alltypes}
+% \inferrule{
+%   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\aealltypes{t}{\rho}}{\omega}{\Omega}\\
+%   t \notin \domof{\Omega_\text{app}}
+% }{
+%   \prepce{\Omega_\text{app}}{\Psi}{\apcebindtype{t}{\pce}}{\ce}{\aeaptype{\tau}{\epsilon}}{\rho}{\omega, \tau/t}{\Omega, t :: \akty}
+% }
+% \end{equation}
 \begin{equation}\label{rule:prepce-allmods}
 \inferrule{
   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\
@@ -6233,21 +6239,21 @@ When applying peTSM $\epsilon$ at $\rho$, $\pce$ has deparameterization $\ce$ wi
 \noindent\begin{minipage}{0.42\textwidth}
 \fbox{$\strut\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$}\end{minipage}
 \begin{minipage}{0.58\textwidth}
-When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ with parameter substitution $\omega$\end{minipage}
+When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepcp}
 \begin{equation}\label{rule:prepcp-cepat}
 \inferrule{ }{
   \prepcp{\Omega_\text{app}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\apcepat{\cpv}}{\cpv}{\adefref{a}}{\rho}{\emptyset}{\emptyset}
 }
 \end{equation}
-\begin{equation}\label{rule:prepcp-alltypes}
-\inferrule{
-  \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aealltypes{t}{\rho}}{\omega}{\Omega}\\
-  t \notin \domof{\Omega_\text{app}}
-}{
-  \prepcp{\Omega_\text{app}}{\Phi}{\apcebindtype{t}{\pcp}}{\cpv}{\aeaptype{\tau}{\epsilon}}{\rho}{\omega, \tau/t}{\Omega, t :: \akty}
-}
-\end{equation}
+% \begin{equation}\label{rule:prepcp-alltypes}
+% \inferrule{
+%   \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aealltypes{t}{\rho}}{\omega}{\Omega}\\
+%   t \notin \domof{\Omega_\text{app}}
+% }{
+%   \prepcp{\Omega_\text{app}}{\Phi}{\apcebindtype{t}{\pcp}}{\cpv}{\aeaptype{\tau}{\epsilon}}{\rho}{\omega, \tau/t}{\Omega, t :: \akty}
+% }
+% \end{equation}
 \begin{equation}\label{rule:prepcp-allmods}
 \inferrule{
   \prepce{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\
@@ -6281,10 +6287,10 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
 
 \subsection{Proto-Expansion Validation}
 \subsubsection{Splicing Scenes}
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\Omega}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{constructor splicing scenes}, $\cscenev$, are of the form $\csceneP{\Omega}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\uOmega}{\uPhi}{b}$. We write $\csfrom{\escenev}$ for the constructor splicing scene constructed by dropping the TSM contexts from $\escenev$:
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\Omega_\text{params}}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{construction splicing scenes}, $\cscenev$, are of the form $\csceneP{\Omega_\text{params}}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\Omega_\text{params}}{\uOmega}{\uPhi}{b}$. We write $\csfrom{\escenev}$ for the construction splicing scene constructed by dropping the TSM contexts from $\escenev$:
 \[\csfrom{\esceneP{\OParams}{\uOmega}{\uPsi}{\uPhi}{b}} = \csceneP{\OParams}{\uOmega}{b}\]
 
-\subsubsection{Proto-Kind and Proto-Constructor Validation}
+\subsubsection{Proto-Kind and Proto-Construction Validation}
 \noindent\fbox{$\strut\cvalidKX{\cekappa}{\kappa}$}~~$\cekappa$ has well-formed expansion $\kappa$
 \begin{subequations}\label{rules:cvalidK}
 \begin{equation}\label{rule:cvalidK-darr}
@@ -6638,7 +6644,7 @@ When applying ppTSM $\epsilon$ at $\rho$, $\pcp$ has deparameterization $\cpv$ w
   \parseUPat{\bsubseq{b}{m}{n}}{\upv}\\
   \patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau}
 }{
-  \cvalidPP{\uOmega'}{\pscene{\uOmega}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
+  \cvalidPP{\uOmega'}{\psceneP{\Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\acesplicedp{m}{n}{\ctau}}{p}{\tau}
 }
 \end{equation}
 \end{subequations}
@@ -6695,8 +6701,8 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\
 \begin{proof}\todo{proof}\end{proof}
 
 \subsection{Typed Expansion}
-\subsubsection{Kinds and Constructors}
-\begin{theorem}[Kind and Constructor Expansion]
+\subsubsection{Kinds and Constructions}
+\begin{theorem}[Kind and Construction Expansion]
 \label{thm:kind-and-constructor-expansion-P}
 ~
 \begin{enumerate}
@@ -6780,7 +6786,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
     \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption}
     \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
     \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption}
-    \item $\cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption}
+    \item $\cvalidPP{\uOmega'}{\psceneP{\Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption}
     \item $\tau = [\omega]\tau_\text{proto}$ \BY{assumption}
     \item $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{\todo{lemma}}
     \item $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ \BY{\todo{lemma}}
@@ -6941,7 +6947,7 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\decodeCEPat{\ecand}{\cpv}$
   \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
-  \item $\cvalidPP{\uOmega'}{\psceneP{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
+  \item $\cvalidPP{\uOmega'}{\psceneP{\Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
   \item $\tau = [\omega]\tau_\text{proto}$
   \item (\textbf{Typing}) $\tau_\text{final} = [\omega]\tau_\text{proto}$
 \end{enumerate}
@@ -7924,7 +7930,7 @@ The mutual induction can be shown to be well-founded by an argument nearly ident
 
 % This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
 \end{proof}
-\subsection{Typed Expression Expansion}\label{appendix:SES-typed-expression-expansion}
+\subsection{Typed Expression Expansion}\label{appendix:P-typed-expression-expansion}
 \begin{theorem}[Typed Expansion (Full)]\label{thm:typed-expansion-full-U} ~
 \begin{enumerate}
   \item \begin{enumerate}

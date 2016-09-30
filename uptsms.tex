@@ -1,11 +1,12 @@
 % !TEX root = omar-thesis.tex
 \chapter{Simple Pattern TSMs (spTSMs)}\label{chap:uptsms}
-In Chapter \ref{chap:uetsms}, our interest was in situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value by pattern matching. For example, recall the recursive labeled sum type \lstinline{rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value, \lstinline{r}, of type \lstinline{rx} using VerseML's \lstinline{match} construct (as already discussed in Sec. \ref{sec:motivating-examples}): 
+In Chapter \ref{chap:uetsms}, our interest was in situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value by pattern matching. For example, consider again the recursive labeled sum type \lstinline{rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value \lstinline{r} of type \lstinline{rx} using VerseML's \lstinline{match} construct (as already described in Sec. \ref{sec:motivating-examples}): 
 \begin{lstlisting}
-fun f(r : rx) => 
+fun is_seq(r : rx) => 
   match r with 
     Seq(Str(name), Seq(Str "SSTR: ESTR", ssn)) => Some (name, ssn)
   | _ => None
+  end
 \end{lstlisting}
 % \begin{lstlisting}
 % fun is_dna_rx(r : rx) : boolean => 
@@ -21,9 +22,9 @@ fun f(r : rx) =>
 %   end
 % \end{lstlisting}
 
-Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the concrete syntax. During evaluation, the value of the scrutinee is matched against each pattern sequentially. If a match occurs, evaluation takes the corresponding branch. 
+Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the concrete syntax. During evaluation, the value of the scrutinee is matched against each pattern sequentially. If a match occurs, evaluation proceeds down the corresponding branch. 
 
-Variable patterns match any value. In the corresponding branch, the variable stands for that value. A variables can  appear only once in a pattern.  
+Variable patterns match any value. In the corresponding branch, the variable stands for that value. A variable can  appear only once in a pattern.  
 For example, on Line 3 above, the pattern 
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
@@ -32,7 +33,7 @@ matches values with the following structure:
 \begin{lstlisting}[numbers=none]
 Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))
 \end{lstlisting}
-where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{rx}. The variables \li{name} and \li{ssn} stand for the values of $e_1$ and $e_2$, respectively, in the corresponding branch expression, i.e. \li{Some (name, ssn)}. 
+where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{rx}. The variables \li{name} and \li{ssn} stand for the values of $e_1$ and $e_2$, respectively, in the corresponding branch expression. 
 
 On Line 4 above, the pattern \li{_} is the \emph{wildcard pattern} -- it matches any value of the appropriate type and binds no variables.
 
@@ -42,19 +43,21 @@ It is also possible to statically decide when a rule is \emph{redundant} relativ
 
 Nested pattern matching generalizes the projection and case analysis operators (i.e. the \emph{eliminators}) for products and sums (cf. $\miniVerseUE$ from the previous section.) 
 
-Complex patterns can individually have high syntactic cost. In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical syntactic dialect of VerseML called $\mathcal{V}_\texttt{rx}$ with derived regex pattern forms. In this dialect, we can express the example above at lower syntactic cost using standard POSIX syntax extended with pattern splicing forms:
+In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of VerseML called $\mathcal{V}_\texttt{rx}$ with derived regex pattern forms. In this dialect, we can express the example above at lower syntactic cost using standard POSIX syntax extended with pattern splicing forms:
 
 \begin{lstlisting}
 fun f(r : rx) => 
   match r with 
     /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
-  | _ => None\end{lstlisting}
+  | _ => None
+  end
+\end{lstlisting}
 \noindent
-Dialect formation is not a modular approach, for the reasons discussed in Chapter \ref{sec:problems-with-syntax-dialects}.
+This dialect-oriented approach has problems, as  discussed in Chapter \ref{sec:problems-with-syntax-dialects}.
 
 % seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns to a similar degree.
 
-Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value of a  recursive labeled sum type like \li{rx}. However, expressions are syntactically distinct from patterns, so we cannot simply apply an expression TSM to generate a pattern.\footnote{The fact that certain concrete expression and pattern forms overlap is immaterial to this fundamental distinction. There are many expression forms that the expansion generated by an expression TSM might use that have no corresponding pattern form, e.g.  lambda abstraction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
+Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value, but expressions are syntactically distinct from patterns, so we cannot simply apply an expression TSM to generate a pattern.\footnote{The fact that certain concrete expression and pattern forms coincidentally overlap is immaterial to this fundamental distinction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
 For this reason, we need to introduce a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{simple pattern TSMs} (spTSMs), i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{rx}. In Chapter \ref{chap:ptsms}, we will consider both expression and pattern TSMs that specify type and module parameters (peTSMs and ppTSMs). 
 
 The organization of the remainder of this chapter mirrors that of Chapter \ref{chap:uetsms}. We begin in Sec. \ref{sec:ptsms-by-example} with a ``tutorial-style'' introduction to spTSMs in VerseML. 
@@ -70,6 +73,7 @@ fun f(r : rx) =>
   match r with 
     $rx /SURL@EURLnameSURL: %EURLssn/ => Some (name, ssn)
   | _ => None
+  end
 \end{lstlisting}
 Like expression TSMs, pattern TSMs are applied to \emph{generalized literal forms} (see Figure \ref{fig:literal-forms}.) During the  \emph{typed expansion} phase, the applied pattern TSM parses the body of the literal form to generate a \emph{proto-expansion}. The language validates the proto-expansion according to criteria that we will establish in Sec. \ref{sec:ptsms-validation}. If validation succeeds, the language generates the final expansion (or more concisely, simply the expansion) of the pattern. The expansion of the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/} 
 from the example above is the following pattern:
@@ -77,7 +81,7 @@ from the example above is the following pattern:
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
-The checks for exhaustiveness and redundancy are performed post-expansion in the usual manner.
+The checks for exhaustiveness and redundancy are performed post-expansion.
 
 For convenience, the programmer can specify a TSM at the outset of a sequence of rules that is applied to every outermost generalized literal form. For example, the function \li{is_dna_rx} from Figure \ref{fig:is_dna_rx} and Figure \ref{fig:derived-pattern-syntax} can be expressed using the spTSM \li{#\dolla#rx} as follows:
 \begin{lstlisting}[morekeywords={using}]
@@ -109,7 +113,7 @@ The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM
 syntax $rx at rx for expressions by
   static fn(body : body) : proto_expr parse_result => 
     (* regex expression parser here *)
-and for patterns by 
+for patterns by 
   static fn(body : Body) : parse_result(proto_pat) => 
     (* regex pattern parser here *)
 end
@@ -121,10 +125,11 @@ The type \li{proto_pat}, defined in Figure \ref{fig:CEPat}, is analagous to the 
 
 \begin{figure}
 \begin{lstlisting}[numbers=none]
-type proto_pat = (* no variable pattern form *) 
-               + Wild
+type proto_pat = rec(proto_pat => 
+                 (* no variable pattern form *) 
+                 Wild
                + (* ... *)
-               + SplicedP of loc * proto_typ
+               + SplicedP of loc * proto_typ)
 \end{lstlisting}
 \caption[Abbreviated definition of \li{proto_pat} in VerseML]{Abbreviated definition of \li{proto_pat} in the VerseML prelude.}
 \label{fig:CEPat}
@@ -134,7 +139,7 @@ type proto_pat = (* no variable pattern form *)
 Spliced patterns are unexpanded patterns that appear directly within the literal body of another unexpanded pattern. For example, \li{name} and \li{ssn} appear within the unexpanded pattern \li{#\dolla#rx /SURL@EURLnameSURL: %EURLssn/}. 
 When the parse function determines that a subsequence of the literal body should be taken as a spliced pattern (here, by recognizing the characters \li{@} or \li{%} followed by a variable or parenthesized pattern), 
 it can refer to it within the proto-expansion that it computes using the \li{SplicedP} variant of the \li{proto_pat} type shown in Figure \ref{fig:CEPat}. This variant takes a value of type \li{loc} because proto-patterns refer to spliced patterns indirectly by their position within the literal body. This prevents pattern TSMs from ``forging'' a spliced pattern (i.e. claiming that some pattern is a spliced pattern, even though it does not appear in the literal body.) 
-Like references to spliced expressions, each reference to a spliced pattern must specify a type.
+Like references to spliced expressions, each reference to a spliced pattern must also specify a type.
 
 The proto-expansion generated by the pattern TSM \li{#\dolla#rx} for the example above, if written in a hypothetical concrete syntax where references to spliced patterns are written \li{spliced<startIdx; endIdx; ty>}, is:
 \begin{lstlisting}[numbers=none]
@@ -165,7 +170,7 @@ To maintain a reasonable type discipline, proto-expansion validation  checks:
 
 \subsubsection{Hidden Bindings}\label{sec:ptsms-hygiene}
 %In order to check that the candidate expansion is well-typed, the language must parse, type and expand the spliced subpatterns that the candidate expansion refers to (by their position within the literal body, cf. above). 
-To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining TSM expansions directly, the validation process restricts variable patterns (e.g. \lstinline{name} and \lstinline{ssn} above): variable patterns can occur only in spliced patterns (just as variables bound at the use site can only appear in spliced expressions when using an expression TSM.) Indeed, there is no constructor for the type \li{proto_pat} corresponding to a variable pattern. This prohibition on ``hidden bindings'' is beneficial because the client can rely on the fact that no variables other than those that appear directly within the pattern at the application site are bound in the corresponding branch expression. This prohibition on hidden bindings is analagous to the prohibition on shadowing discussed in Sec. \ref{sec:uetsms-validation} (differing in that it is concerned with the bindings visible to the corresponding branch expression, rather than to spliced expressions.)
+To maintain a useful binding discipline, i.e. to allow programmers to reason about variable binding without examining TSM expansions directly, the validation process allows variable patterns to occur only in spliced patterns (just as variables bound at the use site can only appear in spliced expressions when using an expression TSM.) Indeed, there is no constructor for the type \li{proto_pat} corresponding to a variable pattern. This prohibition on ``hidden bindings'' is beneficial because the client can rely on the fact that no variables other than those that appear directly within the pattern at the application site are bound in the corresponding branch expression. This prohibition on hidden bindings is analagous to the prohibition on capture discussed in Sec. \ref{sec:uetsms-validation} (differing in that it is concerned with the bindings visible to the corresponding branch expression, rather than to spliced expressions.)
 
 % \subsubsection{Context Independence}
 % In VerseML, patterns are context-independent by construction (i.e. there is no way to refer to the surrounding bindings from within a pattern). It is only in the type annotations on spliced patterns that we need to enforce context independence.  (In languages that support, e.g., arbitrary expressions as \emph{guards} within patterns (e.g. OCaml \cite{ocaml-manual}), or in languages that support pattern synonyms, it would be necessary also to enforce context independence for these constructs as well.) 
@@ -177,7 +182,7 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 
 \section{\texorpdfstring{$\miniVersePat$}{miniVerseU}}\label{sec:miniVerseUP}
-To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a reduced dialect of VerseML with support for both seTSMs and spTSMs. $\miniVersePat$ consists of an \emph{unexpanded language} (UL) defined by typed expansion to a standard \emph{expanded language} (XL), like $\miniVerseUE$. The full definition of $\miniVersePat$ is given in Appendix \ref{appendix:miniVerseSES} superimposed upon the definition of $\miniVerseUE$. We will focus on the rules specifically related to pattern matching and spTSMs below. 
+To make the intuitions developed in the previous section about pattern TSMs precise, we  now introduce $\miniVersePat$, a reduced dialect of VerseML with support for both seTSMs and spTSMs. Like $\miniVerseUE$, $\miniVersePat$ consists of an \emph{unexpanded language} (UL) defined by typed expansion to a standard \emph{expanded language} (XL). The full definition of $\miniVersePat$ is given in Appendix \ref{appendix:miniVerseSES} superimposed upon the definition of $\miniVerseUE$. We will focus on the rules specifically related to pattern matching and spTSMs below. 
 
 Our formulation of pattern matching is adapted from  Harper's formulation in \emph{Practical Foundations for Programming Languages, First Edition} \cite{pfple1}.
 
@@ -189,7 +194,7 @@ The main syntactic feature of note is that the rule form places a pattern, $p$, 
 \[
 \aematchrule{p}{e}
 \]
-This can be understood as binding all of the variables in $p$ for use within $e$. A small technical note: the ABT \emph{renaming} metaoperation (which underlies the notion of alpha-equivalence) requires that these variables appear as a sequence. Rather than redefining this metaoperation explicitly, we implicitly determine such a sequence by performing a depth-first traversal, with traversal of the labeled tuple pattern form, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, relying on some total ordering on labels.
+This can be understood as binding all of the variables in $p$ for use within $e$. A small technical note: the ABT \emph{renaming} metaoperation (which underlies the notion of alpha-equivalence) requires that these variables appear as a sequence. Rather than redefining this metaoperation explicitly, we implicitly determine such a sequence by performing a depth-first traversal, with traversal of the labeled tuple pattern form, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, relying on some (arbitrary) total ordering on labels.
 
 \begin{figure}
 \[\begin{array}{lllllll}
@@ -296,19 +301,21 @@ The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, t
   \hastypeU{\Delta}{\Gcons{\Gamma}{\pctx'}}{e}{\tau'}
 }{\ruleType{\Delta}{\Gamma}{\aematchrule{p}{e}}{\tau}{\tau'}}
 \end{equation*}
-The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$ (defined assuming $\Delta$), and to gather the typing hypotheses that the pattern generates in a {typing context}, $\pctx'$. (Algorithmically, the typing context is the ``output'' of the pattern typing judgement.) 
-The second premise of Rule (\ref{rule:ruleType}) extends the typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.%Pattern typing contexts are typing contexts. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. 
+The first premise invokes the \emph{pattern typing judgement}, $\patType{\pctx'}{p}{\tau}$, to check that the pattern, $p$, matches values of type $\tau$ (defined assuming $\Delta$), and to gather the typing hypotheses that the pattern generates in a {typing context}, $\pctx'$. (Algorithmically, the typing context is the ``output'' of the pattern typing judgement.) 
+The second premise of Rule (\ref{rule:ruleType}) extends the incoming typing context, $\Gamma$, with the hypotheses generated by pattern typing, $\pctx$, and checks the branch expression, $e$, against the branch type, $\tau'$.%Pattern typing contexts are typing contexts. Algorithmically, however, one should consider the pattern typing context the ``output'' of the pattern typing judgement. 
 
 The pattern typing judgement is inductively defined by Rules (\ref{rules:patType}).
 Rule (\ref{rule:patType-var}) specifies that a variable pattern, $x$, matches values of any type, $\tau$, and generates the hypothesis that $x$ has type $\tau$:
 \begin{equation*}\tag{\ref{rule:patType-var}}
 \inferrule{ }{\patType{\Ghyp{x}{\tau}}{x}{\tau}}
 \end{equation*}
+
 Rule (\ref{rule:patType-wild}) specifies that a wildcard pattern also matches values of any type, $\tau$, but wildcard patterns generate no hypotheses:
 \begin{equation*}\tag{\ref{rule:patType-wild}}
 \inferrule{ }{\patType{\emptyset}{\aewildp}{\tau}}
 \end{equation*}
-Rule (\ref{rule:patType-fold}) specifies that a fold pattern, $\aefoldp{p}$, matches values of the recursive type $\arec{t}{\tau}$ and generates hypotheses $\pctx$ if $p$ matches values of a single unrolling of the recursive type, $[\arec{t}{\tau}/t]\tau$, and generates hypotheses $\pctx$:
+
+Rule (\ref{rule:patType-fold}) specifies that a fold pattern, $\aefoldp{p}$, matches values of the recursive type $\arec{t}{\tau}$ if $p$ matches values of a single unrolling of the recursive type, $[\arec{t}{\tau}/t]\tau$:
 \begin{equation*}\tag{\ref{rule:patType-fold}}
 \inferrule{
   \patType{\pctx}{p}{[\arec{t}{\tau}/t]\tau}
@@ -316,6 +323,7 @@ Rule (\ref{rule:patType-fold}) specifies that a fold pattern, $\aefoldp{p}$, mat
   \patType{\pctx}{\aefoldp{p}}{\arec{t}{\tau}}
 }
 \end{equation*}
+
 Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern matches values of the labeled product type $\aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$. Labeled tuple patterns, $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}$, specify a subpattern $p_i$ for each label $i \in \labelset$. The premise checks each subpattern $p_i$ against the corresponding type $\tau_i$, generating hypotheses $\pctx_i$. The conclusion of the rule gathers these hypotheses into a single pattern typing context, $\Gconsi{i \in \labelset}{\pctx_i}$:
 \begin{equation*}\tag{\ref{rule:patType-tpl}}
 \inferrule{
@@ -325,6 +333,7 @@ Rule (\ref{rule:patType-tpl}) specifies that a labeled tuple pattern matches val
 }
 \end{equation*}
 The definition of typing context extension, applied iteratively here,  implicitly requires that the pattern typing contexts $\pctx_i$ be mutually disjoint, i.e. \[\{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
+
 Finally, Rule (\ref{rule:patType-inj}) specifies that an injection pattern,  $\aeinjp{\ell}{p}$, matches values of labeled sum types of the form $\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}$, i.e. labeled sum types that define a case for the label $\ell$. The pattern $p$ must match value of type $\tau$ and generate hypotheses $\pctx$:
 \begin{equation*}\tag{\ref{rule:patType-inj}}
 \inferrule{
@@ -335,7 +344,7 @@ Finally, Rule (\ref{rule:patType-inj}) specifies that an injection pattern,  $\a
 \end{equation*}
 
 
-These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution, Decomposition and Regularity.
+%These judgements obey standard lemmas, defined in Appendix \ref{appendix:SES-XL}: Weakening, Substitution, Decomposition and Regularity.
 
 
 
@@ -447,7 +456,7 @@ The syntax of the $\miniVersePat$ unexpanded language (UL) extends the syntax of
 \label{fig:UP-unexpanded-terms}
 \end{figure}
 
-As in $\miniVerseUE$, each expanded form has a corresponding unexpanded form. We refer to these as the \emph{common forms}. The correspondence is defined in Appendix \ref{appendix:SES-shared-forms}. There are also two forms related specifically to spTSMs, highlighted in yellow above: the spTSM definition form and the spTSM application form.
+As in $\miniVerseUE$, each expanded form has a corresponding unexpanded form. We refer to these as the \emph{common forms}. The correspondence is defined in Appendix \ref{appendix:SES-shared-forms}. There are two forms related specifically to spTSMs, highlighted in yellow above: the spTSM definition form and the spTSM application form.
 
 In addition to the stylized syntax given in Figure \ref{fig:U-unexpanded-terms}, there is also a context-free textual syntax for the UL. Again, we need only posit the existence of partial metafunctions $\parseUTypF{b}$, $\parseUExpF{b}$ and $\parseUPatF{b}$ that go from character sequences, $b$, to unexpanded types, expressions and patterns, respectively. 
 \begingroup
@@ -475,10 +484,9 @@ Unexpanded terms are checked and expanded simultaneously according to the \emph{
 \end{array}$
 
 \subsubsection{Type Expansion}
-{Unexpanded type formation contexts}, $\uDelta$, consist of a {type identifier expansion context}, $\uD$, and a type formation context, $\Delta$. These were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}) as before.
+The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined by Rules (\ref{rules:expandsTU}) as before.
 
 \subsubsection{Typed Expression, Rule and Pattern Expansion}
-{Unexpanded typing contexts}, $\uGamma$, consist of an expression identifier expansion context, $\uG$, and a typing context, $\Gamma$. {seTSM contexts}, $\uPsi$, consist of a TSM identifier expansion context, $\uA$, and an seTSM definition context, $\Psi$. These were all defined in Sec. \ref{sec:typed-expansion-U}. We will define \emph{spTSM contexts}, $\uPhi$, below.
 %\emph{Unexpanded pattern typing contexts}, $\upctx$, are defined identically to unexpanded typing contexts (i.e. we only use a distinct metavariable to emphasize their distinct roles in the judgements above). % and the definition of seTSM definition contexts is reproduced below. \emph{spTSM contexts}, $\uPhi$, are defined in Sec. \ref{sec:uptsm-definition} below.
 
 The \emph{typed expression expansion} judgement, $\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}$, and the \emph{typed rule expansion judgement}, $\ruleExpands{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ are defined mutually inductively by Rules (\ref{rules:expandsU}) and Rule (\ref{rule:ruleExpands}). The \emph{typed pattern expansion judgement}, $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$, is inductively defined by Rules (\ref{rules:patExpands}).
@@ -586,7 +594,7 @@ Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}), reproduced
     %   $\Delta \vdash_{\uPhi} \tplp{\mapschema{\upv}{i}{\labelset}}$\\
     %   $\leadsto$\\
     %   $\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}$\vspace{-1.2em}}\right)
-    \patExpands{\Gconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+    \patExpands{\GIconsi{i \in \labelset}{\upctx_i}}{\uPhi}{\tplp{\mapschema{\upv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
   }
 }
 % \graybox{\inferrule{
@@ -609,7 +617,7 @@ Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}), reproduced
   \patExpands{\upctx}{\uPhi}{\injp{\ell}{\upv}}{\aeinjp{\ell}{p}}{\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau}}}
 }}
 \end{equation*}
-Again, the unexpanded and expanded pattern forms in the conclusion correspond and the premises correspond to those of the corresponding pattern typing rule, i.e. Rules (\ref{rule:patType-var}) through (\ref{rule:patType-inj}), respectively. The spTSM context, $\uPhi$, passes through these rules opaquely. In Rule (\ref{rule:patExpands-tpl}), the conclusion of the rule collects all of the identifier expansions and hypotheses generated by the subpatterns. We define $\upctx_i$ as shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\Gconsi{i \in \labelset}{\upctx_i}$ as shorthand for \[\uGG{\GIconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] By the definition of iterated extension of finite functions, we implicitly have that no identifiers or variables can be duplicated, i.e. that 
+Again, the unexpanded and expanded pattern forms in the conclusion correspond and the premises correspond to those of the corresponding pattern typing rule, i.e. Rules (\ref{rule:patType-var}) through (\ref{rule:patType-inj}), respectively. The spTSM context, $\uPhi$, passes through these rules opaquely. In Rule (\ref{rule:patExpands-tpl}), the conclusion of the rule collects all of the identifier expansions and hypotheses generated by the subpatterns. We define $\upctx_i$ as shorthand for $\uGG{\uG_i}{\pctx_i}$ and $\GIconsi{i \in \labelset}{\upctx_i}$ as shorthand for \[\uGG{\GIconsi{i \in \labelset}{\uG_i}}{\Gconsi{i \in \labelset}{\pctx_i}}\] By the definition of iterated extension of finite functions, we implicitly have that no identifiers or variables can be duplicated, i.e. that 
 \[\{\{\domof{\uG_i} \cap \domof{\uG_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
 and
 \[\{\{\domof{\pctx_i} \cap \domof{\pctx_j} = \emptyset\}_{j \in \labelset \setminus i}\}_{i \in \labelset}\]
@@ -703,9 +711,7 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 %A \emph{TSM naming context}, $\uA$, is a finite function mapping each TSM name $\tsmv \in \domof{\uA}$ to the \emph{TSM name-symbol mapping}, $\vExpands{\tsmv}{a}$, for some \emph{symbol}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the seTSM naming context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM names (i.e. the previous mapping, if it exists, is updated).
 
 An \emph{spTSM definition context}, $\Phi$, is a finite function mapping each TSM name $a \in \domof{\Phi}$ to an \emph{expanded spTSM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. %We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of type $\parr{\tBody}{\tParseResultPat}$.
-
 %\begin{definition}[spTSM Definition Context Formation]\label{def:spTSM-def-ctx-formation} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\parr{\tBody}{\tParseResultPat}}$.\end{definition}
-
 We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}\]
 % and $\uPhi \cup \uPhi'$ when $\uPhi=\uAS{\uA}{\Phi}$ and $\uPhi'=\uAS{\uA'}{\Phi'}$ as an abbreviation of \[\uAS{\uA \cup \uA'}{\Phi \cup \Phi'}\]
 \end{enumerate}
@@ -795,7 +801,7 @@ The \emph{proto-type validation judgement}, $\cvalidT{\Delta}{\tscenev}{\ctau}{\
 \subsubsection{Proto-Expansion Expression and Rule Validation}
 The \emph{proto-expression validation judgement}, $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}$, and the \emph{proto-rule validation judgement}, $\cvalidR{\Delta}{\Gamma}{\escenev}{\crv}{r}{\tau}{\tau'}$, are defined mutually inductively with Rules (\ref{rules:expandsU}) and Rule (\ref{rule:ruleExpands}) by Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}), respectively.
 
-Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-splicede}) were described in Sec. \ref{sec:ce-validation-U}. There is one new common proto-expression form, for match proto-expressions, which is governed by Rule (\ref{rule:cvalidE-U-match}):
+Rules (\ref{rule:cvalidE-U-var}) through (\ref{rule:cvalidE-U-splicede}) were described in Sec. \ref{sec:ce-validation-U}. Rule (\ref{rule:cvalidE-U-match}) governs match proto-expressions:
 \begin{equation*}\tag{\ref{rule:cvalidE-U-match}}
 \inferrule{
   \cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau}\\
@@ -812,7 +818,7 @@ Rule (\ref{rule:cvalidR-UP}) governs proto-rules:
   \cvalidR{\Delta}{\Gamma}{\escenev}{\acematchrule{p}{\ce}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
 \end{equation*}
-Notice that proto-rules bind expanded patterns, rather than proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by seTSMs. It would not be sensible for an seTSM to splice patterns out of a literal body.
+Notice that proto-rules bind expanded patterns, rather than proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by seTSMs. Proto-patterns are generated exclusively by spTSMs.
 
 % \begin{equation}\label{rule:cvalidE-UP-var}
 % \inferrule{ }{
@@ -901,7 +907,7 @@ Notice that proto-rules bind expanded patterns, rather than proto-patterns. This
 
 
 \subsubsection{Proto-Pattern Validation}
-spTSMs generate candidate expansions of proto-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{proto-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:patExpands-apuptsm}), validates proto-patterns by checking that the pattern matches values of type $\tau$, and simultaneously generates the final expansion, $p$, and the hypotheses $\upctx$. Hypotheses can be generated only by spliced subpatterns, so there is no proto-pattern form corresponding to variable patterns.
+spTSMs generate candidate expansions of proto-pattern form, as described in Sec. \ref{sec:uptsm-application}. The \emph{proto-pattern validation judgement}, $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau}$, which appears as the final premise of Rule (\ref{rule:patExpands-apuptsm}), validates proto-patterns and simultaneously generates the final expansion, $p$, and the unexpanded typing hypotheses $\upctx$.
 
 The proto-pattern validation judgement is defined mutually inductively with Rules (\ref{rules:patExpands}) by Rules (\ref{rules:cvalidP-UP}), reproduced below.
 \begin{equation*}\tag{\ref{rule:cvalidP-UP-wild}}
@@ -922,7 +928,7 @@ The proto-pattern validation judgement is defined mutually inductively with Rule
   \{\cvalidP{\upctx_i}{\pscenev}{\cpv_i}{p_i}{\tau_i}\}_{i \in \labelset}
 }{
 % \left(\shortstack{$\vdash^{\pscenev} \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}$\\$\leadsto$\\$\aetplp{\labelset}{\mapschema{p}{i}{\labelset}} : \aprod{\labelset}{\mapschema{\tau}{i}{\labelset}}~\dashVx^{\,\Gconsi{i \in \labelset}{\upctx_i}}$\vspace{-1.2em}}\right)
-  \cvalidP{\Gconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
+  \cvalidP{\GIconsi{i \in \labelset}{\upctx_i}}{\pscenev}{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}}{\aetplp{\labelset}{\mapschema{p}{i}{\labelset}}}{\tau}
 }
 \end{equation*}
 \begin{equation*}\tag{\ref{rule:cvalidP-UP-in}}
@@ -942,9 +948,9 @@ The proto-pattern validation judgement is defined mutually inductively with Rule
 }
 \end{equation*}
 
-Rules (\ref{rule:cvalidP-UP-wild}) through (\ref{rule:cvalidP-UP-in}) govern proto-patterns of common form, and behave like the corresponding pattern typing rules, i.e. Rules (\ref{rule:patType-wild}) through (\ref{rule:patType-inj}). Rule (\ref{rule:cvalidP-UP-spliced}) governs references to spliced unexpanded patterns. The first premise validates the type annotation. The second premise parses the indicated subsequence of the literal body, $b$, to produce the referenced unexpanded pattern, $\upv$, and the third premise types and expands $\upv$ under the spTSM context $\Phi$ from the spTSM application site, generating the hypotheses $\upctx$. These are the hypotheses generated in the conclusion of the rule.
+Rules (\ref{rule:cvalidP-UP-wild}) through (\ref{rule:cvalidP-UP-in}) govern proto-patterns of common form, and behave like the corresponding pattern typing rules, i.e. Rules (\ref{rule:patType-wild}) through (\ref{rule:patType-inj}). Rule (\ref{rule:cvalidP-UP-spliced}) governs references to spliced unexpanded patterns. The first premise validates the type annotation. The second premise parses the indicated subsequence of the literal body, $b$, to produce the referenced unexpanded pattern, $\upv$, and the third premise types and expands $\upv$ under the spTSM context $\uPhi$ from the spTSM application site, generating the hypotheses $\upctx$. These are the hypotheses generated in the conclusion of the rule.
 
-Notice that none of these rules explicitly add any hypotheses to the pattern typing context, so spTSMs cannot introduce any hypotheses other than those that come from spliced patterns. This achieves the binding discipline described in Sec. \ref{sec:ptsms-hygiene}.
+Hypotheses can be generated only by spliced subpatterns, so there is no proto-pattern form corresponding to variable patterns. This achieves the prohibition on hidden bindings described in Sec. \ref{sec:ptsms-hygiene}. We consider this invariant formally below.
 
 \subsection{Metatheory}
 The following theorem establishes that typed pattern expansion produces an expanded pattern that matches values of the specified type and generates the specified hypotheses. We must mutually state the corresponding proposition about proto-patterns, because the relevant judgements are mutually defined.
@@ -1120,7 +1126,7 @@ Finally, the following theorem establishes that typed expression and rule expans
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleExpands}), Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}). The full proof is given in Appendix \ref{appendix:SES-typed-expression-expansion}. We will reproduce only the cases that have to do with pattern matching below.
+By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleExpands}), Rules (\ref{rules:cvalidE-U}) and Rule (\ref{rule:cvalidR-UP}). The full proof is given in Appendix \ref{appendix:metatheory-SES}. We will reproduce only the cases that have to do with pattern matching below.
 
 \begin{enumerate}
 \item In the following cases, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
@@ -1223,7 +1229,7 @@ By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleEx
 \end{enumerate}
 \end{enumerate}
 
-The mutual induction can be shown to be well-founded essentially as described in Sec. \ref{sec:SE-metatheory}. Appendix \ref{appendix:SES-typed-expression-expansion} gives the complete details.
+The mutual induction can be shown to be well-founded essentially as described in Sec. \ref{sec:SE-metatheory}. Appendix \ref{appendix:metatheory-SES} gives the complete details.
 \end{proof}
 
 \subsubsection{Reasoning Principles}
@@ -1233,7 +1239,7 @@ The following theorem summarizes the abstract reasoning principles available to 
   \item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
   \item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
   \item \textbf{Typing 3}: Each type annotation on a reference to a spliced pattern has a well-formed expansion at the application site.
-  \item \textbf{Typing 4}: Each spliced pattern has a well-typed expansion consistent with its type annotation.
+  \item \textbf{Typing 4}: Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the splice summary.
   \item \textbf{No Hidden Bindings}: The hypotheses generated by the TSM application are exactly those generated by the spliced patterns.
 \end{enumerate}
 \begingroup
@@ -1273,7 +1279,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
       \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} The proof is given in Appendix \ref{lemma:proto-pattern-expansion-decomposition-S}.\end{proof}
+\begin{proof} The proof relies on a lemma about decomposing proto-patterns. The proof is given in Appendix \ref{appendix:SES-reasoning-principles}.\end{proof}
 \endgroup
 
 
