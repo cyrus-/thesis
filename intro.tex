@@ -27,11 +27,11 @@ Pablo Picasso (1881-1973)\end{flushright}
 % Formal mathematical structures often come equipped with
 % Experienced mathematicians and programmers define formal structures \emph{compositionally}, drawing from libraries by instantiating more abstract structures. This ultimately increases productivity, because clients of these abstract structures do not need to expend effort to establish the associated definitions and proofs anew, for each specialized structure of interest. %Instead, they need only instantiate the definitions and proofs established by a library provider in a more abstract setting.
 
-Experienced mathematicians and programmers define formal structures \emph{compositionally}, drawing from libraries of other, often more general, formal structures. The benefits of this approach are clear: composing general-purpose structures saves time and increases reliability.  The problem motivating this work is that abstraction and composition can also incur a non-trivial syntactic cost. %This can lower productivity, readability and other quality attributes of interest.  %This saves time, one does not need to establish associated definitions and proofs anew, for each specialized structure of interest.
+Experienced mathematicians and programmers define formal structures \emph{compositionally}, drawing from libraries of other, often more general, formal structures. The benefits of this approach are clear: reusing general-purpose structures saves time and improves reliability.  The problem motivating this work is that abstraction and composition can also incur a non-trivial \emph{syntactic cost}. %This can lower productivity, readability and other quality attributes of interest.  %This saves time, one does not need to establish associated definitions and proofs anew, for each specialized structure of interest.
 
-Consider, for example, natural numbers. It is straightforward to define the natural numbers as inductive structures -- in a document like this, we can do so with the following inductive grammar:
+Consider, for example, natural numbers. It is straightforward to define the natural numbers as inductive structures:
 \[ n ::= \textbf{z} ~\vert~ \textbf{s}(n)\]
-By defining natural numbers inductively, we immediately inherit a \emph{structural induction principle}, i.e. to prove that some property $P$ holds of all natural numbers, it suffices to establish $P(\textbf{z})$ and $P(\textbf{s}(n))$ assuming $P(n)$. The problem is that drawing particular natural numbers can become syntactically unwieldy (in fact, the syntactic cost of the drawing grows linearly with $n$.)\footnote{We use the word ``drawing'' throughout this document to emphasize that syntactic cost is a property of the visual representation of a structure, rather than a property of the structure itself.}
+By defining natural numbers inductively, we immediately inherit a \emph{structural induction principle}, i.e. to prove that some property $P$ holds of all natural numbers, it suffices to establish 1) $P(\textbf{z})$; and 2) $P(\textbf{s}(n))$ assuming $P(n)$. The problem is that drawing particular natural numbers can become syntactically unwieldy (in fact, the syntactic cost of the drawing grows linearly with $n$.)\footnote{We use the word ``drawing'' throughout this document to emphasize that syntactic cost is a property of the visual representation of a structure, rather than a semantic property.}
 
 Similarly, consider lists of natural numbers. Again, it is straightforward to define these as inductive structures:
 \[ \vec{n} ::= \textbf{nil} ~\vert~ \textbf{cons}(n, \vec{n}) \]
@@ -67,7 +67,7 @@ For example, the left side of the syntax chart in Figure \ref{fig:simple-example
 \end{figure}
 
 % \subsection{Syntax Matters}
-The problem with this approach is again that drawing a non-trivial $\simplelang$ expression in operational form is syntactically costly, e.g. consider the following drawing:
+The problem with this approach is, again, that drawing a non-trivial $\simplelang$ expression in operational form is syntactically costly. For example, we will consider the following drawing in our discussion below:
 \begin{subequations}\label{drawings:simple}\begin{equation}\label{simple-example-op-form}
 \adiv{\anumintro{\textbf{s}(\textbf{z})}}{
 	\apow{\anumintro{\textbf{s}(\textbf{s}(\textbf{z}))}}{\adiv{\anumintro{\textbf{s}(\textbf{z})}}{\anumintro{\textbf{s}(\textbf{s}(\textbf{z}))}}}
@@ -77,10 +77,10 @@ The problem with this approach is again that drawing a non-trivial $\simplelang$
 \subsection{Informal Mathematical Practice}
 Within a document intended only for human consumption, it is easy to informally outline less costly alternative syntactic forms. 
 
-For example, mathematicians generally use the Western Arabic numeral forms when working with natural numbers, e.g. $2$ is taken as a syntactic alternative to $\textbf{s}(\textbf{s}(\textbf{z}))$. Similarly, mathematicians might informally define alternative list forms, e.g. $[0, 1, 2]$ as a syntactic alternative to 
+For example, mathematicians generally use the Western Arabic numeral forms when working with natural numbers, e.g. $2$ is taken as a syntactic alternative to $\textbf{s}(\textbf{s}(\textbf{z}))$. Similarly, mathematicians might informally define alternative list forms, e.g. $[0, 1, 2]$ as a syntactic alternative to: 
 \[\textbf{cons}(\textbf{z}, \textbf{cons}(\textbf{s}(\textbf{z}), \textbf{cons}(\textbf{s}(\textbf{s}(\textbf{z})), \textbf{nil})))\]
 
-The middle columns of the syntax chart in Figure \ref{fig:simple-example} suggest two alternative forms for every ABT of sort $\mathsf{CalcExp}$ -- an alternative \emph{stylized form}:
+The middle columns of the syntax chart in Figure \ref{fig:simple-example} suggest two alternative forms for every ABT of sort $\mathsf{CalcExp}$. We can draw Drawing \ref{simple-example-op-form} in an alternative \emph{stylized form}:
 % div(num[1]; pow(num[2]; div(num[1]; num[2]))
 % \begin{subequations}
 % \begin{equation}\label{simple-example-op-form}
@@ -96,7 +96,7 @@ and an alternative \emph{textual form}:
 \end{equation}
 \end{subequations}
 
-We can supplement these alternative primitive forms with various \emph{derived forms}, which  identify ABTs indirectly according to stated context-independent \emph{desugaring rules}. For example, the following desugaring rule defines a derived stylized form for square root calculations:
+Mathematicians also sometimes supplement alternative primitive forms like these with various \emph{derived forms}, which  identify ABTs indirectly according to stated context-independent \emph{desugaring rules}. For example, the following desugaring rule defines a derived stylized form for square root calculations:
 % \begin{subequations}
 % \begin{subequations}[intermezzo]
 \begin{equation}\label{rule:simplelang-sqrt}
@@ -155,7 +155,7 @@ For example, consider the semantic  judgement $\isvalU{e}$, which establishes ce
 	\isvalU{\anumintro{n}}
 }
 \end{equation}
-Although this rule is drawn using the operational form for number expressions, we can apply it to derive that $\isvalU{\numintro{2}}$, because $\numintro{2}$ and $\anumintro{2}$  identify the same ABT. 
+Although this rule is drawn using the operational form for number expressions, we can apply it to derive that $\isvalU{\numintro{2}}$, because $\numintro{2}$ and $\anumintro{2}$  identify the same ABT.
 
 % In summary, it is both the case that ``syntax doesn't matter'' (semantically) and that syntax matters (cognitively). %i.e.  because mathematics is a human activity that alternative and derived forms matter (cognitively).%Syntax matters because mathematics and programming are human activities. 
 
@@ -199,7 +199,7 @@ Although this rule is drawn using the operational form for number expressions, w
 \subsection{Derived Forms in General-Purpose Languages}
 We would need to define only a few more derived arithmetic forms to satisfyingly capture the  idioms that arise in the limited domains where a language as simple as $\simplelang$ might be useful. %Consequently, there is little opportunity to go beyond simple derived forms like these. 
 However, programming languages in common use today are substantially more semantically expressive. Indeed, many mathematical structures, including natural numbers, lists and ABTs, can be adequately expressed within contemporary ``general-purpose'' programming languages. %Mathematics has become supplanted by particular formal system. 
-Consequently, the problems of syntactic cost just discussed at the level of the ambient mathematics also arise ``one level down'', i.e. when writing programs. For example, we want syntactic sugar not only for mathematical natural numbers, lists and $\simplelang$ expressions, but also for \emph{encodings} of these structures within a general-purpose language.% .) %https://github.com/jonsterling/sml-abt or https://github.com/RedPRL/sml-typed-abts.) 
+Consequently, the problems of syntactic cost just discussed at the level of the ambient mathematics also arise ``one level down'', i.e. when writing programs. For example, we want syntactic sugar not only for mathematical natural numbers, lists and $\simplelang$ expressions, but also for \emph{encodings} of these structures within a general-purpose programming language.% .) %https://github.com/jonsterling/sml-abt or https://github.com/RedPRL/sml-typed-abts.) 
 
 We can continue to rely on the informal notational conventions described above only as long as programs are drawn solely for human consumption. These conventions break down when we need drawings of programs to themselves exist as formal structures suitable for consumption by other programs, i.e. \emph{parsers}, which check whether drawings are well-formed relative to a \emph{syntax definition} and produce structures suitable for consumption by yet other programs, e.g. interpreters and compilers. This, of course, is the regime of contemporary computer programming.
 
@@ -210,7 +210,7 @@ We can continue to rely on the informal notational conventions described above o
 
 % In contemporary practice, other programs -- parsers -- consume drawings of programs, which generate corresponding structures for execution by modern computer hardware. As such, we cannot rely on an informal approach that defers ultimately to the intuitions of a human reader. Instead, we must define the syntactic conventions that we wish to use with rigor. 
 
-Constructing a formal syntax definition is not itself an unusually difficult task for an experienced programmer, and there are many \emph{syntax definition systems} that help with this task (Sec. \ref{sec:existing-approaches} will review some of these.) The problem is that when designing a syntax for a general-purpose language, the language designer cannot hope to anticipate all library constructs for which derived forms might one day be useful. At best, the language designer can bundle certain libraries together into a ``standard library'', and privilege select constructs defined in this library with derived forms. 
+Constructing a formal syntax definition is not itself an unusually difficult task for an experienced programmer, and there are many \emph{syntax definition systems} that help with this task (Sec. \ref{sec:existing-approaches} will provide an overview.) The problem is that when designing a syntax for a general-purpose language, the language designer cannot hope to anticipate all library constructs for which derived forms might one day be useful. At best, the language designer can bundle certain libraries together into a ``standard library'', and privilege select constructs defined in this library with derived forms. 
 
 % as these ``general-purpose'' languages have evolved, many other derived forms have become incorporated into their syntax definitions.\footnote{The same dynamic is apparent in the progression of ``pen and paper'' and typeset mathematics.}  
 For example, the textual syntax of Standard ML (SML), a general-purpose language in the functional tradition, defines derived forms for constructing and pattern matching on lists \cite{mthm97-for-dart,harper1997programming}. In SML, the derived expression form \lstinline{[x, y, z]} desugars to an expression equivalent to:
@@ -235,11 +235,10 @@ In fact, the OCaml community has  moved to de-emphasize the standard library in 
 \section{Mechanisms of Syntactic Control}
 This suggests a more parsimonious approach: eliminate those derived forms  specific to standard library constructs from the language definition in favor of mechanisms that give more syntactic control to third-party library providers.
 
-We will return to give a detailed overview of various existing mechanisms of syntactic control in Section \ref{sec:existing-approaches}. In the remainder of this section, we will give a more concise overview of these mechanisms and speak generally about the problems that they present, to motivate our novel contributions in this area.
-
+In this section, we will give a brief overview of existing such mechanisms and speak generally about the problems that they present, to motivate our novel contributions in this area. We will return to give a detailed overview of various existing mechanisms of syntactic control in Section \ref{sec:existing-approaches}. 
 
 \subsection{Syntax Dialects}\label{sec:problems-with-dialects}
-When a library provider needs more syntactic control, one common approach is to use a syntax definition system to construct a \emph{syntax dialect}, i.e. a new syntax definition that extends the original syntax definition with new derived forms. 
+One approach that a library provider can take when seeking more syntactic control is to use a syntax definition system to construct a \emph{syntax dialect}, i.e. a new syntax definition that extends the original syntax definition with new derived forms. 
 %library-specific (a.k.a. ``domain-specific'') 
 For example, Ur/Web extends Ur's textual syntax with derived forms for SQL queries, XHTML elements and other constructs defined in a  web programming library \cite{conf/popl/Chlipala15,conf/pldi/Chlipala10}. Figure \ref{fig:urweb} demonstrates how XHTML expressions that contain strings can be drawn in Ur/Web. The desugaring of this derived form (not shown) is substantially more verbose and, for programmers familiar with the standardized syntax for XHTML \cite{xhtml}, substantially more obscure. % Such dialects are sometimes qualitatively taxonomized as amongst the ``domain-specific language'' for this reason \cite{fowler2010domain}. %Syntactic cost is often assessed qualitatively \cite{green1996usability}, though quantitative metrics can be defined. 
 \begin{figure}[h]
@@ -279,10 +278,10 @@ Syntax definition systems like Camlp4 \cite{ocaml-manual}, Copper \cite{conf/gpc
 
 % \vspace{-5px}
 %\subsection{Problems with the Dialect-Oriented Approach}\label{sec:problems-with-dialects}
-Many have argued that this proliferation of syntax dialects is harmless or even desirable, because programmers can simply choose the right dialect for each job at hand \cite{journals/stp/Ward94}. However, we argue that this ``dialect-oriented approach'' is difficult to reconcile with the best practices of ``programming in the large''  \cite{DeRemer76}, i.e. developing large programs ``consisting of many small programs (modules), possibly written by different people'' whose interactions are mediated by a reasonable type and binding discipline. The problems that tend to arise are summarized below; a more systematic treatment will follow in  Sec. \ref{sec:syntax-dialects}.
+Many have argued that a proliferation of syntax dialects is harmless or even desirable, because programmers can simply choose the right syntax dialect for each job at hand \cite{journals/stp/Ward94}. However, we argue that this ``dialect-oriented approach'' is difficult to reconcile with the best practices of ``programming in the large''  \cite{DeRemer76}, i.e. developing large programs ``consisting of many small programs (modules), possibly written by different people'' whose interactions are mediated by a reasonable type and binding discipline. The problems that tend to arise are summarized below; a more systematic treatment will follow in  Sec. \ref{sec:syntax-dialects}.
 
 \subsubsection{Problem 1: Conservatively Combining Syntax Dialects}
-The first problem with the dialect-oriented approach is that clients  cannot always combine different syntax dialects when they want to use the derived forms that they define together. This is problematic because client programs  cannot be expected to fall cleanly into preconceived ``problem domains'' -- large programs use a variety of libraries \cite{DBLP:conf/sac/LammelPS11}.
+The first problem with the dialect-oriented approach is that clients  cannot always combine different syntax dialects when they want to use derived forms that they define together. This is problematic because client programs  cannot be expected to fall cleanly into a single preconceived ``problem domain'' -- large programs use many libraries \cite{DBLP:conf/sac/LammelPS11}.
 
 For example, consider a syntax dialect, $\mathcal{H}$, defining derived forms for working with encodings of HTML elements, and another syntax dialect, $\mathcal{R}$,  defining derived forms for working with encodings of regular expressions. Some programs will undoubtedly need to manipulate HTML elements as well as regular expressions, so it would be useful to construct a ``combined dialect'' where all of these derived forms are defined. 
 
@@ -292,7 +291,7 @@ If $\mathcal{H}$ and $\mathcal{R}$ are coincidentally defined under the same syn
 
 Even if we restrict our interest  to dialects defined under a common syntax definition system that does operationalize the notion of dialect combination (or similarly one that allows clients to systematically combine \emph{dialect fragments}), we still have a problem: there is generally no guarantee that the combined dialect will conserve important properties that can be established about the constituent dialects in isolation (i.e. \emph{modularly}.) In other words, establishing $P(\mathcal{H})$ and $P(\mathcal{R})$ is not sufficient to establish $P(\mathcal{H} \cup \mathcal{R})$ for many useful properties $P$. Clients must re-establish such properties for each combined dialect that they construct.%In other words, any putative ``combined language'' must formally be considered a  distinct system for which one must derive essentially all metatheorems of interest anew, guided only informally by those derived for the dialects individually. %There is no well-defined mechanism for constructing such a ``combined language'' in general. 
 
-One important property of interest is \emph{syntactic determinism} -- that every derived form have no more than one desugaring. It is not difficult to come up with examples where combining two deterministic syntax dialects produces a non-deterministic dialect. For example, consider two syntax dialects defined under a system like Camlp4: $\mathcal{D}_1$ defines derived forms for sets, and $\mathcal{D}_2$ defines derived forms for finite maps, both delimited by \verb~{<~ and \verb~>}~.\footnote{In OCaml, simple curly braces are already reserved by the language for record types and values.} Though each dialect defines a deterministic grammar, i.e. $\mathrm{det}(\mathcal{D}_1)$ and $\mathrm{det}(\mathcal{D}_2)$, when the grammars are na\"ively combined by Camlp4, we do not have that $\mathrm{det}(\mathcal{D}_1 \cup \mathcal{D}_2)$ (i.e. syntactic ambiguities arise under the combined dialect.) In particular, \verb~{<>}~ can be parsed as either the empty set or the empty finite map. %A recent version of Python added derived forms for mutable sets. Due to a conflict with dictionary syntax, however, there is no derived form for the empty set.)
+One important property of interest is \emph{syntactic determinism} -- that every derived form has at most one desugaring. It is not difficult to come up with examples where combining two deterministic syntax dialects produces a non-deterministic dialect. For example, consider two syntax dialects defined under a system like Camlp4: $\mathcal{D}_1$ defines derived forms for sets, and $\mathcal{D}_2$ defines derived forms for finite maps, both delimited by \verb~{<~ and \verb~>}~.\footnote{In OCaml, simple curly braces are already reserved by the language for record types and values.} Though each dialect defines a deterministic grammar, i.e. $\mathrm{det}(\mathcal{D}_1)$ and $\mathrm{det}(\mathcal{D}_2)$, when the grammars are na\"ively combined by Camlp4, we do not have that $\mathrm{det}(\mathcal{D}_1 \cup \mathcal{D}_2)$ (i.e. syntactic ambiguities arise under the combined dialect.) In particular, \verb~{<>}~ can be parsed as either the empty set or the empty finite map. %A recent version of Python added derived forms for mutable sets. Due to a conflict with dictionary syntax, however, there is no derived form for the empty set.)
  %A third syntax dialect might come along that uses the same forms that $\mathcal{D}_2$ defines, but for ordered finite maps.
 
 Schwerdfeger and Van Wyk have developed a modular grammar analysis, implemented in Copper \cite{conf/gpce/WykS07}, that ``nearly'' guarantees that determinism is conserved when syntax dialects (of a certain restricted class) are combined \cite{conf/pldi/SchwerdfegerW09}, the caveat being that the constituent dialects must prefix all newly introduced forms with starting tokens drawn from disjoint sets. We will return to this requirement (and some other requirements of this approach) in Section \ref{sec:syntax-dialects}.
@@ -369,15 +368,15 @@ In contrast, when a programmer encounters, for example, a function call like the
 %Viewed ``dually'', one might equivalently ask for a language that builds in a core that is as small as possible, but provides expressive power comparable to languages with much larger cores. This is our goal in the work being proposed. 
 
 \vspace{-6px}\subsection{Term Rewriting Systems}
-An alternative approach is to leave the context-free syntax of the language fixed, and instead allow library providers to contextually repurpose existing forms using a \emph{term rewriting system}. We will review various term rewriting systems in detail in Sec. \ref{sec:non-local-term-rewriting} and Sec. \ref{sec:macro-systems}. 
+An alternative approach that a library provider can consider when seeking to control syntactic cost is to leave the context-free syntax of the language fixed, and instead contextually repurpose existing syntactic forms using a \emph{term rewriting system}. We will review various term rewriting systems in detail in Sec. \ref{sec:non-local-term-rewriting} and Sec. \ref{sec:macro-systems}. 
 
 Na\"ive term rewriting systems suffer from problems analagous to those that plague syntax definition systems. In particular, it is difficult to conserve determinism, i.e. separately defined rewriting rules might attempt to rewrite the same term differently. Moreover, it can be difficult to determine which rewriting rule, if any, is relevant to a particular term, and to reason about types and binding given a drawing of a program subject to a large number of rewriting rules without examining the rewritten program.
 
 Modern \emph{macro systems}, however, have made substantial progress toward addressing these problems. In particular:
 \begin{enumerate}
-\item Macro systems require the client to explicitly apply the intended rewriting (implemented by a macro) to the term that is to be rewritten. 
+\item Macro systems require that the client explicitly apply the intended rewriting (implemented by a macro) to the term that is to be rewritten.
 \item Macro systems that enforce \emph{hygiene}, which we will return to in Sec. \ref{sec:macro-systems}, address many of the problems related to reasoning about binding. 
-\item The problem of reasoning about types has been relatively understudied, because most research on macro systems has been for languages in the Lisp tradition that lack rich static structure \cite{mccarthy1978history}. That said, some progress has also been made on this front with the design of \emph{typed macro systems}, like Scala's macro system \cite{ScalaMacros2013}, where annotations constrain the macro arguments and the generated expansions.
+\item The problem of reasoning about types has been relatively understudied, because most research on macro systems has been for languages in the Lisp tradition that lack rich static type structure \cite{mccarthy1978history}. That said, some progress has also been made on this front with the design of \emph{typed macro systems}, like Scala's macro system \cite{ScalaMacros2013}, where annotations constrain the macro arguments and the generated expansions.
 \end{enumerate}
 
 The main problem with this approach, then, is that it leaves library providers quite syntactically constrained -- they must find creative ways to repurpose existing forms. These existing forms normally have other meanings, so this can be confusing \cite{pane1996usability}.
@@ -414,7 +413,7 @@ $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]
 \label{fig:first-tsm-example-marked}
 \end{figure}
 
-Notice that both arguments to \li{join} are themselves of TSM application form -- the TSMs named \li{#\dolla#str} and \li{#\dolla#strlist} are applied to the generalized literal forms are delimited by quotation marks and square brackets, respectively. The bracket-delimited literal form, in turn, contains two spliced expressions of variable form -- \li{first} and \li{last}.
+Notice that both arguments to \li{join} are themselves of TSM application form -- the TSMs named \li{#\dolla#str} and \li{#\dolla#strlist} are applied to generalized literal forms  delimited by quotation marks and square brackets, respectively. The bracket-delimited literal form, in turn, contains two spliced expressions of variable form -- \li{first} and \li{last}.
 
 
  
@@ -422,7 +421,7 @@ Notice that both arguments to \li{join} are themselves of TSM application form -
 
 
 
-In order to reason about types and binding, client programmers need only have knowledge of 1) the segmentation (e.g. by examining a figure like this presented by a code editor or pretty-printer) and 2) type annotations on the definition of the applied TSM and on each segment in the segmentation (which can also easily be communicated by an interactive code editor.) No other details about the applied TSM's implementation or the expansion that it generates need to be revealed to the client programmer. In other words, TSMs come equipped with useful principles of syntactic abstraction. We will, of course, more precisely characterize these reasoning principles as we proceed.
+In order to reason about types and binding, client programmers need only have knowledge of 1) the segmentation (e.g. by examining a figure like this presented by a code editor or pretty-printer) and 2) type annotations on the definition of the applied TSM and on each segment in the segmentation (which can also easily be communicated by an interactive code editor.) No other details about the applied TSM's implementation or the expansion that it generates need to be revealed to the client programmer. In other words, TSMs come equipped with useful principles of syntactic abstraction. We will, of course, more precisely characterize these abstract reasoning principles as we proceed.
 
 
 % \begin{figure}[h]
@@ -468,7 +467,7 @@ $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]
 \label{fig:first-ptsm-example-marked}
 \end{figure}
 
-In Chapters \ref{chap:uetsms} through \ref{chap:ptsms}, we assume that each TSM definition is self-contained, needing no access to libraries or other TSMs. This is an impractical assumption in practice. We relax this assumption in Chapter \ref{chap:static-eval}, introducing a \emph{static environment} shared between TSM definitions. We also give examples of TSMs that are useful for defining other TSMs, e.g. TSMs that implement parser generators and quasiquotation.
+In Chapters \ref{chap:uetsms} through \ref{chap:ptsms}, we assume for the sake of technical simplicity that each TSM definition is self-contained, needing no access to libraries or to other TSMs. This is an impractical assumption in practice. We relax this assumption in Chapter \ref{chap:static-eval}, introducing a \emph{static environment} shared between TSM definitions. We also give examples of TSMs that are useful for defining other TSMs, e.g. TSMs that implement parser generators and quasiquotation.
 
 %\item \textbf{Type-specific languages}, or \textbf{TSLs}. TSLs, described 
 In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TSM implicits} that allows library clients to contextually designate, for any type, a privileged TSM at that type. The semantics applies this privileged TSM implicitly to unadorned literal forms that appear where a term of the associated type is expected. For example, if we designate \li{#\dolla#str} as the privileged TSM at the \li{string} type and \li{#\dolla#strlist} as the privileged TSM at the \li{list(string)} type, we can express the example from Figure \ref{fig:first-tsm-example-marked} instead as shown in Figure \ref{fig:first-tsm-example-implicit} (assuming \li{join} has type \li{string -> list(string) -> string}.) 

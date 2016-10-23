@@ -2,12 +2,7 @@
 
 \section{Cognitive Cost}\label{sec:syntactic-properties}
 \begin{quote}
-\emph{...a greater level of precision and technical
-complexity in logical investigations arises because [formal languages] are precisely defined
-mathematical objects. Yet it would seem that viewing formal languages
-exclusively from this point of view offers a very partial and limited explanation
-of the impact that their use (and uses of formalisms more generally
-elsewhere) actually has. In the present inquiry, the idea is to adopt a much
+\emph{In the present inquiry, the idea is to adopt a much
 wider conception of formal languages so as to investigate more broadly what
 exactly is going on when a reasoner puts these tools to use.}
 
@@ -16,8 +11,10 @@ exactly is going on when a reasoner puts these tools to use.}
 \end{flushright}
 \end{quote}
 
-Central to our motivations is the notion that different drawings of a formal structure can and should be distinguished on the basis of the  \emph{cognitive costs} that humans incur as they produce or examine them. The broad notion of cognitive cost must ultimately be understood intuitively, relating as it does to the complexities of the human mind. Cognitive cost is also fundamentally a \emph{subjective} and \emph{situational} notion. 
-As such, researchers cannot develop a truly comprehensive formal framework capable of settling questions of cognitive cost.\footnote{The fact that cognitive cost cannot be comprehensively characterized seems itself to create a cognitive hazard, in that those of us who favor comprehensive formal frameworks sometimes devalue or dismiss concerns related to cognitive cost, or consider them in an overly \emph{ad hoc} manner. This tendency must be resisted if programming language design is to progress as a human-oriented design discipline.} Instead, we must turn to frameworks that are situationally useful \cite{box1987empirical}. % operationalize cognitive cost in a simpler and more tractable manner %These can serve as satisfying proxies in many circumstances. %In order to ground this concept, it is common for researchers to  operationalize this notion in order to simplify the arguments that they are making. 
+Central to our motivations is the notion that different drawings of a formal structure can and should be distinguished on the basis of the  \emph{cognitive costs} that humans incur as they interact with them. 
+
+The broad notion of cognitive cost must ultimately be understood intuitively, relating as it does to the complexities of the human mind. Cognitive cost is also fundamentally a \emph{subjective} and \emph{situational} notion. 
+As such, researchers cannot develop a truly comprehensive formal framework capable of settling questions of cognitive cost.\footnote{The fact that cognitive cost cannot be comprehensively characterized seems itself to create a cognitive hazard, in that those of us who favor comprehensive formal frameworks sometimes devalue or dismiss concerns related to cognitive cost, or consider them in an overly \emph{ad hoc} manner. This tendency must be resisted if programming language design is to progress as a human-oriented design discipline.} However, there are several situationally useful frameworks worth briefly reviewing \cite{box1987empirical}. % operationalize cognitive cost in a simpler and more tractable manner %These can serve as satisfying proxies in many circumstances. %In order to ground this concept, it is common for researchers to  operationalize this notion in order to simplify the arguments that they are making. 
 
 % Notions of cognitive cost can perhaps be understood by informal analogy to notions of \emph{dynamic cost}, which distinguish semantically equivalent expressions based on their consumption of various resources, e.g. time or memory, as they are evaluated. Notions of cognitive cost analagously capture the consumption of human attentional resources as they are being drawn and examined by a human. Human attention resources are, of course, more difficult to quantify.
 
@@ -30,8 +27,11 @@ One can also analyze cognitive cost using disciplined qualitative methods. For e
 
 Finally, one might consider cognitive cost comparatively using quantitative empirical methods, e.g. by conducting randomized control trials to compare forms with respect to task completion time or error rate (for satisfyingly representative tasks.) Stefik et al. have performed many such studies, mainly on novice programmers (these are summarized, along with other such studies, in \cite{journals/jeric/StefikS13}.) Kaijanaho provides another review of evidence-based language design methodologies \cite{kaijanaho2015evidence}.
 
+TSMs provide a means by which library providers can introduce alternative syntactic forms. It is up to each library provider to establish the cognitive costs associated with the alternative forms that they introduce, according to whichever operationalization of the concept that they favor. For the examples in this document, we will mainly use the notion of syntactic cost, because claims about syntactic cost can be evaluated quantitatively. In a few cases, we will also make heuristic arguments. 
 
-There is much that remains to be understood about cognitive cost, particularly when the subject is an experienced programmer. Many of the difficulties that we will confront in this work have to do with the fact that allowing programmers to add new derived forms unconstrained to a syntax definition can decrease cognitive cost ``in the small'', i.e. for programmers who understand all of the details of the newly introduced desugaring transformations, while increasing cognitive cost ``in the large'' because programmers have few clear modular reasoning principles that they can rely on when they encounter an unfamiliar form. Our aim is to control cognitive cost at all scales. % (Indeed, many of challenges of programming language design might be said to have this flavor.)% Our contributions, however, are not directly in this area, so we will stop here. 
+We claim also that the abstract reasoning principles that TSMs come equipped with serve to limit cognitive costs that a client programmer that encounters an unfamiliar form would otherwise incur when attempting to reason about types and binding. This claim follows from the intuitive assumption that examining only type annotations is less costly than examining the full expansion of an unexpanded term and the logic that produced that expansion. 
+
+% There is much that remains to be understood about cognitive cost, particularly when the subject is an experienced programmer. Many of the difficulties that we will confront in this work have to do with the fact that allowing programmers to add new derived forms unconstrained to a syntax definition can decrease cognitive cost ``in the small'', i.e. for programmers who understand all of the details of the newly introduced desugaring transformations, while increasing cognitive cost ``in the large'' because programmers have few clear modular reasoning principles that they can rely on when they encounter an unfamiliar form. Our aim is to control cognitive cost at all scales. % (Indeed, many of challenges of programming language design might be said to have this flavor.)% Our contributions, however, are not directly in this area, so we will stop here. 
 
 %Put another way, the stylized and textual forms are preferrable when designing a \emph{user interface} of our programming language.
 

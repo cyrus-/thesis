@@ -148,7 +148,7 @@ moredelim=**[is][\color{YellowGreen}]{SID}{EID},
 moredelim=**[is][\color{Sepia}]{SUS}{EUS},
 deletestring=[d]{"},
 }
-\lstloadlanguages{Java,VBScript,XML,HTML}
+\lstloadlanguages{Java,VBScript,XML,HTML,ML}
 \let\li\lstinline
 
 % http://tex.stackexchange.com/q/43526
@@ -258,12 +258,12 @@ Eric Van Wyk, University of Minnesota}
 
 \begin{abstract}
 \noindent
-Languages commonly define ``syntactic sugar'' for select standard library constructs.   
+Programming languages commonly build in ``syntactic sugar'' that decreases the syntactic cost of working with selected standard library constructs.   
 %, i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
-For example, Standard ML (SML) defines syntactic sugar that decreases the syntactic cost of constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
-Third-party library providers are, justifiably, envious of this arrangement -- they would like to be able to define syntactic sugar for constructing and pattern matching on values of user-defined types. 
+For example, Standard ML builds in syntactic sugar for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
+Third-party library providers are, justifiably, envious of this arrangement -- they would like to be able to define syntactic sugar for constructing and pattern matching on values of types that they have defined. 
 
-One approach that library providers can take is to define a ``library-specific'' syntax dialect. For example, the providers of a ``collections'' library might define a syntax dialect with syntactic sugar for finite sets and dictionaries. Similarly, the providers of a ``web programming'' library might define a syntax dialect with syntactic sugar for HTML and JSON values. The problem is that library clients cannot combine dialects like these in a manner that conserves syntactic determinism, i.e. synactic conflicts can and do arise. Moreover, it can become difficult for library clients to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar forms, i.e. there are no clear principles of \emph{syntactic abstraction}. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+One approach that third-party library providers can take is to define a ``library-specific'' syntax dialect. For example, the providers of a ``collections'' library might define a syntax dialect with syntactic sugar for finite sets and dictionaries. Similarly, the providers of a ``web programming'' library might define a syntax dialect with syntactic sugar for HTML and JSON values. The problem is that library clients cannot combine dialects like these in a manner that conserves syntactic determinism, i.e. synactic conflicts can and do arise. Moreover, it can become difficult for library clients to reason in a disciplined manner about types and binding when examining the text of a program that uses unfamiliar forms, i.e. there are few clear \emph{abstract reasoning principles}. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
 This work formally introduces \emph{typed syntax macros (TSMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at compile-time, of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TSM client to maintain:
 \begin{itemize}
