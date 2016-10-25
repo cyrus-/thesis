@@ -1,29 +1,27 @@
 % !TEX root = omar-thesis.tex
 \chapter{Simple Expression TSMs (seTSMs)}\label{chap:uetsms}
-This chapter introduces \emph{simple expression TSMs (seTSMs)}, which capture the essential character of TSMs. Subsequent chapters will introduce additional expressive power and address the various impracticalities of the system of seTSMs described in this chapter. This chapter is organized as follows:%In particular, we will consider pattern matching in Chapter \ref{chap:uptsms}, then add support for TSM parameters in Chapter \ref{chap:ptsms} and a \emph{static environment} accessible by  TSM definitions in Chapter \ref{chap:static-eval}. Finally, in Chapter \ref{chap:tsls}, we will define a bidirectional type system (rather than a simple type assignment system) and introduce a mechanism of TSM implicits. 
-%Like the term-rewriting macros just described, TSMs can be parameterized by modules, so they can be used to define syntax valid at any abstract type defined by a module satisfying a specified signature. As we will discuss in the remainder of this section, this addresses all of the problems brought up above, at moderate syntactic cost.
-\begin{itemize}
-\item Sec. \ref{sec:tsms-by-example} gives a ``tutorial-style'' introduction to seTSMs in VerseML. %In particular, we will define an seTSM for constructing values of the recursive labeled sum type \li{rx} that was defined in Figure \ref{fig:datatype-rx}. 
-\item Sec. \ref{sec:tsms-minimal-formalism} then formally defines a reduced dialect of VerseML called $\miniVerseUE$. This will serve as a ``conceptually minimal'' core calculus of TSMs, in the style of the simply typed lambda calculus.   %We conclude in Sec. \ref{sec:uetsms-discussion} 
-\end{itemize}
+This chapter introduces \emph{simple expression TSMs (seTSMs)}, which capture the essential character of TSMs. Subsequent chapters will increase the expressive power and address the various impracticalities of the system of seTSMs defined in this chapter. 
+
 
 \section{Simple Expression TSMs By Example}\label{sec:tsms-by-example}
-%A typed syntax macro is invoked by applying it to a \emph{delimited form}, which can contain  arbitrary syntax in its \emph{body}.  
+We begin in this section with a ``tutorial-style'' introduction to seTSMs in VerseML. %In particular, we will define an seTSM for constructing values of the recursive labeled sum type \li{rx} that was defined in Figure \ref{fig:datatype-rx}. 
+Sec. \ref{sec:tsms-minimal-formalism} then formally defines a reduced dialect of VerseML called $\miniVerseUE$. This will serve as a ``conceptually minimal'' core calculus of TSMs, in the style of the simply typed lambda calculus.   %We conclude in Sec. \ref{sec:uetsms-discussion} 
+
 
 \subsection{TSM Application}\label{sec:uetsms-usage}
-The following VerseML expression, drawn textually, is of \emph{TSM application} form -- a TSM named \li{#\dolla#rx} is being applied to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}:
+The following VerseML expression, drawn textually, is of \emph{TSM application} form. Here, a TSM named \li{#\dolla#rx} is applied to the \emph{generalized literal form} \li{/SURLA|T|G|CEURL/}:
 \begin{lstlisting}[numbers=none,mathescape=|]
 $rx /SURLA|T|G|CEURL/
 \end{lstlisting}
-Generalized literal forms are left unparsed according to the context-free syntax of VerseML. Several other generalized literal forms, summarized in Figure \ref{fig:literal-forms}, are also available. The client is free to choose any of these for use with any TSM, as long as the \emph{literal body} (shown in green above) satisfies the requirements stated in Figure \ref{fig:literal-forms}. For example, we could have equivalently written the example above as \li{#\dolla#rx `SURLA|T|G|CEURL`}. (In fact, this would have been convenient if we had wanted to express a regex containing forward slashes but not backticks.) 
+Generalized literal forms are left unparsed according to the context-free syntax of VerseML. Several other outer delimiters are also available, as summarized in Figure \ref{fig:literal-forms}. The client is free to choose any of these for use with any TSM, as long as the \emph{literal body} (shown in green above) satisfies the requirements stated in Figure \ref{fig:literal-forms}. For example, we could have equivalently written the example above as \li{#\dolla#rx `SURLA|T|G|CEURL`}. (In fact, this would have been convenient if we had wanted to express a regex containing forward slashes but not backticks.) 
 
-It is only during the subsequent \emph{typed expansion} phase that the applied TSM parses the {body} of the literal form to generate a \emph{proto-expansion}. The language then \emph{validates} this proto-expansion according to criteria that we will describe in Sec. \ref{sec:uetsms-validation}. If proto-expansion validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the TSM application. The program operates as if the expansion had appeared in place of the TSM application. 
+It is only during the subsequent \emph{typed expansion} phase that the applied TSM parses the {body} of the literal form to generate a \emph{proto-expansion}. The language then \emph{validates} this proto-expansion according to criteria that we will describe in Sec. \ref{sec:uetsms-validation}. If proto-expansion validation succeeds, the language generates the \emph{final expansion} (or more concisely, simply the \emph{expansion}) of the TSM application. The behavior of the program is determined by its expansion. 
 
 For example, the expansion of the TSM application above is equivalent to the following expression when the regex value constructors \li{Or} and \li{Str} are in scope:
 \begin{lstlisting}[numbers=none]
 Or(Str "SSTRAESTR", Or(Str "SSTRTESTR", Or(Str "SSTRGESTR", Str "SSTRCESTR")))
 \end{lstlisting}
-To avoid the assumption that the variables \li{Or} and \li{Str} are in scope at the TSM application site, the expansion actually uses the explicit \li{fold} and \li{inj} operators, as described in Sec. \ref{sec:lists}. In fact, the proto-expansion validation process enforces this notion of context independence. (We will show how TSM parameters can reduce the awkwardness of this requirement in Chapter \ref{chap:ptsms}.)
+To avoid the assumption that the variables \li{Or} and \li{Str} are in scope at the TSM application site, the expansion actually uses the explicit \li{fold} and \li{inj} operators, as described in Sec. \ref{sec:lists}. In fact, the proto-expansion validation process enforces this notion of context independence -- we will return to proto-expansion validation below. (We will show how TSM parameters can reduce the awkwardness of this requirement in Chapter \ref{chap:ptsms}.)
 %The constructors above are those of the type \li{Rx} that was defined in Figure \ref{fig:datatype-rx}.
 
 % A number of literal forms, ,  are available in VerseML's concrete syntax. Any literal form can be used with any TSM,  TSMs have access only to the literal bodies. Because TSMs do not extend the concrete syntax of the language directly, there cannot be syntactic conflicts between TSMs.
@@ -52,13 +50,13 @@ syntax $rx at rx by
     (* regex literal parser here *)
 end
 \end{lstlisting}
-Every seTSM definition consists of a TSM name, here \li{#\dolla#rx}, a \emph{type annotation}, here \lstinline{at rx}, and a \emph{parse function} between \li{by} and \li{end}.
+Every seTSM definition consists of a TSM name, here \li{#\dolla#rx}, a \emph{type annotation}, here \lstinline{at rx}, and a \emph{parse function} between \li{by} and \li{end}. TSM definitions follow standard scoping rules -- unless an \li{in} clause is provided, the definition is in scope until the end of the enclosing declaration (e.g. the enclosing function or module.) We will consider how TSM definitions are packaged into libraries in Chapter \ref{chap:static-eval}.
 
 All TSM names must begin with the dollar symbol (\li{#\dolla#}), which distinguishes them from variables. This is inspired by the Rust macro system, which uses post-fix exclamation points (\li{!}) to distinguish macro identifiers \cite{Rust/Macros}.
 
-The {parse function} is a \emph{static function} delegated responsibility over parsing literal bodies. Static functions, marked by the \li{static} keyword, are functions that are applied during the typed expansion process. For this reason, they cannot refer to the surrounding variable bindings (because those variables stand for dynamic values.) For now, we will simply assume that static functions are closed and do not themselves make use of TSMs (we will eliminate these impractical limitations in Chapter \ref{chap:static-eval}.)
+The {parse function} is a \emph{static function} delegated responsibility over parsing the literal bodies of the literal forms to which the TSM is applied. Static functions, marked by the \li{static} keyword, are applied during the typed expansion process, so they cannot refer to the surrounding variable bindings (because those variables stand for dynamic values.) For now, we will simply assume that static functions are closed and do not themselves make use of TSMs (we will eliminate these impractical limitations in Chapter \ref{chap:static-eval}.)
 
-Every seTSM parse function must have type \li{body -> parse_result(proto_expr)}. The input type, \lstinline{body}, classifies encodings of literal {bodies}. In VerseML, literal bodies are sequences of characters, so it suffices to define \li{body} as an abbreviation for the \li{string} type, as shown in Figure \ref{fig:indexrange-and-parseresult}.\footnote{In languages where the surface syntax is not textual, \li{body} would have a different definition, but we leave explicit consideration of such languages as future work (see Sec. \ref{sec:future-work}.)} The return type is a labeled sum type defined by applying the type function \li{parse_result} defined in Figure \ref{fig:indexrange-and-parseresult}. The resulting type distinguishes between parse errors and successful parses.\footnote{\li{parse_result} is defined as a type function because in Chapter \ref{chap:uptsms}, we will introduce pattern TSMs, which generate patterns rather than expressions.} Let us consider these possibilities in turn.
+Every seTSM parse function must have type \li{body -> parse_result(proto_expr)}. The input type, \lstinline{body}, classifies encodings of literal {bodies}. In VerseML, literal bodies are sequences of characters, so it suffices to define \li{body} as an abbreviation for the \li{string} type, as shown in Figure \ref{fig:indexrange-and-parseresult}.\footnote{In languages where the surface syntax is not textual, \li{body} would have a different definition, but we leave explicit consideration of such languages as future work (see Sec. \ref{sec:future-work}.)} The return type is a labeled sum type, defined by applying the type function \li{parse_result} defined in Figure \ref{fig:indexrange-and-parseresult}, that distinguishes between parse errors and successful parses.\footnote{\li{parse_result} is defined as a type function because in Chapter \ref{chap:uptsms}, we will introduce pattern TSMs, which generate patterns rather than expressions.} Let us consider these two possibilities in turn.
 \begin{figure}
 \begin{lstlisting}[numbers=none]
 type body = string
@@ -73,7 +71,7 @@ type parse_result('a) = ParseError of {
 \label{fig:indexrange-and-parseresult}
 \end{figure}
 
-\paragraph{Parse Errors} If the parse function determines that the literal body is not well-formed (according to whatever syntax definition that it implements), it returns
+\paragraph{Parse Errors} If the parse function determines that the literal body is not well-formed (according to whatever syntax definition that it implements), it returns:
 \begin{lstlisting}[numbers=none]
 inj[ParseError]({msg=#$e_\text{msg}$#, loc=#$e_\text{loc}$#})
 \end{lstlisting}
@@ -137,16 +135,25 @@ As described thusfar, TSMs operate just like term-rewriting macros over string l
 val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/ 
 fun lookup_rx(name: string) => $rx /SURL@name: %ssnEURL/ 
 \end{lstlisting}
-The expressions \lstinline{name} and \lstinline{ssn} on the second line appear spliced within the literal body, so we call them \emph{spliced expressions}. When \li{#\dolla#rx}'s parse function determines that a subsequence of the literal body should be taken as a spliced expression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), 
-it can refer to it within the computed encoding of the proto-expansion using the \li{SplicedE} variant of \li{proto_expr}. 
-This variant takes a value of type \li{loc} because the proto-expansion must refer to spliced expressions by their zero-indexed location relative to the start of the literal body. This prevents TSMs from ``forging'' a spliced expression (i.e. claiming that an expression is a spliced expression when it does not appear in the literal body.) The \li{SplicedE} variant also takes a value of type \li{proto_typ}, which indicates the type that the spliced expression must have. (Proto-types can themselves also contain spliced types.)
+The expressions \lstinline{name} and \lstinline{ssn} on the second line appear spliced within the literal body, so we call them \emph{spliced expressions}. 
 
+When \li{#\dolla#rx}'s parse function determines that a subsequence of the literal body should be taken as a spliced expression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), it does not directly insert the syntax tree of that expression into the encoding of the expansion. Instead, 
+the TSM must refer to the spliced expression \emph{by its relative location} using the \li{SplicedE} variant of \li{proto_expr}. 
+In particular, the \li{SplicedE} variant requires a value of type \li{loc}, which indicates the zero-indexed location of the spliced expression relative to the start of the provided literal body. 
+The \li{SplicedE} variant also requires a value of type \li{proto_typ}, which indicates the type that the spliced expression is expected to have. 
 For example, the proto-expansion generated by \li{#\dolla#rx} for the literal body on the second line above, if written in a hypothetical textual syntax for proto-expressions where references to spliced expressions are written \li{spliced<startIdx; endIndex; ty>}, is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(spliced<1; 4; string>), 
     Seq(Str "SSTR: ESTR", spliced<8; 10; rx>))
 \end{lstlisting}
-(For clarity of exposition, we again use the regex value constructors in lieu of explicit \li{fold} and \li{inj} operators, use the type abbreviation \li{rx}, and draw string literals in the usual manner.) Here, \li{spliced<1; 4; string>} refers to the spliced string expression \li{name} by location and \li{spliced<8; 10; rx>} refers to the spliced regex expression \li{ssn} by location. 
+ Here, \li{spliced<1; 4; string>} refers to the spliced string expression \li{name} by location and \li{spliced<8; 10; rx>} refers to the spliced regex expression \li{ssn} by location. 
+(For clarity of exposition, we again use the regex value constructors in lieu of explicit \li{fold} and \li{inj} operators, use the type abbreviation \li{rx}, and draw string literals in the usual manner.)
+
+
+Requiring that the TSM refer to spliced expressions indirectly in this manner prevents it from ``forging'' a spliced expression (i.e. claiming that an expression is a spliced expression when it does not appear in the literal body.) It also allows our semantics to distinguish spliced expressions when validating the proto-expansion, which is important for reasons of hygiene that we will detail below. 
+
+Proto-types can make reference to spliced types by using the \li{SplicedT} variant of \li{proto_typ} analagously.
+
 
 % The parse function can similarly extract \emph{spliced types} from a literal body using the \li{SplicedT} variant of \li{proto_typ}. %In particular, the parse function must provide the index range of spliced subexpressions to the \li{Spliced} constructor of the type \li{MarkedExp}. %Only subexpressions that actually appear in the body of the literal form can be marked as spliced subexpressions.
 
@@ -157,12 +164,12 @@ Seq(Str(spliced<1; 4; string>),
 
 
 \subsection{Splice Summaries and Segmentations}
-The \emph{splice summary} of a proto-expression is the finite set of references to spliced subexpressions within the proto-expression. For example, the summary of the proto-expression above is the finite set containing only \li{spliced<1; 4; string>} and \li{spliced<8; 10; rx>}.
+The \emph{splice summary} of a proto-expression is the finite set of references to spliced terms within the proto-expression. For example, the summary of the proto-expression above is the finite set containing only \li{spliced<1; 4; string>} and \li{spliced<8; 10; rx>}.% Notice that no information about  the spliced terms appear is communicated by the splice summary.
 
 The \emph{segmentation} of a proto-pression is the finite set of locations extracted from the splice summary. For example, the segmentation of the proto-expansion above is:
 \[\{(1, 4), (8, 10)\}\]
 The semantics checks that all of the locations in the segmentation are 1) in bounds relative to the literal body; and 2) non-overlapping. 
-This resolves the problem of \textbf{Segmentation} described in Secs. \ref{sec:non-local-term-rewriting}-\ref{sec:macro-systems}, i.e. every literal body in a well-typed program has a well-defined segmentation, as determined by the generated proto-expansion. 
+This resolves the problem of \textbf{Segmentation} described in Secs. \ref{sec:non-local-term-rewriting}-\ref{sec:macro-systems}, i.e. every literal body in a well-typed program has a well-defined segmentation. 
 
 A program editor or pretty-printer can communicate the segmentation information to the programmer, e.g. by coloring non-spliced segments green as is our convention in this document:
 \begin{lstlisting}[numbers=none]
@@ -171,6 +178,7 @@ fun lookup_rx(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/
 \end{lstlisting}
 
 A program editor or pretty-printer can also communicate the type of each spliced term, as indiciated in the splice summary, to the programmer upon request (for example, the Emacs and Vim packages for working with OCaml defer to the Merlin tool when the programmer requests the type of an expression \cite{Merlin}.)
+
 
 \subsection{Proto-Expansion Validation}\label{sec:uetsms-validation}
 Three potential problems described in Secs. \ref{sec:non-local-term-rewriting}-\ref{sec:macro-systems} remain: those related to reasoning abstractly about \textbf{Capture}, \textbf{Context Dependence} and \textbf{Typing}. Addressing these problems is the purpose of the \emph{proto-expansion validation} process.
@@ -187,9 +195,9 @@ Na\"ively, the binding of the variable \li{tmp} here could shadow bindings of \l
 let tmp = (* ... application site tmp ... *) in 
 $rx /SURL%EURLtmp/
 \end{lstlisting}
-Here, the application site binding of \li{tmp} would be shadowed by the binding of \li{tmp} in the expansion of the TSM application. The possibility that this might occur makes it impossible to reason abstractly about binding within a spliced term. 
+Here, the application site binding of \li{tmp} would be shadowed by the ``invisible'' binding of \li{tmp} in the expansion of the TSM application. % The possibility that this might occur makes it impossible to reason abstractly about binding within a spliced term -- i.e. it is unclear whether \li{tmp}. 
 
-To address this problem, proto-expansion validation ensures that capture does not occur. This prohibition on capture can be straightforwardly enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
+To address this problem, proto-expansion validation enforces a prohibition on capture. This prohibition on capture can be be silently enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... application site tmp ... *) in 
 let tmp' = (* ... expansion-internal tmp ... *) in 
@@ -199,16 +207,16 @@ Notice that the expansion-internal binding of \li{tmp} has been alpha-varied to 
 
 For TSM providers, the benefit of this mechanism is that they can name the variables used internally within expansions freely, without worrying about whether their chosen identifiers might shadow those that a client might have used at the application site. There is no need for a user-facing mechanism that generates ``fresh variables''.
 
-TSM clients can, in turn, reliably determine exactly which bindings are available for use within every spliced expression without examining the expansion that the spliced expression eventually appears within. In other words, there can be no ``hidden bindings''. 
+TSM clients can, in turn, reliably reason about binding within every spliced expression without examining the expansion that the spliced expression appears within.
 
-The trade-off is that this prevents library providers from defining  alternative binding forms. For example, Haskell's derived form for monadic commands (i.e. \li{do}-notation) supports binding the result of executing a command to a variable that is then available in the subsequent commands in a command sequence. In VerseML, this cannot be expressed in the same way. 
+The trade-off is that this prevents library providers from defining  alternative binding forms. For example, Haskell's derived form for monadic commands (i.e. \li{do}-notation) supports binding the result of executing a command to a variable that is then available in the subsequent commands in a command sequence. In VerseML, this cannot be expressed in the same way. Values can be communicated from the expansion to a spliced expression only via function arguments. 
 %We will show an alternative formulation of Haskell's syntax for monadic commands that uses VerseML's anonymous function syntax to bind variables in Sec. \ref{sec:application-monadic-commands}. 
 We will return to this example when we consider other possible points in this design space in Sec. \ref{sec:controlled-binding}.
 
 
 \subsubsection{Context Dependence}
 %The prohibition on shadowing ensures only that variables that appear in spliced terms do not refer to bindings that appear in the surrounding expansion. 
-The proto-expansion validation process also ensures that variables that appear in the proto-expansion do not refer to bindings that appear at the TSM definition or application site. In other words, expansions must be completely \emph{context independent}. 
+The proto-expansion validation process also ensures that variables that appear in the proto-expansion do not refer to bindings that appear at the TSM definition or application site. In other words, expansions must be completely \emph{context independent} -- a TSM definition can make no assumptions about the application site context.
 
 A minimal example of a ``broken'' TSM that does not generate context-independent proto-expansions is given below:
 \begin{lstlisting}[numbers=none]
@@ -216,15 +224,17 @@ syntax $bad1 at rx by
   static fn(_) => Success (Var "SSTRxESTR")
 end
 \end{lstlisting}
-The proto-expansion that this TSM generates (for every literal body) refers to a variable \li{x} that is not bound within the expansion. If proto-expansion validation permitted such a proto-expansion, it would be well-typed only under application site typing contexts where \li{x} is bound. This ``hidden assumption'' makes reasoning about binding and renaming difficult, so this proto-expansion is deemed invalid (even when \li{#\dolla#bad1} is applied where \li{x} is coincidentally bound.)
+The proto-expansion that this TSM generates (for every literal body) refers to a variable \li{x} that is not bound within the expansion. If proto-expansion validation permitted such a proto-expansion, it would be well-typed only under those application site typing contexts where \li{x} is bound. This ``hidden assumption'' makes reasoning about binding and renaming difficult, so this proto-expansion is deemed invalid (even when \li{#\dolla#bad1} is applied where \li{x} is coincidentally bound.)
 
 Of course, this prohibition does not extend into the spliced terms in a proto-expansion -- spliced terms appear at the application site, so they can justifiably refer to application site bindings. We saw examples of spliced terms that referred to variables bound at the application site  -- \li{name} and \li{ssn} -- in Sec. \ref{sec:splicing-and-hygiene}. Because proto-expansions refer to spliced terms indirectly, enforcing context independence is straightforward -- we need only that the proto-expansion itself be closed, without considering the spliced terms.% In the next section, we will formalize this intuition. % The TSM provider can only refer to them opaquely.
 
 This prohibition on context dependence explains why the expansion generated by the TSM application in Sec. \ref{sec:uetsms-usage} cannot make use of the regex value constructors, e.g. \li{Str} and \li{Or}, directly. (In Chapter \ref{chap:ptsms}, we will relax this restriction to allow proto-expansions to access explicit parameters.)
 
+Collectively, we refer to the prohibition on capture and the prohibition on context dependence as \emph{hygiene properties}, by conceptual analogy to corresponding properties in term-rewriting macro systems (see Sec. \ref{sec:macro-systems}.) The novelty here comes from the fact that spliced terms are being extracted from an initially unparsed sequence of characters.
 % In the examples in Sec. \ref{sec:uetsms-usage} and Sec. \ref{sec:splicing-and-hygiene}, the expansion used constructors associated with the \li{Rx} type, e.g. \li{Seq} and \li{Str}. This might appear to violate our prohibition on context-dependent expansions. This is not the case only because in VerseML, constructor labels are not variables or scoped symbols. Syntactically, they must begin with a capital letter (like Haskell's datatype constructors). Different labeled sum types can use common constructor labels without conflict because the type the term is being checked against -- e.g. \li{Rx}, due to the type ascription on \li{#\dolla#rx} -- determines which type of value will be constructed. For dialects of ML where datatype definitions do introduce new variables or scoped symbols, we need parameterized TSMs. We will return to this topic in Chapter \ref{chap:ptsms}. % Indeed, we used the label \li{Spliced} for two different recursive labeled sum types in Figure \ref{fig:candidate-exp-verseml}.
 
-\subsubsection{Typing}
+\vspace{-8px}
+\subsubsection{Typing}\vspace{-4px}
 Finally, proto-expansion validation maintains a reasonable \emph{typing discipline} by:
 \begin{enumerate}
 \item checking each spliced expression against the type indicated in the summary; and
@@ -256,24 +266,11 @@ Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
 (Again, due to the prohibition on context dependent expansions, the final expansion actually involves explicit \li{fold} and \li{inj} operators.)
 
-\subsection{Scoping}
-A benefit of specifying TSMs as a language primitive, rather than relying on extralinguistic mechanisms to manipulate the context-free syntax of our language directly, is that TSMs follow standard scoping rules.
-
-For example, we can define a TSM that is visible only to a single expression like this:
-\begin{lstlisting}[numbers=none]
-let x = 
-  syntax $rx at rx by (* ... *) end in 
-    (* $rx is in scope here *) 
-in (* $rx is no longer in scope *)
-\end{lstlisting}
-
-If the \li{in} clause is omitted, as it was in the earlier examples, the scope of the TSM extends to the end of the enclosing declaration (e.g. the function or module declaration.)
-We will consider how TSM definitions are packaged into libraries in Chapter \ref{chap:static-eval}.
 
 \subsection{Comparison to the Dialect-Oriented Approach}
 Let us compare the VerseML TSM \li{#\dolla#rx} to $\mathcal{V}_\texttt{rx}$, the hypothetical syntactic dialect of VerseML with support for derived forms for values of type \li{rx} described in Sec. \ref{sec:examples-of-syntax-dialects}.
 
-Both $\mathcal{V}_\texttt{rx}$ and \li{#\dolla#rx} give programmers the ability to use the same standard POSIX syntax for constructing regexes, extended with the same syntax for splicing in strings and other regexes. Using \li{#\dolla#rx}, however, we incur the additional syntactic cost of explicitly applying the \li{#\dolla#rx} TSM each time we wish to use regex syntax. This cost does not grow with the size of the regex, so it would only be significant in programs that involve a large number of small regexes (which do, of course, exist.) In Chapter \ref{chap:tsls} we will consider a design where even this syntactic cost can be eliminated in  situations where the type is known to be \li{rx}.
+Both $\mathcal{V}_\texttt{rx}$ and \li{#\dolla#rx} give programmers the ability to use the same standard POSIX syntax for constructing regexes, extended with the same syntax for splicing in strings and other regexes. Using \li{#\dolla#rx}, however, we incur the additional syntactic cost of explicitly applying the \li{#\dolla#rx} TSM each time we wish to use regex syntax. This cost does not grow with the size of the regex, so it would only be significant in programs that involve a large number of small regexes (which do, of course, exist.) In Chapter \ref{chap:tsls} we will consider a design where even this syntactic cost can be eliminated in  positions where the type is known to be \li{rx}.
 
 The benefit of the TSM-based approach is that we can easily define other TSMs to use alongside the \li{#\dolla#rx} TSM without needing to consider the possibility of syntactic conflict. Furthermore, programmers can rely on the binding discipline and the typing discipline enforced by proto-expansion validation to reason about programs, including those that contain unfamiliar forms. Put pithily, VerseML helps programmers avoid ``conflict and confusion''. 
 
