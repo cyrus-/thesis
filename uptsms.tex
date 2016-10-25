@@ -294,7 +294,7 @@ The \emph{typing judgement}, $\hastypeU{\Delta}{\Gamma}{e}{\tau}$, assigns types
 }{\hastypeU{\Delta}{\Gamma}{\aematchwith{n}{e}{\seqschemaX{r}}}{\tau'}}
 \end{equation*}  
 % \end{subequations}
-The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise checks that the type of the expression as a whole, $\tau'$, is well-formed.\footnote{The second premise of Rule (\ref{rule:hastypeUP-match}), and the type argument in the match form, are necessary to maintain regularity, defined below, but only because when $n=0$, the type $\tau'$ is arbitrary. In all other cases, $\tau'$ can be determined by assigning types to the  branch expressions.} The third premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$ according to the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
+The first premise of Rule (\ref{rule:hastypeUP-match}) assigns a type, $\tau$, to the scrutinee, $e$. The second premise then ensures that each rule $r_i$, for $1 \leq i \leq n$, takes values of type $\tau$ to values of the type of the match expression as a whole, $\tau'$, according to the \emph{rule typing judgement}, $\ruleType{\Delta}{\Gamma}{r}{\tau}{\tau'}$, which is defined mutually with Rules (\ref{rules:hastypeUP}) by the following rule:
 \begin{equation*}\tag{\ref{rule:ruleType}}
 \inferrule{
   \patType{\pctx'}{p}{\tau}\\

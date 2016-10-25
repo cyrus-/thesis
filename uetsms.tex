@@ -343,7 +343,7 @@ The summary gives the types of the spliced expressions.
 % \end{figure}
 
 To make the intuitions developed in the previous section mathematically precise, we will now introduce a reduced dialect of VerseML called $\miniVerseUE$ that supports seTSMs. 
-The full definition of $\miniVerseUE$ is given in Appendix \ref{appendix:miniVerseSES} for reference. In the exposition below, we will reproduce only particularly noteworthy rules and proof cases. The rule numbers below link to the corresponding rules in the appendix.
+The full definition of $\miniVerseUE$ is given in Appendix \ref{appendix:miniVerseSES} for reference. In the exposition below, we will reproduce only particularly noteworthy rules and proof cases. Rule and theorem numbers below refer to corresponding rules and theorems in the appendix.
 %For reference, the syntax of $\miniVerseUE$ is specified in Figure \ref{fig:lambda-tsm-syntax}. We will reproduce relevant portions of this specification inline (in tabular form) as we continue. 
 %We specify all formal systems in this document within the metatheoretic framework detailed in \emph{PFPL} \cite{pfpl}, and assume familiarity of fundamental background concepts (e.g. abstract binding trees, substitution, implicit identification of terms up to $\alpha$-equivalence, structural induction and rule induction) covered therein. %Familiarity with other accounts of typed lambda calculi should also suffice to understand the formal systems in this document. 
 
@@ -802,7 +802,7 @@ To develop an intuition for how type identifier expansion operates, it is instru
   \expandsTU{\uDD{\emptyset}{\emptyset}}{\forallt{\ut}{\forallt{\ut}{\ut}}}{\aall{t_1}{\aall{t_2}{t_2}}}
 }~\text{(\ref*{rule:expandsTU-all})}
 \end{mathpar}
-Notice that whenever a type identifier is bound, the type identifier expansion context is extended (when the outermost binding is encountered) or updated (at all inner bindings) and the type formation context is simultaneously extended with a fresh hypothesis. Without this mechanism, expansions for unexpanded types where an inner binding shadows an outer binding, like this minimal example, would not exist, because by definition we cannot extend a type formation context with a variable it already mentions, nor implicitly $\alpha$-vary the unexpanded type to sidestep this problem in the usual manner.
+Notice that when Rule (\ref{rule:expandsTU-all}) is applied, the type identifier expansion context is extended (when the outermost binding is encountered) or updated (at all inner bindings) and the type formation context is simultaneously extended with a (necessarily fresh) hypothesis. Without this mechanism, expansions for unexpanded types with shadowing, like this minimal example, would not exist, because by definition we cannot extend a type formation context with a variable it already mentions, nor implicitly $\alpha$-vary the unexpanded type to sidestep this problem in the usual manner.
 
 The Type Expansion Lemma establishes that the expansion of an unexpanded type is a well-formed type.
 
@@ -837,17 +837,17 @@ The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is 
 \begin{equation*}\tag{\ref{rule:expandsU-asc}}
   \inferrule{
     \expandsTU{\uDelta}{\utau}{\tau}\\
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}
+    \expandsU{\uDelta}{\uGamma}{\uPsi}{\ue}{e}{\tau}
   }{
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\asc{\ue}{\utau}}{e}{\tau}
+    \expandsU{\uDelta}{\uGamma}{\uPsi}{\asc{\ue}{\utau}}{e}{\tau}
   }
 \end{equation*}
 \begin{equation*}\tag{\ref{rule:expandsU-letsyn}}
   \inferrule{
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue_1}{e_1}{\tau_1}\\
-    \expandsSG{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\uPhi}{\ue_2}{e_2}{\tau_2}
+    \expandsU{\uDelta}{\uGamma}{\uPsi}{\ue_1}{e_1}{\tau_1}\\
+    \expandsU{\uDelta}{\uGamma, \uGhyp{\ux}{x}{\tau_1}}{\uPsi}{\ue_2}{e_2}{\tau_2}
   }{
-    \expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\letsyn{\ux}{\ue_1}{\ue_2}}{
+    \expandsU{\uDelta}{\uGamma}{\uPsi}{\letsyn{\ux}{\ue_1}{\ue_2}}{
       \aeap{\aelam{\tau_1}{x}{e_2}}{e_1}
     }{\tau_2}
   }
@@ -868,7 +868,7 @@ The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is 
 \end{equation*}
 
 The rules for the remaining expressions of common form are entirely straightforward, mirroring the corresponding typing rules, i.e. Rules (\ref{rules:hastypeU}). %In particular, observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and each premise corresponds to a premise of the corresponding typing rule. %Type formation premises in the typing rule give rise to  type expansion premises in the corresponding typed expansion rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. 
-The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The seTSM context, $\uPsi$, passes opaquely through these rules (we will define seTSM contexts below.) As such, the corresponding cases in the proof of Theorem \ref{thm:typed-expansion-short-U} are by straightforward induction and application of the corresponding typing rule. %Rules (\ref{rules:expandsTU}) could similarly have been generated by mechanically transforming Rules (\ref{rules:istypeU}).
+The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The seTSM context, $\uPsi$, passes opaquely through these rules (we will define seTSM contexts below.) As such, the corresponding cases in the proof of Theorem \ref{thm:typed-expansion-short-U} are by application of the induction hypothesis and the  corresponding typing rule. %Rules (\ref{rules:expandsTU}) could similarly have been generated by mechanically transforming Rules (\ref{rules:istypeU}).
 
 % We can express this scheme more precisely with the rule transformation given in Appendix \ref{appendix:SES-uexps}. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
 % \begin{mathpar}
