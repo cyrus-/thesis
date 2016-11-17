@@ -1,6 +1,6 @@
 % !TEX root = omar-thesis.tex
 \chapter{Simple Pattern TSMs (spTSMs)}\label{chap:uptsms}
-In Chapter \ref{chap:uetsms}, our interest was in situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value by pattern matching. For example, consider again the recursive labeled sum type \lstinline{rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value \lstinline{r} of type \lstinline{rx} using VerseML's \lstinline{match} construct (as already described in Sec. \ref{sec:motivating-examples}): 
+In Chapter \ref{chap:uetsms}, our interest was in situations where the programmer needed to \emph{construct} (a.k.a. \emph{introduce}) a value. In this chapter, we consider situations where the programmer needs to \emph{deconstruct} (a.k.a. \emph{eliminate}) a value by pattern matching. For example, consider again the recursive labeled sum type \lstinline{rx} defined in Figure \ref{fig:datatype-rx}. We can pattern match over a value \lstinline{r} of type \lstinline{rx} using VerseML's \lstinline{match} construct as shown in the example below: 
 \begin{lstlisting}
 fun is_seq(r : rx) => 
   match r with 
@@ -22,9 +22,9 @@ fun is_seq(r : rx) =>
 %   end
 % \end{lstlisting}
 
-Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the concrete syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the concrete syntax. During evaluation, the value of the scrutinee is matched against each pattern sequentially. If a match occurs, evaluation proceeds down the corresponding branch. 
+Match expressions consist of a \emph{scrutinee}, here \li{r}, and a sequence of \emph{rules} separated by vertical bars, \li{|}, in the textual syntax. Each rule consists of a \emph{pattern} and an {expression} called the corresponding \emph{branch}, separated by a double arrow, \li{=>}, in the textual syntax. During evaluation, the value of the scrutinee is matched against each pattern sequentially. If a match occurs, evaluation proceeds along the corresponding branch. 
 
-Variable patterns match any value. In the corresponding branch, the variable stands for that value. A variable can  appear only once in a pattern.  
+A variable can  appear at most once in a valid pattern. In the corresponding branch, the variable stands for the value it matched.  
 For example, on Line 3 above, the pattern 
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
@@ -35,7 +35,7 @@ Seq(Str(#$e_1$#), Seq(Str "SSTR: ESTR", #$e_2$#))
 \end{lstlisting}
 where $e_1$ is a value of type \li{string} and $e_2$ is a value of type \li{rx}. The variables \li{name} and \li{ssn} stand for the values of $e_1$ and $e_2$, respectively, in the corresponding branch expression. 
 
-On Line 4 above, the pattern \li{_} is the \emph{wildcard pattern} -- it matches any value of the appropriate type and binds no variables.
+On Line 4 above, the pattern \li{_} is the \emph{wildcard pattern} -- it matches any value, like the variable pattern, but binds no variables.
 
 The behavior of the \li{match} construct when no pattern in the rule sequence matches a value is to raise an exception indicating \emph{match failure}. It is possible to statically determine whether match failure is possible (i.e. whether there exist values of the scrutinee that do not match any pattern in the rule sequence.) A rule sequence that cannot lead to match failure is said to be \emph{exhaustive}. Most compilers warn the programmer when a rule sequence is non-exhaustive. In the example above, our use of the wildcard pattern ensures that match failure cannot occur. 
 
@@ -43,7 +43,7 @@ It is also possible to statically decide when a rule is \emph{redundant} relativ
 
 Nested pattern matching generalizes the projection and case analysis operators (i.e. the \emph{eliminators}) for products and sums (cf. $\miniVerseUE$ from the previous section.) 
 
-In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of VerseML called $\mathcal{V}_\texttt{rx}$ with derived regex pattern forms. In this dialect, we can express the example above at lower syntactic cost using standard POSIX syntax extended with pattern splicing forms:
+In Sec. \ref{sec:syntax-examples-regexps}, we considered a hypothetical dialect of VerseML called $\mathcal{V}_\texttt{rx}$ with derived regex pattern forms. In this dialect, we can express the example above at lower syntactic cost using standard POSIX regex syntax extended with pattern splicing forms:
 
 \begin{lstlisting}
 fun f(r : rx) => 
@@ -57,8 +57,8 @@ This dialect-oriented approach has problems, as  discussed in Chapter \ref{sec:p
 
 % seek language constructs that allow us to decrease the syntactic cost of expressing complex patterns to a similar degree.
 
-Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value, but expressions are syntactically distinct from patterns, so we cannot simply apply an expression TSM to generate a pattern.\footnote{The fact that certain concrete expression and pattern forms coincidentally overlap is immaterial to this fundamental distinction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
-For this reason, we need to introduce a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{simple pattern TSMs} (spTSMs), i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{rx}. In Chapter \ref{chap:ptsms}, we will consider both expression and pattern TSMs that specify type and module parameters (peTSMs and ppTSMs). 
+Expression TSMs -- introduced in Chapter \ref{chap:uetsms} -- can decrease the syntactic cost of constructing a value, but expressions are syntactically and semantically distinct from patterns, so we cannot simply apply an expression TSM within a pattern.\footnote{The fact that certain concrete expression and pattern forms coincidentally overlap is immaterial to this fundamental distinction.} %For example, the expansion generated by an expression TSM might define or apply a function, but patterns do not contain functions or function applications. 
+We need a new (albeit closely related) construct -- the \textbf{pattern TSM}. In this chapter, we consider only \textbf{simple pattern TSMs} (spTSMs), i.e. pattern TSMs that generate patterns that match values of a single specified type, like \li{rx}. In Chapter \ref{chap:ptsms}, we will consider both expression and pattern TSMs that specify type and module parameters (peTSMs and ppTSMs). 
 
 The organization of the remainder of this chapter mirrors that of Chapter \ref{chap:uetsms}. We begin in Sec. \ref{sec:ptsms-by-example} with a ``tutorial-style'' introduction to spTSMs in VerseML. 
 %In particular, we  discuss an spTSM for patterns matching values of type \li{rx}. 
@@ -111,10 +111,10 @@ This definition first names the pattern TSM \li{#\dolla#rx}. Pattern TSM names, 
 The \emph{sort qualifier} \li{for patterns} indicates that this is a pattern TSM definition, rather than an expression TSM definition (the sort qualifier \li{for expressions} can be written for expression TSMs, though when the sort qualifier is omitted this is the default.) Defining both an expression TSM and a pattern TSM with the same name at the same type is a common idiom, so VerseML defines a derived form for combining their definitions:
 \begin{lstlisting}[numbers=none,morekeywords={andfor}]
 syntax $rx at rx for expressions by
-  static fn(body : body) : proto_expr parse_result => 
+  static fn(body : body) : parse_result(proto_expr) => 
     (* regex expression parser here *)
 for patterns by 
-  static fn(body : Body) : parse_result(proto_pat) => 
+  static fn(body : body) : parse_result(proto_pat) => 
     (* regex pattern parser here *)
 end
 \end{lstlisting}
@@ -563,7 +563,7 @@ The typed rule expansion judgement is defined by Rule (\ref{rule:ruleExpands}), 
   \ruleExpands{\uDelta}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\aumatchrule{\upv}{\ue}}{\aematchrule{p}{e}}{\tau}{\tau'}
 }
 \end{equation*}
-Because unexpanded terms mention only expression identifiers, which are given meaning by expansion to variables, the pattern typing rules must generate both a identifier expansion context, $\uG'$, and a typing context, $\pctx'$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
+Because unexpanded terms mention only expression identifiers, which are given meaning by expansion to variables, the pattern typing rules must generate both an identifier expansion context, $\uG'$, and a typing context, $\pctx'$. %The second and third premises check that the domains of $\uG'$ and $\pctx$ correspond to the bindings in the unexpanded and expanded rule, respectively, with the second and third premise. 
 In the second premise of the rule above, we update the ``incoming'' identifier expansion context, $\uG$, with the new identifier expansions, $\uG'$, and correspondingly, extend the ``incoming'' typing context, $\Gamma$, with the new typing hypotheses, $\pctx'$. 
 
 Rules (\ref{rule:patExpands-var}) through (\ref{rule:patExpands-in}), reproduced below, define typed expansion  of unexpanded patterns of common form.
@@ -1232,11 +1232,11 @@ By mutual rule induction on Rules (\ref{rules:expandsU}), Rule (\ref{rule:ruleEx
 The mutual induction can be shown to be well-founded essentially as described in Sec. \ref{sec:SE-metatheory}. Appendix \ref{appendix:metatheory-SES} gives the complete details.
 \end{proof}
 
-\subsubsection{Reasoning Principles}
-The following theorem summarizes the abstract reasoning principles available to programmers when applying an spTSM. In particular:
+\subsubsection{Abstract Reasoning Principles}\label{sec:uptsms-abstract-reasoning-principles}
+The following theorem summarizes the abstract reasoning principles available to programmers when applying an spTSM. In words:
 \begin{enumerate}
-  \item \textbf{Typing 1}: The final expansion matches values of the type specified by the spTSM's type annotation.
   \item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+  \item \textbf{Typing 1}: The final expansion matches values of the type specified by the spTSM's type annotation.
   \item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
   \item \textbf{Typing 3}: Each type annotation on a reference to a spliced pattern has a well-formed expansion at the application site.
   \item \textbf{Typing 4}: Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the splice summary.
@@ -1275,7 +1275,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
             {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
             {p_i}
             {\tau_i}
-        }{\npat}$ and $\sseq{\patType{\upctx_i}{p_i}{\tau_i}}{\npat}$
+        }{\npat}$
       \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}

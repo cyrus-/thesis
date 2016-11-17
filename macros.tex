@@ -209,6 +209,7 @@
 \newcommand{\Gcons}[2]{{#1}\cup{#2}}
 \newcommand{\Gconsi}[2]{\cup_{#1} #2}
 \newcommand{\GIconsi}[2]{\uplus_{#1} #2}
+\newcommand{\Khyp}[1]{#1~\mathsf{kind}}
 
 % Dynamics of miniVerseU
 \newcommand{\isvalU}[1]{#1~\mathsf{val}}
@@ -360,11 +361,11 @@
 \newcommand{\dashVx}{\text{\reflectbox{$\Vdash$}}}
 \newcommand{\dashV}{~\dashVx~}
 \newcommand{\ruleType}[5]{#1~#2 \vdash #3 : #4 \Mapsto #5}
-\newcommand{\patType}[3]{#2 : #3 \dashV #1}
+\newcommand{\patType}[3]{\Delta \vdash #2 : #3 \dashV #1}
 \newcommand{\patTypeD}[4]{#3 : #4 \dashV #2}
 \newcommand{\ruleTypeP}[4]{#1 \vdash #2 : #3 \Mapsto #4}
-\newcommand{\patTypeP}[3]{#2 : #3 \dashV #1}
-\newcommand{\patTypePC}[4]{#3 : #4 \dashV #2}
+\newcommand{\patTypeP}[3]{\Omega \vdash #2 : #3 \dashV #1}
+\newcommand{\patTypePC}[4]{#1 \vdash #3 : #4 \dashV #2}
 % \newcommand{\pctx}{\varUpsilon}
 \newcommand{\pctx}{\Gamma}
 
@@ -921,3 +922,7 @@
 \newcommand{\nrules}{n}
 \newcommand{\npat}{n_\text{pat}}
 \newcommand{\npatj}{n_\text{pat,$j$}}
+\newcommand{\nkind}{n_\text{kind}}
+\newcommand{\ncon}{n_\text{con}}
+
+\newcommand{\fvof}[1]{\mathsf{fv}(#1)}

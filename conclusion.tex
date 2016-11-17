@@ -1,182 +1,266 @@
 % !TEX root = omar-thesis.tex
 \chapter{Discussion \& Future Directions}\label{chap:conclusion}
-\begin{quote}
-\emph{Any representation of reality we develop can be only partial. There is no finality, sometimes no single best representation. There is only deeper understanding, more revealing and enveloping representations.
-}
+% \begin{quote}
+% \emph{Any representation of reality we develop can be only partial. There is no finality, sometimes no single best representation. There is only deeper understanding, more revealing and enveloping representations.
+% }
 
--- Carl R. Woese \cite{woese}
-\end{quote}
-
-\section{Interesting Applications}
-Most of the examples in Sec. \ref{sec:motivating-examples} can be expressed straightforwardly using the constructs introduced in the previous chapters. Here, let us highlight certain interesting examples and exceptions.
-
-\subsection{Monadic Commands}\label{sec:application-monadic-commands}
+% -- Carl R. Woese \cite{woese}
+% \end{quote}
 
 \section{Summary}
-\todo{Write summary}
+
+In summary, TSMs allow library providers to programmatically control the expansion of generalized expression and pattern literal forms. A proto-expansion validation step allows library clients to reason about types and binding without examining the generated expansions in complete detail. Instead, the client needs only to be made aware of the type annotation on the applied TSM and the \emph{splice summary} of the generated proto-expansion, which locates and assigns a type to each spliced term within the literal body. This information can be communicated to the client using secondary notation (e.g. colors, as in this document) together with a simple service for querying the type of an expression similar to that available in many program editors today.
+
+We developed several core calculi in order to formally characterize the mechanisms of TSM definition and application. In particular, Chapters \ref{chap:uetsms} and \ref{chap:uptsms} developed $\miniVersePat$, which communicates the central concepts of typed expansion and proto-expansion validation for expression and pattern TSMs respectively. Chapter \ref{chap:ptsms} then introduced $\miniVerseParam$, which added type and module parameters. Chapter \ref{chap:static-eval} introduced $\miniVersePH$, which adds the notion of a static environment shared between TSM definitions. This makes the job of the TSM provider easier, by giving them access to libraries (including those that themselves export TSM definitions.) Finally, Chapter \ref{chap:tsls} introduced Bidirectional $\miniVersePat$, which supports a mechanism of TSM implicits that further decreases the syntactic cost of applying a TSM.
+
+% Our approach compares favorably to the dialect-oriented approach in that 1) it sidesteps the problem of syntactic conflict (by leaving the context-free syntax fixed); and 2) it provides the abstract reasoning principles just mentioned. It also compares favorably to approaches based on term rewriting, e.g. term-rewriting macro systems, in that 1) it provides greater syntactic control; and 2) it guarantees a stronger 
 
 \section{Future Directions}\label{sec:future-work}
-We did not consider situations where a library clients wants to provide derived forms for defining types, signatures, modules or other declarations (though we have explored syntax for types in a recent short paper \cite{sac15}.) We also did not consider situations where a library client wants to generate an expression or a pattern based on the structure of a type (e.g. automatic generation of equality comparisons.) Finally, we do not consider situations that require modifications to the underlying type structure of a language (though ``reasonably programmable type structure'' is a rich avenue for future work.)
+\subsection{Integration Into a Full-Scale Language Definition}
+We left many orthogonal language features out of our calculi, for the sake of simplicity and to focus our exposition on our novel contributions. We leave the work of integrating TSMs into a full-scale language definition to the future.
 
-\subsection{TSM Packaging}\label{sec:tsm-packaging}
+\subsection{Constraint-Based Type Inference}
+ML uses a constraint-based type inference system \emph{a la} Damas-Milner \cite{damas1982principal}. We conjecture that the mechanisms described up through Chapter \ref{chap:static-eval} are compatible with such a system -- most simply, by generating the constraints from the final expansion. Actually, it should be possible to perform type inference abstractly, using only the information in the splice summary. We leave the evaluation of this conjecture as future work.
 
-In the exposition thusfar, we have assumed that TSMs have delimited scope. However, ideally, we would like to be able to define TSMs within a module:
+The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} assumed a bidirectional type system, i.e. one that only locally infers types \cite{Pierce:2000:LTI:345099.345100}. It may be possible to integrate implicit TSM dispatch with a constraint-based type inference system, but the approach to take is less clear. We leave the exploration of this question as future work.
+
+\subsection{Integration Into Languages From Other Design Traditions}
+\label{sec:integration}
+We conjecture that all of the mechanisms we have described could be integrated into dependently typed functional languages, e.g. Coq \cite{Coq:manual}, but leave the necessary technical developments as future work.
+
+The mechanisms described in Chapter \ref{chap:uetsms}, Chapter \ref{chap:ptsms} and Chapter \ref{chap:static-eval} could also be adapted for use in languages from the imperative and object-oriented traditions without difficulty. Similarly, these constructs could be adapted for use in dynamic languages like Racket as well by eliminating the type annotation (thereby treating the language as ``uni-typed'' \cite{scott1980lambda,pfpl}.) In such a language (and, in fact, even in a language with richer type structure), it would be useful to be able to annotate a TSM with a dynamic contract governing all generated expansions \cite{DBLP:conf/icfp/FindlerF02}. 
+
+The mechanism of TSM implicits introduced in Chapter \ref{chap:tsls} assumes a bidirectionally typed unexpanded language. A number of full-scale languages are bidirectionally typed, notably including Scala \cite{odersky2008programming}. However, Scala supports subtyping. Subtyping would complicate the question of implicit TSM dispatch, because there may be designations at multiple supertypes of a given type.
+
+Various forms of \emph{ad hoc} polymorphism, e.g. function/method overloading or type classes \cite{Hall:1996:TCH:227699.227700}, would also complicate the question of implicit TSM dispatch. One approach that may be worth exploring in future work would associate implicits with a type class, rather than with an individual type.
+
+\subsection{Module Expression Syntax Macros}
+We did not consider situations where a library clients wants to define syntactic sugar for  module expressions matching a given signature. It should be possible to ``replicate'' the mechanisms developed up through Chapter \ref{chap:static-eval} at the level of module expressions without difficulty. Implicit dispatch would be problematic at the module level, again because signatures are related by a notion of subtyping.
+
+% We have explored syntax for types in a recent short paper \cite{sac15}. Care must be taken here, however, because knowing merely that the %We also did not consider situations where a library client wants to generate an expression or a pattern based on the structure of a type (e.g. automatiCarec generation of equality comparisons.) Finally, we do not consider situations that require modifications to the underlying type structure of a language (though ``reasonably programmable type structure'' is a rich avenue for future work.)
+
+
+\subsection{Parameterized Implicit Designations}\label{sec:parametric-designations}
+The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} allows the client to designate a TSM at a single type. A more sophisticated mechanism would allow for parameterization of the TSM implicit designation itself, so that it could operate across a parameterized family of types. For example, we may want to be able to implicitly apply \li{#\dolla#list'} at all list types, with the parameters determined implicitly from the type supplied for analysis.
+
+Na\"ively, we might imagine a designation that looks like this:
 \begin{lstlisting}[numbers=none]
-structure Rxlib = struct 
-  type Rx = (* ... *)
-  syntax $rx at Rx { (* ... *) }
-  (* ... *)
-end
+implicit syntax (L : LIST) 'a => $list' L 'a in (* ... *) end 
 \end{lstlisting}
-However, this leads to an important question: how can we write down a signature for the module \li{Rxlib}? One approach would be to simply duplicate the full definition of the TSM in the signature, but this leads to inelegant code duplication and raises the difficult question of how the language should decide whether one TSM is a duplicate of another. For this reason, in VerseML, a signature can only refer to a previously defined TSM. So, for example, we can write down a signature for \li{Rxlib} after it has been defined:
+The problem here is that the implicit dispatch mechanism must instantiate each implicit parameter, here \li{L} and \li{'a}, from the type provided for analysis. There is not always a unique such instantiation. For example, the type \li{list(int)} makes no reference to any module matching the \li{LIST} signature, and there may be many such modules in context, so we cannot uniquely instantiate \li{L}.
 
+To solve this problem, we would need to define a unique \emph{normal form} that serves as a representative for each equivalence class of types, and to then define parameter instantiation as pattern matching over these normal forms. This would render the implicit designation above invalid, because the normal form of \li{L.list('a)} does not mention \li{L} (because \li{LIST.list} is not abstract.) The following designation does not require instantiating the module variable, so it would be valid:
 \begin{lstlisting}[numbers=none]
-signature RXLIB = sig 
-  type Rx = (* ... *)
-  syntax $rx = Rxlib.$rx
-  (* ... *)
-end
-Rxlib : RXLIB (* check Rxlib against RXLIB after the fact *)
+implicit syntax 'a => $list 'a in (* ... *) end
 \end{lstlisting}
 
-Alternatively, we can define the type \li{Rx} and the TSM \li{#\dolla#rx} before defining \li{Rxlib}:
+The normal form of an abstract type would necessarily mention a module path, so the following parametric designation would also be valid:
 \begin{lstlisting}[numbers=none]
-local 
-  type Rx = (* ... *)
-  syntax $rx at Rx { (* ... *) }
-in 
-  structure Rxlib : 
-  sig 
-    type Rx = Rx
-    syntax $rx = $rx
-    (* ... *)
-  end = struct 
-    type Rx = Rx 
-    syntax $rx = $rx
-    (* ... *)
-  end
-end 
+implicit syntax (R : RX) => $r R in (* ... *) end 
 \end{lstlisting}
 
-Another important question is: how does a TSM defined within a module at a type that is held abstract outside of that module operate? For example, consider the following:
+It may be possible to use Crary's method for representing terms of the dependent singleton calculus in a beta-normal, eta-long form for this purpose \cite{DBLP:conf/lfmtp/Crary09}. Defining pattern matching over types of normal form, and incorporating this mechanism into the implicit dispatch mechanism, is left as future work.
+
+% \subsection{TSM Packaging}\label{sec:tsm-packaging}
+
+% In the exposition thusfar, we have assumed that TSMs have delimited scope. However, ideally, we would like to be able to define TSMs within a module:
+% \begin{lstlisting}[numbers=none]
+% structure Rxlib = struct 
+%   type Rx = (* ... *)
+%   syntax $rx at Rx { (* ... *) }
+%   (* ... *)
+% end
+% \end{lstlisting}
+% However, this leads to an important question: how can we write down a signature for the module \li{Rxlib}? One approach would be to simply duplicate the full definition of the TSM in the signature, but this leads to inelegant code duplication and raises the difficult question of how the language should decide whether one TSM is a duplicate of another. For this reason, in VerseML, a signature can only refer to a previously defined TSM. So, for example, we can write down a signature for \li{Rxlib} after it has been defined:
+
+% \begin{lstlisting}[numbers=none]
+% signature RXLIB = sig 
+%   type Rx = (* ... *)
+%   syntax $rx = Rxlib.$rx
+%   (* ... *)
+% end
+% Rxlib : RXLIB (* check Rxlib against RXLIB after the fact *)
+% \end{lstlisting}
+
+% Alternatively, we can define the type \li{Rx} and the TSM \li{#\dolla#rx} before defining \li{Rxlib}:
+% \begin{lstlisting}[numbers=none]
+% local 
+%   type Rx = (* ... *)
+%   syntax $rx at Rx { (* ... *) }
+% in 
+%   structure Rxlib : 
+%   sig 
+%     type Rx = Rx
+%     syntax $rx = $rx
+%     (* ... *)
+%   end = struct 
+%     type Rx = Rx 
+%     syntax $rx = $rx
+%     (* ... *)
+%   end
+% end 
+% \end{lstlisting}
+
+% Another important question is: how does a TSM defined within a module at a type that is held abstract outside of that module operate? For example, consider the following:
+% \begin{lstlisting}[numbers=none]
+% local 
+%   type Rx = (* ... *)
+%   syntax $rx at Rx { (* ... *) }
+% in 
+%   structure Rxlib : 
+%   sig 
+%     type Rx (* held abstract *)
+%     syntax $rx = $rx
+%     (* ... *)
+%   end = struct 
+%     type Rx = Rx
+%     syntax $rx = $rx
+%     (* ... *)
+%   end
+% end 
+% \end{lstlisting}
+% If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. \todo{actually, this is why doing this is a bad idea. export TSMs only from units, not modules}
+
+% \subsection{TSLs}
+
+% \section{pTSLs By Example}
+% For example, a module \lstinline{P} can associate the TSM \lstinline{rx} defined in the previous section with the abstract type \lstinline{R.t} by qualifying the definition of the sealed module it is defined by as follows:
+% \begin{lstlisting}[numbers=none]
+% module R = mod {
+%   type t = (* ... *)
+%   (* ... *)
+% } :> RX with syntax rx
+% \end{lstlisting}
+% More generally, when sealing a module expression against a signature, the programmer can specify, for each abstract type that is generated, at most one previously defined TSMs. This TSM must take as its first parameter the module being sealed.
+
+% The following function has the same expansion as \lstinline{example_using_tsm} but, by using the TSL just defined, it is more concise. Notice the return type annotation, which is necessary to ensure that the TSL can be unambiguously determined:
+% \begin{lstlisting}[numbers=none]
+% fun example_using_tsl(name : string) : R.t => /SURL@EURLnameSURL: %EURLssn/
+% \end{lstlisting}
+
+% As another example, let us consider the standard list datatype. We can use TSLs to express derived list syntax, for both expressions and patterns:
+% \begin{lstlisting}[numbers=none]
+% datatype list('a) { Nil | Cons of 'a * list('a) } with syntax {
+%   static fn (body : Body) => 
+%     (* ... comma-delimited spliced exps ... *)
+% } with pattern syntax {
+%   static fn (body : Body) : Pat => 
+%     (* ... list pattern parser ... *)
+% }
+% \end{lstlisting}
+% Together with the TSL for regular expression patterns, this allows us to write lists like this:
+% \begin{lstlisting}[numbers=none]
+% let val x : list(R.t) = [/SURL\dEURL/SHTML, EHTML/SURL\d\dEURL/SHTML, EHTML/SURL\d\d\dEURL/]
+% \end{lstlisting}
+% From the client's perspective, it is essentially as if the language had built in derived syntax for lists and regular expression patterns directly.%However, we did not need to build in this syntax primitively.%The only constraint is that this syntax must be used in an analytic position, which we argue is actually better for code compren when encountering unfamiliar syntax.
+
+\subsection{Exportable Implicit Designations}
+Implicit designations cannot be exported from a library, because different libraries might define conflicting designations. This can be inconvenient for clients.
+
+This restriction is perhaps too severe in cases where the designation is at a type generated from within the same library. In such situation, it would be safe to export an implicit designation because no other library could do the same. We have explored this approach in a simple calculus that supports nominal type generativity \cite{TSLs}. We say that the syntax macro associated with a nominal type defines that type's \emph{type-specific language} (TSL). We leave as future work the question of adapting this mechanism to support generative type abstraction as described in Chapter \ref{chap:ptsms}. 
+
+% \todo{revise this} TSLs can be associated with abstract types that are generated by parameterized modules (i.e. generative functors in Standard ML) as well. For example, consider a trivially parameterized module that creates modules sealed against \lstinline{RX}:
+% \begin{lstlisting}[numbers=none]
+% module F() => mod {
+%   type t = (* ... *)
+%   (* ... *)
+% } :> RX with syntax rx 
+% \end{lstlisting}
+% Each application of \lstinline{F} generates a distinct abstract type. The semantics associates the appropriately parameterized TSM with each of these as they are generated:
+% \begin{lstlisting}[numbers=none]
+% module F1 = F() (* F1.t has TSL rx(F1) *)
+% module F2 = F() (* F2.t has TSL rx(F2) *)
+% \end{lstlisting}
+
+% As a more complex example, let us define two signatures, \lstinline{A} and \lstinline{B}, a TSM \texttt{\$G} and a parameterized module \lstinline{G : A -> B}:
+% \begin{lstlisting}[numbers=none,mathescape=|]
+% signature A = sig { type t; val x : t }
+% signature B = sig { type u; val y : u }
+% syntax $G(M : A)(G : B) at G.u { (* ... *) }
+% module G(M : A) => mod { 
+%   type u = M.t; val y = M.x } :> B with syntax $G(M)
+% \end{lstlisting}
+% Both \lstinline{G} and \texttt{\$G} take a parameter \lstinline{M : A}. We associate the partially applied TSM \texttt{\$G(M)} with the abstract type that \lstinline{G} generates. Again, this satisfies the requirement that one must be able to apply the TSM being associated with the abstract type to the module being sealed. 
+
+% Only fully abstract types can have TSLs associated with them. Within the definition of \lstinline{G}, type \lstinline{u} does not have a TSL available to it because it is synonymous to \lstinline{M.t}. More generally, TSL lookup respects type equality, so any synonyms of a type with a TSL will also have that TSL. We can see this in the following example, where the type \lstinline{u} has a different TSL associated with it inside and outside the definition of the module \lstinline{N}:
+% \begin{lstlisting}[numbers=none,mathescape=|]
+% module M : A = mod { type t = int; val x = 0 }
+% module G1 = G(M) (* G1.t has TSL $G(M), per above *)
+% module N = mod { 
+%   type u = G1.t (* u = G1.t in this scope, so u also has TSL $G(M) *)
+%   val y = /asdf/ (* we can use it to create a value of that type *) 
+% } :> B (* did not specify a TSL for N.u at the point where it is sealed, 
+%             so N.u has no TSL in the outer scope *)
+% val z : N.u = /asdf/ (* ERROR: no TSL for type N.u *)
+% \end{lstlisting}
+
+% A formal specification of TSLs in a language that supports only non-parametric datatypes is available in a paper published in ECOOP 2014 \cite{TSLs}. %We will add support for parameterized TSLs in the dissertation (see Sec. %\ref{sec:syntax-timeline}).
+
+% \subsection{TSMs and TSLs In Candidate Expansions}\label{sec:tsms-in-expansions}
+
+
+% Candidate expansions cannot themselves define or apply TSMs. This simplifies our metatheory, though it can be inconvenient at times for TSM providers. We discuss adding the ability to use TSMs within candidate expansions here.\todo{write this}
+
+% \subsection{Pattern Matching Over Values of Abstract Type}\label{sec:patterns-for-abstract-types}
+% ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, %shown in Sec. \ref{sec:examples}. %We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
+
+\subsection{Mechanically Reasoning About Parse Functions}\label{sec:verifying-tsms}
+A correct parse function never returns an encoding of a proto-expansion that fails proto-expansion validation. This invariant cannot be enforced by the simple type systems we have considered in this document. Using a proof assistant, it would be possible to verify that a parse function generates only encodings of valid proto-expansions. Alternatively, in a dependently typed setting, the type of the parse function itself could be enriched so as to enforce this invariant intrinsically. We leave the details of this approach as future work.
+
+A related problem is that a parse function might diverge. Again, we can either prove that the parse function does not diverge extrinsically, or define the parse function using a total language.
+
+Parse functions implement some intended syntax definition. It would be useful to be able to state the syntax definition separately as a formal structure, and then prove that the parse function implements it correctly. In fact, in most cases, it should be possible to generate the parse function directly from the syntax definition using a parser generator. In this case, it would be useful to be able to mechanically prove the parser generator correct.
+
+It would also be useful to develop the notion of an \emph{splice summary specification}, i.e. a specification of the splice summary that should result from a well-formed string. This could be combined with a grammar like the one shown in Figure \ref{fig:rx-grammar-based}, with the non-terminals representing spliced terms annotated with types.
+% \subsection{Improved Error Reporting}\label{sec:error-handling}
+% \todo{write this}
+
+\subsection{Refactoring Unexpanded Terms}\label{sec:refactoring}
+A crucial distinction is between identifiers, which appear in unexpanded terms, and variables, which appear in expanded terms. Variables are given meaning by substitution, and ABTs are identified only up to renaming of bound variables. In contrast, identifiers are given meaning only by expansion to variables and there is no notion of renaming or substitution.
+
+It would be useful to support an identifier renaming operation for the purposes of automatic refactoring \cite{mens2004survey}. The simplest solution would be to use the splice summaries to locate spliced terms, and then perform the renaming directly within the literal body. The problem is that there is no guarantee that the parse function will produce an alpha-equivalent expansion after such a renaming operation has been performed. Similar concerns about invariance come up for other kinds of refactorings.
+
+There are three approaches one might take to avoid this problem. The simplest approach is for the renaming operation to re-run the parse function and check that the expansion it generates is related to the previously generated expansion as expected. Alternatively, we might seek to mechanically verify that the parse function is invariant to refactoring, either intrinsically or extrinsically as discussed in Sec. \ref{sec:verifying-tsms}. 
+A third approach would be to require that the TSM be defined using a grammar formalism that precludes inspection of the form of spliced expressions by construction. Exploration of these approaches is a promising avenue for future work.
+
+\subsection{Integration with Editor Services}\label{sec:editor-integration}
+Program editors often seek to provide feedback to the programmer about the syntax and semantics of the program being written. Questions remain about how various editor services should interact with TSMs. In the examples in this document, we colored spliced terms black and all other segments of a literal body some other uniform color (e.g. green.) A more sophisticated approach would allow the TSM to define its own syntax highlighting logic governing these non-spliced segments.
+
+Another concern has to do with performance: na\"ively, a program editor would need to re-run the corresponding parse function on each edit that modified a literal body. Ideally, it should be possible to incrementally compute the resulting change to the splice summary as a function of the change to the literal body \cite{Ghezzi:1979:IP:357062.357066}.
+
+\subsection{Controlled Shadowing}\label{sec:controlled-binding}
+
+The prohibition on capture makes it impossible to define new binding constructs. For example, consider Haskell's \textbf{do}-notation for monadic structures:
 \begin{lstlisting}[numbers=none]
-local 
-  type Rx = (* ... *)
-  syntax $rx at Rx { (* ... *) }
-in 
-  structure Rxlib : 
-  sig 
-    type Rx (* held abstract *)
-    syntax $rx = $rx
-    (* ... *)
-  end = struct 
-    type Rx = Rx
-    syntax $rx = $rx
-    (* ... *)
-  end
-end 
+do x1 <- action1
+   x2 <- action2
+   action3 x1 x2
 \end{lstlisting}
-If we apply \li{Rxlib.#\dolla#rx}, it may generate an expansion that uses the constructors of the \li{Rx} type. However, because the type is being held abstract, these constructors may not be visible at the application site. \todo{actually, this is why doing this is a bad idea. export TSMs only from units, not modules}
-
-\subsection{TSLs}
-
-\section{pTSLs By Example}
-For example, a module \lstinline{P} can associate the TSM \lstinline{rx} defined in the previous section with the abstract type \lstinline{R.t} by qualifying the definition of the sealed module it is defined by as follows:
+This desugars to:
 \begin{lstlisting}[numbers=none]
-module R = mod {
-  type t = (* ... *)
-  (* ... *)
-} :> RX with syntax rx
+action1 >>= \ x1 -> action2 >>= \ x2 -> action3 x1 x2
 \end{lstlisting}
-More generally, when sealing a module expression against a signature, the programmer can specify, for each abstract type that is generated, at most one previously defined TSMs. This TSM must take as its first parameter the module being sealed.
+where \li{>>=} is infix application of the  \emph{bind} function and \li{\ x1 -> e} is Haskell's syntax for lambda abstraction.
 
-The following function has the same expansion as \lstinline{example_using_tsm} but, by using the TSL just defined, it is more concise. Notice the return type annotation, which is necessary to ensure that the TSL can be unambiguously determined:
-\begin{lstlisting}[numbers=none]
-fun example_using_tsl(name : string) : R.t => /SURL@EURLnameSURL: %EURLssn/
-\end{lstlisting}
+If we na\"ively attempted to define something like \textbf{do}-notation using a TSM, the prohibition on capture would prevent \li{x1} from being visible within \li{action2}.
 
-As another example, let us consider the standard list datatype. We can use TSLs to express derived list syntax, for both expressions and patterns:
-\begin{lstlisting}[numbers=none]
-datatype list('a) { Nil | Cons of 'a * list('a) } with syntax {
-  static fn (body : Body) => 
-    (* ... comma-delimited spliced exps ... *)
-} with pattern syntax {
-  static fn (body : Body) : Pat => 
-    (* ... list pattern parser ... *)
-}
-\end{lstlisting}
-Together with the TSL for regular expression patterns, this allows us to write lists like this:
-\begin{lstlisting}[numbers=none]
-let val x : list(R.t) = [/SURL\dEURL/SHTML, EHTML/SURL\d\dEURL/SHTML, EHTML/SURL\d\d\dEURL/]
-\end{lstlisting}
-From the client's perspective, it is essentially as if the language had built in derived syntax for lists and regular expression patterns directly.%However, we did not need to build in this syntax primitively.%The only constraint is that this syntax must be used in an analytic position, which we argue is actually better for code compren when encountering unfamiliar syntax.
+Completely relaxing the prohibition on capture would be unreasonable. Instead, we conjecture that there are two important constraints that need to be enforced:
+\begin{enumerate}
+  \item Identifiers that can be captured by spliced terms must themselves appear in the literal body. This leaves control over naming entirely to the client programmer.
+  \item The splice summary must state which of these are available to each spliced term.
+\end{enumerate}
 
-\section{Parameterized Modules}
-TSLs can be associated with abstract types that are generated by parameterized modules (i.e. generative functors in Standard ML) as well. For example, consider a trivially parameterized module that creates modules sealed against \lstinline{RX}:
-\begin{lstlisting}[numbers=none]
-module F() => mod {
-  type t = (* ... *)
-  (* ... *)
-} :> RX with syntax rx 
-\end{lstlisting}
-Each application of \lstinline{F} generates a distinct abstract type. The semantics associates the appropriately parameterized TSM with each of these as they are generated:
-\begin{lstlisting}[numbers=none]
-module F1 = F() (* F1.t has TSL rx(F1) *)
-module F2 = F() (* F2.t has TSL rx(F2) *)
-\end{lstlisting}
+We leave the technical details of this proposal as future work. We also leave open the question of how an editor should best convey the set of available identifiers within a spliced term to the programmer.
 
-As a more complex example, let us define two signatures, \lstinline{A} and \lstinline{B}, a TSM \texttt{\$G} and a parameterized module \lstinline{G : A -> B}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-signature A = sig { type t; val x : t }
-signature B = sig { type u; val y : u }
-syntax $G(M : A)(G : B) at G.u { (* ... *) }
-module G(M : A) => mod { 
-  type u = M.t; val y = M.x } :> B with syntax $G(M)
-\end{lstlisting}
-Both \lstinline{G} and \texttt{\$G} take a parameter \lstinline{M : A}. We associate the partially applied TSM \texttt{\$G(M)} with the abstract type that \lstinline{G} generates. Again, this satisfies the requirement that one must be able to apply the TSM being associated with the abstract type to the module being sealed. 
+% \subsection{Type-Aware Splicing}\label{sec:type-aware-splicing}
+% Although typed expansion generalizes typing, there is no mechanism by which the expansion can observe and  
 
-Only fully abstract types can have TSLs associated with them. Within the definition of \lstinline{G}, type \lstinline{u} does not have a TSL available to it because it is synonymous to \lstinline{M.t}. More generally, TSL lookup respects type equality, so any synonyms of a type with a TSL will also have that TSL. We can see this in the following example, where the type \lstinline{u} has a different TSL associated with it inside and outside the definition of the module \lstinline{N}:
-\begin{lstlisting}[numbers=none,mathescape=|]
-module M : A = mod { type t = int; val x = 0 }
-module G1 = G(M) (* G1.t has TSL $G(M), per above *)
-module N = mod { 
-  type u = G1.t (* u = G1.t in this scope, so u also has TSL $G(M) *)
-  val y = /asdf/ (* we can use it to create a value of that type *) 
-} :> B (* did not specify a TSL for N.u at the point where it is sealed, 
-            so N.u has no TSL in the outer scope *)
-val z : N.u = /asdf/ (* ERROR: no TSL for type N.u *)
-\end{lstlisting}
+% \subsection{Resugaring}\label{sec:resugaring}
+% Another interesting avenue for future work lies in providing syntactic sugar not only for unexpanded expressions, but also for ``pretty printing'' values and 
 
-\section{\texorpdfstring{$\miniVerseTSL$}{miniVerseTSL}}
-A formal specification of TSLs in a language that supports only non-parametric datatypes is available in a paper published in ECOOP 2014 \cite{TSLs}. %We will add support for parameterized TSLs in the dissertation (see Sec. %\ref{sec:syntax-timeline}).
-
-\subsection{TSMs and TSLs In Candidate Expansions}\label{sec:tsms-in-expansions}
-
-
-Candidate expansions cannot themselves define or apply TSMs. This simplifies our metatheory, though it can be inconvenient at times for TSM providers. We discuss adding the ability to use TSMs within candidate expansions here.\todo{write this}
-
-\subsection{Pattern Matching Over Values of Abstract Type}\label{sec:patterns-for-abstract-types}
-ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, %shown in Sec. \ref{sec:examples}. %We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
-
-
-\subsection{Integration Into Other Languages}\label{sec:integration}
-We conjecture that the constructs we describe could be integrated into dependently typed functional languages, e.g. Coq, but leave the technical developments necessary for doing so as future work.
-
-Some of the constructs in Chapter \ref{chap:uetsms}, Chapter \ref{chap:ptsms} and Chapter \ref{chap:tsls} could also be adapted for use in imperative languages with non-trivial type structure, like Java. Similarly, some of the constructs we discuss could also be adapted into ``{dynamic languages}'' like Racket or Python, though the constructs in Chapter \ref{chap:tsls} are not relevant to such languages. 
-
-
-\subsection{Mechanically Verifying TSM Definitions}\label{sec:verifying-tsms}
-Finally, VerseML is not designed for advanced theorem proving tasks where languages like Coq, Agda or Idris might be used today. That said, we conjecture that the primitives we describe could be integrated into languages like Gallina (the ``external language'' of the Coq proof assistant  \cite{Coq:manual}) with  modifications, but do not plan to pursue this line of research here.
-
-In such a setting, you could verify TSM definitions \todo{finish writing this}
-\subsection{Improved Error Reporting}\label{sec:error-handling}
-\subsection{Controlled Binding}\label{sec:controlled-binding}
-\subsection{Type-Aware Splicing}\label{sec:type-aware-splicing}
-\subsection{Integration With Code Editors}\label{sec:interaction-with-tools}
-\subsection{Resugaring}\label{sec:resugaring}
-\todo{Cite recent work at PLDI (?) and ICFP from Brown}
-\subsection{Non-Textual Display Forms}\label{sec:non-textual-display-forms}
-\todo{Talk about active code completion work and future ideas}
+% \subsection{Non-Textual Display Forms}\label{sec:non-textual-display-forms}
+% \todo{write this}
+% \todo{Talk about active code completion work and future Hazel ideas}
 
 \newpage
 \section*{\LaTeX~Source Code and Updates}
@@ -190,8 +274,7 @@ The latest version of this document can be downloaded from the following URL:
 \begin{center}
 \url{https://github.com/cyrus-/thesis/raw/master/omar-thesis.pdf}
 \end{center}
-Any errors or omissions can be reported to the author by email at the following address:
+Any errors or omissions can be reported using GitHub's issue tracker, or by sending an email to author:
 \begin{center}
 \url{comar@cs.cmu.edu}
 \end{center}
-The author will also review and accept pull requests on GitHub.

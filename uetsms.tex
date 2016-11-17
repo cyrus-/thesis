@@ -353,7 +353,7 @@ $\miniVerseUE$ consists of a language of \emph{unexpanded expressions} (the \emp
 
 \subsection{Syntax of the Expanded Language}\label{sec:U-expanded-terms}
 
-\begin{figure}[h!]
+\begin{figure}
 %\hspace{-5px}
 \[\begin{array}{lllllll}
 \textbf{Sort} & & & \textbf{Operational Form} %& \textbf{Stylized Form} 
@@ -623,7 +623,7 @@ The Progress condition ensures that evaluating a well-typed expanded expression 
 
 \vspace{-5px}
 \subsection{Syntax of the Unexpanded Language}\label{sec:syntax-U}
-\begin{figure}[h!]
+\begin{figure}[t!]
 \[\begin{array}{lllllll}
 \textbf{Sort} & &  
 %&\textbf{Operational Form} 
@@ -1810,16 +1810,17 @@ Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as need
 %\qed
 
 
-\subsubsection{Abstract Reasoning Principles}
+\subsubsection{Abstract Reasoning Principles}\label{sec:uetsms-reasoning-principles}
 The following theorem summarizes the abstract reasoning principles that programmers can rely on when applying an seTSM. In particular, the programmer can be sure that:
 \begin{enumerate} 
-\item \textbf{Typing 1}: The type of the expansion is consistent with the type annotation on the seTSM definition.
 \item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+\item \textbf{Typing 1}: The type of the expansion is consistent with the type annotation on the seTSM definition.
 \item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
 \item \textbf{Typing 3}: Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
 \item \textbf{Typing 4}: Each spliced expression has a well-typed expansion consistent with its type annotation.
-\item \textbf{Capture Avoidance}: The final expansion can be decomposed into a context-independent term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this context-independent term in the standard capture avoiding manner.
-\item \textbf{Context Independence}: The context-independent term is indeed well-typed independent of the application site contexts.
+\item \textbf{Capture Avoidance}: The final expansion can be decomposed into a  term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this term in the standard capture avoiding manner.
+\item \textbf{Context Independence}: The decomposed term is indeed well-typed independent of the application site contexts.
+
 \end{enumerate}
 
 \begingroup
@@ -1858,11 +1859,12 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
     {e_i}
     {\tau_i}
 }{\nexp}$ and $\sseq{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}}{\nexp}$
-\item (\textbf{Capture Avoidance}) $e = [\sseq{\tau'_i/t_i}{\nty}][\sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
-\item (\textbf{Context Independence}) $\hastypeU
-  {\sseq{\Dhyp{t_i}}{\nty}}
-  {\sseq{x_i : \tau_i}{\nexp}}
-  {e'}{\tau}$
+\item (\textbf{Capture Avoidance}) $e = [\sseq{\tau'_i/t_i}{\nty}, \sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+\item (\textbf{Context Independence}) $\mathsf{fv}(e') \subset \sseq{t_i}{\nty} \cup \sseq{x_i}{\nexp}$
+  % $\hastypeU
+  % {\sseq{\Dhyp{t_i}}{\nty}}
+  % {\sseq{x_i : \tau_i}{\nexp}}
+  % {e'}{\tau}$
 \end{enumerate}
 \end{theorem}
 \begin{proof} The proof, which involves auxiliary lemmas about the decomposition of proto-types and proto-expressions, is given in Appendix \ref{appendix:SES-reasoning-principles}.
