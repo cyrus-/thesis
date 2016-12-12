@@ -41,15 +41,17 @@ We did not consider situations where a library clients wants to define syntactic
 
 
 \subsection{Parameterized Implicit Designations}\label{sec:parametric-designations}
-The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} allows the client to designate a TSM at a single type. A more sophisticated mechanism would allow for parameterization of the TSM implicit designation itself, so that it could operate across a parameterized family of types. For example, we may want to be able to implicitly apply \li{#\dolla#list'} at all list types, with the parameters determined implicitly from the type supplied for analysis.
+The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} allows the client to designate a TSM at a single type. A more sophisticated mechanism would allow for parameterization of the TSM implicit designation itself, so that it could operate across a parameterized family of types. For example, we may want to be able to implicitly apply the parametric TSM \li{#\dolla#list'} at \emph{all} list types, with the parameters determined implicitly from the type supplied for analysis.
 
-Na\"ively, we might imagine a designation that looks like this:
+Na\"ively, we might imagine a designation that quantifies over modules, \li{L}, and types, \li{'a}, like this:
 \begin{lstlisting}[numbers=none]
 implicit syntax (L : LIST) 'a => $list' L 'a in (* ... *) end 
 \end{lstlisting}
-The problem here is that the implicit dispatch mechanism must instantiate each implicit parameter, here \li{L} and \li{'a}, from the type provided for analysis. There is not always a unique such instantiation. For example, the type \li{list(int)} makes no reference to any module matching the \li{LIST} signature, and there may be many such modules in context, so we cannot uniquely instantiate \li{L}.
+When encountering an unadorned literal form, the implicit dispatch mechanism must  instantiate each implicit parameter from the type provided for analysis. The problem is that there does not always exist a unique such instantiation. For example, the type expression \li{list(int)} makes no reference to any module matching the \li{LIST} signature, and there may be many such modules in context, so we cannot uniquely instantiate \li{L}.
 
-To solve this problem, we would need to define a unique \emph{normal form} that serves as a representative for each equivalence class of types, and to then define parameter instantiation as pattern matching over these normal forms. This would render the implicit designation above invalid, because the normal form of \li{L.list('a)} does not mention \li{L} (because \li{LIST.list} is not abstract.) The following designation does not require instantiating the module variable, so it would be valid:
+To solve this problem, we would need to define a unique \emph{normal form} that serves as a representative for each equivalence class of types. A designation is deemed invalid if the normal form of its type does not mention every designation parameter. For example, the normal form of \li{L.list('a)} does not mention \li{L} (because \li{LIST.list} is not abstract), so the implicit designation above can simply be deemed invalid.
+
+The following designation does not require instantiating a module variable, so it would be valid under this restriction (recalling that \li{#\dolla#list} was defined as a synonym for \li{#\dolla#list' List}):
 \begin{lstlisting}[numbers=none]
 implicit syntax 'a => $list 'a in (* ... *) end
 \end{lstlisting}
