@@ -6701,23 +6701,7 @@ By rule induction over Rules (\ref{rules:tsmexpStepsExp}).
 \begin{byCases}
 \item[\text{(\ref{rule:tsmexpStepsExp-apmod-1})}] By rule induction over Rules (\ref{rules:hastsmtypeExp}). There is only one rule that applies.
   \begin{byCases}
-%   \begin{equation}\label{rule:tsmexpStepsExp-apmod-1}
-% \inferrule{
-%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
-% }{
-%   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{\aeapmod{X}{\epsilon'}}
-% }
-% \end{equation}
-% \begin{equation}\label{rule:hastsmtypeExp-apmod}
-% \inferrule{
-%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
-%   \hassig{\Omega}{X}{\sigma}
-% }{
-%   \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
-% }
-% \end{equation}
-
-  \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] We have:
+  \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] ~
     \begin{pfsteps*}
       \item $\epsilon=\aeapmod{X}{\epsilon''}$ \BY{assumption}
       \item $\epsilon'=\aeapmod{X}{\epsilon'''}$ \BY{assumption}
@@ -6730,20 +6714,38 @@ By rule induction over Rules (\ref{rules:tsmexpStepsExp}).
     \end{pfsteps*}
     \resetpfcounter
   \end{byCases}
-\item[\text{(\ref{rule:tsmexpStepsExp-apmod-2})}] b
+%   \begin{equation}\label{rule:tsmexpStepsExp-apmod-2}
+% \inferrule{ }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon}}}{[X/X']\epsilon}
+% }
+% \end{equation}
+\item[\text{(\ref{rule:tsmexpStepsExp-apmod-2})}] By rule induction over Rules (\ref{rules:hastsmtypeExp}). There is only one rule that applies.
+  \begin{byCases}
+    \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] ~
+      \begin{pfsteps*}
+        \item $\epsilon=\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon''}}$ \BY{assumption}
+        \item $\epsilon'=[X/X']\epsilon''$ \BY{assumption}
+        \item $\rho=[X/X']\rho'$ \BY{assumption}
+        \item $\hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X'}{\epsilon''}}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{assumption} \pflabel{tsmtype}
+        \item $\hassig{\Omega}{X}{\sigma}$ \BY{assumption} \pflabel{hassig}
+        \item $\hastsmtypeExp{\Omega, X' : \sigma}{\Psi}{\epsilon''}{\rho'}$ \BY{Inversion Lemma for Rule (\ref{rule:hastsmtypeExp-absmod}) on \pfref{tsmtype}} \pflabel{tsmtype2}
+        \item $\hastsmtypeExp{\Omega}{\Psi}{[X/X']\epsilon''}{[X/X']\rho'}$ \BY{Substitution Lemma \ref{lemma:substitution-P} on \pfref{tsmtype2}}
+      \end{pfsteps*}
+      \resetpfcounter
+  \end{byCases}
 \end{byCases}
 \end{proof}
 
-\begin{theorem}[peTSM Preservation (Multistep)]
+\begin{corollary}[peTSM Preservation (Multistep)]
 \label{thm:peTSM-preservation-multistep}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
-\end{theorem}
+\end{corollary}
 \begin{proof}\todo{proof}\end{proof}
 
-\begin{theorem}[peTSM Preservation (Evaluation)]
+\begin{corollary}[peTSM Preservation (Evaluation)]
 \label{thm:peTSM-preservation-evaluation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
-\end{theorem}
+\end{corollary}
 \begin{proof}\todo{proof}\end{proof}
 
 \begin{theorem}[ppTSM Preservation]
@@ -6752,16 +6754,16 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpStepsPat{\Omega}{\
 \end{theorem}
 \begin{proof}\todo{proof}\end{proof}
 
-\begin{theorem}[ppTSM Preservation (Multistep)]
+\begin{corollary}[ppTSM Preservation (Multistep)]
 \label{thm:ppTSM-preservation-multistep}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
-\end{theorem}
+\end{corollary}
 \begin{proof}\todo{proof}\end{proof}
 
-\begin{theorem}[ppTSM Preservation (Evaluation)]
+\begin{corollary}[ppTSM Preservation (Evaluation)]
 \label{thm:ppTSM-preservation-evaluation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpEvalsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
-\end{theorem}
+\end{corollary}
 \begin{proof}\todo{proof}\end{proof}
 
 \begin{theorem}[peTSM Progress]
