@@ -6740,31 +6740,31 @@ By rule induction over Rules (\ref{rules:tsmexpStepsExp}).
 \label{thm:peTSM-preservation-multistep}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:peTSM-preservation} over each step. \end{proof}
 
 \begin{corollary}[peTSM Preservation (Evaluation)]
 \label{thm:peTSM-preservation-evaluation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:peTSM-preservation-multistep}. \end{proof}
 
 \begin{theorem}[ppTSM Preservation]
 \label{thm:ppTSM-preservation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof-sketch} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-preservation}, differing only in that the corresponding ppTSM contexts and judgements are mentioned. \end{proof-sketch}
 
 \begin{corollary}[ppTSM Preservation (Multistep)]
 \label{thm:ppTSM-preservation-multistep}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:ppTSM-preservation} over each step. \end{proof}
 
 \begin{corollary}[ppTSM Preservation (Evaluation)]
 \label{thm:ppTSM-preservation-evaluation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpEvalsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:ppTSM-preservation-multistep}. \end{proof}
 
 \begin{theorem}[peTSM Progress]
 \label{thm:peTSM-progress}
