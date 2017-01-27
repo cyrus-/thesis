@@ -6695,7 +6695,44 @@ When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\r
 \label{thm:peTSM-preservation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof}
+By rule induction over Rules (\ref{rules:tsmexpStepsExp}).
+
+\begin{byCases}
+\item[\text{(\ref{rule:tsmexpStepsExp-apmod-1})}] By rule induction over Rules (\ref{rules:hastsmtypeExp}). There is only one rule that applies.
+  \begin{byCases}
+%   \begin{equation}\label{rule:tsmexpStepsExp-apmod-1}
+% \inferrule{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}
+% }{
+%   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{\aeapmod{X}{\epsilon'}}
+% }
+% \end{equation}
+% \begin{equation}\label{rule:hastsmtypeExp-apmod}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \hassig{\Omega}{X}{\sigma}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+% }
+% \end{equation}
+
+  \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] We have:
+    \begin{pfsteps*}
+      \item $\epsilon=\aeapmod{X}{\epsilon''}$ \BY{assumption}
+      \item $\epsilon'=\aeapmod{X}{\epsilon'''}$ \BY{assumption}
+      \item $\rho=[X/X']\rho'$ \BY{assumption}
+      \item $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon''}{\epsilon'''}$ \BY{assumption} \pflabel{steps}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon''}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{assumption} \pflabel{tsmtype}
+      \item $\hassig{\Omega}{X}{\sigma}$ \BY{assumption} \pflabel{hassig}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'''}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{IH on \pfref{tsmtype} and \pfref{steps}}\pflabel{IH}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon'''}}{[X/X']\rho}$ \BY{Rule (\ref{rule:hastsmtypeExp-apmod}) on \pfref{IH} and \pfref{hassig}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \end{byCases}
+\item[\text{(\ref{rule:tsmexpStepsExp-apmod-2})}] b
+\end{byCases}
+\end{proof}
 
 \begin{theorem}[peTSM Preservation (Multistep)]
 \label{thm:peTSM-preservation-multistep}
@@ -7975,7 +8012,7 @@ The mutual induction can be shown to be well-founded by an argument nearly ident
 \end{enumerate}
 \end{theorem}
 \begin{proof}
-By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana-S}), Rule (\ref{rule:rana-S}), Rules (\ref{rules:csyn}), Rules (\ref{rules:cana}) and Rule (\ref{rule:crana}).
+By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana-S}), Rule (\ref{rule:rana-S}), Rules (\ref{rules:csyn}), Rules (\ref{rules:cana}) and Rule (\ref{rule:crana}). \todo{cases?}
 
 % \begin{enumerate}
 % \item In the following, let $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$.
@@ -8332,7 +8369,7 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
   % {e'}{\tau}$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:eana-S}). The proof follows the proof of Theorem \ref{thm:tsc-SES}.
+\begin{proof} By rule induction over Rules (\ref{rules:eana-S}). The proof follows the proof of Theorem \ref{thm:tsc-SES}. \todo{new case}
 \end{proof}
 
 
@@ -8473,7 +8510,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
       \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTSM-Typing-Segmentation}.
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTSM-Typing-Segmentation}. \todo{new case}
 \end{proof}
 
 

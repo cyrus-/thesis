@@ -1607,7 +1607,7 @@ The proof of part 1 proceeds by inducting over the typed expansion assumption. T
   \item \ue=\uesyntax{\tsmv}{\utau'}{\eparse}{\ue'} \BY{assumption}
   \item \expandsTU{\uDelta}{\utau'}{\tau'} \BY{assumption} \pflabel{expandsTU}
  \item \hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}} \BY{assumption}\pflabel{eparse}
-  \item \expandsSG{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
+  \item \expandsU{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
 %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
 %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
