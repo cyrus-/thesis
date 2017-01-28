@@ -6752,7 +6752,7 @@ If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpEvalsExp{\Omega}{\
 \label{thm:ppTSM-preservation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{theorem}
-\begin{proof-sketch} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-preservation}, differing only in that the corresponding ppTSM contexts and judgements are mentioned. \end{proof-sketch}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-preservation}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \begin{corollary}[ppTSM Preservation (Multistep)]
 \label{thm:ppTSM-preservation-multistep}
@@ -6770,13 +6770,87 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpEvalsPat{\Omega}{\
 \label{thm:peTSM-progress}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then either $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof}
+By rule induction over Rules (\ref{rules:hastsmtypeExp}).
+\begin{byCases}
+  \item[\text{(\ref{rule:hastsmtypeExp-defref})}] ~
+    \begin{pfsteps*}
+%     \begin{equation}\label{rule:hastsmtypeExp-defref}
+% \inferrule{ }{
+%   \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
+% }
+% \end{equation}
+      \item $\epsilon=\adefref{a}$ \BY{assumption}
+      \item $\Psi=\Psi', \petsmdefn{a}{\rho}{\eparse}$ \BY{assumption}
+      \item $\tsmexpNormalExp{\Omega}{\Psi', \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}$ \BY{Rule (\ref{rule:tsmexpNormalExp-defref})}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:hastsmtypeExp-absmod})}] ~
+    \begin{pfsteps*}
+%       \begin{equation}\label{rule:hastsmtypeExp-absmod}
+% \inferrule{
+%   \issigX{\sigma}\\
+%   \hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon}{\rho}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon}}{\aeallmods{\sigma}{X}{\rho}}
+% }
+% \end{equation}
+      \item $\epsilon=\aeabsmod{\sigma}{X}{\epsilon'}$ \BY{assumption}
+      \item $\tsmexpNormalExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon'}}$ \BY{Rule (\ref{rule:tsmexpNormalExp-absmod})}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] ~
+    \begin{pfsteps*}
+%      \begin{equation}\label{rule:hastsmtypeExp-apmod}
+% \inferrule{
+%   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho}}\\
+%   \hassig{\Omega}{X}{\sigma}
+% }{
+%   \hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}{[X/X']\rho}
+% }
+% \end{equation} 
+      \item $\epsilon=\aeapmod{X}{\epsilon'}$ \BY{assumption}
+      \item $\rho=[X/X']\rho'$ \BY{assumption}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{assumption} \pflabel{tsmtype}
+      \item $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon'}{\epsilon''}$ for some $\epsilon''$ or $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}$ \BY{IH on \pfref{tsmtype}} \pflabel{ih}
+    \end{pfsteps*}
+    Proceed by cases on \pfref{ih}.
+    \begin{byCases}
+      \item[\tsmexpStepsExp{\Omega}{\Psi}{\epsilon'}{\epsilon''}] 
+        \begin{pfsteps*}
+          \item $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon'}{\epsilon''}$ \BY{assumption} \pflabel{steps}
+          \item $\tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon'}}{\aeapmod{X}{\epsilon''}}$ \BY{Rule (\ref{rule:tsmexpStepsExp-apmod-1}) on \pfref{steps}}
+        \end{pfsteps*}
+      \item[\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}] Proceed by rule induction over Rules (\ref{rules:tsmexpNormalExp}).
+        \begin{byCases}
+          \item[\text{(\ref{rule:tsmexpNormalExp-defref})}] ~
+            \begin{pfsteps*}
+              \item $\epsilon' = \adefref{a}$ \BY{assumption}
+              \item $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}$ \BY{assumption} \pflabel{normal}
+              \item $\tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon'}}$ \BY{Rule (\ref{rule:tsmexpNormalExp-apmod}) on \pfref{normal}}
+            \end{pfsteps*}
+          \item[\text{(\ref{rule:tsmexpNormalExp-absmod})}] ~
+            \begin{pfsteps*}
+              \item $\epsilon' = \aeabsmod{\sigma}{X}{\epsilon''}$ \BY{assumption}
+              \item $\tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon''}}}{[X/X']\epsilon''}$ \BY{Rule (\ref{rule:tsmexpStepsExp-apmod-2})}
+            \end{pfsteps*}
+          \item[\text{(\ref{rule:tsmexpNormalExp-apmod})}] ~
+            \begin{pfsteps*}
+              \item $\epsilon' = \aeapmod{X''}{\epsilon''}$ \BY{assumption}
+              \item $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}$ \BY{assumption} \pflabel{normal2}              
+              \item $\tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon'}}$ \BY{Rule (\ref{rule:tsmexpNormalExp-apmod}) on \pfref{normal}}
+            \end{pfsteps*}
+        \end{byCases}
+    \end{byCases}
+    \resetpfcounter
+\end{byCases}
+\end{proof}
 
 \begin{theorem}[ppTSM Progress]
 \label{thm:ppTSM-progress}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalPat{\Omega}{\Phi}{\epsilon}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-progress}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsection{Typed Expansion}
 \subsubsection{Kinds and Constructions}
