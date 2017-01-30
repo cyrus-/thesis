@@ -5008,8 +5008,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 
 \subsubsection{Kind and Construction Expansion}
 \noindent\fbox{$\strut\kExpandsX{\ukappa}{\kappa}$}~~$\ukappa$ has well-formed expansion $\kappa$
-\begin{subequations}\label{rules:kExpands-B}
-\begin{equation}\label{rule:kExpands-B-darr}
+\begin{subequations}\label{rules:kExpands}
+\begin{equation}\label{rule:kExpands-darr}
 \inferrule{
   \kExpandsX{\ukappa_1}{\kappa_1}\\
   \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
@@ -5017,12 +5017,12 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \kExpandsX{\kdarr{\uu}{\ukappa_1}{\ukappa_2}}{\akdarr{\kappa_1}{u}{\kappa_2}}
 }
 \end{equation}
-\begin{equation}\label{rule:kExpands-B-unit}
+\begin{equation}\label{rule:kExpands-unit}
 \inferrule{ }{
   \kExpandsX{\kunit}{\akunit}
 }
 \end{equation}
-\begin{equation}\label{rule:kExpands-B-dprod}
+\begin{equation}\label{rule:kExpands-dprod}
 \inferrule{
   \kExpandsX{\ukappa_1}{\kappa_1}\\
   \kExpands{\uOmega, \uKhyp{\uu}{u}{\kappa_1}}{\ukappa_2}{\kappa_2}
@@ -5030,12 +5030,12 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \kExpandsX{\kdbprod{\uu}{\ukappa_1}{\ukappa_2}}{\akdbprod{\kappa_1}{u}{\kappa_2}}
 }
 \end{equation}
-\begin{equation}\label{rule:kExpands-B-ty}
+\begin{equation}\label{rule:kExpands-ty}
 \inferrule{ }{
   \kExpandsX{\kty}{\akty}
 }
 \end{equation}
-\begin{equation}\label{rule:kExpands-B-sing}
+\begin{equation}\label{rule:kExpands-sing}
 \inferrule{
   \cExpandsX{\utau}{\tau}{\akty}
 }{
@@ -6853,7 +6853,7 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\
 \begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-progress}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsection{Typed Expansion}
-\subsubsection{Kinds and Constructions}
+\subsubsection{Kinds, Constructions and Signatures}
 \begin{theorem}[Kind and Construction Expansion]
 \label{thm:kind-and-constructor-expansion-P}
 ~
@@ -6862,26 +6862,95 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\
 \item If $\cExpands{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uc}{c}{\kappa}$ then $\haskind{\Omega}{c}{\kappa}$.
 \end{enumerate}
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof}
+By mutual rule induction over Rules (\ref{rules:kExpands}) and Rules (\ref{rules:cExpands}). In each case, we apply the IH to each premise and then apply the corresponding kind formation rule from Rules (\ref{rules:iskind}) or kinding rule from Rules (\ref{rules:haskind}).
+\end{proof}
+
+\begin{theorem}[Signature Expansion]
+\label{thm:signature-expansion-P}
+If $\sigExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\usigma}{\sigma}$ then $\issig{\Omega}{\sigma}$.
+\end{theorem}
+\begin{proof} By rule induction over Rule (\ref{rule:sigExpandsP}). Apply Theorem \ref{thm:kind-and-constructor-expansion-P} to each premise, then apply Rule (\ref{rule:issig}). \end{proof}
+
 
 \subsubsection{TSM Types and Expressions}
 \begin{theorem}[TSM Type Expansion]
 \label{thm:tsm-type-expansion-P}
 If $\tsmtyExpands{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\urho}{\rho}$ then $\istsmty{\Omega}{\rho}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} By rule induction over Rules (\ref{rules:tsmtyExpands}).
+\begin{byCases}
+  \item[\text{(\ref{rule:tsmtyExpands-type})}] ~
+    \begin{pfsteps*}
+      \item $\urho = \utau$ \BY{assumption}
+      \item $\rho = \aetype{\tau}$ \BY{assumption}
+      \item $\cExpandsX{\utau}{\tau}{\akty}$ \BY{assumption} \pflabel{cexpands}
+      \item $\haskindX{\tau}{\akty}$ \BY{Theorem \ref{thm:kind-and-constructor-expansion-P} on \pfref{cexpands}} \pflabel{haskind}
+      \item $\istsmty{\Omega}{\aetype{\tau}}$ \BY{Rule (\ref{rule:istsmty-type}) on \pfref{haskind}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:tsmtyExpands-allmods})}] ~
+    \begin{pfsteps*}
+      \item $\urho=\allmods{\uX}{\usigma}{\urho'}$ \BY{assumption}
+      \item $\rho=\aeallmods{\sigma}{X}{\rho'}$ \BY{assumption}
+      \item $\sigExpandsPX{\usigma}{\sigma}$ \BY{assumption} \pflabel{sigexpands}
+      \item $\tsmtyExpands{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\urho'}{\rho'}$ \BY{assumption} \pflabel{tsmtyexpands}
+      \item $\issig{\Omega}{\sigma}$ \BY{Theorem \ref{thm:signature-expansion-P} on \pfref{sigexpands}} \pflabel{issig}
+      \item $\istsmty{\Omega, X : \sigma}{\rho'}$ \BY{IH on \pfref{tsmtyexpands}} \pflabel{istsmty} 
+      \item $\istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho'}}$ \BY{Rule (\ref{rule:istsmty-allmods}) on \pfref{issig} and \pfref{istsmty}}
+    \end{pfsteps*}
+    \resetpfcounter
+\end{byCases}
+
+\end{proof}
 
 \begin{theorem}[peTSM Expression Expansion]
 \label{thm:peTSM-expression-expansion}
 If $\tsmexpExpandsExp{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof}
+By rule induction over Rules (\ref{rules:tsmexpExpandsExp}). In the following, let $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$ and $\uPsi=\uAS{\uA}{\Psi}$.
+\begin{byCases}
+  \item[\text{(\ref{rule:tsmexpExpandsExp-bindref})}] ~
+    \begin{pfsteps*}
+      \item $\uepsilon = \tsmv$ \BY{assumption}
+      \item $\uA = \uA', \mapitem{\tsmv}{\epsilon}$ \BY{assumption}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ \BY{assumption} 
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:tsmexpExpandsExp-absmod})}] ~
+    \begin{pfsteps*}
+      \item $\uepsilon=\absmod{\uX}{\usigma}{\uepsilon'}$ \BY{assumption}
+      \item $\epsilon=\aeabsmod{\sigma}{X}{\epsilon'}$ \BY{assumption}
+      \item $\rho=\aeallmods{\sigma}{X}{\rho'}$ \BY{assumption}
+      \item $\sigExpandsPX{\usigma}{\sigma}$ \BY{assumption} \pflabel{sigexpands}
+      \item $\tsmexpExpandsExp{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uepsilon'}{\epsilon'}{\rho'}$ \BY{assumption} \pflabel{tsmexpExpands}
+      \item $\hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon'}{\rho'}$ \BY{IH on \pfref{sigexpands} and \pfref{tsmexpExpands}} \pflabel{hastsmtype}
+      \item $\issigX{\sigma}$ \BY{Theorem \ref{thm:signature-expansion-P} on \pfref{sigexpands}} \pflabel{issig}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\aeabsmod{\sigma}{X}{\epsilon'}}{\aeallmods{\sigma}{X}{\rho'}}$ \BY{Rule (\ref{rule:hastsmtypeExp-absmod}) on \pfref{issig} and \pfref{hastsmtype}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:tsmexpExpandsExp-apmod})}] ~
+    \begin{pfsteps*}
+      \item $\uepsilon=\apmod{\uepsilon'}{\uX}$ \BY{assumption}
+      \item $\epsilon=\aeapmod{X}{\epsilon'}$ \BY{assumption}
+      \item $\rho=[X/X']\rho'$ \BY{assumption}
+      \item $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon'}{\epsilon'}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{assumption} \pflabel{tsmexpExpands}
+      \item $\mExpandsPX{\uX}{X}{\sigma}$ \BY{assumption} \pflabel{mExpands}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{IH on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
+      \item $\hassig{\Omega}{X}{\sigma}$ \BY{Theorem \ref{thm:module-expansion-P} on \pfref{mExpands}} \pflabel{hassig}
+      \item $\hastsmtypeExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon'}}{[X/X']\rho'}$ \BY{Rule (\ref{rule:hastsmtypeExp-apmod}) on \pfref{hastsmtype} and \pfref{hassig}}
+    \end{pfsteps*}
+    \resetpfcounter
+\end{byCases}
+
+\end{proof}
 
 \begin{theorem}[ppTSM Expression Expansion]
 \label{thm:ppTSM-expression-expansion}
 If $\tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$.
 \end{theorem}
-\begin{proof}\todo{proof}\end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-expression-expansion}, differing only in that peTSM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsubsection{Patterns}
 \begin{lemma}[Pattern Deparameterization]
@@ -6910,6 +6979,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
       \item $\domof{\Omega_\text{app}} \cap \domof{\Omega', t :: \akty}$ \BY{\pfref{notin} and \pfref{IH2} and definition of finite set intersection}
       \item $\hastypeP{\Omega_\text{app}}{\omega', \tau/t}{\Omega', t :: \akty}$ \BY{\todo{definition of omega type} and \todo{assumption that epsilon is well-typed}}
     \end{pfsteps*}
+    \resetpfcounter
 \end{byCases}
 \end{proof}
 
@@ -7043,12 +7113,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
 \end{theorem}
 \begin{proof} \todo{proof} \end{proof}
 
-\subsubsection{Signatures and Modules}
-\begin{theorem}[Signature Expansion]
-\label{thm:signature-expansion-P}
-If $\sigExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\usigma}{\sigma}$ then $\issig{\Omega}{\sigma}$.
-\end{theorem}
-\begin{proof} \todo{proof} \end{proof}
+\subsubsection{Modules}
 
 \begin{theorem}[Module Expansion]
 \label{thm:module-expansion-P}
