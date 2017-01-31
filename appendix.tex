@@ -5699,7 +5699,9 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \noindent\fbox{$\strut\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$}~~$\epsilon$ is a peTSM expression at $\rho$
 \begin{subequations}\label{rules:hastsmtypeExp}
 \begin{equation}\label{rule:hastsmtypeExp-defref}
-\inferrule{ }{
+\inferrule{
+  \istsmty{\Omega}{\rho}
+}{
   \hastsmtypeExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
 }
 \end{equation}
@@ -5739,7 +5741,9 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \noindent\fbox{$\strut\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$}~~$\epsilon$ is a ppTSM expression at $\rho$
 \begin{subequations}\label{rules:hastsmtypePat}
 \begin{equation}\label{rule:hastsmtypePat-defref}
-\inferrule{ }{
+\inferrule{
+  \istsmty{\Omega}{\rho}
+}{
   \hastsmtypePat{\Omega}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\adefref{a}}{\rho}
 }
 \end{equation}
@@ -6253,7 +6257,9 @@ The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-nega
 When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepce}
 \begin{equation}\label{rule:prepce-ceexp}
-\inferrule{ }{
+\inferrule{
+  \istsmty{\Omega_\text{app}}{\rho}
+}{
   \prepce{\Omega_\text{app}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\apceexp{\ce}}{\ce}{\adefref{a}}{\rho}{\emptyset}{\emptyset}
 }
 \end{equation}
@@ -6267,7 +6273,8 @@ When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rh
 % \end{equation}
 \begin{equation}\label{rule:prepce-allmods}
 \inferrule{
-  \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\
+  \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\\\
+  \hassig{\Omega_\text{app}}{X'}{\sigma}\\
   X \notin \domof{\Omega_\text{app}}
 }{
   \prepce{\Omega_\text{app}}{\Psi}{\apcebindmod{X}{\pce}}{\ce}{\aeapmod{X'}{\epsilon}}{\rho}{(\omega, X'/X)}{(\Omega, X : \sigma)}
@@ -6281,7 +6288,9 @@ When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rh
 When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepcp}
 \begin{equation}\label{rule:prepcp-cepat}
-\inferrule{ }{
+\inferrule{
+  \istsmty{\Omega_\text{app}}{\rho}
+}{
   \prepcp{\Omega_\text{app}}{\Phi, \pptsmdefn{a}{\rho}{\eparse}}{\apcepat{\cpv}}{\cpv}{\adefref{a}}{\rho}{\emptyset}{\emptyset}
 }
 \end{equation}
@@ -6295,7 +6304,8 @@ When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\r
 % \end{equation}
 \begin{equation}\label{rule:prepcp-allmods}
 \inferrule{
-  \prepce{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\
+  \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aeallmods{\sigma}{X}{\rho}}{\omega}{\Omega}\\\\
+  \hassig{\Omega_\text{app}}{X'}{\sigma}\\
   X \notin \domof{\Omega_\text{app}}
 }{
   \prepcp{\Omega_\text{app}}{\Phi}{\apcebindmod{X}{\pcp}}{\cpv}{\aeapmod{X'}{\epsilon}}{\rho}{(\omega, X'/X)}{(\Omega, X : \sigma)}
@@ -6690,7 +6700,50 @@ When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\r
 
 
 \section{Metatheory}\label{appendix:metatheory-P}
-\subsection{TSM Expression Evaluation}
+\subsection{TSM Expressions}
+\begin{lemma}[peTSM Regularity]
+\label{lemma:peTSM-regularity}
+If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
+\end{lemma}
+\begin{proof}
+  By rule induction over Rules (\ref{rules:hastsmtypeExp}). 
+  \begin{byCases}
+    \item[\text{(\ref{rule:hastsmtypeExp-defref})}] ~
+      \begin{pfsteps*}
+        \item $\istsmty{\Omega}{\rho}$ \BY{assumption}
+      \end{pfsteps*}
+      \resetpfcounter
+    \item[\text{(\ref{rule:hastsmtypeExp-absmod})}] ~
+      \begin{pfsteps*}
+        \item $\epsilon=\aeabsmod{\sigma}{X}{\epsilon'}$ \BY{assumption}
+        \item $\rho=\aeallmods{\sigma}{X}{\rho'}$ \BY{assumption}
+        \item $\hastsmtypeExp{\Omega, X : \sigma}{\Psi}{\epsilon'}{\rho'}$ \BY{assumption} \pflabel{hastsmtype}
+        \item $\issigX{\sigma}$ \BY{assumption} \pflabel{issig}
+        \item $\istsmty{\Omega, X : \sigma}{\rho'}$ \BY{IH on \pfref{hastsmtype}} \pflabel{istsmty}
+        \item $\istsmty{\Omega}{\aeallmods{\sigma}{X}{\rho'}}$ \BY{Rule (\ref{rule:istsmty-allmods}) on \pfref{issig} and \pfref{istsmty}}
+      \end{pfsteps*}
+      \resetpfcounter
+    \item[\text{(\ref{rule:hastsmtypeExp-apmod})}] ~
+      \begin{pfsteps*}
+        \item $\epsilon=\aeapmod{X}{\epsilon'}$ \BY{assumption}
+        \item $\rho=[X/X']\rho'$ \BY{assumption}
+        \item $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{assumption} \pflabel{hastsmtype}
+        \item $\hassig{\Omega}{X}{\sigma}$ \BY{assumption} \pflabel{hassig}
+        \item $\istsmty{\Omega}{\aeallmods{\sigma}{X'}{\rho'}}$ \BY{IH on \pfref{hastsmtype}} \pflabel{istsmty}
+        \item $\istsmty{\Omega, X' : \sigma}{\rho'}$ \BY{Inversion of Rule (\ref{rule:istsmty-allmods}) on \pfref{istsmty}} \pflabel{istsmtyprime}
+        \item $\istsmty{\Omega}{[X'/X]\rho'}$ \BY{Substitution Lemma \ref{lemma:substitution-P} on \pfref{hassig} and \pfref{istsmtyprime}}
+      \end{pfsteps*}
+      \resetpfcounter
+  \end{byCases}
+\end{proof}
+
+\begin{lemma}[ppTSM Regularity]
+If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
+\end{lemma}
+\begin{proof}
+By rule induction over Rules (\ref{rules:hastsmtypePat}). The proof is nearly identical to the proof of Lemma \ref{lemma:peTSM-regularity}, differing only in that ppTSM contexts and the corresponding judgements are mentioned.
+\end{proof}
+
 \begin{theorem}[peTSM Preservation]
 \label{thm:peTSM-preservation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
@@ -6950,34 +7003,41 @@ By rule induction over Rules (\ref{rules:tsmexpExpandsExp}). In the following, l
 \label{thm:ppTSM-expression-expansion}
 If $\tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$.
 \end{theorem}
-\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-expression-expansion}, differing only in that peTSM contexts and the corresponding judgements are mentioned. \end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-expression-expansion}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsubsection{Patterns}
-\begin{lemma}[Pattern Deparameterization]
+\begin{lemma}[Proto-Pattern Deparameterization]
 \label{lemma:pattern-deparameterization-P}
-If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$ and $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho'}$ then $\domof{\Omega_\text{app}} \cap \domof{\Omega_\text{params}} = \emptyset$ and $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$.
+If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$ then $\domof{\Omega_\text{app}} \cap \domof{\Omega_\text{params}} = \emptyset$ and $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ and $\hastsmtypePat{\Omega_\text{app}}{\Phi}{\epsilon}{[\omega]\rho}$. 
 \end{lemma}
 \begin{proof} By rule induction over Rules (\ref{rules:prepcp}).
 \begin{byCases}
   \item[\text{(\ref{rule:prepcp-cepat})}] We have:
     \begin{pfsteps*}
+      \item $\epsilon=\adefref{a}$ \BY{assumption}
       \item $\omega=\emptyset$ \BY{assumption}
       \item $\Omega_\text{params}=\emptyset$ \BY{assumption}
+      \item $\istsmty{\Omega_\text{app}}{\rho}$ \BY{assumption} \pflabel{istsmty}
       \item $\domof{\Omega_\text{app}} \cap \domof{\emptyset} = \emptyset$ \BY{definition}
       \item $\hastypeP{\Omega_\text{app}}{\emptyset}{\emptyset}$ \BY{definition}
+      \item $[\emptyset]\rho=\rho$ \BY{definition}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{a}{\rho}$ \BY{Rule (\ref{rule:hastsmtypePat-defref}) on \pfref{istsmty}}
     \end{pfsteps*}
     \resetpfcounter
   \item[\text{(\ref{rule:prepcp-allmods})}] We have:
     \begin{pfsteps*}
-      \item $\epsilon=\aeaptype{\tau}{\epsilon'}$ \BY{assumption}
-      \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon'}{\aealltypes{t}{\rho}}{\omega'}{\Omega'}$ \BY{assumption} \pflabel{prepcp}
-      \item $t \notin \domof{\Omega_\text{app}}$ \BY{assumption} \pflabel{notin}
-      \item $\omega=\omega', \tau/t$ \BY{assumption}
-      \item $\Omega_\text{params} = \Omega', t :: \akty$ \BY{assumption}
+      \item $\epsilon=\aeapmod{X}{\epsilon'}$ \BY{assumption}
+      \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon'}{\aeallmods{\sigma}{X'}{\rho}}{\omega'}{\Omega'}$ \BY{assumption} \pflabel{prepcp}
+      \item $\hassig{\Omega_\text{app}}{X}{\sigma}$ \BY{assumption} \pflabel{hassig}
+      \item $X' \notin \domof{\Omega_\text{app}}$ \BY{assumption} \pflabel{notin}
+      \item $\omega=\omega', X/X'$ \BY{assumption}
+      \item $\Omega_\text{params} = \Omega', X' : \sigma$ \BY{assumption}
       \item $\domof{\Omega_\text{app}} \cap \domof{\Omega'} = \emptyset$ \BY{IH on \pfref{prepcp}} \pflabel{IH1}
       \item $\hastypeP{\Omega_\text{app}}{\omega'}{\Omega'}$ \BY{IH on \pfref{prepcp}} \pflabel{IH2}
-      \item $\domof{\Omega_\text{app}} \cap \domof{\Omega', t :: \akty}$ \BY{\pfref{notin} and \pfref{IH2} and definition of finite set intersection}
-      \item $\hastypeP{\Omega_\text{app}}{\omega', \tau/t}{\Omega', t :: \akty}$ \BY{\todo{definition of omega type} and \todo{assumption that epsilon is well-typed}}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{\epsilon'}{[\omega']\aeallmods{\sigma}{X'}{\rho}}$ \BY{IH on \pfref{prepcp}} \pflabel{IH3}
+      \item $\domof{\Omega_\text{app}} \cap \domof{\Omega', X' : \sigma}$ \BY{\pfref{notin} and \pfref{IH1} and definition of finite set intersection}
+      \item $\hastypeP{\Omega_\text{app}}{\omega', X/X'}{\Omega', X' : \sigma}$ \BY{definition of substitution typing on \pfref{hassig}}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{\aeapmod{X}{\epsilon'}}{(\omega', X/X')\rho}$ \BY{Rule (\ref{rule:hastsmtypePat-apmod}) on \pfref{IH3} and \pfref{hassig}}
     \end{pfsteps*}
     \resetpfcounter
 \end{byCases}
