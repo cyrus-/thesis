@@ -4309,6 +4309,8 @@ The rules above are syntax-directed, so we assume an inversion lemma for each ru
 \begin{proof-sketch} By straightforward mutual rule induction.
 \end{proof-sketch}
 
+\begin{definition} 
+\label{def:substitution-p}
 A \emph{substitution}, $\omega$, is a finite function that maps:
 \begin{itemize}
 \item each $X \in \domof{\omega}$ to a module expression subtitution, $M/X$; 
@@ -4324,6 +4326,7 @@ We write $\hastypeP{\Omega}{\omega}{\Omega'}$ iff $\domof{\omega}=\domof{\Omega'
 \end{itemize}
 
 We simultaneously apply a substitution by placing it in prefix position. For example, $[\omega]e$ applies the substitutions $\omega$ simultaneously to $e$.
+\end{definition}
 
 \begin{lemma}[Substitution]\label{lemma:substitution-P} If $\Omega \cup \Omega' \cup \Omega'' \vdash J$ and $\hastypeP{\Omega}{\omega}{\Omega'}$ then $\Omega \cup [\omega]\Omega'' \vdash [\omega]J$.
 \end{lemma}
@@ -7016,12 +7019,13 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
     \begin{pfsteps*}
       \item $\epsilon=\adefref{a}$ \BY{assumption}
       \item $\omega=\emptyset$ \BY{assumption}
+      \item $\Phi=\Phi', \pptsmdefn{a}{\rho}{\eparse}$ \BY{assumption}
       \item $\Omega_\text{params}=\emptyset$ \BY{assumption}
       \item $\istsmty{\Omega_\text{app}}{\rho}$ \BY{assumption} \pflabel{istsmty}
       \item $\domof{\Omega_\text{app}} \cap \domof{\emptyset} = \emptyset$ \BY{definition}
       \item $\hastypeP{\Omega_\text{app}}{\emptyset}{\emptyset}$ \BY{definition}
       \item $[\emptyset]\rho=\rho$ \BY{definition}
-      \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{a}{\rho}$ \BY{Rule (\ref{rule:hastsmtypePat-defref}) on \pfref{istsmty}}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Phi', \pptsmdefn{a}{\rho}{\eparse}}{a}{\rho}$ \BY{Rule (\ref{rule:hastsmtypePat-defref}) on \pfref{istsmty}}
     \end{pfsteps*}
     \resetpfcounter
   \item[\text{(\ref{rule:prepcp-allmods})}] We have:
@@ -7036,7 +7040,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
       \item $\hastypeP{\Omega_\text{app}}{\omega'}{\Omega'}$ \BY{IH on \pfref{prepcp}} \pflabel{IH2}
       \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{\epsilon'}{[\omega']\aeallmods{\sigma}{X'}{\rho}}$ \BY{IH on \pfref{prepcp}} \pflabel{IH3}
       \item $\domof{\Omega_\text{app}} \cap \domof{\Omega', X' : \sigma}$ \BY{\pfref{notin} and \pfref{IH1} and definition of finite set intersection}
-      \item $\hastypeP{\Omega_\text{app}}{\omega', X/X'}{\Omega', X' : \sigma}$ \BY{definition of substitution typing on \pfref{hassig}}
+      \item $\hastypeP{\Omega_\text{app}}{\omega', X/X'}{\Omega', X' : \sigma}$ \BY{Definition \ref{def:substitution-p} on \pfref{hassig}}
       \item $\hastsmtypePat{\Omega_\text{app}}{\Phi}{\aeapmod{X}{\epsilon'}}{(\omega', X/X')\rho}$ \BY{Rule (\ref{rule:hastsmtypePat-apmod}) on \pfref{IH3} and \pfref{hassig}}
     \end{pfsteps*}
     \resetpfcounter
@@ -7046,7 +7050,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
 \begin{theorem}[Typed Pattern Expansion]\label{thm:typed-pattern-expansion-P} ~
 \begin{enumerate}
   \item If $\pExpandsSP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPhi}{\upv}{p}{\tau}{\uOmegaEx{\uD'}{\uG'}{\uMctx'}{\Omega'}}$ then $\uMctx' = \emptyset$ and $\uD' = \emptyset$ and $\patTypePC{\Omega_\text{app}}{\Omega'}{p}{\tau}$.
-  \item If $\cvalidPP{\uOmegaEx{\uD'}{\uG'}{\uMctx'}{\Omega'}}{\pscene{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPhi}{b}}{\cpv}{p}{\tau}$ and $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\uMctx' = \emptyset$ and $\uD' = \emptyset$ and $\patTypePC{\Omega_\text{params} \cup \Omega_\text{app}}{\Omega'}{p}{\tau}$.
+  \item If $\cvalidPP{\uOmegaEx{\uD'}{\uG'}{\uMctx'}{\Omega'}}{\psceneP{\omega : \Omega_\text{params}}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPhi}{b}}{\cpv}{p}{\tau}$ and $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\uMctx' = \emptyset$ and $\uD' = \emptyset$ and $\patTypePC{\Omega_\text{params} \cup \Omega_\text{app}}{\Omega'}{p}{\tau}$.
 \end{enumerate}
 \end{theorem}
 \begin{proof} My mutual rule induction over Rules (\ref{rules:patExpandsP}) and Rules (\ref{rules:cvalidPP}).
@@ -7065,18 +7069,17 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
     \item $\Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}$ \BY{assumption}
     \item $\encodeBody{b}{\ebody}$ \BY{assumption}
     \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}$ \BY{assumption}
-    \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption}
-    \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption}
-    \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption}
+    \item $\decodePCEPat{\ecand}{\pcp}$ \BY{assumption}
+    \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prepcp}
+    \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalidPP}
     \item $\tau = [\omega]\tau_\text{proto}$ \BY{assumption}
-    \item $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{\todo{lemma}}
-    \item $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ \BY{\todo{lemma}}
-    \item $\uMctx' = \emptyset$ \BY{\todo{IH part 2}}
-    \item $\uD' = \emptyset$
-    \item $\patTypePC{\Omega_\text{params} \cup \Omega_\text{app}}{\Omega'}{p}{\tau_\text{proto}}$
-    \item $\patTypePC{\Omega_\text{app}}{\Omega'}{p}{[\omega]\tau_\text{proto}}$ \BY{\todo{substitution}}
+    \item $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{Lemma \ref{lemma:pattern-deparameterization-P} on \pfref{prepcp}} \pflabel{disjoint}
+    \item $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ \BY{Lemma \ref{lemma:pattern-deparameterization-P} on \pfref{prepcp}} \pflabel{hastypeP}
+    \item $\uMctx' = \emptyset$ and $\uD' = \emptyset$ \BY{IH, part 2 on \pfref{cvalidPP} and \pfref{disjoint}}
+    \item $\patTypePC{\Omega_\text{params} \cup \Omega_\text{app}}{\Omega'}{p}{\tau_\text{proto}}$ \BY{IH, part 2 on \pfref{cvalidPP} and \pfref{disjoint}} \pflabel{patType}
+    \item $\patTypePC{\Omega_\text{app}}{\Omega'}{p}{[\omega]\tau_\text{proto}}$ \BY{Substitution Lemma \ref{lemma:substitution-P} on \pfref{hastypeP} and \pfref{patType}}
     \end{pfsteps*}
-
+    \resetpfcounter
     % \item[\text{(\ref{rule:patExpandsP-subsume})}] We have:
     %   \begin{pfsteps*}
     %   \item $\patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{\tau'}$ \BY{assumption} \pflabel{patExpandsP}
@@ -7120,12 +7123,25 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
     %   \end{pfsteps*}
     %   \resetpfcounter
   \end{byCases}
-\item We induct on the premise. In the following, let $\upctx=\uGG{\uG}{\pctx}$ and $\uPhi=\uASI{\uA}{\Phi}{\uI}$.
+\item We induct on the premise. In the following, let $\uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$ and $\uOmega' = \uOmegaEx{\uD'}{\uG'}{\uMctx'}{\Omega'}$.
   \begin{byCases}
-    \item[\text{(\ref{rule:cvalidP-B-wild}) through (\ref{rule:cvalidP-B-spliced})}] In each case, the proof is written identically to the proof of the corresponding case in the proof of Theorem \ref{thm:typed-pattern-expansion}.
-  \end{byCases}
+    \item[\text{(\ref{rule:cvalidPP-wild}) through (\ref{rule:cvalidPP-in})}] These cases follow by applying the IH, part 2 and then applying the corresponding pattern rule in Rules (\ref{rules:patTypeP}).
+    \item[\text{(\ref{rule:cvalidPP-spliced})}] ~
+      \begin{pfsteps*}
+        \item $\cpv=\acesplicedp{m}{n}{\ctau}$ \BY{assumption}
+        \item $\tau=[\omega]\tau'$ \BY{assumption}
+        \item $\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau}{\tau'}{\akty}$ \BY{assumption} \pflabel{cvalidC}
+        \item $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption} \pflabel{parseUPat}
+        \item $\patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{[\omega]\tau'}$ \BY{assumption} \pflabel{patExpands}
+        \item  $\uMctx' = \emptyset$ and $\uD' = \emptyset$ \BY{IH, part 1 on \pfref{patExpands}}
+        \item $\patTypePC{\Omega_\text{app}}{\Omega'}{p}{[\omega]\tau'}$ \BY{IH, part 1 on \pfref{patExpands}} \pflabel{pattype}
+        \item $\patTypePC{\OParams \cup \Omega_\text{app}}{\Omega'}{p}{[\omega]\tau'}$ \BY{Weakening on \pfref{pattype}}
+      \end{pfsteps*}
+      \resetpfcounter
+    \end{byCases}
 \end{enumerate}
-% The mutual induction can be shown to be well-founded by showing that the following numeric metric on the judgements that we induct on is decreasing:
+The mutual induction can be shown to be well-founded by an argument analagous to that in the proof of Theorem \ref{thm:typed-pattern-expansion}, appealing to Condition  \ref{condition:pattern-parsing-P} and Condition \ref{condition:body-subsequences-P}.
+
 % \begin{align*}
 % \sizeof{\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}} & = \sizeof{\upv}\\
 % \sizeof{{\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}}} & = \sizeof{b}
