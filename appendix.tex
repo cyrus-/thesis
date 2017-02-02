@@ -4939,7 +4939,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \mExpandsPX{\uM}{M}{\sigma'}
 }
 \end{equation}
-\begin{equation}\label{rule:mExpands-var}
+\begin{equation}\label{rule:mExpandsP-var}
 \inferrule{ }{
   \mExpandsP{\uOmega, \uMhyp{\uX}{X}{\sigma}}{\uPsi}{\uPhi}{\uX}{X}{\sigma}
 }
@@ -7327,7 +7327,22 @@ The mutual induction can be shown to be well-founded by an argument analagous to
 \label{thm:module-expansion-P}
 If $\mExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\uM}{M}{\sigma}$ then $\hassig{\Omega}{M}{\sigma}$.
 \end{theorem}
-\begin{proof} \todo{proof} \end{proof}
+\begin{proof} 
+By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$.
+
+\begin{byCases}
+  \item[\text{(\ref{rule:mExpandsP-subsumes})}] ~
+    \begin{pfsteps*}
+      \item $\mExpandsPX{\uM}{M}{\sigma'}$ \BY{assumption} \pflabel{mexpands}
+      \item $\sigsub{\uOmega}{\sigma'}{\sigma}$ \BY{assumption} \pflabel{sigsub}
+      \item $\hassig{\Omega}{M}{\sigma'}}$ \BY{IH on \pfref{mexpands}} \pflabel{hassig}
+      \item $\hassig{\Omega}{M}{\sigma}$ \BY{Rule (\ref{rule:hassig-subsume}) on \pfref{hassig} and \pfref{sigsub}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:mExpandsP-var}) \textbf{through} (\ref{rule:mExpandsP-mlet})}] In each of these cases, we apply the IH over each premise then apply the corresponding signature matching rule in Rules (\ref{rules:hassig}) and weakening as needed.
+  \item[\text{(\ref{rule:mExpandsP-syntaxpe}) \textbf{through} (\ref{rule:mExpandsP-letpptsm})}] In each of these cases, we apply the IH to the module expansion premise.
+\end{byCases}
+\end{proof}
 
 \subsection{Abstract Reasoning Principles}
 \begin{theorem}[peTSM Abstract Reasoning Principles]
