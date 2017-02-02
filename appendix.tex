@@ -7125,7 +7125,7 @@ If $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_
   \end{byCases}
 \item We induct on the premise. In the following, let $\uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$ and $\uOmega' = \uOmegaEx{\uD'}{\uG'}{\uMctx'}{\Omega'}$.
   \begin{byCases}
-    \item[\text{(\ref{rule:cvalidPP-wild}) through (\ref{rule:cvalidPP-in})}] These cases follow by applying the IH, part 2 and then applying the corresponding pattern rule in Rules (\ref{rules:patTypeP}).
+    \item[\text{(\ref{rule:cvalidPP-wild}) \textbf{through} (\ref{rule:cvalidPP-in})}] These cases follow by applying the IH, part 2 and then applying the corresponding pattern rule in Rules (\ref{rules:patTypeP}).
     \item[\text{(\ref{rule:cvalidPP-spliced})}] ~
       \begin{pfsteps*}
         \item $\cpv=\acesplicedp{m}{n}{\ctau}$ \BY{assumption}
@@ -7173,6 +7173,44 @@ The mutual induction can be shown to be well-founded by an argument analagous to
 % Combining Conditions \ref{condition:body-subsequences-P} and \ref{condition:pattern-parsing-P}, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
 \subsubsection{Expressions and Rules}
+\begin{lemma}[Proto-Expression Deparameterization]
+\label{lemma:expression-deparameterization-P}
+If $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$ then $\domof{\Omega_\text{app}} \cap \domof{\Omega_\text{params}} = \emptyset$ and $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ and $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon}{[\omega]\rho}$. 
+\end{lemma}
+\begin{proof} By rule induction over Rules (\ref{rules:prepce}).
+\begin{byCases}
+  \item[\text{(\ref{rule:prepce-ceexp})}] We have:
+    \begin{pfsteps*}
+      \item $\epsilon=\adefref{a}$ \BY{assumption}
+      \item $\omega=\emptyset$ \BY{assumption}
+      \item $\Psi=\Psi', \petsmdefn{a}{\rho}{\eparse}$ \BY{assumption}
+      \item $\Omega_\text{params}=\emptyset$ \BY{assumption}
+      \item $\istsmty{\Omega_\text{app}}{\rho}$ \BY{assumption} \pflabel{istsmty}
+      \item $\domof{\Omega_\text{app}} \cap \domof{\emptyset} = \emptyset$ \BY{definition}
+      \item $\hastypeP{\Omega_\text{app}}{\emptyset}{\emptyset}$ \BY{definition}
+      \item $[\emptyset]\rho=\rho$ \BY{definition}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi', \petsmdefn{a}{\rho}{\eparse}}{a}{\rho}$ \BY{Rule (\ref{rule:hastsmtypeExp-defref}) on \pfref{istsmty}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:prepce-allmods})}] We have:
+    \begin{pfsteps*}
+      \item $\epsilon=\aeapmod{X}{\epsilon'}$ \BY{assumption}
+      \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon'}{\aeallmods{\sigma}{X'}{\rho}}{\omega'}{\Omega'}$ \BY{assumption} \pflabel{prepcp}
+      \item $\hassig{\Omega_\text{app}}{X}{\sigma}$ \BY{assumption} \pflabel{hassig}
+      \item $X' \notin \domof{\Omega_\text{app}}$ \BY{assumption} \pflabel{notin}
+      \item $\omega=\omega', X/X'$ \BY{assumption}
+      \item $\Omega_\text{params} = \Omega', X' : \sigma$ \BY{assumption}
+      \item $\domof{\Omega_\text{app}} \cap \domof{\Omega'} = \emptyset$ \BY{IH on \pfref{prepcp}} \pflabel{IH1}
+      \item $\hastypeP{\Omega_\text{app}}{\omega'}{\Omega'}$ \BY{IH on \pfref{prepcp}} \pflabel{IH2}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon'}{[\omega']\aeallmods{\sigma}{X'}{\rho}}$ \BY{IH on \pfref{prepcp}} \pflabel{IH3}
+      \item $\domof{\Omega_\text{app}} \cap \domof{\Omega', X' : \sigma}$ \BY{\pfref{notin} and \pfref{IH1} and definition of finite set intersection}
+      \item $\hastypeP{\Omega_\text{app}}{\omega', X/X'}{\Omega', X' : \sigma}$ \BY{Definition \ref{def:substitution-p} on \pfref{hassig}}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\aeapmod{X}{\epsilon'}}{(\omega', X/X')\rho}$ \BY{Rule (\ref{rule:hastsmtypeExp-apmod}) on \pfref{IH3} and \pfref{hassig}}
+    \end{pfsteps*}
+    \resetpfcounter
+\end{byCases}
+\end{proof}
+
 \begin{theorem}[Typed Expression and Rule Expansion]
 \label{thm:typed-expression-expansion-P}
 ~
@@ -7187,7 +7225,101 @@ The mutual induction can be shown to be well-founded by an argument analagous to
   \end{enumerate}
 \end{enumerate}
 \end{theorem}
-\begin{proof} \todo{proof} \end{proof}
+\begin{proof} 
+By mutual rule induction over Rules (\ref{rules:expandsP}), Rule (\ref{rule:rExpandsP}), Rules (\ref{rules:cvalidE-P}) and Rule (\ref{rule:cvalidR-P}).
+\begin{enumerate}
+  \item \begin{enumerate}
+    \item In the following, let $\uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$. 
+    \begin{byCases}
+      \item[\text{(\ref{rule:expandsP-subsume})}] ~
+        \begin{pfsteps*}
+          \item $\expandsPX{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsP}
+          \item $\issubtypePX{\tau}{\tau'}$ \BY{assumption} \pflabel{issubtype}
+          \item $\hastypeP{\Omega}{e}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsP}} \pflabel{hastype}
+          \item $\hastypeP{\Omega}{e}{\tau}$ \BY{Rule (\ref{rule:hastypeP-subsume}) on \pfref{hastype} and \pfref{issubtype}}
+        \end{pfsteps*}
+        \resetpfcounter
+      \item[\text{(\ref{rule:expandsP-var}) \textbf{through} (\ref{rule:expandsP-mval})}] In each of these cases, we apply the IH, part 1(a) or 1(b), over the premises and then apply the corresponding typing rule in Rules (\ref{rules:hastypeP}) and weakening as needed.
+      \item[\text{(\ref{rule:expandsP-apuetsm})}] ~
+        \begin{pfsteps*}
+          \item $\ue=\utsmap{\uepsilon}{b}$ \BY{assumption}
+          \item $e=[\omega]e'$ \BY{assumption}
+          \item $\tau=[\omega]\tau_\text{proto}$ \BY{assumption}
+          \item $\uPsi=\uAS{\uA}{\Psi}$ \BY{assumption}
+          \item $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{assumption} \pflabel{tsmexpExpands}
+          \item $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon_\text{normal}}$ \BY{assumption} \pflabel{tsmexpEvals}
+          \item $\tsmdefof{\epsilon_\text{normal}}=a$ \BY{assumption} \pflabel{tsmdefof}
+          \item $\Psi = \Psi', \petsmdefn{a}{\rho}{\eparse}$ \BY{assumption} 
+          \item $\encodeBody{b}{\ebody}$ \BY{assumption}
+          \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$ \BY{assumption}
+          \item $\decodePCEExp{e_\text{pproto}}{\pce}$ \BY{assumption}
+          \item $\prepce{\Omega}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prepce}
+          \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalidEP}
+          \item $\hastypeP{\Omega}{\omega}{\Omega_\text{params}}$ \BY{Lemma \ref{lemma:expression-deparameterization-P} on \pfref{prepce}} \pflabel{hastypeP}
+          \item $\hastypeP{\Omega \cup \OParams}{e'}{\tau_\text{proto}}$ \BY{IH, part 2(a) on \pfref{cvalidEP}} \pflabel{hastype}
+          \item $\hastypeP{\Omega}{[\omega]e'}{[\omega]\tau_\text{proto}}$ \BY{Substitution Lemma \ref{lemma:substitution-P} on \pfref{hastypeP} and \pfref{hastype}}
+        \end{pfsteps*}
+        \resetpfcounter
+    \end{byCases}
+    \item In the following, let  $\uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$. 
+    \begin{byCases}
+      \item[\text{(\ref{rule:rExpandsP})}] ~
+        \begin{pfsteps*}
+          \item $\urv=\matchrule{\upv}{\ue}$ \BY{assumption}
+          \item $r=\aematchrule{p}{e}$ \BY{assumption}
+          \item $\patExpandsP{\uOmegaEx{\emptyset}{\uG'}{\emptyset}{\Omega'}}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patexpands}
+          \item $\expandsP{\uOmegaEx{\uD}{\uG \uplus \uG'}{\uMctx}{\Omega \cup \Omega'}}{\uPsi}{\uPhi}{\ue}{e}{\tau'}$ \BY{assumption} \pflabel{expandsP}
+          \item $\patTypePC{\Omega}{\Omega'}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-P} on \pfref{patexpands}} \pflabel{pattype}
+          \item $\hastypeP{\Omega \cup \Omega'}{e}{\tau'}$ \BY{IH, part 1(a) on \pfref{expandsP}} \pflabel{hastype}
+          \item $\ruleTypeP{\Omega}{r}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleTypeP}) on \pfref{pattype} and \pfref{hastype}}
+        \end{pfsteps*}
+        \resetpfcounter
+    \end{byCases}
+  \end{enumerate}
+  \item \begin{enumerate}
+    \item In the following, let $\escenev=\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}$.
+     \begin{byCases}
+      \item[\text{(\ref{rule:cvalidE-P-subsume})}] ~
+        \begin{pfsteps*}
+          \item $\cvalidEP{\Omega_\text{params}}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalid}
+          \item $\issubtypeP{\OParams}{\tau'}{\tau}$ \BY{assumption} \pflabel{issubtype}
+          \item $\hastypeP{\Omega_\text{params} \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalid}} \pflabel{hastype}
+          \item $\hastypeP{\Omega_\text{params} \cup \Omega_\text{app}}{e}{\tau}$ \BY{Rule (\ref{rule:hastypeP-subsume}) on \pfref{hastype} and \pfref{issubtype}}
+        \end{pfsteps*}
+        \resetpfcounter
+      \item[\text{(\ref{rule:cvalidE-P-var}) \textbf{through} (\ref{rule:cvalidE-P-mval})}] In each of these cases, we apply the IH, part 2(a) or 2(b), over the premises and then apply the corresponding typing rule in Rules (\ref{rules:hastypeP}) and weakening as needed.
+      \item[\text{(\ref{rule:cvalidE-P-splicede})}] ~
+        \begin{pfsteps*}
+          \item $\ce=\acesplicede{m}{n}{\ctau}$ \BY{assumption}
+          \item $\tau=[\omega]\tau'$ \BY{assumption}
+          \item $\cvalidC{\OParams}{\csfrom{\escenev}}{\ctau}{\tau'}{\akty}$ \BY{assumption} \pflabel{cvalid}
+          \item $\parseUExp{\bsubseq{b}{m}{n}}{\ue}$ \BY{assumption} \pflabel{parseUExp}
+          \item $\expandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{[\omega]\tau'}$ \BY{assumption} \pflabel{expandsP}
+          % \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{assumption} \pflabel{disjoint}
+          \item $\hastypeP{\Omega_\text{app}}{e}{[\omega]\tau'}$ \BY{IH, part 1(a) on \pfref{expandsP}} \pflabel{hastype}
+          \item $\hastypeP{\Omega_\text{app} \cup \OParams}{e}{[\omega]\tau'}$ \BY{Weakening on \pfref{hastype}}
+        \end{pfsteps*}
+        \resetpfcounter
+    \end{byCases}
+    \item \begin{byCases}
+      \item[\text{(\ref{rule:cvalidR-P})}] ~
+      \begin{pfsteps*}
+        \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
+        \item $r=\aematchrule{p}{e}$ \BY{assumption}
+        \item $\patTypePC{\OParams}{\Omega'}{p}{\tau}$ \BY{assumption} \pflabel{pattype}
+        \item $\cvalidEP{\Gcons{\OParams}{\Omega'}}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidEP}
+        \item $(\OParams \cup \Omega') \cap \Omega_\text{app} = \emptyset$ \BY{identification convention} \pflabel{disjoint}
+        \item $\hastypeP{\OParams \cup \Omega' \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidEP} and \pfref{disjoint}} \pflabel{hastype}
+        \item $\patTypePC{\OParams \cup \Omega_\text{app}}{\Omega'}{p}{\tau}$ \BY{Weakening on \pfref{pattype}} \pflabel{pattype2}
+        \item $\ruleTypeP{\OParams \cup \Omega_\text{app}}{r}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleTypeP}) on \pfref{pattype2} and \pfref{hastype}}
+      \end{pfsteps*}
+      \resetpfcounter
+    \end{byCases}
+  \end{enumerate}
+\end{enumerate}
+
+The mutual induction can be shown to be well-founded by an argument analagous to that in the proof of Theorem \ref{thm:typed-expansion-full-U}, appealing to Condition  \ref{condition:body-parsing-P} and Condition \ref{condition:body-subsequences-P}.
+\end{proof}
 
 \subsubsection{Modules}
 
