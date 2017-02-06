@@ -6747,6 +6747,22 @@ If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
 By rule induction over Rules (\ref{rules:hastsmtypePat}). The proof is nearly identical to the proof of Lemma \ref{lemma:peTSM-regularity}, differing only in that ppTSM contexts and the corresponding judgements are mentioned.
 \end{proof}
 
+\begin{lemma}[peTSM Unicity]
+\label{lemma:peTSM-unicity}
+If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho'}$ then $\rho=\rho'$.
+\end{lemma}
+\begin{proof}
+  By rule induction over Rules (\ref{rules:hastsmtypeExp}). The rules are syntax-directed, so the proof is by straightforward observations of syntactic contradictions.
+\end{proof}
+
+\begin{lemma}[ppTSM Unicity]
+\label{lemma:ppTSM-unicity}
+If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho'}$ then $\rho=\rho'$.
+\end{lemma}
+\begin{proof}
+  By rule induction over Rules (\ref{rules:hastsmtypePat}). The rules are syntax-directed, so the proof is by straightforward observations of syntactic contradictions.
+\end{proof}
+
 \begin{theorem}[peTSM Preservation]
 \label{thm:peTSM-preservation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
@@ -7220,8 +7236,8 @@ If $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\rho}{\omega}{\Omega_\
   \item If $\rExpandsSP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$ then $\ruleTypeP{\Omega}{r}{\tau}{\tau'}$.
   \end{enumerate}
 \item \begin{enumerate}
-  \item If $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\hastypeP{\Omega_\text{params} \cup \Omega_\text{app}}{e}{\tau}$.
-  \item If $\cvalidRP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\domof{\Omega_\text{params}} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\ruleTypeP{\Omega_\text{params} \cup \Omega_\text{app}}{r}{\tau}{\tau'}$.
+  \item If $\cvalidEP{\Omega}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ and $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\hastypeP{\Omega \cup \Omega_\text{app}}{e}{\tau}$.
+  \item If $\cvalidRP{\Omega}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ then $\ruleTypeP{\Omega \cup \Omega_\text{app}}{r}{\tau}{\tau'}$.
   \end{enumerate}
 \end{enumerate}
 \end{theorem}
@@ -7281,10 +7297,10 @@ By mutual rule induction over Rules (\ref{rules:expandsP}), Rule (\ref{rule:rExp
      \begin{byCases}
       \item[\text{(\ref{rule:cvalidE-P-subsume})}] ~
         \begin{pfsteps*}
-          \item $\cvalidEP{\Omega_\text{params}}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalid}
-          \item $\issubtypeP{\OParams}{\tau'}{\tau}$ \BY{assumption} \pflabel{issubtype}
-          \item $\hastypeP{\Omega_\text{params} \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalid}} \pflabel{hastype}
-          \item $\hastypeP{\Omega_\text{params} \cup \Omega_\text{app}}{e}{\tau}$ \BY{Rule (\ref{rule:hastypeP-subsume}) on \pfref{hastype} and \pfref{issubtype}}
+          \item $\cvalidEP{\Omega}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalid}
+          \item $\issubtypeP{\Omega}{\tau'}{\tau}$ \BY{assumption} \pflabel{issubtype}
+          \item $\hastypeP{\Omega \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalid}} \pflabel{hastype}
+          \item $\hastypeP{\Omega \cup \Omega_\text{app}}{e}{\tau}$ \BY{Rule (\ref{rule:hastypeP-subsume}) on \pfref{hastype} and \pfref{issubtype}}
         \end{pfsteps*}
         \resetpfcounter
       \item[\text{(\ref{rule:cvalidE-P-var}) \textbf{through} (\ref{rule:cvalidE-P-mval})}] In each of these cases, we apply the IH, part 2(a) or 2(b), over the premises and then apply the corresponding typing rule in Rules (\ref{rules:hastypeP}) and weakening as needed.
@@ -7297,7 +7313,7 @@ By mutual rule induction over Rules (\ref{rules:expandsP}), Rule (\ref{rule:rExp
           \item $\expandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{[\omega]\tau'}$ \BY{assumption} \pflabel{expandsP}
           % \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{assumption} \pflabel{disjoint}
           \item $\hastypeP{\Omega_\text{app}}{e}{[\omega]\tau'}$ \BY{IH, part 1(a) on \pfref{expandsP}} \pflabel{hastype}
-          \item $\hastypeP{\Omega_\text{app} \cup \OParams}{e}{[\omega]\tau'}$ \BY{Weakening on \pfref{hastype}}
+          \item $\hastypeP{\Omega_\text{app} \cup \Omega}{e}{[\omega]\tau'}$ \BY{Weakening on \pfref{hastype}}
         \end{pfsteps*}
         \resetpfcounter
     \end{byCases}
@@ -7306,12 +7322,12 @@ By mutual rule induction over Rules (\ref{rules:expandsP}), Rule (\ref{rule:rExp
       \begin{pfsteps*}
         \item $\crv=\acematchrule{p}{\ce}$ \BY{assumption}
         \item $r=\aematchrule{p}{e}$ \BY{assumption}
-        \item $\patTypePC{\OParams}{\Omega'}{p}{\tau}$ \BY{assumption} \pflabel{pattype}
-        \item $\cvalidEP{\Gcons{\OParams}{\Omega'}}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidEP}
-        \item $(\OParams \cup \Omega') \cap \Omega_\text{app} = \emptyset$ \BY{identification convention} \pflabel{disjoint}
-        \item $\hastypeP{\OParams \cup \Omega' \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidEP} and \pfref{disjoint}} \pflabel{hastype}
-        \item $\patTypePC{\OParams \cup \Omega_\text{app}}{\Omega'}{p}{\tau}$ \BY{Weakening on \pfref{pattype}} \pflabel{pattype2}
-        \item $\ruleTypeP{\OParams \cup \Omega_\text{app}}{r}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleTypeP}) on \pfref{pattype2} and \pfref{hastype}}
+        \item $\patTypePC{\Omega}{\Omega'}{p}{\tau}$ \BY{assumption} \pflabel{pattype}
+        \item $\cvalidEP{\Gcons{\Omega}{\Omega'}}{\esceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidEP}
+        \item $(\Omega \cup \Omega') \cap \Omega_\text{app} = \emptyset$ \BY{identification convention} \pflabel{disjoint}
+        \item $\hastypeP{\Omega \cup \Omega' \cup \Omega_\text{app}}{e}{\tau'}$ \BY{IH, part 2(a) on \pfref{cvalidEP} and \pfref{disjoint}} \pflabel{hastype}
+        \item $\patTypePC{\Omega \cup \Omega_\text{app}}{\Omega'}{p}{\tau}$ \BY{Weakening on \pfref{pattype}} \pflabel{pattype2}
+        \item $\ruleTypeP{\Omega \cup \Omega_\text{app}}{r}{\tau}{\tau'}$ \BY{Rule (\ref{rule:ruleTypeP}) on \pfref{pattype2} and \pfref{hastype}}
       \end{pfsteps*}
       \resetpfcounter
     \end{byCases}
@@ -7335,7 +7351,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
     \begin{pfsteps*}
       \item $\mExpandsPX{\uM}{M}{\sigma'}$ \BY{assumption} \pflabel{mexpands}
       \item $\sigsub{\uOmega}{\sigma'}{\sigma}$ \BY{assumption} \pflabel{sigsub}
-      \item $\hassig{\Omega}{M}{\sigma'}}$ \BY{IH on \pfref{mexpands}} \pflabel{hassig}
+      \item $\hassig{\Omega}{M}{\sigma'}$ \BY{IH on \pfref{mexpands}} \pflabel{hassig}
       \item $\hassig{\Omega}{M}{\sigma}$ \BY{Rule (\ref{rule:hassig-subsume}) on \pfref{hassig} and \pfref{sigsub}}
     \end{pfsteps*}
     \resetpfcounter
@@ -7345,6 +7361,131 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
 \end{proof}
 
 \subsection{Abstract Reasoning Principles}
+\begin{lemma}[Proto-Construction and Proto-Kind Decomposition]
+~
+\begin{enumerate}
+  \item If $\cvalidC{\Omega}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cec}{c}{\kappa}$
+    and $\summaryOf{\cec} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
+    \begin{enumerate}
+      \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
+      \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
+      \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+      \item $c = [\sseq{\kappa_i/k_i}{\nkind}, \sseq{c_i/u_i}{\ncon}, \omega]c'$ for some $c'$ and fresh $\sseq{k_i}{\nkind}$ and fresh $\sseq{u_i}{\ncon}$
+      \item $\mathsf{fv}(c') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \domof{\OParams}$
+    \end{enumerate}
+  \item If $\cvalidK{\Omega}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa}{\kappa}$
+    and $\summaryOf{\cekappa} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
+    \begin{enumerate}
+      \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
+      \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
+      \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+      \item $\kappa = [\sseq{\kappa_i/k_i}{\nkind}, \sseq{c_i/u_i}{\ncon}, \omega]\kappa'$ for some $\kappa'$ and fresh $\sseq{k_i}{\nkind}$ and fresh $\sseq{u_i}{\ncon}$
+      \item $\mathsf{fv}(\kappa') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \domof{\OParams}$
+    \end{enumerate}
+\end{enumerate}
+\end{lemma}
+\begin{proof} 
+  By mutual rule induction over Rules (\ref{rules:cvalidC}) and Rules (\ref{rules:cvalidK}).
+  \begin{enumerate}
+    \item ~
+      \begin{byCases}
+        \item[...] \todo{base and inductive cases}
+        \item[...] \todo{spliced case}
+          \begin{pfsteps*}
+            \item \todo{steps}
+          \end{pfsteps*}
+          The conclusions hold as follows:
+          \begin{enumerate}
+            \item \todo{a}
+            \item \todo{b}
+            \item \todo{c}
+            \item \todo{d}
+            \item \todo{e}
+          \end{enumerate}
+          \resetpfcounter
+      \end{byCases}
+    \item ~
+      \begin{byCases}
+        \item[...] \todo{base and inductive cases}
+        \item[...] \todo{spliced case}
+          \begin{pfsteps*}
+            \item \todo{steps}
+          \end{pfsteps*}
+          The conclusions hold as follows:
+          \begin{enumerate}
+            \item \todo{a}
+            \item \todo{b}
+            \item \todo{c}
+            \item \todo{d}
+            \item \todo{e}
+          \end{enumerate}
+          \resetpfcounter
+        \end{byCases}
+  \end{enumerate}
+\end{proof}
+
+\begin{lemma}[Proto-Expression and Proto-Rule Decomposition]
+~
+\begin{enumerate}
+  \item If $\cvalidEP{\Omega}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}$
+    and $\summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
+    \begin{enumerate}
+      \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
+      \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
+      \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+      \item $\sseq{\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau_i}{\tau_i}{\akty}}{\nexp}$
+      \item $\sseq{\expandsP{\uOmega}{\uPsi}{\uPhi}{\parseUExpF{\bsubseq{b}{m''_i}{n''_i}}}{e_i}{[\omega]\tau_i}}{\nexp}$
+      \item $e = [\sseq{\kappa_i/k_i}{\nkind}, \sseq{c_i/u_i}{\ncon}, \sseq{e_i/x_i}{\nexp}, \omega]e''$ for some $e''$ and fresh $\sseq{k_i}{\nkind}$ and fresh $\sseq{u_i}{\ncon}$ and fresh $\sseq{x_i}{\nexp}$
+      \item $\mathsf{fv}(e'') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \sseq{x_i}{\nexp} \cup \domof{\OParams}$
+    \end{enumerate}
+  \item If $\cvalidRP{\Omega}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$
+    and $\summaryOf{\crv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
+    \begin{enumerate}
+      \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
+      \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
+      \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+      \item $\sseq{\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau_i}{\tau_i}{\akty}}{\nexp}$
+      \item $\sseq{\expandsP{\uOmega}{\uPsi}{\uPhi}{\parseUExpF{\bsubseq{b}{m''_i}{n''_i}}}{e_i}{[\omega]\tau_i}}{\nexp}$
+      \item $r = [\sseq{\kappa_i/k_i}{\nkind}, \sseq{c_i/u_i}{\ncon}, \sseq{e_i/x_i}{\nexp}, \omega]r'$ for some $r'$ and fresh $\sseq{k_i}{\nkind}$ and fresh $\sseq{u_i}{\ncon}$ and fresh $\sseq{x_i}{\nexp}$
+      \item $\mathsf{fv}(e') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \sseq{x_i}{\nexp} \cup \domof{\OParams}$
+    \end{enumerate}
+\end{enumerate}
+\end{lemma}
+\begin{proof} By mutual rule induction over Rules (\ref{rules:cvalidE-P}) and Rule (\ref{rule:cvalidR-P}).
+  \begin{enumerate}
+    \item ~
+      \begin{pfsteps*}
+        \item a
+      \end{pfsteps*}
+      The conclusions hold as follows:
+      \begin{enumerate}
+        \item \todo{a}
+        \item \todo{b}
+        \item \todo{c}
+        \item \todo{d}
+        \item \todo{e}
+        \item \todo{f}
+        \item \todo{g}
+      \end{enumerate}
+      \resetpfcounter
+    \item ~
+      \begin{pfsteps*}
+        \item b
+      \end{pfsteps*}
+      The conclusions hold as follows:
+      \begin{enumerate}
+        \item \todo{a}
+        \item \todo{b}
+        \item \todo{c}
+        \item \todo{d}
+        \item \todo{e}
+        \item \todo{f}
+        \item \todo{g}
+      \end{enumerate}      
+      \resetpfcounter
+  \end{enumerate}
+\end{proof}
+
 \begin{theorem}[peTSM Abstract Reasoning Principles]
 \label{thm:petsm-abstract-reasoning-principles}
 If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
@@ -7377,7 +7518,64 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
   % $\hastypeP{\sseq{\Khyp{k_i}}{\nkind} \cup \sseq{u_i :: [\omega]\kappa'_i}{\ncon} \cup \sseq{x_i : [\omega]\tau_i}{\nexp}}{[\omega]e''}{\tau}$\todo{maybe restate this in terms of free variables of e'' here and elsewhere, because context isn't technically well-formed here?}
 \end{enumerate}
 \end{theorem}
-\begin{proof} \todo{lemma + proof} \end{proof}
+\begin{proof} By rule induction over Rules (\ref{rules:expandsP}).
+\begin{byCases}
+  \item[\text{(\ref{rule:expandsP-subsume})}] \todo{mod statement of theorem to be up to subtyping}
+  \item[\text{(\ref{rule:expandsP-var}) \textbf{through} (\ref{rule:expandsP-mval})}] These cases do not syntactically apply.
+  \item[\text{(\ref{rule:expandsP-apuetsm})}] ~
+    \begin{pfsteps*}
+      \item $\ue=\utsmap{\uepsilon}{b}$ \BY{assumption} \pflabel{ue}
+      \item $e=[\omega]e'$ \BY{assumption} \pflabel{e}
+      \item $\tau=[\omega]\tau_\text{proto}$ \BY{assumption} \pflabel{tau}
+      \item $\uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$ \BY{assumption} \pflabel{uomega}
+      \item $\uPsi=\uAS{\uA}{\Psi}$ \BY{assumption} \pflabel{upsi}
+      \item $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{assumption} \pflabel{tsmexpExpands}
+      \item $\tsmexpEvalsExp{\Omega_\text{app}}{\Psi}{\epsilon}{\epsilon_\text{normal}}$ \BY{assumption} \pflabel{tsmexpEvals}
+      \item $\tsmdefof{\epsilon_\text{normal}}=a$ \BY{assumption} \pflabel{tsmdefof}
+      \item $\Psi = \Psi', \petsmdefn{a}{\rho}{\eparse}$ \BY{assumption} \pflabel{Psi}
+      \item $\encodeBody{b}{\ebody}$ \BY{assumption} \pflabel{encodeBody}
+      \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$ \BY{assumption} \pflabel{evalU}
+      \item $\decodePCEExp{e_\text{pproto}}{\pce}$ \BY{assumption} \pflabel{decode}
+      \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prepce}
+      \item $\segOK{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
+      \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalid}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:peTSM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:peTSM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{[\omega]\aetype{\tau_\text{proto}}}$ \BY{Lemma \ref{lemma:expression-deparameterization-P} on \pfref{prepce}} \pflabel{hastsmtypeNormal2}
+      \item $\aetype{\tau_\text{final}} = [\omega]\aetype{\tau_\text{proto}}$ \BY{Theorem \ref{lemma:peTSM-unicity} on \pfref{hastsmtypeNormal} and \pfref{hastsmtypeNormal2}} \pflabel{tsmtypeseq}
+      \item $\tau_\text{final}=[\omega]\tau_\text{proto}=\tau$ \BY{definition of substitution and \pfref{tsmtypeseq} and \pfref{tau}} \pflabel{feqp}
+      \item  $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ \BY{assumption} \pflabel{expands}
+      \item $\hastypeP{\Omega_\text{app}}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expression-expansion-P} on \pfref{expands}} \pflabel{hastype}
+    \end{pfsteps*}
+    The conclusions hold as follows:
+    \begin{enumerate}
+     \item \pfref{uomega}
+     \item \pfref{upsi}
+     \item \pfref{tsmexpExpands} and \pfref{feqp} and \pfref{hastype}
+     \item \pfref{tsmexpEvals}
+     \item \pfref{tsmdefof}
+     \item \pfref{Psi}
+     \item \pfref{encodeBody}
+     \item \pfref{evalU}
+     \item \pfref{decode}
+     \item \pfref{prepce}
+     \item \pfref{segOK}
+     \item \pfref{cvalid}
+     \item \pfref{e}
+     \item \pfref{tau}
+     \item \todo{15}
+     \item \todo{16}
+     \item \todo{17}
+     \item \todo{18}
+     \item \todo{19}
+     \item \todo{20}
+     \item \todo{21}
+     \item \todo{22}
+    \end{enumerate}
+    \resetpfcounter
+\end{byCases}
+
+ \end{proof}
 
 \begin{theorem}[ppTSM Abstract Reasoning Principles]
 \label{thm:pptsm-abstract-reasoning-principles}
@@ -7410,7 +7608,40 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   % \item (\textbf{Typing}) $\tau_\text{final} = [\omega]\tau_\text{proto}$
 \end{enumerate}
 \end{theorem}
-\begin{proof} \todo{lemma + proof} \end{proof}
+\begin{proof} 
+By rule induction over Rules (\ref{rules:patExpandsP}).
+\begin{byCases}
+  \item[\text{(\ref{rule:patExpandsP-subsume})}] \todo{subsumption}
+  \item[\text{(\ref{rule:patExpandsP-var}) \textbf{through} (\ref{rule:patExpandsP-in})}] \todo{inductive cases}
+  \item[\text{(\ref{rule:patExpandsP-apuptsm})}] ~
+    \begin{pfsteps*}
+      \item 
+    \end{pfsteps*}
+    \resetpfcounter
+    The conclusions hold as follows:
+    \begin{enumerate}
+     \item \todo{1}
+     \item \todo{2}
+     \item \todo{3}
+     \item \todo{4}
+     \item \todo{5}
+     \item \todo{6}
+     \item \todo{7}
+     \item \todo{8}
+     \item \todo{9}
+     \item \todo{10}
+     \item \todo{11}
+     \item \todo{12}
+     \item \todo{13}
+     \item \todo{14}
+     \item \todo{15}
+     \item \todo{16}
+     \item \todo{17}
+     \item \todo{18}
+    \end{enumerate}
+\end{byCases}
+
+\end{proof}
 
 \chapter{Bidirectional $\miniVersePat$}\label{appendix:simple-implicits}
 
