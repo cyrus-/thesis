@@ -1,0 +1,238 @@
+\PassOptionsToPackage{svgnames,dvipsnames,svgnames}{xcolor}
+
+\documentclass[12pt]{report}
+\newif\ificfp
+\icfptrue
+\newcommand{\todolater}[1]{{\color{magenta} TODO (Later): #1}}
+\newcommand{\todo}[1]{{\color{red} TODO: #1}}
+
+% some useful packages
+\usepackage{times}     % use times font for document
+%\usepackage{lmodern}
+\usepackage{newtxtt}
+\usepackage{bbm}
+%\renewcommand{\ttdefault}{txtt} % use txtt for typewriter font
+\usepackage{mathpazo}
+\usepackage{mathpartir} % use package for inference rules
+\usepackage{upgreek} % package for alternative greek letters (\uppi)
+\usepackage{fullpage}
+\usepackage{colortab}
+%\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+
+% \usepackage{cleveref}
+%\usepackage{MnSymbol}
+\usepackage{fancyvrb}
+\usepackage{microtype}
+\usepackage[framemethod=tikz]{mdframed}
+
+% Get just llangle and rrangle from MnSymbol
+\makeatletter
+\DeclareFontFamily{OMX}{MnSymbolE}{}
+\DeclareSymbolFont{MnLargeSymbols}{OMX}{MnSymbolE}{m}{n}
+\SetSymbolFont{MnLargeSymbols}{bold}{OMX}{MnSymbolE}{b}{n}
+\DeclareFontShape{OMX}{MnSymbolE}{m}{n}{
+    <-6>  MnSymbolE5
+   <6-7>  MnSymbolE6
+   <7-8>  MnSymbolE7
+   <8-9>  MnSymbolE8
+   <9-10> MnSymbolE9
+  <10-12> MnSymbolE10
+  <12->   MnSymbolE12
+}{}
+\DeclareFontShape{OMX}{MnSymbolE}{b}{n}{
+    <-6>  MnSymbolE-Bold5
+   <6-7>  MnSymbolE-Bold6
+   <7-8>  MnSymbolE-Bold7
+   <8-9>  MnSymbolE-Bold8
+   <9-10> MnSymbolE-Bold9
+  <10-12> MnSymbolE-Bold10
+  <12->   MnSymbolE-Bold12
+}{}
+
+\let\llangle\@undefined
+\let\rrangle\@undefined
+\DeclareMathDelimiter{\llangle}{\mathopen}%
+                     {MnLargeSymbols}{'164}{MnLargeSymbols}{'164}
+\DeclareMathDelimiter{\rrangle}{\mathclose}%
+                     {MnLargeSymbols}{'171}{MnLargeSymbols}{'171}
+\makeatother
+
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+\usepackage[colorlinks=true,allcolors=Blue,backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+pdfborder={0 0 0},  %removes outlines around hyper links in online display
+]{hyperref}
+
+\usepackage{amsmath,amssymb, amsthm}
+
+\allowdisplaybreaks[1]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{condition}[theorem]{Condition}
+
+\usepackage{pfsteps}
+
+\usepackage[noabbrev]{cleveref}
+
+\newenvironment{proof-sketch}{\noindent{\emph{Proof Sketch.}}}{\qed}
+
+% \makeatletter
+% \renewenvironment{proof}[1][\proofname]{\par
+%   \vspace{-\topsep}% remove the space after the theorem
+%   \pushQED{\qed}%
+%   \normalfont
+%   \topsep0pt \partopsep0pt % no space before
+%   \trivlist
+%   \item[\hskip\labelsep
+%         \itshape
+%     #1\@addpunct{.}]\ignorespaces
+% }{%
+%   \popQED\endtrivlist\@endpefalse
+%   \addvspace{6pt plus 6pt} % some space after
+% }
+% \makeatother
+% \makeatletter
+% \renewenvironment{proof-sketch}[1][\proofname]{\par
+%   \vspace{-\topsep}% remove the space after the theorem
+%   \pushQED{\qed}%
+%   \normalfont
+%   \topsep0pt \partopsep0pt % no space before
+%   \trivlist
+%   \item[\hskip\labelsep
+%         \itshape
+%     Proof Sketch\@addpunct{.}]\ignorespaces
+% }{%
+%   \popQED\endtrivlist\@endpefalse
+%   \addvspace{6pt plus 6pt} % some space after
+% }
+% \makeatother
+
+
+
+
+\usepackage{mathtools}
+\usepackage{ stmaryrd }
+\usepackage[numbers,sort]{natbib}
+
+\usepackage{subfigure}
+
+% Approximately 1" margins, more space on binding side
+%\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar]{geometry}
+%for general printing (not binding)
+\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
+
+\usepackage{listings}
+\lstset{tabsize=2, 
+basicstyle=\ttfamily\fontsize{11pt}{1em}\selectfont, 
+commentstyle=\itshape\ttfamily\color{gray}, 
+stringstyle=\ttfamily\color{red},
+mathescape=false,escapechar=\#,
+numbers=left, numberstyle=\scriptsize\color{gray}\ttfamily, language=ML,moredelim=[il][\sffamily]{?},showspaces=false,showstringspaces=false,xleftmargin=15pt, morekeywords=[1]{tyfam,opfam,let,fn,val,def,casetype,objtype,metadata,of,*,datatype,new,toast,syntax,module,where,import,for,ana,syn,opcon,tycon,metasignature,metamodule,metasig,metamod,static,at,tycase,mod,macro,match,pattern,in,patterns,expressions,implicit,forall,rectype,fold,unfold,inj,by,spliced},deletekeywords={double},classoffset=0,belowskip=\smallskipamount,
+moredelim=**[is][\color{red}]{SSTR}{ESTR},
+moredelim=**[is][\color{Green}]{SHTML}{EHTML},
+moredelim=**[is][\color{purple}]{SCSS}{ECSS},
+moredelim=**[is][\color{brown}]{SSQL}{ESQL},
+moredelim=**[is][\color{orange}]{SCOLOR}{ECOLOR},
+moredelim=**[is][\color{magenta}]{SPCT}{EPCT}, 
+moredelim=**[is][\color{gray}]{SNAT}{ENAT}, 
+moredelim=**[is][\color{Green}]{SURL}{EURL},
+moredelim=**[is][\color{SeaGreen}]{SQT}{EQT},
+moredelim=**[is][\color{Periwinkle}]{SGRM}{EGRM},
+moredelim=**[is][\color{YellowGreen}]{SID}{EID},
+moredelim=**[is][\color{Sepia}]{SUS}{EUS},
+deletestring=[d]{"},
+}
+\lstloadlanguages{Java,VBScript,XML,HTML,ML}
+\let\li\lstinline
+
+% http://tex.stackexchange.com/q/43526
+% fix the apparently deliberate but undocumented behaviour of disabling escapes other than mathescape in TextStyle (used by \lstinline)
+% there may be a good reason why this is disabled by default, so beware in case it causes any problems
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\lsthk@TextStyle}{\let\lst@DefEsc\@empty}{}{}{\errmessage{failed to patch}}
+\makeatother
+
+% Provides a draft mark at the bottom of the document. 
+% \draftstamp{\today}{DRAFT}
+
+
+% I hate hyphenation.
+%\lefthyphenmin=5
+\definecolor{light-gray}{gray}{0.95}
+
+\input{macros}
+
+% allow interrupted equation numbering
+% taken from http://tex.stackexchange.com/questions/101002/interrupting-and-resuming-subequations
+% \makeatletter
+% \def\user@resume{resume}
+% \def\user@intermezzo{intermezzo}
+% %
+% \newcounter{previousequation}
+% \newcounter{lastsubequation}
+% \newcounter{savedparentequation}
+% \setcounter{savedparentequation}{1}
+% % 
+% \renewenvironment{subequations}[1][]{%
+%       \def\user@decides{#1}%
+%       \setcounter{previousequation}{\value{equation}}%
+%       \ifx\user@decides\user@resume 
+%            \setcounter{equation}{\value{savedparentequation}}%
+%       \else  
+%       \ifx\user@decides\user@intermezzo
+%            \refstepcounter{equation}%
+%       \else
+%            \setcounter{lastsubequation}{0}%
+%            \refstepcounter{equation}%
+%       \fi\fi
+%       \protected@edef\theHparentequation{%
+%           \@ifundefined {theHequation}\theequation \theHequation}%
+%       \protected@edef\theparentequation{\theequation}%
+%       \setcounter{parentequation}{\value{equation}}%
+%       \ifx\user@decides\user@resume 
+%            \setcounter{equation}{\value{lastsubequation}}%
+%          \else
+%            \setcounter{equation}{0}%
+%       \fi
+%       \def\theequation  {\theparentequation  \alph{equation}}%
+%       \def\theHequation {\theHparentequation \alph{equation}}%
+%       \ignorespaces
+% }{%
+% %  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+%   \ifx\user@decides\user@resume
+%        \setcounter{lastsubequation}{\value{equation}}%
+%        \setcounter{equation}{\value{previousequation}}%
+%   \else
+%   \ifx\user@decides\user@intermezzo
+%        \setcounter{equation}{\value{parentequation}}%
+%   \else
+%        \setcounter{lastsubequation}{\value{equation}}%
+%        \setcounter{savedparentequation}{\value{parentequation}}%
+%        \setcounter{equation}{\value{parentequation}}%
+%   \fi\fi
+% %  \arabic{equation};\arabic{savedparentequation};\arabic{lastsubequation}
+%   \ignorespacesafterend
+% }
+% \makeatother
+
+\begin{document} 
+\title{Reasonably Programmable Syntax\\ (ICFP 2017 Supplemental Material)}
+\date{February 27, 2017}
+\maketitle
+\tableofcontents
+
+\input{appendix}
+
+\input{static-language}
+
+\bibliographystyle{plainnat}
+\bibliography{../papers/research} %your bib file
+
+\end{document}
+
