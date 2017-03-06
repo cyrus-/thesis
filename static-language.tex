@@ -1,4 +1,6 @@
 % !TEX root = omar-thesis.tex
+% !TEX root = ./icfp17-supplement.tex
+\ificfp \else  
 \chapter{Static Evaluation}\label{chap:static-eval}
 In the previous chapters, we have assumed that the parse functions in TSM definitions are closed expanded expressions. This is unrealistic in practice -- writing a parser generally requires access to various libraries. Moreover, the parse function might itself be written more concisely using TSMs. In this chapter, we address these problems by introducing a \emph{static environment} shared between parse functions.
 
@@ -152,11 +154,29 @@ static import edu.cmu.comar.parsegen
 
 For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken in the definition of Standard ML \cite{Tofte:89:TheDefinitionOfStandardML}.)
 
+\fi
+
+\ificfp
+\chapter{\texorpdfstring{$\miniVersePH$}{miniVersePH}}
+\else
 \section{\texorpdfstring{$\miniVersePH$}{miniVersePH}}
+\fi
+\ificfp
+
+We will now formalize the mechanisms outlined in Sec. 6 of the paper by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
+
+\else 
+
 We will now formalize the mechanisms just discussed by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
 
+\fi
+
+\ificfp
+\section{Syntax of Unexpanded Modules}
+\else
 \subsection{Syntax of Unexpanded Modules}
-The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. The parts of this figure that differ from Figure \ref{fig:P-unexpanded-modules-signatures} are highlighted in yellow. Each binding form has a \emph{phase} annotation, $\varphi$, and parse functions are now unexpanded expressions, $\ue$, rather than expanded expressions, $e$. In the textual syntax, the phase annotation $\standardphase$ is assumed when no phase annotation has been given.
+\fi
+The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. The parts of this figure that differ from \ificfp $\miniVerseParam$ \else Figure \ref{fig:P-unexpanded-modules-signatures} \fi are highlighted in yellow. Each binding form has a \emph{phase} annotation, $\varphi$, and parse functions are now unexpanded expressions, $\ue$, rather than expanded expressions, $e$. In the textual syntax, the phase annotation $\standardphase$ is assumed when no phase annotation has been given.
 
 \begin{figure}[t]
 \[\arraycolsep=3pt\begin{array}{lllllll}
@@ -204,7 +224,11 @@ The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. Th
 \label{fig:syntax-uM-PH}
 \end{figure}
 
+\ificfp
+\section{Module Expansion}
+\else
 \subsection{Module Expansion}
+\fi
 The module expansion judgement in $\miniVersePH$ takes the following form:
 
 \vspace{10px}
@@ -217,7 +241,7 @@ $\begin{array}{ll}
 The difference here is that there is now a \emph{static environment}, $\Sigma$. Static environments take the form $\staticenv{\omega}{\uOmega}{\uPsi}{\uPhi}$, where $\omega$ is a substitution.
 
 The static environment passes opaquely through the subsumption rule and the rules governing module identifiers, structures and sealing:
-\begin{subequations}
+\begin{subequations}\label{rules:mExpandsPH}
 \begin{equation}\label{rule:mExpandsPH-subsumes}
 \inferrule{
   \mExpandsPHX{\uM}{M}{\sigma}\\
@@ -373,10 +397,30 @@ The rules governing ppTSM definitions and abbreviations are analagous:
 \end{equation}
 \end{subequations}
 
+\ificfp
+\section{Metatheory}
+\else
 \subsection{Metatheory}
-The key metatheorem having to do with unexpanded module expressions was the Module Expansion theorem, Theorem \ref{thm:module-expansion-P}. This theorem continues to hold in $\miniVersePH$.
+\fi
+The metatheorem having to do with unexpanded module expressions was the Module Expansion theorem, Theorem \ref{thm:module-expansion-P}. This theorem continues to hold in $\miniVersePH$.
 \begin{theorem}[Module Expansion]
 \label{thm:module-expansion-PH}
 If $\mExpandsPH{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\uM}{M}{\sigma}{\Sigma}$ then $\hassig{\Omega}{M}{\sigma}$.
 \end{theorem}
+\begin{proof} 
+By rule induction over Rules (\ref{rules:mExpandsPH}). In the following, let $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}$.
 
+\begin{byCases}
+  \item[\text{(\ref{rule:mExpandsPH-subsumes})}] ~
+    \begin{pfsteps*}
+      \item $\mExpandsPX{\uM}{M}{\sigma'}$ \BY{assumption} \pflabel{mexpands}
+      \item $\sigsub{\uOmega}{\sigma'}{\sigma}$ \BY{assumption} \pflabel{sigsub}
+      \item $\hassig{\Omega}{M}{\sigma'}$ \BY{IH on \pfref{mexpands}} \pflabel{hassig}
+      \item $\hassig{\Omega}{M}{\sigma}$ \BY{Rule (\ref{rule:hassig-subsume}) on \pfref{hassig} and \pfref{sigsub}}
+    \end{pfsteps*}
+    \resetpfcounter
+  \item[\text{(\ref{rule:mExpandsPH-var}) \textbf{through} (\ref{rule:mExpandsPH-mlet-static})}] In each of these cases, we apply the IH over each module expansion premise, Theorem \ref{thm:typed-expression-expansion-P} over each expression expansion premise and Theorem \ref{thm:kind-and-constructor-expansion-P} over each construction expansion premise, then apply the corresponding signature matching rule in Rules (\ref{rules:hassig}) and weakening as needed.
+  \item[\text{(\ref{rule:mExpandsPH-syntaxpe-standard}) \textbf{through} (\ref{rule:mExpandsPH-letpptsm-static})}] In each of these cases, we apply the IH to the module expansion premise.
+\end{byCases}
+\end{proof}
+The rest of the metatheory is identical to that of $\miniVerseParam$.

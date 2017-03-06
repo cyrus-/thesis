@@ -234,8 +234,10 @@
 \newcommand{\ue}{{\hat e}}
 \newcommand{\ux}{{\hat x}}
 \newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
+\newcommand{\uesyntaxq}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{expressions}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
+
 \newcommand{\audefuetsm}[4]{\abopcc{usyntaxue}{#2}{#1}{#3.#4}}
-\newcommand{\utsmap}[2]{#1~\texttt{/}#2\texttt{/}}
+\newcommand{\utsmap}[2]{#1~\texttt{\lq}#2\texttt{\lq}}
 \newcommand{\autsmap}[2]{\texttt{uapuetsm}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
 \newcommand{\ueparse}{\uet{parse}}
@@ -331,8 +333,8 @@
 \newcommand{\tscenev}{\mathbbmss{T}}
 \newcommand{\esceneU}[4]{#1;\,#2;\,#3;\,#4}
 \newcommand{\esceneUP}[5]{#1;\,#2;\,#3;\,#4;\,#5}
-\newcommand{\esceneSG}[5]{#1;\,#2;\,#3{\setlength{\fboxsep}{0pt}\colorbox{lightgray}{\fontsize{9pt}{0pt}\selectfont ;\,$#4$}};\,#5}
-\newcommand{\esceneSGB}[5]{#1;\,#2;\,#3{\setlength{\fboxsep}{0pt}\colorbox{lightgray}{;\,$#4$}};\,#5}
+\newcommand{\esceneSG}[5]{#1;\,#2;\,#3{\setlength{\fboxsep}{0pt}\colorbox{light-gray}{\fontsize{9pt}{0pt}\selectfont ;\,$#4$}};\,#5}
+\newcommand{\esceneSGB}[5]{#1;\,#2;\,#3{\setlength{\fboxsep}{0pt}\colorbox{light-gray}{;\,$#4$}};\,#5}
 \newcommand{\tsceneU}[2]{#1;\,#2}
 \newcommand{\tsceneUP}[2]{\tsceneU{#1}{#2}}
 \newcommand{\tsfrom}[1]{\mathsf{ts}(#1)}
@@ -414,7 +416,7 @@
 \newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
 \newcommand{\expandsUPX}[3]{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 
-\newcommand{\expandsSG}[7]{#1~#2~{\vdash_{#3}}{\setlength{\fboxsep}{0px}\colorbox{lightgray}{$_{\mathstrut; #4}$}}~ #5 \leadsto #6 : #7}
+\newcommand{\expandsSG}[7]{#1~#2~{\vdash_{#3}}{\setlength{\fboxsep}{0px}\colorbox{light-gray}{$_{\mathstrut; #4}$}}~ #5 \leadsto #6 : #7}
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
 \newcommand{\patExpands}[5]{\uDelta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
@@ -603,7 +605,7 @@
 \newcommand{\syntaxps}[6]{#1~\texttt{syntax}~#2~\texttt{at}~#3~\texttt{for}~#4~\texttt{by}~\texttt{static}~#5~\texttt{in}~#6}
 \newcommand{\letsyntaxps}[5]{#1~\texttt{let}~\texttt{syntax}~#2~\texttt{for}~#3=#4~\texttt{in}~#5}
 
-\newcommand{\tsmapp}[2]{\mathtt{/}#1\mathtt{/}~#2}
+\newcommand{\tsmapp}[2]{\texttt{/}#1\mathtt{/}~#2}
 
 \newcommand{\bindMod}[2]{#1.#2}
 \newcommand{\bindTyp}[2]{#1.#2}
@@ -895,12 +897,12 @@
 
 \newcommand{\defeq}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\scriptsize def}}}{=}}}
 
-\newcommand{\graybox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{lightgray}{\vphantom{]}$#1$}}
+\newcommand{\graybox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{light-gray}{\vphantom{]}$#1$}}
 \newcommand{\yellowbox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{Yellow}{\vphantom{]}$#1$}}
 
-\newcommand{\graytxtbox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{lightgray}{\vphantom{]}#1}}
+\newcommand{\graytxtbox}[1]{\setlength{\fboxsep}{1.5pt}\colorbox{light-gray}{\vphantom{]}#1}}
 
-\newmdenv[backgroundcolor=lightgray,hidealllines=true,innerleftmargin=1pt,innerrightmargin=1pt,leftmargin=0pt,rightmargin=0pt,innertopmargin=1.5pt,innerbottommargin=1.5pt]{grayparbox}
+\newmdenv[backgroundcolor=light-gray,hidealllines=true,innerleftmargin=1pt,innerrightmargin=1pt,leftmargin=0pt,rightmargin=0pt,innertopmargin=1.5pt,innerbottommargin=1.5pt]{grayparbox}
 
 
 \newcommand{\uDOK}[1]{\vdash #1~\mathsf{utctx}}

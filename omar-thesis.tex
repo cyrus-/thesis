@@ -4,7 +4,8 @@
 %starting all chapters on odd numbered pages
 \documentclass[12pt]{cmuthesis}
 %\usepackage[usenames,dvipsnames,svgnames]{xcolor}
-
+\newif\ificfp
+\icfpfalse
 \newcommand{\todolater}[1]{{\color{magenta} TODO (Later): #1}}
 \newcommand{\todo}[1]{{\color{red} TODO: #1}}
 % some useful packages
@@ -165,6 +166,7 @@ deletestring=[d]{"},
 
 % I hate hyphenation.
 %\lefthyphenmin=5
+\definecolor{light-gray}{gray}{0.95}
 
 \input{macros}
 
@@ -261,17 +263,17 @@ Eric Van Wyk, University of Minnesota}
 Programming languages commonly provide ``syntactic sugar'' that decreases the syntactic cost of working with certain standard library constructs.   
 %, i.e. {derived forms} that decrease the cognitive cost of idioms involving select library constructs. 
 For example, Standard ML builds in syntactic sugar for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
-Third-party library providers are, justifiably, envious of this special arrangement -- they would like to be able to define syntactic sugar for constructing and pattern matching on values of types that they have defined, in a decentralized manner. For example, 1) the provider of a ``collections'' library might like to define syntactic sugar for finite sets and dictionaries; 2) the provider of a ``web programming'' library might like syntactic sugar for HTML and JSON values; and 3) the provider of a ``chemistry'' library might like syntactic sugar for chemical structures based on the SMILES standard.
+Third-party library providers are, justifiably, envious of this special arrangement. After all, it is not difficult to find other examples of situationally useful library-specific syntactic sugar \cite{TSLs}. For example, 1) clients of a ``collections'' library might like syntactic sugar for finite sets and dictionaries; 2) clients of a ``web programming'' library might like syntactic sugar for HTML and JSON values; 3) a compiler writer might like syntactic sugar for the terms of the object language or various intermediate languages of interest; and 4) clients of a ``chemistry'' library might like syntactic sugar for chemical structures based on the SMILES standard \cite{anderson1987smiles}.
 
-Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. synactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. % In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. synactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. Typed, hygienic term-rewriting macro systems are more reasonable, but offer only limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
 This work formally introduces \emph{typed syntax macros (TSMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TSM client to maintain:
 \begin{itemize}
 \item a \emph{type discipline}, meaning that the client can reason about types while holding literal expansions abstract; and 
 \item a \emph{hygienic binding discipline}, meaning that the client can be sure that:
   \begin{enumerate}
-    \item  literal expansions do not shadow bindings that appear at the TSM application site; and 
-  \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}. Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+    \item  literal expansions cannot shadow bindings that appear at the TSM application site; and 
+  \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent

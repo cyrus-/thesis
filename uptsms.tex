@@ -632,7 +632,7 @@ Two rules remain: Rules (\ref{rule:expandsU-defuptsm}) and (\ref{rule:patExpands
 
 \subsection{spTSM Definition}\label{sec:uptsm-definition}
 
-The stylized spTSM definition form is \[\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}\] 
+The spTSM definition form is \[\usyntaxup{\tsmv}{\utau}{\eparse}{\ue}\] 
 %The operational form corresponding to this stylized form is \[\audefuetsm{\utau}{\eparse}{\tsmv}{\ue}\]
 An unexpanded expression of this form defines a {spTSM} identified as $\tsmv$ with \emph{unexpanded type annotation} $\utau$ and \emph{parse function} $\eparse$ for use within $\ue$. 
 
@@ -731,7 +731,7 @@ Rule (\ref{rule:patExpands-apuptsm}), below, governs spTSM application.
   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{\ecand}}\\
   \decodeCEPat{\ecand}{\cpv}\\\\
   \segOK{\segof{\cpv}}{b}\\
-  \cvalidP{\upctx}{\pscene{\Delta}{\uPhi}{b}}{\cpv}{p}{\tau}
+  \cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}
 }{
   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
 }
@@ -1270,14 +1270,14 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
         }{\npat}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\npat}$
         \item (\textbf{Typing 4}) $\sseq{
           \patExpands
-            {\upctx_i}
+            {\uGG{\uG_i}{\pctx_i}}
             {\uPhi}
             {\parseUPatF{\bsubseq{b}{m_i}{n_i}}}
             {p_i}
             {\tau_i}
-        }{\npat}$
-      \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
-\end{enumerate}
+        }{\npat}$  and $\sseq{\patType{\pctx_i}{p_i}{\tau_i}}{\npat}$
+      \item (\textbf{No Hidden Bindings}) $\uG = \biguplus_{0 \leq i < \npat} \uG_i$ and $\Gamma = \bigcup_{0 \leq i < \npat} \pctx_i$
+  \end{enumerate}
 \end{theorem}
 \begin{proof} The proof relies on a lemma about decomposing proto-patterns. The proof is given in Appendix \ref{appendix:SES-reasoning-principles}.\end{proof}
 \endgroup

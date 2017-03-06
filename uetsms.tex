@@ -88,7 +88,7 @@ where $\ecand$ is called the \emph{encoding of the proto-expansion}.
 
 For expression TSMs, proto-expansions are \emph{proto-expressions}, which are encoded as VerseML values of the type \lstinline{proto_expr} defined in Figure \ref{fig:candidate-exp-verseml}.
 Most of the variants defined by \li{proto_expr} are individually uninteresting -- they encode VerseML's various expression forms (just as in a compiler, c.f. SML/NJ's Visible Compiler library \cite{SML/VisibleCompiler}.) 
-Expressions can mention types, so we also need to define a type \li{proto_typ} in Figure \ref{fig:candidate-exp-verseml}. As we enrich our language in later chapters, we will need to define more encodings like these, for other sorts of trees. The only non-standard variants are \li{SplicedT} and \li{SplicedE} -- these are \emph{references to spliced unexppanded types and expressions}, which we will return to when we consider splicing in Sec. \ref{sec:splicing-and-hygiene} below. 
+Expressions can mention types, so we also need to define a type \li{proto_typ} in Figure \ref{fig:candidate-exp-verseml}. As we enrich our language in later chapters, we will need to define more encodings like these, for other sorts of trees. The only non-standard variants are \li{SplicedT} and \li{SplicedE} -- these are \emph{references to spliced unexpanded types and expressions}, which we will return to when we consider splicing in Sec. \ref{sec:splicing-and-hygiene} below. 
 
 The definitions of \li{proto_typ} and \li{proto_expr} are recursive labeled sum types to simplify our exposition, but we could have chosen alternative encodings, e.g. based on abstract binding trees \cite{pfpl}, with only minor modifications to our semantics. Indeed, when we formally define seTSMs in Sec. \ref{sec:miniVerseU}, we abstract over the particular encoding.
 
@@ -177,7 +177,7 @@ val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun lookup_rx(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/ 
 \end{lstlisting}
 
-A program editor or pretty-printer can also communicate the type of each spliced term, as indiciated in the splice summary, to the programmer upon request (for example, the Emacs and Vim packages for working with OCaml defer to the Merlin tool when the programmer requests the type of an expression \cite{Merlin}.)
+A program editor or pretty-printer can also communicate the type of each spliced term, as indicated in the splice summary, to the programmer upon request (for example, the Emacs and Vim packages for working with OCaml defer to the Merlin tool when the programmer requests the type of an expression \cite{Merlin}.)
 
 
 \subsection{Proto-Expansion Validation}\label{sec:uetsms-validation}
@@ -185,7 +185,7 @@ Three potential problems described in Secs. \ref{sec:non-local-term-rewriting}-\
 
 
 \subsubsection{Capture}
-Proto-expansion validation ensures that spliced terms have access \emph{only} to the bindings that appear at the application site -- TSMs cannot capture the bindings that appear in the proto-expansion. For example, suppose that  \li{#\dolla#rx} generated a proto-expansion of the following  form (drawn as above):
+Proto-expansion validation ensures that spliced terms have access \emph{only} to the bindings that appear at the application site -- spliced terms cannot capture the bindings that appear in the proto-expansion. For example, suppose that  \li{#\dolla#rx} generated a proto-expansion of the following  form (drawn as above):
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... expansion-internal tmp ... *) in 
 Seq(tmp, spliced<1; 3; rx>)
@@ -197,7 +197,7 @@ $rx /SURL%EURLtmp/
 \end{lstlisting}
 Here, the application site binding of \li{tmp} would be shadowed by the ``invisible'' binding of \li{tmp} in the expansion of the TSM application. % The possibility that this might occur makes it impossible to reason abstractly about binding within a spliced term -- i.e. it is unclear whether \li{tmp}. 
 
-To address this problem, proto-expansion validation enforces a prohibition on capture. This prohibition on capture can be be silently enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
+To address this problem, proto-expansion validation enforces a prohibition on capture. This prohibition on capture can be silently enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... application site tmp ... *) in 
 let tmp' = (* ... expansion-internal tmp ... *) in 
@@ -817,7 +817,7 @@ The Type Expansion Lemma establishes that the expansion of an unexpanded type is
 \emph{Unexpanded typing contexts}, $\uGamma$, are, similarly, of the form $\uGG{\uG}{\Gamma}$, where $\uG$ is an \emph{expression identifier expansion context}, and $\Gamma$ is a typing context. An expression identifier expansion context, $\uG$, is a finite function that maps each expression identifier $\ux \in \domof{\uG}$ to the hypothesis $\vExpands{\ux}{x}$, for some expression variable, $x$. We write $\ctxUpdate{\uG}{\ux}{x}$ for the expression identifier expansion context that maps $\ux$ to $\vExpands{\ux}{x}$ and defers to $\uG$ for all other expression identifiers (i.e. the previous mapping is updated.) %We write $\uGammaOK{\uGamma}$ when $\uGamma=\uGG{\uG}{\Gamma}$ and each expression variable in $\uG$ is assigned a type by $\Gamma$.
 %\begin{definition} $\uGammaOK{\uGG{\uG}{\Gamma}}$ iff for each $\vExpands{\ux}{x} \in \uG$, we have $\Ghyp{x}{\tau} \in \Gamma$ for some $\tau$.\end{definition}
 %\noindent 
-We define $\uGamma, \uGhyp{\ux}{x}{\tau}$ when $\uGamma = \uGG{\uG}{\Gamma}$ as an abbreviation of \[\uGG{\uG, \vExpands{\ux}{x}}{\Gamma, \Ghyp{x}{\tau}}\]
+We define $\uGamma, \uGhyp{\ux}{x}{\tau}$ when $\uGamma = \uGG{\uG}{\Gamma}$ as an abbreviation of \[\uGG{\ctxUpdate{\uG}{\ux}{x}}{\Gamma, \Ghyp{x}{\tau}}\]
 
 The \emph{typed expression expansion judgement}, $\expandsUX{\ue}{e}{\tau}$, is inductively defined by Rules (\ref{rules:expandsU}). Before covering these rules, let us state the main theorem of interest: that typed expansion results in a well-typed expanded expression.
 \begingroup
@@ -1179,7 +1179,7 @@ The unexpanded expression form for applying an seTSM named $\tsmv$ to a literal 
 \[
 \utsmap{\tsmv}{b}
 \] 
-This stylized form uses forward slashes to delimit the literal body, but other generalized literal forms, like those described in Figure \ref{fig:literal-forms}, could also be included as derived forms in the textual syntax. % (we omit them for simplicity).
+This stylized form uses backticks to delimit the literal body, but other generalized literal forms, like those described in Figure \ref{fig:literal-forms}, could also be included as derived forms in the textual syntax. % (we omit them for simplicity).
 %The corresponding operational form is $\autsmap{b}{\tsmv}$. %i.e. for each literal body $b$, the operator $\texttt{uapuetsm}[b]$ is indexed by the TSM name $\tsmv$ and takes no arguments. %\footnote{This is in following the conventions in \emph{PFPL} \cite{pfpl}, where operators parameters allow for the use of metatheoretic objects that are not syntax trees or binding trees, e.g. $\mathsf{str}[s]$ and $\mathsf{num}[n]$.} This operator is indexed by the TSM name $\tsmv$ and takes no arguments. 
 
 The typed expansion rule governing seTSM application is below:
@@ -1819,7 +1819,7 @@ The following theorem summarizes the abstract reasoning principles that programm
 \item \textbf{Typing 3}: Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
 \item \textbf{Typing 4}: Each spliced expression has a well-typed expansion consistent with its type annotation.
 \item \textbf{Capture Avoidance}: The final expansion can be decomposed into a  term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this term in the standard capture avoiding manner.
-\item \textbf{Context Independence}: The decomposed term is indeed well-typed independent of the application site contexts.
+\item \textbf{Context Independence}: The aforementioned decomposed term makes no mention of bindings in the application site context.
 
 \end{enumerate}
 
