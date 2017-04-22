@@ -37,7 +37,7 @@ Similarly, it is easy to define lists of natural numbers as an inductive structu
 \[ \vec{n} ::= \textbf{nil} ~\vert~ \textbf{cons}(n, \vec{n}) \]
 The problem once again is that drawings of particular lists quickly become unwieldy, and fail to resemble ``naturally occurring'' drawings of lists of numbers.
 
-Consider a third more sophisticated example (which will be of particular relevance later in this work): when defining a programming language or logic, one often needs various sorts of tree structures equipped with metaoperations\footnote{...so named to distinguish them from the ``object level'' operations of the language being defined.} related to variable binding, e.g. substitution. Repeatedly defining these structures ``from scratch'' is quite tedious, so language designers have instead developed  a more general structure: the \emph{abstract binding tree (ABT)} \cite{Aczel78,pfpl}. Briefly, an ABT is an ordered tree structure, classified into one of several \emph{sorts}, where each node is either a \emph{variable}, $x$, or an \emph{operation} of the following form:
+Consider a third more sophisticated example (which will be of particular relevance later in this work): when defining a programming language or logic, one often needs various sorts of tree structures equipped with metaoperations\footnote{...so named to distinguish them from the ``object level'' operations of the language being defined.} related to variable binding, e.g. substitution. Repeatedly defining these structures ``from scratch'' is quite tedious, so language designers have instead developed  a more general structure: the \emph{abstract binding tree (ABT)} \cite{Aczel78,pfpl,gabbay2002new}. Briefly, an ABT is an ordered tree structure, classified into one of several \emph{sorts}, where each node is either a \emph{variable}, $x$, or an \emph{operation} of the following form:
 %\footnote{Some prior exposure to (single-sorted) ASTs is assumed here. See Sec. \ref{sec:preliminaries} for other preliminaries.} 
 \begin{equation*}
 \abop{op}{\vec{x}_1.\mathit{a}_1; \ldots; \vec{x}_n.\mathit{a}_n}
@@ -409,11 +409,11 @@ Generalized literal forms subsume a variety of common syntactic forms because th
 
 % The semantics delegates control over the parsing and expansion of each literal body to the applied TSM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. %As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TSM programmatically generates to ensure that clients can answer critical questions related to types and binding, like those enumerated in Section \ref{sec:abs-reasoning-intro}. Clients need not have knowledge of the implementation of the TSM or of the generated expansion, i.e. there are useful principles of syntactic abstraction.
 
-The primary technical challenge has to do with the fact that the applied TSM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TSM (in green), can always be automatically generated no matter how each applied TSM has been implemented. 
+The primary technical challenge has to do with the fact that the applied TSM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TSM (in color), can always be automatically generated no matter how each applied TSM has been implemented. 
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
-$html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]}</p>EURL`
+$html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSCSS,ECSS last])SURL]}</p>EURL`
 \end{lstlisting}
 \caption{The segmentation of the example from Figure \ref{fig:first-tsm-example}.}
 \label{fig:first-tsm-example-marked}
@@ -494,7 +494,7 @@ We also demonstrate support for partial parameter application in TSM abbreviatio
 let syntax $strlist = $list string in 
 $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The example from Figure \ref{fig:first-tsm-example-marked}, expressed using a parametric TSM.}
+\caption{The example from Figure \ref{fig:first-tsm-example-marked}, expressed using parametric TSMs.}
 \label{fig:first-ptsm-example-marked}
 \end{figure}
 
@@ -514,7 +514,7 @@ $html`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}</p>EURL`
 
 \begin{figure}[h]
 \begin{lstlisting}[deletekeywords={for}, escapechar=@]
-fun resultsFor(searchQuery : string, page : int) : html = 
+fun resultsFor(searchQuery : string, page : int) : html => 
   let imageBase : url = `SURIimages.example.comEURI` in 
   let bgImage : url = `SURI$EURIimageBaseSURI$/background.pngEURI` in 
   `SHTML<html>
@@ -556,14 +556,14 @@ In summary, this work defends the following statement:
 
 \begin{quote}
 A programming language (in the ML tradition) can give library providers the ability to %meta\-pro\-gram\-matic\-ally 
-programmatically control the parsing and expansion of expressions and patterns of generalized literal form such that clients can reason abstractly about types and binding. %These  primitives are  expressive enough to subsume the need for a variety of primitives that are, or would need to be, built in to comparable contemporary languages.
+programmatically control the parsing and expansion of expressions and patterns of generalized literal form such that clients can reason abstractly about responsibility, segmentation, types and binding. %These  primitives are  expressive enough to subsume the need for a variety of primitives that are, or would need to be, built in to comparable contemporary languages.
 \end{quote}
 
 \section{VerseML}
 
 The code examples in this document are written in a new full-scale functional language called VerseML.\footnote{We distinguish VerseML from Wyvern, which is the language described in our prior publications about some of the work that we will describe, because Wyvern is a group effort evolving independently.} VerseML is the language of Chapter \ref{chap:tsls}  extended with some additional conveniences that are commonly found in other functional languages (in particular, in the ML family of languages) and, notionally, orthogonal to TSMs (e.g. higher-rank polymorphism \cite{conf/icfp/DunfieldK13}, signature abbreviations, and syntactic sugar that is not library-specific, e.g. for curried functions.) %VerseML is, as its name suggests, a conceptual descendent of ML. It diverges from other dialects of ML that have a similar type structure in that it has a bidirectional type system \cite{Pierce:2000:LTI:345099.345100} (like, for example, Scala \cite{OdeZenZen01}) for reasons that have to do with the mechanism of TSM implicits described in Chapters \ref{chap:tsls} and \ref{chap:ptsms}. 
 %The reason we will not follow Standard ML \cite{mthm97-for-dart} in giving a complete formal definition of VerseML in this work is both to emphasize that the primitives we introduce are ``insensitive'' to the details of the underlying type structure of the language (so TSMs can be considered for inclusion in a variety of languages, not only dialects of ML), and to avoid distracting the reader (and the author) with definitions that are already well-understood in the literature and that are orthogonal to those that are the focus of this work. 
-We will not formally define these features mainly to avoid unnecessarily complicating our presentation with details that are not essential to the ideas presented herein. As such, all examples written in VerseML should be understood to be informal motivating material for the subsequent formal material. %We anticipate that future full-scale language specifications will be able to combine the ideas  in the proposed work without trouble. %The purpose of the work being proposed is to serve as a reference for those interested in the new constructs we introduce, not to serve as a language specification. 
+We will not formally define these features mainly to avoid unnecessarily complicating our presentation with details that are not essential to the ideas introduced herein. As such, all examples written in VerseML should be understood to be informal motivating material for the subsequent formal material. %We anticipate that future full-scale language specifications will be able to combine the ideas  in the proposed work without trouble. %The purpose of the work being proposed is to serve as a reference for those interested in the new constructs we introduce, not to serve as a language specification. 
 %We will give a brief overview of these languages are organized in Sec. \ref{sec:VerseML}.
 
 %TSMs, like other macro systems, perform \emph{static code generation} (also sometimes called \emph{static} or \emph{compile-time metaprogramming}), meaning that the relevant rules in the static semantics of the language call for the evaluation of \emph{static functions} that generate term encodings. Static functions are functions that are evaluated statically, i.e. during typing. %Library providers write these static functions using the VerseML \emph{static language} (SL).  

@@ -1,7 +1,6 @@
 % !TEX root = omar-thesis.tex
 \chapter{Simple Expression TSMs (seTSMs)}\label{chap:uetsms}
-This chapter introduces \emph{simple expression TSMs (seTSMs)}, which capture the essential character of TSMs. Subsequent chapters will increase the expressive power and address the various impracticalities of the system of seTSMs defined in this chapter. 
-
+In the remainder of this work, we will develop a system of \emph{typed syntax macros (TSMs)}. Briefly, TSMs offer substantially greater syntactic flexibility as compared to typed term rewriting macros \emph{a la} Scala, while 1) guaranteeing that a segmentation can always be produced; 2) enforcing a prohibition on capture; 3) enforcing a strong form of context independence and 4) maintaining the ability to reason abstractly about types. We will establish these reasoning principles formally, ultimately in a system with an ML-style module system in Chapter \ref{chap:ptsms}. We will begin, however, in this chapter with a simpler calculus of expressions and types. The TSMs available in this calculus are called \emph{simple expression TSMs} (seTSMs).
 
 \section{Simple Expression TSMs By Example}\label{sec:tsms-by-example}
 We begin in this section with a ``tutorial-style'' introduction to seTSMs in VerseML. %In particular, we will define an seTSM for constructing values of the recursive labeled sum type \li{rx} that was defined in Figure \ref{fig:datatype-rx}. 

@@ -13,6 +13,15 @@ In summary, TSMs allow library providers to programmatically control the expansi
 
 We developed several core calculi in order to formally characterize the mechanisms of TSM definition and application. In particular, Chapters \ref{chap:uetsms} and \ref{chap:uptsms} developed $\miniVersePat$, which communicates the central concepts of typed expansion and proto-expansion validation for expression and pattern TSMs respectively. Chapter \ref{chap:ptsms} then introduced $\miniVerseParam$, which added type and module parameters. Chapter \ref{chap:static-eval} introduced $\miniVersePH$, which adds the notion of a static environment shared between TSM definitions. This makes the job of the TSM provider easier, by giving them access to libraries (including those that themselves export TSM definitions.) Finally, Chapter \ref{chap:tsls} introduced Bidirectional $\miniVersePat$, which supports a mechanism of TSM implicits that further decreases the syntactic cost of applying a TSM.
 
+
+As stated by Pfenning and Schurmann \cite{pfenning1998algorithms},\todo{integrate this}
+\begin{quote}
+\emph{Semantically, notational definitions are transparent, that is, one obtains the meaning of an expression by
+interpreting the result of expanding all definitions. Pragmatically, however, expanding
+all definitions as they are encountered is unsatisfactory, since it can be
+computationally expensive and complicate the user interface.}\end{quote}
+
+
 % Our approach compares favorably to the dialect-oriented approach in that 1) it sidesteps the problem of syntactic conflict (by leaving the context-free syntax fixed); and 2) it provides the abstract reasoning principles just mentioned. It also compares favorably to approaches based on term rewriting, e.g. term-rewriting macro systems, in that 1) it provides greater syntactic control; and 2) it guarantees a stronger 
 
 \section{Future Directions}\label{sec:future-work}

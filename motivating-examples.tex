@@ -52,7 +52,7 @@ This datatype declaration generates:
 \end{itemize}
 We will return to the significance of the identifier \li{op::} in Sec. \ref{sec:Fixity-directives} below.
 
-VerseML does not support SML-style datatype declarations. Instead, type functions, recursive types, sum types, product types, value constructors, pattern constructors and type generativity arise through orthogonal mechanisms, as in foundational accounts of these concepts (e.g. \emph{PFPL} \cite{pfpl}.) This is mainly for pedagogical purposes -- it will take until Chapter \ref{chap:ptsms} to build up all of the machinery that would be necessary to integrate TSMs into a language with SML-style datatype declarations. By exposing more granular primitives, we can define sub-languages of VerseML in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms} that communicate certain fundamental ideas more clearly and generally.
+VerseML does not support SML-style datatype declarations directly. Instead, type functions, recursive types, sum types, product types, value constructors, pattern constructors and type generativity arise through orthogonal mechanisms, as in foundational accounts of these concepts (e.g. \emph{PFPL} \cite{pfpl}.) This is mainly for pedagogical purposes -- it will take until Chapter \ref{chap:ptsms} to build up all of the machinery that would be necessary to integrate TSMs into a language with SML-style datatype declarations. By exposing more granular primitives, we can define sub-languages of VerseML in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms} that communicate certain fundamental ideas more clearly and generally.
 
 With that in mind, the family of list types are defined in VerseML as follows:
 \begin{lstlisting}[numbers=none]
@@ -68,10 +68,10 @@ The values of a recursive type \li{T} are \li{fold(e)}, where \li{e} is a value 
 \begin{lstlisting}[numbers=none]
 Nil + Cons of int * list(int)
 \end{lstlisting}
-The values of a labeled sum type \li{T} are injections \li{inj[Lbl](e)}, where \li{Lbl} is a label specified by one of the \emph{variants} specified by \li{T} and \li{e} is a value of the corresponding type. The {labeled sum type} above specifies two {variants}:
+The values of a labeled sum type \li{T} are injections \li{inj[Lbl](e)}, where \li{Lbl} is a label specified by one of the classes specified by \li{T} and \li{e} is a value of the corresponding type. The {labeled sum type} above specifies two {classes}:
 \begin{enumerate}
-\item One variant, labeled \li{Nil}, takes values of \li{unit} type (we can omit \li{of unit}.) The only value of \li{unit} type is the trivial value \li{()}.  
-\item The other variant, labeled \li{Cons}, takes values of the \emph{product type} \li{int * list(int)}, the values of which are tuples. 
+\item One class, labeled \li{Nil}, takes values of \li{unit} type (we can omit \li{of unit}.) The only value of \li{unit} type is the trivial value \li{()}.  
+\item The other class, labeled \li{Cons}, takes values of the \emph{product type} \li{int * list(int)}, the values of which are tuples. 
 \end{enumerate}
 
 Let us now define two example values of type \li{list(int)}:
