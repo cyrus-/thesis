@@ -60,13 +60,13 @@ Every seTSM parse function must have type \li{body -> parse_result(proto_expr)}.
 \begin{lstlisting}[numbers=none]
 type body = string
 
-type loc = {startIdx : int, endIdx : int} (* inclusive *)
+type segment = {startIdx : int, endIdx : int} (* inclusive *)
 type parse_result('a) = ParseError of {
-                         msg : string, loc : loc
+                         msg : string, loc : segment
                         }
                       + Success of 'a 
 \end{lstlisting}
-\caption[Definitions of \li{body}, \li{loc} and \li{parse_result} in VerseML]{Definitions of \li{body}, \li{loc} and \li{parse_result}. These type definitions are given in the VerseML \emph{prelude}, which is a small collection of definitions available ambiently.}
+\caption[Definitions of \li{body}, \li{segment} and \li{parse_result} in VerseML]{Definitions of \li{body}, \li{segment} and \li{parse_result}. These type definitions are given in the VerseML \emph{prelude}, which is a small collection of definitions available ambiently.}
 \label{fig:indexrange-and-parseresult}
 \end{figure}
 
@@ -74,7 +74,7 @@ type parse_result('a) = ParseError of {
 \begin{lstlisting}[numbers=none]
 inj[ParseError]({msg=#$e_\text{msg}$#, loc=#$e_\text{loc}$#})
 \end{lstlisting}
-where $e_\text{msg}$ is an error message and $e_\text{loc}$ is a value of type \li{loc}, defined in Figure \ref{fig:indexrange-and-parseresult}, that designates a subsequence of the literal body as the location of the error \cite{DBLP:journals/jsc/DeursenKT93}. This information is for use by VerseML compilers when reporting the error to the programmer (but it otherwise has no semantic significance.)
+where $e_\text{msg}$ is an error message and $e_\text{loc}$ is a value of type \li{segment}, defined in Figure \ref{fig:indexrange-and-parseresult}, that designates a segment of the literal body as the location of the error \cite{DBLP:journals/jsc/DeursenKT93}. This information is for use by VerseML compilers when reporting the error to the programmer.
 
 % In languages where the surface syntax is not textual, the definition of \li{loc} would need to designate 
 
@@ -87,7 +87,7 @@ where $\ecand$ is called the \emph{encoding of the proto-expansion}.
 
 For expression TSMs, proto-expansions are \emph{proto-expressions}, which are encoded as VerseML values of the type \lstinline{proto_expr} defined in Figure \ref{fig:candidate-exp-verseml}.
 Most of the variants defined by \li{proto_expr} are individually uninteresting -- they encode VerseML's various expression forms (just as in a compiler, c.f. SML/NJ's Visible Compiler library \cite{SML/VisibleCompiler}.) 
-Expressions can mention types, so we also need to define a type \li{proto_typ} in Figure \ref{fig:candidate-exp-verseml}. As we enrich our language in later chapters, we will need to define more encodings like these, for other sorts of trees. The only non-standard variants are \li{SplicedT} and \li{SplicedE} -- these are \emph{references to spliced unexpanded types and expressions}, which we will return to when we consider splicing in Sec. \ref{sec:splicing-and-hygiene} below. 
+Expressions can mention types, so we also need to define a type \li{proto_typ} in Figure \ref{fig:candidate-exp-verseml}. As we enrich our language in later chapters, we will need to define more encodings like these, for other sorts of trees. The only non-standard classes are \li{SplicedT} and \li{SplicedE} -- these are \emph{references to spliced unexpanded types and expressions}, which we will return to when we consider splicing in Sec. \ref{sec:splicing-and-hygiene} below. 
 
 The definitions of \li{proto_typ} and \li{proto_expr} are recursive labeled sum types to simplify our exposition, but we could have chosen alternative encodings, e.g. based on abstract binding trees \cite{pfpl}, with only minor modifications to our semantics. Indeed, when we formally define seTSMs in Sec. \ref{sec:miniVerseU}, we abstract over the particular encoding.
 
@@ -113,14 +113,14 @@ type proto_typ = rec(proto_typ =>
                  TyVar of var_t 
                + Arrow of proto_typ * proto_typ 
                + (* ... *) 
-               + SplicedT of loc)
+               + SplicedT of segment)
 
 type proto_expr = rec(proto_expr => 
                   Var of var_t 
                 + Fn of var_t * proto_typ * proto_expr
                 + Ap of proto_expr * proto_expr
                 + (* ... *) 
-                + SplicedE of loc * proto_typ)
+                + SplicedE of segment * proto_typ)
 \end{lstlisting}
 \caption[Abbreviated definitions of \li{proto_typ} and \li{proto_expr} in VerseML]{Abbreviated definitions \li{proto_typ} and \li{proto_expr} in the VerseML prelude. We assume some suitable type \li{var_t} exists, not shown.}
 \label{fig:candidate-exp-verseml}
@@ -137,21 +137,20 @@ fun lookup_rx(name: string) => $rx /SURL@name: %ssnEURL/
 The expressions \lstinline{name} and \lstinline{ssn} on the second line appear spliced within the literal body, so we call them \emph{spliced expressions}. 
 
 When \li{#\dolla#rx}'s parse function determines that a subsequence of the literal body should be taken as a spliced expression (here, by recognizing the characters \lstinline{@} or \lstinline{%} followed by a variable or parenthesized expression), it does not directly insert the syntax tree of that expression into the encoding of the expansion. Instead, 
-the TSM must refer to the spliced expression \emph{by its relative location} using the \li{SplicedE} variant of \li{proto_expr}. 
-In particular, the \li{SplicedE} variant requires a value of type \li{loc}, which indicates the zero-indexed location of the spliced expression relative to the start of the provided literal body. 
+the TSM must refer to the spliced expression \emph{by its relative location} within the literal body using the \li{SplicedE} variant of \li{proto_expr}. 
+In particular, the \li{SplicedE} variant requires a value of type \li{segment}, which indicates the zero-indexed location of the spliced expression relative to the start of the literal body provided to the parse function. 
 The \li{SplicedE} variant also requires a value of type \li{proto_typ}, which indicates the type that the spliced expression is expected to have. 
-For example, the proto-expansion generated by \li{#\dolla#rx} for the literal body on the second line above, if written in a hypothetical textual syntax for proto-expressions where references to spliced expressions are written \li{spliced<startIdx; endIndex; ty>}, is:
+For example, the proto-expansion generated by \li{#\dolla#rx} for the literal body on the second line above, if written in a  textual syntax for proto-expressions where references to spliced expressions are \li{spliced<startIdx; endIndex; ty>}, is:
 \begin{lstlisting}[numbers=none]
 Seq(Str(spliced<1; 4; string>), 
     Seq(Str "SSTR: ESTR", spliced<8; 10; rx>))
 \end{lstlisting}
  Here, \li{spliced<1; 4; string>} refers to the spliced string expression \li{name} by location and \li{spliced<8; 10; rx>} refers to the spliced regex expression \li{ssn} by location. 
-(For clarity of exposition, we again use the regex value constructors in lieu of explicit \li{fold} and \li{inj} operators, use the type abbreviation \li{rx}, and draw string literals in the usual manner.)
-
-
-Requiring that the TSM refer to spliced expressions indirectly in this manner prevents it from ``forging'' a spliced expression (i.e. claiming that an expression is a spliced expression when it does not appear in the literal body.) It also allows our semantics to distinguish spliced expressions when validating the proto-expansion, which is important for reasons of hygiene that we will detail below. 
+(For clarity of exposition, we again use the regex value constructors to abbreviate applications of the \li{fold} and \li{inj} operators and use the type abbreviation \li{rx}. In fact, given only the mechanisms introduced in this chapter, these abbreviations would need to be explicitly included in each proto-expansion.)
 
 Proto-types can make reference to spliced types by using the \li{SplicedT} variant of \li{proto_typ} analagously.
+
+Requiring that the TSM refer to spliced terms indirectly in this manner prevents it from ``forging'' a spliced expression (i.e. claiming that an expression is a spliced expression when it does not appear in the literal body.) This will be formally critical to being able to reason abstractly about segmentation, capture and context-independence, as we will detail below.
 
 
 % The parse function can similarly extract \emph{spliced types} from a literal body using the \li{SplicedT} variant of \li{proto_typ}. %In particular, the parse function must provide the index range of spliced subexpressions to the \li{Spliced} constructor of the type \li{MarkedExp}. %Only subexpressions that actually appear in the body of the literal form can be marked as spliced subexpressions.
@@ -196,7 +195,7 @@ $rx /SURL%EURLtmp/
 \end{lstlisting}
 Here, the application site binding of \li{tmp} would be shadowed by the ``invisible'' binding of \li{tmp} in the expansion of the TSM application. % The possibility that this might occur makes it impossible to reason abstractly about binding within a spliced term -- i.e. it is unclear whether \li{tmp}. 
 
-To address this problem, proto-expansion validation enforces a prohibition on capture. This prohibition on capture can be silently enforced by implicitly alpha-varying the bindings in the proto-expansion as needed. For example, the expansion of the example above might take the following form:
+To address this problem, proto-expansion validation enforces a prohibition on capture. This prohibition on capture can be silently enforced by implicitly alpha-varying the bindings in the proto-expansion as needed, as in hygienic term-rewriting macro systems (cf. Sec. \ref{sec:macro-systems}.) For example, the expansion of the example above might take the following form:
 \begin{lstlisting}[numbers=none]
 let tmp = (* ... application site tmp ... *) in 
 let tmp' = (* ... expansion-internal tmp ... *) in 
@@ -225,7 +224,7 @@ end
 \end{lstlisting}
 The proto-expansion that this TSM generates (for every literal body) refers to a variable \li{x} that is not bound within the expansion. If proto-expansion validation permitted such a proto-expansion, it would be well-typed only under those application site typing contexts where \li{x} is bound. This ``hidden assumption'' makes reasoning about binding and renaming difficult, so this proto-expansion is deemed invalid (even when \li{#\dolla#bad1} is applied where \li{x} is coincidentally bound.)
 
-Of course, this prohibition does not extend into the spliced terms in a proto-expansion -- spliced terms appear at the application site, so they can justifiably refer to application site bindings. We saw examples of spliced terms that referred to variables bound at the application site  -- \li{name} and \li{ssn} -- in Sec. \ref{sec:splicing-and-hygiene}. Because proto-expansions refer to spliced terms indirectly, enforcing context independence is straightforward -- we need only that the proto-expansion itself be closed, without considering the spliced terms.% In the next section, we will formalize this intuition. % The TSM provider can only refer to them opaquely.
+Of course, this prohibition does not extend into the spliced terms in a proto-expansion -- spliced terms appear at the application site, so they can justifiably refer to application site bindings. The client's ability to hold the expansion abstract is retained. We saw examples of spliced terms that referred to variables bound at the application site  -- \li{name} and \li{ssn} -- in Sec. \ref{sec:splicing-and-hygiene}. Because proto-expansions refer to spliced terms indirectly, and forging is impossible, enforcing context independence is straightforward -- we need only that the proto-expansion itself be closed, without considering the spliced terms.% In the next section, we will formalize this intuition. % The TSM provider can only refer to them opaquely.
 
 This prohibition on context dependence explains why the expansion generated by the TSM application in Sec. \ref{sec:uetsms-usage} cannot make use of the regex value constructors, e.g. \li{Str} and \li{Or}, directly. (In Chapter \ref{chap:ptsms}, we will relax this restriction to allow proto-expansions to access explicit parameters.)
 
@@ -236,7 +235,7 @@ Collectively, we refer to the prohibition on capture and the prohibition on cont
 \subsubsection{Typing}\vspace{-4px}
 Finally, proto-expansion validation maintains a reasonable \emph{typing discipline} by:
 \begin{enumerate}
-\item checking each spliced expression against the type indicated in the summary; and
+\item checking each spliced expression against the type indicated in the summary; and 
 \item checking to ensure that the generated expansion is of the type specified in the TSM's type annotation. For example, the type annotation on \li{#\dolla#rx} is \li{at rx}, so proto-expansion validation ensures that the final expansion is of type \li{rx}.
 \end{enumerate}
 
@@ -259,12 +258,10 @@ Finally, proto-expansion validation maintains a reasonable \emph{typing discipli
 % %These properties suffice to ensure that programmers and tools can freely rename a variable without changing the meaning of the program. The only information that is necessary to perform such a \emph{rename refactoring} is the locations of spliced subexpressions within all the literal forms for which the variable being renamed is in scope; the expansions need not otherwise be examined. It would be straightforward to develop a tool and/or editor plugin to indicate the locations of spliced subexpressions to the user, like we do in this document (by coloring spliced subexpressions black). We discuss tool support as future work in Sec. \ref{sec:interaction-with-tools}.
 
 \subsection{Final Expansion}
-The result of proto-expansion validation is the \emph{final expansion}, which is simply the proto-expansion with  references to spliced terms replaced with their own final expansions. For example, the final expansion of the body of \li{lookup_rx} is equivalent to the following, under an environment where the regex value constructors are available:
+The result of proto-expansion validation is the \emph{final expansion}, which is simply the proto-expansion with  references to spliced terms replaced with their own final expansions. For example, the final expansion of the body of \li{lookup_rx} is equivalent to the following, assuming that the regex value constructors were defined (not shown):
 \begin{lstlisting}[numbers=none]
 Seq(Str(name), Seq(Str "SSTR: ESTR", ssn))
 \end{lstlisting}
-(Again, due to the prohibition on context dependent expansions, the final expansion actually involves explicit \li{fold} and \li{inj} operators.)
-
 
 \subsection{Comparison to the Dialect-Oriented Approach}
 Let us compare the VerseML TSM \li{#\dolla#rx} to $\mathcal{V}_\texttt{rx}$, the hypothetical syntactic dialect of VerseML with support for derived forms for values of type \li{rx} described in Sec. \ref{sec:examples-of-syntax-dialects}.
@@ -273,29 +270,29 @@ Both $\mathcal{V}_\texttt{rx}$ and \li{#\dolla#rx} give programmers the ability 
 
 The benefit of the TSM-based approach is that we can easily define other TSMs to use alongside the \li{#\dolla#rx} TSM without needing to consider the possibility of syntactic conflict. Furthermore, programmers can rely on the binding discipline and the typing discipline enforced by proto-expansion validation to reason about programs, including those that contain unfamiliar forms. Put pithily, VerseML helps programmers avoid ``conflict and confusion''. 
 
-\begin{figure}
-\begin{lstlisting}
-val a = get_a()
-val w = get_w()
-val x = read_data(a)
-val y = $k {|SURL(!R)@&{&/EURLxSURL!/:2_!EURLxSURL}'!R}EURL|}
-\end{lstlisting}
-\caption{The example from Figure \ref{fig:K-dialect}, written using a TSM.}
-\label{fig:K-tsms}
-\end{figure}
+% \begin{figure}
+% \begin{lstlisting}
+% val a = get_a()
+% val w = get_w()
+% val x = read_data(a)
+% val y = $k {|SURL(!R)@&{&/EURLxSURL!/:2_!EURLxSURL}'!R}EURL|}
+% \end{lstlisting}
+% \caption{The example from Figure \ref{fig:K-dialect}, written using a TSM.}
+% \label{fig:K-tsms}
+% \end{figure}
 
-To underline this point, consider the program fragment in Figure \ref{fig:K-tsms}, which is based on the example involving the K query language from Sec. \ref{fig:K-dialect}. The programmer need not be familiar with the syntax of K, or examine the expansion itself, to answer questions corresponding to those posed in Sec. \ref{fig:K-dialect}. In particular, the programmer knows that:
-\begin{enumerate}
-\item The TSM named \li{#\dolla#k} is responsible for parsing the body of the literal on Line 4. 
-\item The character \li{x} inside the literal body is parsed as a ``spliced'' expression, \li{x}, as indicated by our visualization of the segmentation. The other characters, e.g. \li{R}, are definitively not spliced expressions.
-\item The spliced expression \li{x} definitively refers to the binding of \li{x} on the previous line. No other binding of \li{x} could have shadowed this binding, due to the prohibition on capture.
-\item The TSM application on Line 4 must be context-independent, so it cannot have referred to \li{w}.
-\item We need only look at the type annotation on \li{#\dolla#k} to determine the type of \li{y}. For example, if that declaration takes the following form, we know definitively that \li{y} has type \li{kquery} (without examining the elided parse function):
-\begin{lstlisting}[numbers=none]
-syntax $k at kquery by (* ... *) end
-\end{lstlisting}
-The summary gives the types of the spliced expressions.
-\end{enumerate}
+% To underline this point, consider the program fragment in Figure \ref{fig:K-tsms}, which is based on the example involving the K query language from Sec. \ref{fig:K-dialect}. The programmer need not be familiar with the syntax of K, or examine the expansion itself, to answer questions corresponding to those posed in Sec. \ref{fig:K-dialect}. In particular, the programmer knows that:
+% \begin{enumerate}
+% \item The TSM named \li{#\dolla#k} is responsible for parsing the body of the literal on Line 4. 
+% \item The character \li{x} inside the literal body is parsed as a ``spliced'' expression, \li{x}, as indicated by our visualization of the segmentation. The other characters, e.g. \li{R}, are definitively not spliced expressions.
+% \item The spliced expression \li{x} definitively refers to the binding of \li{x} on the previous line. No other binding of \li{x} could have shadowed this binding, due to the prohibition on capture.
+% \item The TSM application on Line 4 must be context-independent, so it cannot have referred to \li{w}.
+% \item We need only look at the type annotation on \li{#\dolla#k} to determine the type of \li{y}. For example, if that declaration takes the following form, we know definitively that \li{y} has type \li{kquery} (without examining the elided parse function):
+% \begin{lstlisting}[numbers=none]
+% syntax $k at kquery by (* ... *) end
+% \end{lstlisting}
+% The summary gives the types of the spliced expressions.
+% \end{enumerate}
 
 \vspace{-3px}
 \section{\texorpdfstring{$\miniVerseUE$}{miniVerseSE}}\label{sec:tsms-minimal-formalism}\label{sec:miniVerseU}
@@ -341,7 +338,7 @@ The summary gives the types of the spliced expressions.
 % \label{fig:lambda-tsm-syntax}
 % \end{figure}
 
-To make the intuitions developed in the previous section mathematically precise, we will now introduce a reduced dialect of VerseML called $\miniVerseUE$ that supports seTSMs. 
+To make the intuitions developed in the previous section precise, we will now introduce a reduced dialect of VerseML called $\miniVerseUE$ that supports seTSMs. 
 The full definition of $\miniVerseUE$ is given in Appendix \ref{appendix:miniVerseSES} for reference. In the exposition below, we will reproduce only particularly noteworthy rules and proof cases. Rule and theorem numbers below refer to corresponding rules and theorems in the appendix.
 %For reference, the syntax of $\miniVerseUE$ is specified in Figure \ref{fig:lambda-tsm-syntax}. We will reproduce relevant portions of this specification inline (in tabular form) as we continue. 
 %We specify all formal systems in this document within the metatheoretic framework detailed in \emph{PFPL} \cite{pfpl}, and assume familiarity of fundamental background concepts (e.g. abstract binding trees, substitution, implicit identification of terms up to $\alpha$-equivalence, structural induction and rule induction) covered therein. %Familiarity with other accounts of typed lambda calculi should also suffice to understand the formal systems in this document. 
@@ -718,7 +715,7 @@ Most of the unexpanded forms in Figure \ref{fig:U-unexpanded-terms}  mirror the 
 
 
 In addition to the stylized syntax given in Figure \ref{fig:U-unexpanded-terms}, there is also a context-free textual syntax for the UL. 
-Giving a complete definition of the context-free textual syntax as, e.g., a context-free grammar, risks digression into details that are not critical to our purposes here. Our paper on Wyvern defines a textual syntax for a similar system \cite{TSLs}. Instead, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$  that go from character sequences, $b$, to unexpanded types and expressions, respectively. 
+Giving a complete definition of the context-free textual syntax as, e.g., a context-free grammar, risks digression into details that are not critical to our purposes here. The paper on Wyvern defines a textual syntax for a similar system \cite{TSLs}. Instead, we need only posit the existence of partial metafunctions $\parseUTypF{b}$ and $\parseUExpF{b}$  that go from character sequences, $b$, to unexpanded types and expressions, respectively. 
 \begingroup
 \def\thetheorem{\ref{condition:textual-representability-SES}}
 \begin{condition}[Textual Representability] ~
@@ -1208,8 +1205,10 @@ The typed expansion rule governing seTSM application is below:
 The premises of Rule (\ref{rule:expandsU-tsmap}) can be understood as follows, in order:
 \begin{enumerate}
 \item The first premise ensures that $\tsmv$ has been defined and extracts the type annotation and parse function.
-\item The second premise determines the encoding of the literal body, $\ebody$.
-\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. If parsing succeeds, i.e. a value of the form $\aein{\mathtt{SuccessE}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed seTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
+\item The second premise determines the encoding of the literal body, $\ebody$. This term is closed per Condition \ref{condition:body-isomorphism}.
+\item The third premise applies the parse function $\eparse$ to the encoding of the literal body. The parse function is closed by well-formedness of $\uPsi$ (which, in turn, is maintained by the TSM definition rule, Rule (\ref{rule:expandsU-syntax}), described above). 
+
+If parsing succeeds, i.e. a value of the form $\aein{\mathtt{SuccessE}}{\ecand}$ results from evaluation, then $\ecand$ will be a value of type $\tCEExp$ (assuming a well-formed seTSM context, by application of the Preservation assumption, Assumption \ref{condition:preservation-UP}.) We call $\ecand$ the \emph{encoding of the proto-expansion}.
 
 If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed expansion fails. No rule is necessary to handle this case. 
 
@@ -1810,17 +1809,7 @@ Combining these two conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as need
 
 
 \subsubsection{Abstract Reasoning Principles}\label{sec:uetsms-reasoning-principles}
-The following theorem summarizes the abstract reasoning principles that programmers can rely on when applying an seTSM. In particular, the programmer can be sure that:
-\begin{enumerate} 
-\item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
-\item \textbf{Typing 1}: The type of the expansion is consistent with the type annotation on the seTSM definition.
-\item \textbf{Typing 2}: Each spliced type has a well-formed expansion at the application site.
-\item \textbf{Typing 3}: Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
-\item \textbf{Typing 4}: Each spliced expression has a well-typed expansion consistent with its type annotation.
-\item \textbf{Capture Avoidance}: The final expansion can be decomposed into a  term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this term in the standard capture avoiding manner.
-\item \textbf{Context Independence}: The aforementioned decomposed term makes no mention of bindings in the application site context.
-
-\end{enumerate}
+The following theorem summarizes the abstract reasoning principles that programmers can rely on when applying an seTSM. A descripition of each named clause is given in-line below. 
 
 \begingroup
 \def\thetheorem{\ref{thm:tsc-SES}}
@@ -1828,10 +1817,16 @@ The following theorem summarizes the abstract reasoning principles that programm
 If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
 \begin{enumerate}
 \item (\textbf{Typing 1}) $\uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$
+  \begin{quote}
+    The type of the expansion is consistent with the type annotation on the seTSM definition.
+  \end{quote}
 \item $\encodeBody{b}{\ebody}$
 \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\lbltxt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+  \begin{quote}
+  The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+  \end{quote}
 \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
@@ -1839,6 +1834,9 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
         \parseUTypF{\bsubseq{b}{m'_i}{n'_i}}
       }{\tau'_i}
     }{\nty}$ and $\sseq{\istypeU{\Delta}{\tau'_i}}{\nty}$
+    \begin{quote}
+    Each spliced type has a well-formed expansion at the application site.
+    \end{quote}
 \item \textbf{(Typing 3)} $\sseq{
   \cvalidT{\emptyset}{
     \tsceneUP
@@ -1849,6 +1847,9 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
     \ctau_i
   }{\tau_i}
 }{\nexp}$ and $\sseq{\istypeU{\Delta}{\tau_i}}{\nexp}$
+\begin{quote}
+  Each type annotation on a reference to a spliced expression has a well-formed expansion at the application site.
+\end{quote}
 \item \textbf{(Typing 4)} $\sseq{
   \expandsU
     {\uDD{\uD}{\Delta}}
@@ -1858,8 +1859,17 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
     {e_i}
     {\tau_i}
 }{\nexp}$ and $\sseq{\hastypeU{\Delta}{\Gamma}{e_i}{\tau_i}}{\nexp}$
+\begin{quote}
+  Each spliced expression has a well-typed expansion consistent with its type annotation.
+\end{quote}
 \item (\textbf{Capture Avoidance}) $e = [\sseq{\tau'_i/t_i}{\nty}, \sseq{e_i/x_i}{\nexp}]e'$ for some $\sseq{t_i}{\nty}$ and $\sseq{x_i}{\nexp}$ and $e'$
+  \begin{quote}
+    The final expansion can be decomposed into a  term with variables in place of each spliced type or expression. The expansions of these spliced types and expressions can be substituted into this term in the standard capture avoiding manner.
+  \end{quote}
 \item (\textbf{Context Independence}) $\mathsf{fv}(e') \subset \sseq{t_i}{\nty} \cup \sseq{x_i}{\nexp}$
+  \begin{quote}
+    The aforementioned decomposed term makes no mention of bindings in the application site context.
+  \end{quote}
   % $\hastypeU
   % {\sseq{\Dhyp{t_i}}{\nty}}
   % {\sseq{x_i : \tau_i}{\nexp}}
@@ -1870,6 +1880,7 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
 \end{proof}
 \endgroup
 
+This style of specifying the hygiene properties builds directly on the standard notion of capture-avoiding substitution for general ABTs. Prior work on hygiene for macro systems has instead explicitly specified how fresh variables are generated during expansion (e.g. \cite{DBLP:conf/esop/HermanW08}.) Our formal approach appears therefore to be more elegant in this regard.
 % The following theorem establishes that every valid proto-type generates a final expansion that can be decomposed into a context-independent term and context-dependent sub-terms, all of which arise from references to spliced types as summarized by the splice summary.
 
 % \begingroup
