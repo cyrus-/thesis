@@ -6,7 +6,7 @@
 % problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
 % \end{quote}
 % ~\\
-This chapter introduces \emph{parametric TSMs} (pTSMs). Parametric TSMs can be defined over a type- and module-parameterized family of types, rather than just a single type, and the expansions that they generate can refer to  supplied type and module parameters. 
+This chapter introduces \emph{parametric TSMs} (pTSMs). Parametric TSMs can be defined over a parameterized family of types, rather than just a single type, and the expansions that they generate can refer to  supplied type and module parameters. 
 
 This chapter is organized like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parametric TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then develop a reduced calculus of parametric TSMs, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
 
@@ -1593,18 +1593,7 @@ If $\mExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\uM}{M}{\sigma
 (The proof of this theorem requires proving the corresponding theorems about the other typed expansion judgements, as well as the proto-expansion validation judgements -- see Appendix \ref{appendix:metatheory-P}.)
 
 \subsubsection{peTSM Abstract Reasoning Principles}
-The following theorem summarizes the abstract reasoning principles available to programmers when applying a peTSM. In words:
-\begin{enumerate}
-	\item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
-	\item \textbf{Typing 1}: The type of the expansion is consistent with the type annotation on the peTSM definition.
-	\item \textbf{Kinding 1}: Each spliced kind has a well-formed expansion at the application site.
-	\item \textbf{Kinding 2}: Each kind annotation on a spliced construction has a well-formed expansion at the application site.
-	\item \textbf{Kinding 3}: Each spliced construction is well-kinded consistent with its kind annotation.
-	\item \textbf{Kinding 4}: Each type annotation on a spliced expression has a well-formed expansion at the application site.
-	\item \textbf{Typing 2}: Each spliced expression is well-typed consistent with its type annotation.
-	\item \textbf{Capture Avoidance}: The final expansion can be decomposed into a term with variables in place of each spliced kind, construction, expression and parameter. The expansions of these spliced kinds, constructions and expressions, as well as the provided parameters, can be substituted into this term in the standard capture avoiding manner.
-	\item \textbf{Context Independence}: The decomposed term is indeed well-typed independent of the application site context.
-\end{enumerate}
+The following theorem summarizes the abstract reasoning principles available to programmers when applying a peTSM. Descriptions of labeled clauses are given inline.
 
 \begingroup
 \def\thetheorem{\ref{thm:petsm-abstract-reasoning-principles}}
@@ -1614,6 +1603,9 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 	\item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$
 	\item $\uPsi=\uAS{\uA}{\Psi}$
 	\item (\textbf{Typing 1}) $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau}}$ and $\hastypeP{\Omega_\text{app}}{e}{\tau}$
+		\begin{quote}
+			The type of the expansion is consistent with the type annotation on the peTSM definition.
+		\end{quote}
 	\item $\tsmexpEvalsExp{\Omega_\text{app}}{\Psi}{\epsilon}{\epsilon_\text{normal}}$
 	\item $\tsmdefof{\epsilon_\text{normal}}=a$
 	\item $\Psi = \Psi', \petsmdefn{a}{\rho}{\eparse}$
@@ -1622,6 +1614,9 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 	\item $\decodePCEExp{e_\text{pproto}}{\pce}$
 	\item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
 	\item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+		\begin{quote}
+			The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+		\end{quote}
 	\item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$
 	\item $e = [\omega]e'$
 	\item $\tau = [\omega]\tau_\text{proto}$
@@ -1630,29 +1625,41 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 					     \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}
 		$
 	\item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$
+		\begin{quote}
+			Each spliced kind has a well-formed expansion at the application site.
+		\end{quote}
 	\item (\textbf{Kinding 2}) $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$ and $\sseq{\iskind{\Omega_\text{app}}{[\omega]\kappa'_i}}{\ncon}$
+		\begin{quote}
+			Each kind annotation on a spliced construction has a well-formed expansion at the application site.
+		\end{quote}
 	\item (\textbf{Kinding 3}) $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ and $\sseq{\haskind{\Omega_\text{app}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+		\begin{quote}
+			Each spliced construction is well-kinded consistent with its kind annotation.
+		\end{quote}
 	\item (\textbf{Kinding 4}) $\sseq{\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau_i}{\tau_i}{\akty}}{\nexp}$ and $\sseq{\haskind{\Omega_\text{app}}{[\omega]\tau_i}{\akty}}{\nexp}$
+		\begin{quote}
+			Each type annotation on a spliced expression has a well-formed expansion at the application site.
+		\end{quote}
 	\item (\textbf{Typing 2}) $\sseq{\expandsP{\uOmega}{\uPsi}{\uPhi}{\parseUExpF{\bsubseq{b}{m''_i}{n''_i}}}{e_i}{[\omega]\tau_i}}{\nexp}$ and $\sseq{\hastypeP{\Omega_\text{app}}{e_i}{[\omega]\tau_i}}{\nexp}$
+		\begin{quote}
+			Each spliced expression is well-typed consistent with its type annotation.
+		\end{quote}
 	\item (\textbf{Capture Avoidance}) $e = [\sseq{\kappa_i/k_i}{\nkind}, \sseq{c_i/u_i}{\ncon}, \sseq{e_i/x_i}{\nexp}, \omega]e''$ for some $e''$ and fresh $\sseq{k_i}{\nkind}$ and fresh $\sseq{u_i}{\ncon}$ and fresh $\sseq{x_i}{\nexp}$
+		\begin{quote}
+			The final expansion can be decomposed into a term with variables in place of each spliced kind, construction, expression and parameter. The expansions of these spliced kinds, constructions and expressions, as well as the provided parameters, can be substituted into this term in the standard capture avoiding manner.
+		\end{quote}
 	\item (\textbf{Context Independence}) \[\mathsf{fv}(e'') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \sseq{x_i}{\nexp} \cup \domof{\OParams}\]
+		\begin{quote}
+			The decomposed term is independent of the application site context.
+		\end{quote}
 	% $\hastypeP{\sseq{\Khyp{k_i}}{\nkind} \cup \sseq{u_i :: [\omega]\kappa'_i}{\ncon} \cup \sseq{x_i : [\omega]\tau_i}{\nexp}}{[\omega]e''}{\tau}$\todo{maybe restate this in terms of free variables of e'' here and elsewhere, because context isn't technically well-formed here?}
 \end{enumerate}
 \end{theorem}
 \endgroup
 
 \subsubsection{ppTSM Abstract Reasoning Principles}
-The following theorem summarizes the abstract reasoning principles available to programmers when applying a ppTSM. In words:
-\begin{enumerate}
-	  \item \textbf{Typing 1}: The final expansion matches values of the type specified by the ppTSM's type annotation.
-	\item \textbf{Segmentation}: The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
-	\item \textbf{Kinding 1}: Each spliced kind has a well-formed expansion at the application site.
-	\item \textbf{Kinding 2}: Each kind annotation on a spliced construction has a well-formed expansion at the application site.
-	\item \textbf{Kinding 3}: Each spliced construction is well-kinded consistent with its kind annotation.
-	\item \textbf{Kinding 4}: Each type annotation on a spliced expression has a well-formed expansion at the application site.
-	\item \textbf{Typing 2}: Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the splice summary.
-	  \item \textbf{No Hidden Bindings}: The hypotheses generated by the TSM application are exactly those generated by the spliced patterns.
-\end{enumerate}
+The following theorem summarizes the abstract reasoning principles available to programmers when applying a ppTSM. Descriptions of labeled clauses are given inline.
+
 \begingroup
 \def\thetheorem{\ref{thm:pptsm-abstract-reasoning-principles}}
 \begin{theorem}[ppTSM Abstract Reasoning Principles]
@@ -1661,6 +1668,9 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$
   \item $\uPhi=\uAS{\uA}{\Phi}$
   \item (\textbf{Typing 1}) $\tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aetype{\tau'}}$ and $\patTypePC{\Omega_\text{app}}{\uOmega'}{p}{\tau'}$ for $\tau'$ such that $\issubtypeP{\Omega_\text{app}}{\tau'}{\tau}$
+  	\begin{quote}
+  		The final expansion matches values of the type specified by the ppTSM's type annotation.
+  	\end{quote}
   \item $\tsmexpEvalsPat{\Omega_\text{app}}{\Phi}{\epsilon}{\epsilon_\text{normal}}$
   \item $\tsmdefof{\epsilon_\text{normal}}=a$
   \item $\Phi = \Phi', \pptsmdefn{a}{\rho}{\eparse}$
@@ -1669,6 +1679,9 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\decodePCEPat{e_\text{pproto}}{\pcp}$
   \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
   \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+  	\begin{quote}
+  		The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+  	\end{quote}
     \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
       \item $\tau'=[\omega]\tau_\text{proto}$
 	\item $
@@ -1676,11 +1689,29 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
 				     \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
 	$
 	\item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$
+		\begin{quote}
+			Each spliced kind has a well-formed expansion at the application site.
+		\end{quote}
 	\item (\textbf{Kinding 2}) $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$ and $\sseq{\iskind{\Omega_\text{app}}{[\omega]\kappa'_i}}{\ncon}$
+		\begin{quote}
+			Each kind annotation on a spliced construction has a well-formed expansion at the application site.
+		\end{quote}
 	\item (\textbf{Kinding 3}) $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ and $\sseq{\haskind{\Omega_\text{app}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
+		\begin{quote}
+			Each spliced construction is well-kinded consistent with its kind annotation.
+		\end{quote}
 	\item (\textbf{Kinding 4}) $\sseq{\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau_i}{\tau_i}{\akty}}{\npat}$ and $\sseq{\haskind{\Omega_\text{app}}{[\omega]\tau_i}{\akty}}{\npat}$
+		\begin{quote}
+			Each type annotation on a spliced expression has a well-formed expansion at the application site.
+		\end{quote}
   \item (\textbf{Typing 2}) $\sseq{\patExpandsP{\uOmegaEx{\emptyset}{\uG_i}{\emptyset}{\Omega_i}}{\uPhi}{\parseUPatF{\bsubseq{b}{m''_i}{n''_i}}}{p_i}{[\omega]\tau_i}}{\npat}$ and $\sseq{\patTypePC{\Omega_\text{app}}{\Omega_i}{p_i}{[\omega]\tau_i}}{\npat}$
+  	\begin{quote}
+  		Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the splice summary.
+  	\end{quote}
       \item (\textbf{No Hidden Bindings}) $\uOmega'=\uOmegaEx{\emptyset}{\biguplus_{0 \leq i < \npat} \uG_i}{\emptyset}{\bigcup_{0 \leq i < \npat} \Omega_i}$
+      	\begin{quote}
+      		The hypotheses generated by the TSM application are exactly those generated by the spliced patterns.
+      	\end{quote}
 \end{enumerate}
 \end{theorem}
 \endgroup
