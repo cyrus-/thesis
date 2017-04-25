@@ -308,7 +308,7 @@ val w = compute_w ()
 val x = compute_x w
 val y = {|(!R)@&{&/x!/:2_!x}'!R}|}
 \end{lstlisting}
-\caption{An example of unreasonable program text.}
+\caption{An example of unreasonable program text}
 \label{fig:K-dialect}
 \end{figure}
 
@@ -321,7 +321,7 @@ If the programmer happens to be familiar with the (intentionally terse) syntax o
 \item \textbf{(Typing)} What type does \li{y} have?
 \end{enumerate}
 
-In short, syntax dialects do not come with useful principles of \emph{syntactic abstraction}: if the desugaring of the program is held abstract, programmers can no longer reason about types and binding (i.e. answer questions like those above) in the usual disciplined manner. This is burdensome at all scales, but particularly when programming in the large, where it is common to encounter a program fragment drawn by another programmer, or drawn  long ago. Forcing the programmer to examine the desugaring of the drawing in order to reason about types and binding defeats the ultimate purpose of using syntactic sugar -- lowering cognitive cost (we expand on the notion of cognitive cost in Sec. \ref{sec:syntactic-properties}.)
+In short, syntax dialects do not come with useful principles of \emph{syntactic abstraction}: if the desugaring of the program is held abstract, programmers can no longer reason about types and binding (i.e. answer questions like those above) in the usual disciplined manner. This is burdensome at all scales, but particularly when programming in the large, where it is common to encounter a program fragment drawn by another programmer, or drawn  long ago. Forcing the programmer to examine the desugaring of the drawing in order to reason about types and binding defeats the ultimate purpose of using syntactic sugar -- lowering cognitive cost (we expand on the notion of cognitive cost in Sec. \ref{sec:syntactic-properties}.) 
 
 
 %In other words, encountering an unfamiliar derived form has made it difficult for the programmer to maintain the usual \emph{type discipline} and \emph{binding discipline}. %Compelling the programmer to examine the desugaring directly defeat the purpose of defining the derived form -- decreasing cognitive cost. Indeed, it substantially increases cognitive cost.
@@ -337,6 +337,8 @@ In contrast, when a programmer encounters, for example, a function call like the
 \emph{Type structure is a syntactic discipline for enforcing levels of abstraction.}
 \end{quote}
 \end{enumerate}
+
+
 
 % In summary, syntax dialects give library providers so much syntactic control that it creates problems for client programmers.
 %A related issue arises when one works within a language with a module system, i.e. a system that supports interacting through a defined interface with various implementations of that interface. For example, consider different regular expression engines that differ only with regard to their performance in various circumstances, or different parser generators that accept the same class of grammar. Ideally, one would like to be able to define derived forms once such that they operate only through the common interface. To do so today requires both an awkward syntactic trick and coordination between library providers, as we will discuss in Sec. \ref{sec:syntax-examples-regexps}. Ideally, this would not be necessary.
@@ -399,12 +401,12 @@ Client programmers apply TSMs to \emph{generalized literal forms}. For example, 
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
 $html `SURL<p>Hello, {[join ($str ' ') ($strlist [first, last])]}</p>EURL`
 \end{lstlisting}
-\caption{An example of a TSM being applied to a generalized literal form. The literal body, in green, is initially left unparsed according to the language's context-free syntax.}
+\caption[An example of a TSM being applied to a generalized literal form]{An example of a TSM being applied to a generalized literal form. The literal body, in green, is initially left unparsed according to the language's context-free syntax.}
 % \vspace{-5px}
 \label{fig:first-tsm-example}
 \end{figure}
 
-Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in green in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained. For example, the \li{#\dolla#html} TSM is free to use an Ur/Web-inspired HTML syntax (compare Figure \ref{fig:first-tsm-example} to Figure \ref{fig:urweb}.) This choice is not imposed by the language definition. Generalized literal forms have no TSM-independent meaning.
+Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in green in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained and left unparsed. For example, the \li{#\dolla#html} TSM is free to use an Ur/Web-inspired HTML syntax (compare Figure \ref{fig:first-tsm-example} to Figure \ref{fig:urweb}.) This choice is not imposed by the language definition. Generalized literal forms have no TSM-independent meaning.
 % Because the context-free syntax is never extended, syntactic conflicts are not a concern.
 
 % The semantics delegates control over the parsing and expansion of each literal body to the applied TSM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. %As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TSM programmatically generates to ensure that clients can answer critical questions related to types and binding, like those enumerated in Section \ref{sec:abs-reasoning-intro}. Clients need not have knowledge of the implementation of the TSM or of the generated expansion, i.e. there are useful principles of syntactic abstraction.
@@ -415,7 +417,7 @@ The primary technical challenge has to do with the fact that the applied TSM nee
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
 $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSCSS,ECSS last])SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The segmentation of the example from Figure \ref{fig:first-tsm-example}.}
+\caption{The segmentation of the example from Figure \ref{fig:first-tsm-example}}
 \label{fig:first-tsm-example-marked}
 \end{figure}
 
@@ -494,7 +496,7 @@ We also demonstrate support for partial parameter application in TSM abbreviatio
 let syntax $strlist = $list string in 
 $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The example from Figure \ref{fig:first-tsm-example-marked}, expressed using parametric TSMs.}
+\caption{The example from Figure \ref{fig:first-tsm-example-marked} expressed using parametric TSMs}
 \label{fig:first-ptsm-example-marked}
 \end{figure}
 
@@ -506,7 +508,7 @@ In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TSM implicits} that 
 \begin{lstlisting}[numbers=none]
 $html`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TSM implicits.}
+\caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TSM implicits}
 \label{fig:first-tsm-example-implicit}
 \end{figure}
 
@@ -535,7 +537,7 @@ fun resultsFor(searchQuery : string, page : int) : html =>
   </body>
   </html>EHTML`
 \end{lstlisting}
-\caption{A non-trivial example demonstrating implicit TSM application at seven different types: \li{SURIurlEURI}, \li{SHTMLhtmlEHTML}, \li{SCSScssECSS}, \li{SCOLORcolorECOLOR}, \li{SPCTpercentageEPCT}, \li{SSTRstringESTR} and \li{SSQLsqlESQL}.}
+\caption{A non-trivial example demonstrating implicit TSM application at seven different types: \li{SURIurlEURI}, \li{SHTMLhtmlEHTML}, \li{SCSScssECSS}, \li{SCOLORcolorECOLOR}, \li{SPCTpercentageEPCT}, \li{SSTRstringESTR} and \li{SSQLsqlESQL}}
 \label{fig:big-html-example}
 \end{figure}
 %\item \textbf{Metamodules}, introduced in Sec. \ref{sec:metamodules}, reduce the need to primitively build in the type structure of constructs like records (and variants thereof),  labeled sums and other interesting constructs that we will introduce later by giving library providers programmatic ``hooks'' directly into the semantics, which are specified as a \emph{type-directed translation semantics} targeting a small \emph{typed internal language} (introduced in Sec. \ref{sec:VerseML}). %For example, a library provider can implement the type structure of records with a metamodule that:

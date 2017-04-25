@@ -117,7 +117,7 @@ The Bidirectional $\miniVersePat$ expanded language (XL) is the same as the  $\m
 % \LCC &&& \lightgray & \lightgray & \lightgray\\
 % &&& \auplit{b} & \lit{b} & \text{upTSM unadorned literal}\ECC
 \end{array}\]\vspace{-8px}
-\caption[Syntax of unexpanded types, expressions, rules and patterns in Bidirectional $\miniVersePat$]{Syntax of unexpanded types, expressions, rules and patterns in Bidirectional $\miniVersePat$.}
+\caption[Syntax of unexpanded terms in Bidirectional $\miniVersePat$]{Syntax of unexpanded terms in Bidirectional $\miniVersePat$}
 \vspace{-5px}
 \label{fig:B-unexpanded-terms}
 \end{figure}
@@ -190,7 +190,7 @@ Unexpanded terms are checked and expanded simultaneously according to the \emph{
 \emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined as in $\miniVersePat$ by Rules (\ref{rules:expandsTU}).
 
 \subsubsection{Bidirectionally Typed Expression and Rule Expansion}
-In order to clearly define the semantics of TSM implicits, we must make a judgemental distinction between \emph{type synthesis} and \emph{type analysis}. In the former, the type is determined from the term, while in the latter, the type is presumed known. Type systems that make this distinction are called \emph{bidirectional type systems} \cite{Pierce:2000:LTI:345099.345100}. (Pierce characterizes the idea as folklore predating his paper.)
+In order to clearly define the semantics of TSM implicits, we must make a judgmental distinction between \emph{type synthesis} and \emph{type analysis}. In the former, the type is determined from the term, while in the latter, the type is presumed known. Type systems that make this distinction are called \emph{bidirectional type systems} \cite{Pierce:2000:LTI:345099.345100}. (Pierce characterizes the idea as folklore predating his paper.)
 
 The \emph{typed expression expansion judgements}, $\esynX{\ue}{e}{\tau}$, for type synthesis, and $\eanaX{\ue}{e}{\tau}$, for type analysis, and the typed rule expansion judgement, $\rana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$, are defined mutually inductively by Rules (\ref{rules:esyn-S}),  Rules (\ref{rules:eana-S}) and Rule (\ref{rule:rana-S}), respectively. We will reproduce only certain ``interesting'' rules below -- the appendix gives the complete set of rules.
 
@@ -1002,7 +1002,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 \endgroup
 
 \section{Parametric TSM Implicits}\label{sec:parametric-simple-implicits}
-Incorporating simple TSM implicits into a bidirectionally typed variant of $\miniVerseParam$ would require that the TSM implicit context, $\uI$, be a finite function from \emph{equivalence classes} of types to TSM expressions, $\epsilon$, rather than from syntactic types, $\tau$, to TSM names, $a$.
+Incorporating simple implicits into a bidirectionally typed dialect of $\miniVerseParam$ would require that the implicit context, $\uI$, be a finite function from {equivalence classes} of types to TSM expressions, $\epsilon$ (rather than from syntactic types, $\tau$, to TSM names, $a$.)
 
 We consider a more sophisticated mechanism that allows a TSM implicit designation itself  to operate over a parameterized family of types as future work in Sec. \ref{sec:parametric-designations}. 
 

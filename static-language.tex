@@ -27,12 +27,12 @@ end
 
 val y = (* ParserCombos CANNOT be used here *)
 \end{lstlisting}
-\caption{Binding a static module for use within parse functions.}
+\caption{Binding a static module for use within parse functions}
 \label{fig:static-module-example}
 \end{figure}
 \clearpage
 
-The values that arise during the the evaluation of parse functions do not need to persist from ``compile-time'' to ``run-time'', so we do not need a full staged computation system \cite{Taha99multi-stageprogramming:}. Instead, a sequence of static bindings operates like a read-evaluate-print loop (REPL), in that each static expression is evaluated immediately and the evaluated values are tracked by a \emph{static environment}.
+The values that arise during the the evaluation of parse functions do not need to persist from ``compile-time'' to ``run-time'', so we do not need a full staged computation system \cite{Taha99multi-stageprogramming:}. Instead, a sequence of static bindings operates like a lexically-scoped read-evaluate-print loop (REPL), in that each static expression is evaluated immediately and the evaluated values are tracked by a \emph{static environment}.
 
 
 \section{Applying TSMs Within TSM Definitions}\label{sec:tsms-for-tsms}
@@ -69,7 +69,9 @@ val fgx = App(Var 'SSTRfESTR', gx)
 % A similar approach can be taken for working with encodings of terms of other languages (e.g. when writing an interpretter or compiler in VerseML.)
 
 \subsection{Grammar-Based Parser Generators}
-In Sec. \ref{sec:grammars}, we discussed a number of grammar-based parser generators. Abstractly, a parser generator is a module matching the signature \li{PARSEGEN} defined in Figure \ref{fig:PARSEGEN}.
+In Sec. \ref{sec:grammars}, we discussed a number of grammar-based parser generators. Abstractly, a parser generator is a module matching the signature \li{PARSEGEN} defined in Figure \ref{fig:PARSEGEN}. Let us assume a module \li{P : PARSEGEN} and a grammar of spliced unexpanded expressions that have a given type annotation, \li{spliced_uexp : proto_typ -> P.grammar(proto_expr)}, in the discussion below.
+
+
 
 \begin{figure}
 \begin{lstlisting}
@@ -81,7 +83,7 @@ signature PARSEGEN = sig
 end
 \end{lstlisting}
 \vspace{-8px}
-\caption{A signature for parser generators.}
+\caption[A signature for parser generators]{A signature for parser generators. The type function \li{parse_result} was defined in Figure \ref{fig:candidate-exp-verseml}.}
 \vspace{-8px}
 \label{fig:PARSEGEN}
 \end{figure}
@@ -93,12 +95,13 @@ static syntax $grammar (P : PARSEGEN) 'a at P.grammar('a) by
 end
 \end{lstlisting}
 
-Using this definition, and given a module \li{P : PARSEGEN} and a static value defining the grammar of spliced unexpanded expressions that have a given type annotation, \li{spliced_uexp : proto_typ -> P.grammar(proto_expr)}, 
-we can define a TSM for regexes (implementing a subset of the POSIX regex syntax for simplicity) as shown in Figure \ref{fig:rx-grammar-based}.
+Using these definitions, we might define a TSM for regexes (implementing a subset of the POSIX regex syntax for simplicity) as shown in Figure \ref{fig:rx-grammar-based}.
 
 \begin{figure}[h!]
 \vspace{-5px}
 \begin{lstlisting}[deletekeywords={as}]
+static module RS : RX = (* ... *)
+static module RU = RXUtil(RS)
 syntax $rx(R : RX) at R.t by static 
   P.generate ($grammar P proto_expr {|SHTML #\label{line:rx_parse_fn_start}#
     start <- ""
@@ -108,7 +111,7 @@ syntax $rx(R : RX) at R.t by static
     token str_tok #\label{line:str_tok_start}#
       EHTMLRU.parse "SSTR[^(@$]+ESTR" (* cannot use $rx within its own def *)SHTML #\label{line:str_tok_end}#
     start <- str_tok
-      EHTMLfn s => $proto_expr `SCSSR.Str %(ECSSstr_to_proto_lit sSCSS)ECSS`SHTML
+      EHTMLfn s => $proto_expr `SCSSR.Str %(ECSSstr_to_proto_strlit sSCSS)ECSS`SHTML
     start <- start start
       EHTMLfn e1 e2 => $proto_expr `SCSSR.Seq (%ECSSe1SCSS, %ECSSe2SCSS)ECSS`SHTML
     start <- start "|" start 
@@ -116,25 +119,25 @@ syntax $rx(R : RX) at R.t by static
     start <- start "*"
       EHTMLfn e => $proto_expr `SCSSR.Star %ECSSe`SHTML
 
-    using EHTMLspliced_uexp ($proto_typ `SCSSR.tECSS`) SHTML as spliced_rx #\label{line:splicede_using}#
-    start <- "${" spliced_rx "}" #\label{line:splicing-start}#
+    using EHTMLspliced_uexp ($proto_typ `SCSSR.tECSS`) SHTMLas spliced_rx #\label{line:splicede_using}#
+    start <- "%{" spliced_rx "}" #\label{line:splicing-start}#
       EHTMLfn e => eSHTML
 
-    using EHTMLspliced_uexp ($proto_typ `SCSSstringECSS`) SHTML as spliced_str
-    start <- "@{" spliced_str "}"
+    using EHTMLspliced_uexp ($proto_typ `SCSSstringECSS`) SHTMLas spliced_str
+    start <- "${" spliced_str "}"
       EHTMLfn e => $proto_expr `SCSSR.Str %(ECSSeSCSS)ECSS`SHTML #\label{line:splicing-end}#
   EHTML|})
 end #\label{line:rx_parse_fn_end}#
 \end{lstlisting}
 \vspace{-12px}
-\caption{A grammar-based definition of \texttt{\$rx}.}
+\caption{A grammar-based definition of \texttt{\$rx}}
 \vspace{-15px}
 \label{fig:rx-grammar-based}
 \end{figure}
 
 
 \section{Library Management}
-In the examples above, we explicitly qualified various definitions with the \li{static} keyword to make them available within static values. This captures the essential nature of the problem of static evaluation, but in practice, we would like to be able to use libraries within both static values and standard values as needed without duplicating code. This can be accomplished by the library manager.
+In the examples above, we explicitly qualified various definitions with the \li{static} keyword to make them available within static values. This captures the essential nature of the problem of static evaluation, but in practice, we would like to be able to use libraries within both static values and standard values as needed without duplicating code. This can be achieved by a library manager.
 
 For example, a language-external library manager for VerseML similar to SML/NJ's CM \cite{blume:smlnj-cm} could support a \li{static} qualifier on imported libraries, which would place the definitions exported by the imported library into the static phase of the library being defined. In particular, a library definition in such a compilation manager might look like this:
 \begin{lstlisting}[numbers=none,morekeywords={Library,is}]
@@ -152,7 +155,10 @@ A similar approach could be taken for languages the incorporate library manageme
 static import edu.cmu.comar.parsegen
 \end{lstlisting}
 
-For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken in the definition of Standard ML \cite{Tofte:89:TheDefinitionOfStandardML}.)
+For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken in the definition of Standard ML \cite{mthm97-for-dart}.) The problem of packaging macros into components has been studied for term-rewriting macros \cite{culpepper2005syntactic}.
+
+An alternative design that allows for the explicit lowering of standard-phase bindings to the static phase has been proposed for OCaml \cite{Ocaml/macros}. 
+
 
 \fi
 

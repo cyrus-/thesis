@@ -95,7 +95,7 @@ For example, the function \li{lookup_rx} in Figure \ref{fig:lookup_rx} construct
   fun lookup_rx(name : string) => 
     R.Seq(R.Str name, R.Seq(R.Str "SSTR: ESTR", ssn))
 \end{lstlisting}
-\caption{Compositional construction of a regex.}
+\caption{Compositional construction of a regex}
 \label{fig:lookup_rx}
 \end{figure}
 %We needed to use both dynamic string parsing and explicit applications of pattern constructors to achieve the intended semantics. 
@@ -261,7 +261,7 @@ struct
   val op<|> = R.Or
 end
 \end{lstlisting}
-\caption{Fixity declarations and related bindings for \li{RX}.}
+\caption{Fixity declarations and related bindings for \li{RX}}
 \label{fig:infix-RX}
 \vspace{-5px}
 \end{figure}
@@ -381,7 +381,7 @@ Of course, it is unreasonable to assume that \li{Or} and \li{Str} are bound appr
 val ssn = SURL/\d\d\d-\d\d-\d\d\d\d/EURL
 fun lookup_rx(name : string) => SURL/@EURLnameSURL: %EURLssnSURL/EURL
 \end{lstlisting}
-\vspace{-8px}
+\vspace{-5px}
 \caption{Derived regex expression forms in $\mathcal{V}_\texttt{rx}$}
 \label{fig:derived-spliced-subexpressions}
 \end{figure}
@@ -479,7 +479,7 @@ fun is_dna_rx'(r : R.t) : boolean =>
   end
 \end{lstlisting}
 \vspace{-4px}
-\caption{Using URI-based grammar names together with marking tokens to avoid syntactic conflicts.}
+\caption{Using URI-based grammar names together with marking tokens to avoid syntactic conflicts}
 \label{fig:vanwyk}
 \vspace{-6px}
 \end{figure}

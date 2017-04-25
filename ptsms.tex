@@ -1,11 +1,16 @@
 % !TEX root = omar-thesis.tex
 
 \chapter{Parametric TSMs (pTSMs)}\label{chap:ptsms}
+\begin{quote}\textit{You know me, I gotta put in a big tree.}
+\begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
+\end{quote}
 % \begin{quote}\textit{The recent development of programming languages suggests that the simul\-taneous achievement of simplicity 
 % and generality in language design is a serious unsolved 
 % problem.}\begin{flushright}--- John Reynolds (1970) \cite{Reynolds70}\end{flushright}
 % \end{quote}
 % ~\\
+~\\
+\noindent
 This chapter introduces \emph{parametric TSMs} (pTSMs). Parametric TSMs can be defined over a parameterized family of types, rather than just a single type, and the expansions that they generate can refer to  supplied type and module parameters. 
 
 This chapter is organized like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parametric TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then develop a reduced calculus of parametric TSMs, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
@@ -63,7 +68,7 @@ for patterns by
   static fn(b : body) : parse_result(proto_pat) => (* ... *)
 end
 \end{lstlisting}
-\caption{The type- and module-parameterized \texttt{\$list'} TSMs.}
+\caption{The type- and module-parameterized \texttt{\$list'} TSMs}
 \label{fig:ptsm-listprime}
 \end{figure}
 % differing only in that any type parameter that the peTSM specifies can appear free in the generated expansion.
@@ -136,9 +141,10 @@ syntax $r(R : RX) at R.t by
   static fn(b : body) : parse_result(proto_expr) => (* ... *)
 end
 \end{lstlisting}
-\vspace{-5px}
-\caption{The module-parameterized TSM \texttt{\$r}.}
+\vspace{-8px}
+\caption{The module-parameterized TSM \texttt{\$r}}
 \label{fig:param-tsm-r}
+\vspace{-4px}
 \end{figure}
 \noindent
 For example, given \li{R1 : RX}, we can apply \li{#\dolla#r} as follows:
@@ -228,6 +234,7 @@ end
 % enqueue_jobs [SURL> EURLj1SURL, EURLj2SURL, EURLj3SURL, EURLj4]
 % \end{lstlisting}
 
+\vspace{-5px}
 \section{\texorpdfstring{$\miniVerseParam$}{miniVerseP}}\label{sec:miniVerseP}
 We will now define a reduced dialect of VerseML called $\miniVerseParam$ that supports parametric expression and pattern TSMs (peTSMs and ppTSMs.) This language, like $\miniVersePat$, consists of an unexpanded language (UL) defined by typed expansion to an expanded language (XL). The full definition of $\miniVerseParam$ is given in Appendix \ref{appendix:miniVerseParam} -- we will detail only  particularly interesting constructs below.
 
@@ -253,7 +260,7 @@ We will now define a reduced dialect of VerseML called $\miniVerseParam$ that su
 &&& \amlet{\sigma}{M}{X}{M} %& \mlet{X}{M}{M}{\sigma} 
 & \text{definition}
 \end{array}\]
-\caption[Syntax of signatures and module expressions in $\miniVerseParam$]{Syntax of signatures and module expressions in $\miniVerseParam$.}
+\caption[Syntax of signatures and module expressions in $\miniVerseParam$]{Syntax of signatures and module expressions in $\miniVerseParam$}
 \label{fig:P-modules-signatures}
 \end{figure}
 
@@ -386,7 +393,7 @@ We will now define a reduced dialect of VerseML called $\miniVerseParam$ that su
 %& \injp{\ell}{p} 
 & \text{injection pattern}
 \end{array}\]
-\caption[Syntax of expanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of expanded expressions, rules and patterns in $\miniVerseParam$.}
+\caption[Syntax of expanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of expanded expressions, rules and patterns in $\miniVerseParam$}
 \label{fig:P-expanded-terms}
 \end{figure}
 
@@ -496,7 +503,7 @@ end
 \end{array}
 \]}
 \end{minipage}
-\caption{A VerseML signature and the corresponding $\miniVerseParam$ signature.}
+\caption{A VerseML signature and the corresponding $\miniVerseParam$ signature}
 \label{fig:corresponding-signatures}
 \vspace{-10px}
 \end{figure}
@@ -565,7 +572,7 @@ L_\texttt{list} & \defeq \lbltxt{Nil}, \lbltxt{Cons}\\
 }
 \end{array}
 \]
-\caption{The $\miniVerseParam$ encoding of the \texttt{LIST} signature.}
+\caption{The $\miniVerseParam$ encoding of the \texttt{LIST} signature}
 \label{fig:LIST-mini}
 \end{figure}
 Here, the signature specifies only a single construction component, so no tupling of the construction component is necessary. This single construction component is a type function, so it has dependent function kind: the argument kind is $\akty$ and the return kind is a singleton kind, because the type function is not abstract. (Had we held the type function abstract, its kind would instead be $\akdarr{\akty}{\_}{\akty}$.)
@@ -731,8 +738,8 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}\ECC%
 % &&& & \texttt{patterns}~\texttt{in}~\uM\\
 % &&& ... & ... & \text{ppTSM designation}\ECC
-\end{array}$\vspace{-5px}
-\caption[Syntax of unexpanded module expressions and signatures in $\miniVerseParam$]{Syntax of unexpanded module expressions and signatures in $\miniVerseParam$.}\vspace{-5px}
+\end{array}$%\vspace{-5px}
+\caption[Syntax of unexpanded module expressions and signatures in $\miniVerseParam$]{Syntax of unexpanded module expressions and signatures in $\miniVerseParam$}%\vspace{-5px}
 \label{fig:P-unexpanded-modules-signatures}
 \end{figure}
 \begin{figure}[p] \vspace{-10px}
@@ -803,8 +810,8 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 &&
 %& \aumcon{\uX} 
 & \mcon{\uX} & \text{construction component}
-\end{array}\]\vspace{-5px}
-\caption[Syntax of unexpanded kinds and constructions in $\miniVerseParam$]{Syntax of unexpanded kinds and constructions in $\miniVerseParam$.}\vspace{-10px}
+\end{array}\]%\vspace{-5px}
+\caption[Syntax of unexpanded kinds and constructions in $\miniVerseParam$]{Syntax of unexpanded kinds and constructions in $\miniVerseParam$}\vspace{-10px}
 \label{fig:P-unexpanded-kinds-constructors}
 \end{figure}
 
@@ -903,7 +910,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \utsmap{\uepsilon}{b} & \text{ppTSM application}\ECC
 % &&& \auplit{b} & \lit{b} & \text{ppTSM unadorned literal}\ECC
 \end{array}\]
-\caption[Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$.}
+\caption[Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$}
 \label{fig:P-unexpanded-terms}
 \end{figure}
 
@@ -946,7 +953,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \apmod{\uepsilon}{\uX} & \text{module application}\ECC
 \end{array}
 \]
-\caption{Syntax of unexpanded TSM types and expressions.}
+\caption{Syntax of unexpanded TSM types and expressions  in $\miniVerseParam$}
 \label{fig:P-macro-expressions-types-u}
 \end{figure}
 \begin{figure}[t]
@@ -982,7 +989,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 %& \aptype{\epsilon}{M} 
 & \text{module application}\ECC
 \end{array}\]
-\caption[Syntax of TSM types and expressions in $\miniVerseParam$]{Syntax of TSM types and expressions.}
+\caption[Syntax of TSM types and expressions in $\miniVerseParam$]{Syntax of TSM types and expressions  in $\miniVerseParam$}
 \label{fig:P-macro-expressions-types}
 \end{figure}
 \subsection{Syntax of the Unexpanded Language}
@@ -1335,7 +1342,7 @@ The fourth row of premises in Rule (\ref{rule:expandsP-apuetsm}) 1) encode the b
 % &&& \apcebindtype{t}{\pce} & \pcebindtype{t}{\pce} & \text{type binding}\\
 &&& \apcebindmod{X}{\pce} & \pcebindmod{X}{\pce} & \text{module binding}\ECC
 \end{array}\]
-\caption[Syntax of parameterized proto-expressions in $\miniVerseParam$]{Syntax of parameterized proto-expressions.}
+\caption[Syntax of parameterized proto-expressions in $\miniVerseParam$]{Syntax of parameterized proto-expressions  in $\miniVerseParam$}
 \label{fig:P-pceexp}
 \end{figure}
 \noindent 
@@ -1422,7 +1429,7 @@ Although patterns themselves cannot make reference to surrounding bindings, the 
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedc{m}{n}{\cekappa} & \splicedc{m}{n}{\cekappa} & \text{spliced construction}\ECC
 \end{array}\]
-\caption[Syntax of proto-kinds and proto-constructions in $\miniVerseParam$]{Syntax of proto-kinds and proto-constructions in $\miniVerseParam$.}
+\caption[Syntax of proto-kinds and proto-constructions in $\miniVerseParam$]{Syntax of proto-kinds and proto-constructions in $\miniVerseParam$}
 \label{fig:P-ce-kinds-constructors}
 \end{figure}
 
@@ -1457,7 +1464,7 @@ Although patterns themselves cannot make reference to surrounding bindings, the 
 \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
 &&& \acesplicedp{m}{n}{\ctau} & \splicedp{m}{n}{\ctau} & \text{spliced pattern} \ECC
 \end{array}\]
-\caption[Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$]{Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$.}
+\caption[Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$]{Syntax of proto-expressions, proto-rules and proto-patterns in $\miniVerseParam$}
 \label{fig:P-candidate-terms}
 \end{figure}
 Figure \ref{fig:P-ce-kinds-constructors} defines the syntax of proto-kinds, $\cekappa$ and proto-constructions, $\cec$. Figure \ref{fig:P-candidate-terms} defines the syntax of proto-expressions, $\ce$, proto-rules, $\crv$, and proto-patterns, $\cpv$. All of these are ABTs. %The syntax of ce-types is identical to that given in Figure \ref{fig:U-candidate-terms}, which was described in Sec. \ref{sec:ce-syntax-U}. 
@@ -1602,7 +1609,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 \begin{enumerate}
 	\item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$
 	\item $\uPsi=\uAS{\uA}{\Psi}$
-	\item (\textbf{Typing 1}) $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau}}$ and $\hastypeP{\Omega_\text{app}}{e}{\tau}$
+  \item (\textbf{Typing 1}) $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau'}}$ and $\hastypeP{\Omega_\text{app}}{e}{\tau'}$ for $\tau'$ such that $\issubtypeP{\Omega_\text{app}}{\tau'}{\tau}$
 		\begin{quote}
 			The type of the expansion is consistent with the type annotation on the peTSM definition.
 		\end{quote}
