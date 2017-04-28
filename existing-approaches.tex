@@ -678,7 +678,7 @@ The problem of reasoning about \textbf{Typing} is relatively understudied, becau
 
 Herman and Wand's calculus of macros \cite{DBLP:conf/esop/HermanW08,Herman10:Theory} does use a type system to reason about the binding structure of the expansion that a macro generates, but the expansions themselves are not written in a language with rich type structure. 
 
-Some macro systems for languages with non-trivial type structure, like Template Haskell \cite{sheard2002template}, do not support reasoning about types in that the guarantee is only that the expansion is well-typed -- clients cannot reason about \emph{what that type is}. 
+Some macro systems for languages with non-trivial type structure, like Template Haskell \cite{SheardPeytonJones:Haskell-02}, do not support reasoning about types in that the guarantee is only that the expansion is well-typed -- clients cannot reason about \emph{what that type is}. 
 
 Other macro systems, like MacroML \cite{ganz2001macros,Sheard:1999:UMS}, support reasoning about typing, but these systems are \emph{staging macro systems}, rather than \emph{term-rewriting macro systems}, meaning that the macro does not have access to the syntax tree of the arguments at all. Staging macros cannot be used for syntactic control -- macro application syntactically coincides with function application. These macro systems are instead motivated primarily by concerns about performance.
 
