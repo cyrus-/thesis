@@ -1,5 +1,5 @@
 % !TEX root = omar-thesis.tex
-\chapter{Discussion \& Future Directions}\label{chap:conclusion}
+\chapter{Discussion \& Conclusion}\label{chap:conclusion}
 % \begin{quote}
 % \emph{Any representation of reality we develop can be only partial. There is no finality, sometimes no single best representation. There is only deeper understanding, more revealing and enveloping representations.
 % }
@@ -7,35 +7,96 @@
 % -- Carl R. Woese \cite{woese}
 % \end{quote}
 
-\section{Summary}
+\vspace{-4px}
+\section{Summary of Contributions}
 
-In summary, TSMs allow library providers to programmatically control the expansion of generalized expression and pattern literal forms. A proto-expansion validation step allows library clients to reason about types and binding without examining the generated expansions in complete detail. Instead, the client needs only to be made aware of the type annotation on the applied TSM and the \emph{splice summary} of the generated proto-expansion, which locates and assigns a type to each spliced term within the literal body. This information can be communicated to the client using secondary notation (e.g. colors, as in this document) together with a simple service for querying the type of an expression similar to that available in many program editors today.
+In summary, TSMs allow library providers to programmatically control the parsing and expansion of generalized expression and pattern literal forms. A proto-expansion validation step allows a TSM client to reason about types, binding and segmentation \emph{abstractly}, i.e. without examining the macro definition or the generated expansion in complete detail. Instead, the client needs only to be made aware of the type annotation on the applied TSM and the \emph{splice summary} of the generated proto-expansion, which locates and assigns a type to each spliced term within the literal body. This information can be communicated to the client using secondary notation (e.g. colors) together with a simple type inspection service similar to that available in many program editors today.
 
-We developed several core calculi in order to formally characterize the mechanisms of TSM definition and application. In particular, Chapters \ref{chap:uetsms} and \ref{chap:uptsms} developed $\miniVersePat$, which communicates the central concepts of typed expansion and proto-expansion validation for expression and pattern TSMs respectively. Chapter \ref{chap:ptsms} then introduced $\miniVerseParam$, which added type and module parameters. Chapter \ref{chap:static-eval} introduced $\miniVersePH$, which adds the notion of a static environment shared between TSM definitions. This makes the job of the TSM provider easier, by giving them access to libraries (including those that themselves export TSM definitions.) Finally, Chapter \ref{chap:tsls} introduced Bidirectional $\miniVersePat$, which supports a mechanism of TSM implicits that further decreases the syntactic cost of applying a TSM.
+This work developed a series of progressively more sophisticated core calculi in order to formally characterize the mechanisms of TSM definition and application and the associated abstract reasoning principles. In particular:
+\begin{enumerate}
+\item Chapters \ref{chap:uetsms} and \ref{chap:uptsms} developed $\miniVersePat$, which communicates the central concepts of typed expansion and proto-expansion validation for simple expression and pattern TSMs, respectively. It also showed how we can formally establish the abstract reasoning principles available to TSM clients. The reasoning principles related to binding relied on the standard notion of capture-avoiding substitution (for ABTs), rather than on a macro-specific mechanism for fresh variable generation as in other formal accounts of macro systems (notably, the work of Herman and Wand \cite{Herman10:Theory,DBLP:conf/esop/HermanW08}.) 
 
-% Our approach compares favorably to the dialect-oriented approach in that 1) it sidesteps the problem of syntactic conflict (by leaving the context-free syntax fixed); and 2) it provides the abstract reasoning principles just mentioned. It also compares favorably to approaches based on term rewriting, e.g. term-rewriting macro systems, in that 1) it provides greater syntactic control; and 2) it guarantees a stronger 
+\item Chapter \ref{chap:ptsms} then developed $\miniVerseParam$, which added type and module parameters. These enrich the TSM type discipline to allow a single TSM to operate across a parameterized family of types. They also allow TSMs to refer to external bindings through module parameters, rather than requiring that all external references go through spliced terms. Support for partial application in higher-order abbreviations lowers the syntactic cost of this explicit parameter-passing style. 
 
-\section{Future Directions}\label{sec:future-work}
-\subsection{Integration Into a Full-Scale Language Definition}
-We left many orthogonal language features out of our calculi, for the sake of simplicity and to focus our exposition on our novel contributions. We leave the work of integrating TSMs into a full-scale language definition to the future.
+\item Chapter \ref{chap:static-eval} developed $\miniVersePH$, which adds a static environment shared between TSM definitions. This makes the job of the TSM provider easier, by giving them access to libraries, including those that themselves export TSM definitions. We gave examples of TSMs that are useful for defining other TSMs, including quasiquotation TSMs and a grammar-based parser generator. We also briefly discussed how TSMs interact with library management systems.
 
-\subsection{Constraint-Based Type Inference}
-ML uses a constraint-based type inference system \emph{a la} Damas-Milner \cite{damas1982principal}. We conjecture that the mechanisms described up through Chapter \ref{chap:static-eval} are compatible with such a system -- most simply, by generating the constraints from the final expansion. Actually, it should be possible to perform type inference abstractly, using only the information in the splice summary. We leave the evaluation of this conjecture as future work.
+\item Finally, Chapter \ref{chap:tsls} developed Bidirectional $\miniVersePat$, which supports a mechanism of TSM implicits that further decreases the syntactic cost of applying a TSM while retaining the essential reasoning principles developed in the previous chapters.
+\end{enumerate}
 
-The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} assumed a bidirectional type system, i.e. one that only locally infers types \cite{Pierce:2000:LTI:345099.345100}. It may be possible to integrate implicit TSM dispatch with a constraint-based type inference system, but the approach to take is less clear. We leave the exploration of this question as future work.
+\vspace{-10px}
+\section{Summary of Related Work}
+\vspace{-4px}
+Chapter \ref{chap:background} gave a detailed account of the various existing mechanisms of syntactic control. In this section, we briefly compare TSMs to this related work more directly.
 
+Compared to dialect-oriented mechanisms of syntactic control, i.e. mechanisms that allow  providers to form a new syntax dialect by extending the context-free syntax of a language, TSMs provide clients with stronger abstract reasoning principles. In particular:
+\begin{enumerate}
+\item \textbf{Conflict}: Clients attempting to combine general syntax dialects that have been found to be individually free of syntactic conflicts cannot  be sure that the combined dialect will be free of syntactic conflicts. Only a system described by Schwerdfeger and Van Wyk allows reasoning modularly about conflicts, but for a restricted class of syntax dialects \cite{conf/pldi/SchwerdfegerW09}. In contrast, TSM providers can reason modularly about syntactic conflicts because the context-free syntax of the language is fixed.
+\item \textbf{Responsibility}: Clients using a combined syntax dialect cannot easily determine which constituent dialect is responsible for any given form. In contrast, TSM clients can reason about responsibility by following the binding structure of the language in the usual manner.
+\item \textbf{Segmentation}: Clients of a syntax dialect cannot accurately determine which segments of the program text appear directly in the desugaring. In contrast, TSM clients can reason about segmentation by inspecting the splice summary. The information in a splice summary can be communicated straightforwardly by a program editor using secondary notation (e.g. colors.) The system guarantees that spliced segments are non-overlapping.
+\item \textbf{Typing}: Clients of a syntax dialect cannot reason abstractly about types. In contrast, TSM clients clients can determine the type of any expansion by inspecting the parameter and type declarations on the TSM definition. The parse function and the expansion itself need not be inspected, i.e. these details can be held abstract. The splice summary also gives types for each spliced expression or pattern. This information can be communicated upon request by the type inspection service of a program editor.
+\item \textbf{Binding}: Clients of a context-free syntax dialect cannot be sure that the desugaring is context-independent and that spliced terms are capture avoiding. In contrast, TSM clients can be sure that the expansion is completely context-independent and that spliced terms are capture-avoiding.
+\end{enumerate}
+
+Some existing typed term-rewriting macro systems, notably the Scala macro system \cite{ScalaMacros2013}, address most of these problems but sacrifice syntactic control by requiring that the macro repurpose what existing syntactic forms are otherwise defined. String literal forms cannot be repurposed flexibly because terms cannot be spliced hygienically out of string literal bodies. TSMs solve this problem by  distinguishing spliced segments explicitly within the generated proto-expansions. This allows the language to selectively give spliced terms access to application-site bindings during proto-expansion validation, while requiring that the remainder of the proto-expansion be context-independent.
+
+This work also provides the first  type-theoretic account of a hygienic typed macro system integrated into a language with support for structural pattern matching and an ML-style module system. Let us consider some related work to justify this assertion.
+\begin{itemize}
+\item The Scala macro system has not been formally specified as of this writing. 
+\item The macro calculus of  Herman and Wand \cite{DBLP:conf/esop/HermanW08,Herman10:Theory} uses types only to make manifest the binding structure of the generated expansion. The language that expansions are written in does not have an ML-style type structure. 
+
+Their calculus uses tree locations, which originate in the early work of Gorn \cite{gorn1965explicit}, to identify macro arguments by their location within the macro argument list. These tree locations are conceptually reminiscent of our spliced segment references, which identify spliced terms by their lexical location within the literal body. However, the tree locations serve a different purpose in Herman and Wand's calculus -- they distinguish symbolic arguments that will appear in binding positions in the expansion. In our system, there is no way for spliced identifiers to appear in binding position (but see Sec. \ref{sec:controlled-binding} for further discussion of this point.) Spliced segment references instead serve to distinguish segments that appear as sub-terms in the proto-expansion from those parsed in some other way. 
+
+Additionally, their calculus explicitly specifies the mechanism for fresh variable generation during expansion, whereas our approach relies on the standard type-theoretic notions of implicit alpha-variation and capture-avoiding substitution (for general ABTs.) This significantly simplifies our calculi. 
+
+Finally, their calculus defines term representations and quasiquotation primitively because the binding structure of the expansion must be manifest in the type of the macro. In our work, the parse functions can perform arbitrary computations on simpler term representations -- there is no need to define quasiquotation primitively or encode the binding structure of  term representations in their types. This is possible because we enforce a stronger notion of context-independence -- not even definition-site bindings are available directly to expansions.
+
+\item It is also worth mentioning MacroML \cite{ganz2001macros}. MacroML is only a staging macro system, i.e. it does not give the macro access to the syntax (parsed or unparsed) of the provided arguments but rather requires that it treat them parametically. As such, MacroML does not qualify as a mechanism of syntactic control (staging is motivated primarily by performance considerations.) MacroML also does not support pattern matching or ML-style modules.
+
+\item Finally, the predecessor to the systems introduced in this work was the system of \emph{type-specific languages} (TSLs) that was defined in a previous paper \cite{TSLs}. That work introduced generalized literal forms and gave a bidirectionally typed protocol for type-directed parse function invocation. This work progresses beyond that work in several ways.
+
+Most obviously, this work allows explicit TSM application. Different TSMs can therefore be defined at the same type without conflict. A subsequent short paper proposed explicit application of simple expression TSMs in a bidirectional typed setting, but did not provide any formal details \citet{sac15}. We do not assume a bidirectionally typed language when discussing explicit application (see Sec. \ref{sec:type-inference} below for more discussion on type inference.) 
+Moreover, TSMs are not associated directly with named type definitions, like TSLs,  but rather can operate at any type.  
+
+Our mechanism of TSM implicits, described in Chapter \ref{chap:tsls}, also differs from TSLs in that implicit designations are orthogonal to the type abbreviation mechanism. Clients are free to differentially control implicit designations as desired within a lexically scoped portion of a program.
+
+Another distinction is that the metatheory presented by \citet{TSLs} establishes only the ability to reason abtsractly about types. It does not establish the remaining abstract reasoning principles that have been a major focus of this work. In particular, there is no formal notion of hygiene (though it is discussed informally), and the mechanism does not guarantee that a valid segmentation will exist, nor associate types with segments.
+
+Finally, the prior work on TSLs did not consider the mechanisms of pattern matching, parameterized types, modules, parametric expansions or static evaluation. All of these are important for integration into an ML-like functional language.
+
+\end{itemize}
+
+\vspace{-8px}
+\section{Limitations \& Future Research Directions}\label{sec:future-work}
+Let us conclude with a discussion of the present limitations of our work. When possible, we outline future research that might resolve these limitations.
+
+\vspace{-4px}
+\subsection{Integration Into a Full-Scale Functional Language Definition}
+We left many orthogonal language features out of our calculi, for the sake of simplicity and to focus our exposition on our novel contributions. We leave the work of integrating TSMs into a full-scale functional language definition as future work. We hope that this work will serve to guide a variety of different efforts in this direction.
+
+\vspace{-4px}
 \subsection{Integration Into Languages From Other Design Traditions}
 \label{sec:integration}
 We conjecture that all of the mechanisms we have described could be integrated into dependently typed functional languages, e.g. Coq \cite{Coq:manual}, but leave the necessary technical developments as future work.
 
-The mechanisms described in Chapter \ref{chap:uetsms}, Chapter \ref{chap:ptsms} and Chapter \ref{chap:static-eval} could also be adapted for use in languages from the imperative and object-oriented traditions without difficulty. Similarly, these constructs could be adapted for use in dynamic languages like Racket as well by eliminating the type annotation (thereby treating the language as ``uni-typed'' \cite{scott1980lambda,pfpl}.) In such a language (and, in fact, even in a language with richer type structure), it would be useful to be able to annotate a TSM with a dynamic contract governing all generated expansions \cite{DBLP:conf/icfp/FindlerF02}. 
+The mechanisms described in Chapter \ref{chap:uetsms} and Chapter \ref{chap:static-eval} could also be adapted for use in languages from the imperative and object-oriented traditions without difficulty. These languages do not typically support structural pattern matching, so the mechanism in Chapter \ref{chap:uptsms} may not be relevant. Parametric TSMs as described in Chapter \ref{chap:ptsms} require an ML-style module system, i.e. a system where types and values are packaged into modules, and these modules are classified by signatures. However, it may be possible to define a variant of this mechanism that treats type and value parameters separately (the difficulty being that the type of value parameters may mention prior type parameters.)
 
-The mechanism of TSM implicits introduced in Chapter \ref{chap:tsls} assumes a bidirectionally typed unexpanded language. A number of full-scale languages are bidirectionally typed, notably including Scala \cite{odersky2008programming}. However, Scala supports subtyping. Subtyping would complicate the question of implicit TSM dispatch, because there may be designations at multiple supertypes of a given type.
+The mechanism of TSM implicits introduced in Chapter \ref{chap:tsls} assumes a bidirectionally typed unexpanded language. A number of full-scale languages are bidirectionally typed, notably including Scala \cite{odersky2008programming}. However, Scala, like many other object-oriented languages, supports subtyping. Subtyping would complicate the question of implicit TSM dispatch, because there may be designations at multiple supertypes of a given type.
 
 Various forms of \emph{ad hoc} polymorphism, e.g. function/method overloading or type classes \cite{Hall:1996:TCH:227699.227700}, would also complicate the question of implicit TSM dispatch. One approach that may be worth exploring in future work would associate implicits with a type class, rather than with an individual type.
 
+TSMs could also be adapted for use in dynamic languages like Racket  by eliminating the type annotation (thereby treating the language as ``uni-typed'' \cite{scott1980lambda,pfpl}.) In such a language (and  even in a language with richer type structure), it could be useful to allow TSM providers to annotate a TSM with a dynamic contract governing all generated expansions \cite{DBLP:conf/icfp/FindlerF02}. 
+
+\vspace{-4px}
+\subsection{Constraint-Based Type Inference}\label{sec:type-inference}
+ML uses a constraint-based type inference system \emph{a la} Damas-Milner \cite{damas1982principal}. We conjecture that the mechanisms described up through Chapter \ref{chap:static-eval} are compatible with such a system -- most simply, by generating the constraints from the final expansion. Actually, it should be possible to perform type inference abstractly, using only the information in the splice summary. We leave the evaluation of this conjecture as future work.
+
+The mechanism of TSM implicits developed in Chapter \ref{chap:tsls} assumed a bidirectional type system, i.e. one that only locally infers types \cite{Pierce:2000:LTI:345099.345100}. It may be possible to integrate implicit TSM dispatch with a constraint-based type inference system, but the approach to take is less clear. We leave the exploration of this question as future work.
+
+\vspace{-4px}
 \subsection{Module Expression Syntax Macros}
-We did not consider situations where a library clients wants to define syntactic sugar for  module expressions matching a given signature. It should be possible to ``replicate'' the mechanisms developed up through Chapter \ref{chap:static-eval} at the level of module expressions without difficulty. Implicit dispatch would be problematic at the module level, again because signatures are related by a notion of subtyping.
+We did not consider situations where a library clients wants to define syntactic sugar for  module expressions matching a given signature. It should be possible to ``replicate'' the mechanisms developed up through Chapter \ref{chap:static-eval} at the level of module expressions without difficulty. Implicit dispatch would be problematic at the module level because signatures are related by a notion of subtyping.
+
+A similar approach might be considered for syntax macros at the level of types (or, more generally, constructions.) However, for an ML-like language where all types are classified by a single kind, type-level TSMs would obscure the identity of the type. This, in turn, might obscure the type structure of the program too much to be useful.
 
 % We have explored syntax for types in a recent short paper \cite{sac15}. Care must be taken here, however, because knowing merely that the %We also did not consider situations where a library client wants to generate an expression or a pattern based on the structure of a type (e.g. automatiCarec generation of equality comparisons.) Finally, we do not consider situations that require modifications to the underlying type structure of a language (though ``reasonably programmable type structure'' is a rich avenue for future work.)
 
@@ -159,7 +220,7 @@ It may be possible to use Crary's method for representing terms of the dependent
 \subsection{Exportable Implicit Designations}
 Implicit designations cannot be exported from a library, because different libraries might define conflicting designations. This can be inconvenient for clients.
 
-This restriction is perhaps too severe in cases where the designation is at a type generated from within the same library. In such situation, it would be safe to export an implicit designation because no other library could do the same. We have explored this approach in a simple calculus that supports nominal type generativity \cite{TSLs}. We say that the syntax macro associated with a nominal type defines that type's \emph{type-specific language} (TSL). We leave as future work the question of adapting this mechanism to support generative type abstraction as described in Chapter \ref{chap:ptsms}. 
+This restriction is perhaps too severe in cases where the designation is at an abstract type generated from within the same library. In such situation, it would be safe to export an implicit designation because no other library could do the same.
 
 % \todo{revise this} TSLs can be associated with abstract types that are generated by parameterized modules (i.e. generative functors in Standard ML) as well. For example, consider a trivially parameterized module that creates modules sealed against \lstinline{RX}:
 % \begin{lstlisting}[numbers=none]
@@ -206,31 +267,7 @@ This restriction is perhaps too severe in cases where the designation is at a ty
 % \subsection{Pattern Matching Over Values of Abstract Type}\label{sec:patterns-for-abstract-types}
 % ML does not presently support pattern matching over values of an abstract data type. However, there have been proposals for adding support for pattern matching over abstract data types defined by modules having a ``datatype-like'' shape, e.g. those that define a case analysis function like the one specified by \lstinline{RX}, %shown in Sec. \ref{sec:examples}. %We leave further discussion of such a facility and of parameterized TPSMs also as remaining work (see Sec. \ref{sec:syntax-timeline}). 
 
-\subsection{Mechanically Reasoning About Parse Functions}\label{sec:verifying-tsms}
-A correct parse function never returns an encoding of a proto-expansion that fails proto-expansion validation. This invariant cannot be enforced by the simple type systems we have considered in this document. Using a proof assistant, it would be possible to verify that a parse function generates only encodings of valid proto-expansions. Alternatively, in a dependently typed setting, the type of the parse function itself could be enriched so as to enforce this invariant intrinsically. We leave the details of this approach as future work.
-
-A related problem is that a parse function might diverge. Again, we can either prove that the parse function does not diverge extrinsically, or define the parse function using a total language.
-
-Parse functions implement some intended syntax definition. It would be useful to be able to state the syntax definition separately as a formal structure, and then prove that the parse function implements it correctly. In fact, in most cases, it should be possible to generate the parse function directly from the syntax definition using a parser generator. In this case, it would be useful to be able to mechanically prove the parser generator correct.
-
-It would also be useful to develop the notion of an \emph{splice summary specification}, i.e. a specification of the splice summary that should result from a well-formed string. This could be combined with a grammar like the one shown in Figure \ref{fig:rx-grammar-based}, with the non-terminals representing spliced terms annotated with types.
-% \subsection{Improved Error Reporting}\label{sec:error-handling}
-% \todo{write this}
-
-\subsection{Refactoring Unexpanded Terms}\label{sec:refactoring}
-A crucial distinction is between identifiers, which appear in unexpanded terms, and variables, which appear in expanded terms. Variables are given meaning by substitution, and ABTs are identified only up to renaming of bound variables. In contrast, identifiers are given meaning only by expansion to variables and there is no notion of renaming or substitution.
-
-It would be useful to support an identifier renaming operation for the purposes of automatic refactoring \cite{mens2004survey}. The simplest solution would be to use the splice summaries to locate spliced terms, and then perform the renaming directly within the literal body. The problem is that there is no guarantee that the parse function will produce an alpha-equivalent expansion after such a renaming operation has been performed. Similar concerns about invariance come up for other kinds of refactorings.
-
-There are three approaches one might take to avoid this problem. The simplest approach is for the renaming operation to re-run the parse function and check that the expansion it generates is related to the previously generated expansion as expected. Alternatively, we might seek to mechanically verify that the parse function is invariant to refactoring, either intrinsically or extrinsically as discussed in Sec. \ref{sec:verifying-tsms}. 
-A third approach would be to require that the TSM be defined using a grammar formalism that precludes inspection of the form of spliced expressions by construction. Exploration of these approaches is a promising avenue for future work.
-
-\subsection{Integration with Editor Services}\label{sec:editor-integration}
-Program editors often seek to provide feedback to the programmer about the syntax and semantics of the program being written. Questions remain about how various editor services should interact with TSMs. In the examples in this document, we colored spliced terms black and all other segments of a literal body some other uniform color (e.g. green.) A more sophisticated approach would allow the TSM to define its own syntax highlighting logic governing these non-spliced segments.
-
-Another concern has to do with performance: na\"ively, a program editor would need to re-run the corresponding parse function on each edit that modified a literal body. Ideally, it should be possible to incrementally compute the resulting change to the splice summary as a function of the change to the literal body \cite{Ghezzi:1979:IP:357062.357066}.
-
-\subsection{Controlled Shadowing}\label{sec:controlled-binding}
+\subsection{Controlled Capture}\label{sec:controlled-binding}
 
 The prohibition on capture makes it impossible to define new binding constructs. For example, consider Haskell's \textbf{do}-notation for monadic structures:
 \begin{lstlisting}[numbers=none]
@@ -252,20 +289,54 @@ Completely relaxing the prohibition on capture would be unreasonable. Instead, w
   \item The splice summary must state which of these are available to each spliced term.
 \end{enumerate}
 
-We leave the technical details of this proposal as future work. We also leave open the question of how an editor should best convey the set of available identifiers within a spliced term to the programmer.
+The prior work of Herman and Wand developed mechanisms to support these sorts of examples \cite{DBLP:conf/esop/HermanW08,Herman10:Theory}. We leave integrating related mechanisms into a system of TSMs as future work. We also leave open the question of how an editor should best convey the set of available identifiers within a spliced term to the programmer.
 
-% \subsection{Type-Aware Splicing}\label{sec:type-aware-splicing}
-% Although typed expansion generalizes typing, there is no mechanism by which the expansion can observe and  
+\subsection{Type-Aware Splicing}\label{sec:type-aware-splicing}
+Although typed expansion generalizes typing, there is no mechanism by which the expansion can branch based on the type synthesized by a spliced term. Recent work by Lorenzen and Erdweg on type-dependent desugarings gives some examples where branching according to the type of a spliced term might be useful \cite{conf/popl/LorenzenE16}. Developing a reasonable extension of our TSM mechanism for doing so is left as future work.
 
-% \subsection{Resugaring}\label{sec:resugaring}
-% Another interesting avenue for future work lies in providing syntactic sugar not only for unexpanded expressions, but also for ``pretty printing'' values and 
+\subsection{TSM Application in Proto-Expansions}
+Proto-expansions are abstract binding trees in our work, so it is not possible to apply TSMs within proto-expansions. This might occasionally be inconvenient for TSM providers. Developing the machinery necessary to be able to take TSMs as parameters and apply TSMs in proto-expansions is left as future work.
 
-% \subsection{Non-Textual Display Forms}\label{sec:non-textual-display-forms}
+\subsection{Mechanically Reasoning About Parse Functions}\label{sec:verifying-tsms}
+A correct parse function never returns an encoding of a proto-expansion that fails proto-expansion validation. This invariant cannot be enforced by the simple type systems we have considered in this work. Using a proof assistant, it would be possible to verify that a parse function generates only encodings of valid proto-expansions. Alternatively, in a dependently typed setting, the type of the parse function itself could be enriched so as to enforce this invariant intrinsically. We leave the details of this approach as future work.
+
+A related problem is that a parse function might diverge. Again, we can either prove that the parse function does not diverge extrinsically, or define the parse function using a total language.
+
+Parse functions implement some intended syntax definition. It would be useful to be able to state the syntax definition separately as a formal structure, and then prove that the parse function implements it correctly. In fact, in most cases, it should be possible to generate the parse function directly from the syntax definition using a parser generator. In this case, it would be useful to be able to mechanically prove the parser generator correct.
+
+It would also be useful to develop the notion of an \emph{splice summary specification}, i.e. a specification of the splice summary that should result from a well-formed string. This could be combined with a grammar like the one shown in Figure \ref{fig:rx-grammar-based}, with the non-terminals representing spliced terms annotated with types.
+% \subsection{Improved Error Reporting}\label{sec:error-handling}
 % \todo{write this}
-% \todo{Talk about active code completion work and future Hazel ideas}
+
+\subsection{Refactoring Unexpanded Terms}\label{sec:refactoring}
+A crucial distinction is between identifiers, which appear in unexpanded terms, and variables, which appear in expanded terms. Variables are given meaning by substitution, and ABTs are identified only up to renaming of bound variables. In contrast, identifiers are given meaning only by expansion to variables and there is no notion of renaming or substitution. Unexpanded terms are not evaluated directly, so there is no need for these operations to assign static and dynamic meaning to programs.
+
+It would, however, be useful to support identifier renaming and substitution operations for the purposes of automatic refactoring \cite{mens2004survey}. The simplest solution would be to use the splice summaries to locate spliced terms, and then perform the renaming directly within the literal body. The problem is that there is no guarantee that the parse function will produce an alpha-equivalent expansion after such a renaming operation has been performed. Similar concerns about invariance come up for other kinds of refactorings.
+
+There are three approaches one might take to avoid this problem. The simplest approach is for the renaming operation to re-run the parse function and check that the expansion it generates is related to the previously generated expansion as expected. Alternatively, we might seek to mechanically verify that the parse function is invariant to refactoring, either intrinsically or extrinsically as discussed in Sec. \ref{sec:verifying-tsms}. 
+A third approach would be to require that the TSM be defined using a grammar formalism that precludes inspection of the form of spliced expressions by construction. Exploration of these approaches is a promising avenue for future work.
+
+\subsection{Integration with Editor Services}\label{sec:editor-integration}
+Program editors often seek to provide feedback to the programmer about the syntax and semantics of the program being written. Questions remain about how various editor services should interact with TSMs. In the examples in this document, we colored spliced terms black and all other segments of a literal body some other uniform color (e.g. green.) A more sophisticated approach would allow the TSM to define its own syntax highlighting logic governing these non-spliced segments.
+
+Another concern has to do with performance: na\"ively, a program editor would need to re-run the corresponding parse function on each edit that modified a literal body. Ideally, it should be possible to incrementally compute the resulting change to the splice summary as a function of the change to the literal body \cite{Ghezzi:1979:IP:357062.357066}. The generated expansions are context-independent, so there should be ample opportunity for caching.
+
+Finally, we considered only reasoning principles for well-formed, well-typed programs. However, programmers often produce ill-formed or ill-typed programs. It is often useful to have error recovery heuristics that can be applied to provide useful feedback to the programmer in these circumstances. Error recovery within generalized literal forms might need the assistance of the TSM.
+
+
+\subsection{Pretty Printing}\label{sec:resugaring}
+We considered only the task of defining expressions and patterns using alternative syntactic forms. It is also generally useful to be able to ``pretty print'' (or ``unparse'') values of a given type using the same syntactic conventions, e.g. when using a REPL. It may be useful to explicitly associate a pretty-printer with a type using a mechanism closely related to our mechanism of TSM implicits. To avoid inconsistencies between the parsed syntax and the pretty-printed syntax, it is useful to generate both a parser and a pretty-printer from the same syntax definition, e.g. as described by van den Brand and Visser \cite{DBLP:journals/tosem/BrandV96} and implemented by many syntax definition systems. 
+
+There has also been some prior work on \emph{resugaring}, i.e. retaining syntactic sugar while stepping through the evaluation of an expression \cite{DBLP:conf/pldi/PombrioK14,DBLP:conf/icfp/PombrioK15}. Extending these techniques to support syntactic forms defined via TSMs is left as future work.
+
+\subsection{Structure Editing}
+In this work, we assumed have that the surface syntax that the programmer interacts with is textual. However, there is an alternative approach:  \emph{structure editors} (a.k.a. structured editors, syntax-directed editors, projectional editors)  allow for a surface syntax that is tree-shaped, with holes standing for branches of the tree that have yet to be constructed. The programmer interacts with a projection of this tree structure using a language of edit actions. There are a number of prominent examples of structure editors, starting with the Cornell Program Synthesizer \cite{teitelbaum_cornell_1981}. In recent work, we have developed a type-theoretic foundation for structure editing by assigning static meaning to terms with holes, and formally defining a type-aware action semantics \cite{DBLP:conf/popl/OmarVHAH17}. TSMs could be incorporated into such a system with some modifications. In particular, the TSM would need to define a visual representation as well as an interaction model for a projection of an expression or pattern. Every state that the projection can be in would need to map onto an expansion. Spliced segments in such a system would correspond to holes that appear within the projection. Detailing this system of ``typed projection macros'' is left as future work. We elaborated on this idea in a recent ``vision paper'' \cite{snapl17}.
+
+\section{Concluding Remarks}
+Strong abstract reasoning principles dramatically increase the usability of a programming language by allowing the programmer to ignore (i.e. hold abstract) certain details when reasoning about the behavior of a program. Similarly, syntactic sugar that captures the idioms common to an application domain more concisely or naturally can dramatically increase the usability of a programming language by decreasing the cognitive cost of producing and examining programs. This work aimed to show that these considerations need not be in opposition -- it is possible, if formal care is taken, to define a programming language with a \emph{reasonably programmable syntax}. 
 
 \newpage
-\section*{\LaTeX~Source Code and Updates}
+\section*{\LaTeX~Sources and Errata}
 \addcontentsline{toc}{chapter}{\LaTeX~Source Code and Updates}
 \noindent
 The \LaTeX~sources for this document can be found at the following URL:
@@ -274,9 +345,10 @@ The \LaTeX~sources for this document can be found at the following URL:
 \end{center}
 The latest version of this document can be downloaded from the following URL:
 \begin{center}
-\url{https://github.com/cyrus-/thesis/raw/master/omar-thesis.pdf}
+\url{http://www.cs.cmu.edu/~comar/omar-thesis.pdf}
 \end{center}
 Any errors or omissions can be reported using GitHub's issue tracker, or by sending an email to the author:
 \begin{center}
 \url{comar@cs.cmu.edu}
 \end{center}
+Any changes to this document that occur after the final dissertation  has been submitted to the university will be summarized here.
