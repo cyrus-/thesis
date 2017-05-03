@@ -539,7 +539,7 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
 \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -588,7 +588,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
         \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
-        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item $\segof{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
         \item (\textbf{Typing 2}) $\sseq{
               \expandsTU{\uDelta}
               {

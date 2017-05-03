@@ -161,12 +161,10 @@ Requiring that the TSM refer to spliced terms indirectly in this manner prevents
 %\end{lstlisting}
 
 
-\subsection{Splice Summaries and Segmentations}
-The \emph{splice summary} of a proto-expression is the finite set of references to spliced terms within the proto-expression. For example, the summary of the proto-expression above is the finite set containing only \li{spliced<1; 4; string>} and \li{spliced<8; 10; rx>}.% Notice that no information about  the spliced terms appear is communicated by the splice summary.
+\subsection{Segmentations}
+The \emph{segmentation} of a proto-expression is the finite set of references to spliced terms within the proto-expression. For example, the summary of the proto-expression above is the finite set containing only \li{spliced<1; 4; string>} and \li{spliced<8; 10; rx>}.% Notice that no information about  the spliced terms appear is communicated by the splice summary.
 
-The \emph{segmentation} of a proto-pression is the finite set of locations extracted from the splice summary. For example, the segmentation of the proto-expansion above is:
-\[\{(1, 4), (8, 10)\}\]
-The semantics checks that all of the locations in the segmentation are 1) in bounds relative to the literal body; and 2) non-overlapping. 
+The semantics checks that all of the locations in the segmentation are 1) in bounds relative to the literal body; 2) non-overlapping; and 3) used at a consistent sort and type. 
 This resolves the problem of \textbf{Segmentation} described in Secs. \ref{sec:non-local-term-rewriting}-\ref{sec:macro-systems}, i.e. every literal body in a well-typed program has a well-defined segmentation. 
 
 A program editor or pretty-printer can communicate the segmentation information to the programmer, e.g. by coloring non-spliced segments green as is our convention in this document:
@@ -175,7 +173,7 @@ val ssn = $rx /SURL\d\d\d-\d\d-\d\d\d\dEURL/
 fun lookup_rx(name: string) => $rx /SURL@EURLnameSURL: %EURLssn/ 
 \end{lstlisting}
 
-A program editor or pretty-printer can also communicate the type of each spliced term, as indicated in the splice summary, to the programmer upon request (for example, the Emacs and Vim packages for working with OCaml defer to the Merlin tool when the programmer requests the type of an expression \cite{Merlin}.)
+A program editor or pretty-printer can also communicate the type of each spliced term, as indicated in the segmentation, to the programmer upon request (for example, the Emacs and Vim packages for working with OCaml defer to the Merlin tool when the programmer requests the type of an expression \cite{Merlin}.)
 
 
 \subsection{Proto-Expansion Validation}\label{sec:uetsms-validation}
@@ -1214,7 +1212,7 @@ If the parse function produces a value labeled $\lbltxt{ParseError}$, then typed
 
 \item The fourth premise decodes the encoding of the proto-expansion to produce the \emph{proto-expansion}, $\ce$, itself.
 
-\item The fifth premise determines a segmentation, $\segof{\ce}$, and ensures that it is valid with respect to $b$. In particular, the predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
+\item The fifth premise determines a segmentation, $\segof{\ce}$, and ensures that it is valid with respect to $b$. In particular, the predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap and operate at a consistent sort and type. The definition of this predicate is given in Appendix \ref{appendix:segmentations-U}. 
 
 \item The final premise of Rule (\ref{rule:expandsU-tsmap}) \emph{validates} the proto-expansion and simultaneously generates the \emph{final expansion}, $e$, which appears in the conclusion of the rule. The proto-expression validation judgement is discussed next.
 \end{enumerate}
@@ -1830,7 +1828,7 @@ If $\expandsU{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\utsmap{\tsmv}{b}}{e}
   \begin{quote}
   The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
   \end{quote}
-\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -1889,7 +1887,7 @@ This style of specifying the hygiene properties builds directly on the standard 
 % \begingroup
 % \def\thetheorem{\ref{thm:proto-type-expansion-decomposition-SES}}
 % \begin{theorem}[Proto-Type Expansion Decomposition] 
-% If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ and $\summaryOf{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
+% If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ and $\segof{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
 % \begin{enumerate}
 % \item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
 %   \parseUTypF{\bsubseq{b}{m_i}{n_i}}
@@ -1906,7 +1904,7 @@ This style of specifying the hygiene properties builds directly on the standard 
 %   \item[\text{(\ref{rule:cvalidT-U-splicedt})}] ~
 %   \begin{pfsteps}
 %   \item \ctau = \acesplicedt{m}{n} \BY{assumption}
-%   \item \summaryOf{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
+%   \item \segof{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
 %   \item \parseUTyp{\bsubseq{b}{m}{n}}{\utau} \BY{assumption} \pflabel{parseUTyp}
 %   \item \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau} \BY{assumption} \pflabel{expandsTU}
 %   \item \istypeU{\Delta, \Dhyp{t}}{t} \BY{Rule (\ref{rule:istypeU-var})} \pflabel{istype}

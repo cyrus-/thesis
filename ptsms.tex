@@ -1245,7 +1245,7 @@ The rule for applying an unexpanded peTSM expression $\uepsilon$ to a generalize
   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}\\
   \decodePCEExp{e_\text{pproto}}{\pce}\\\\
   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
-  \segOK{\segof{\ce}}{b}\\
+     \segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}\\
   \cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
 }{
   \expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{proto}}
@@ -1370,7 +1370,7 @@ There must be one binder in $\pce$ for each TSM parameter specified by $\tsmdefo
 \end{equation*}
 This judgement can be pronounced ``when applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$''. Notice from Rule (\ref{rule:prepce-allmods}) that every module binding in $\pce$ must pair with a corresponding module parameter application. Moreover, the variables standing for parameters must not appear in $\Omega_\text{app}$, i.e. $\domof{\Omega_\text{params}}$ must be disjoint from $\domof{\Omega_\text{app}}$ (this requirement can always be discharged by alpha-variation.)
 
-The final row of premises in Rule (\ref{rule:expandsP-apuetsm}) performs proto-expansion validation. This involves first checking that the segmentation of $\ce$ is valid, and then checking that the proto-expansion is well-typed under the parameter context, $\Omega_\text{param}$ (rather than the empty context, as was the case in $\miniVersePat$.) The conclusion of the rule applies the parameter substitution, $\omega$, to the resulting expression and the deparameterized type it was checked against. 
+The final row of premises in Rule (\ref{rule:expandsP-apuetsm}) performs proto-expansion validation. This involves first checking that the segmentation of $\ce$ is valid. Segmentation validation is contextual because kind and type equivalence are contextual (see Appendix \ref{appendix:segmentations-P} for details.) After checking the segmentation, the next premise checks that the proto-expansion is well-typed under the parameter context, $\Omega_\text{param}$ (rather than the empty context, as was the case in $\miniVersePat$.) The conclusion of the rule applies the parameter substitution, $\omega$, to the resulting expression and the deparameterized type it was checked against.
 
 \subsubsection{ppTSM Application}
 
@@ -1387,7 +1387,7 @@ The rule governing ppTSM application is similar:
   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}\\
   \decodePCEPat{e_\text{pproto}}{\pcp}\\\\
   \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
-      \segOK{\segof{\cpv}}{b}\\
+     \segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}\\
   \cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}
 }{
   \patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{[\omega]\tau_\text{proto}}
@@ -1620,15 +1620,15 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
   	\item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$
 	\item $\decodePCEExp{e_\text{pproto}}{\pce}$
 	\item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
-	\item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+	\item (\textbf{Segmentation}) $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}$
 		\begin{quote}
-			The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+			The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping and operate at consistent sorts, kinds and types.)
 		\end{quote}
 	\item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$
 	\item $e = [\omega]e'$
 	\item $\tau = [\omega]\tau_\text{proto}$
 	\item $
-		\summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
+		\segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
 					     \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}
 		$
 	\item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$
@@ -1685,14 +1685,14 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}$
   \item $\decodePCEPat{e_\text{pproto}}{\pcp}$
   \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
-  \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+  \item (\textbf{Segmentation}) $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}$
   	\begin{quote}
-  		The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
+  		The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping and operate at consistent sorts, kinds and types.)
   	\end{quote}
     \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
       \item $\tau'=[\omega]\tau_\text{proto}$
 	\item $
-	\summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
+	\segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
 				     \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
 	$
 	\item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$

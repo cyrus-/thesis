@@ -148,13 +148,8 @@ Seq(Str(spliced<1; 4; string>),
 \end{lstlisting}
 Here, \li{spliced<1; 4; string>} refers to the string subpattern \li{name} by location, and similarly, \li{spliced<8; 10; rx>} refers to the regex subpattern \li{ssn} by location.
 
-\subsection{Splice Summaries and Segmentations}
-The \emph{splice summary} of a proto-pattern is the finite set of references to spliced types or patterns. The \emph{segmentation} of a proto-pattern is the finite set of locations in the splice summary. For example, the {segmentation} of the literal body is the following finite set:
-\[
-\{(1, 4), (8, 10)\}
-\]
-
-As with references to spliced expressions, the language checks that the references to spliced terms in a proto-expansion are 1) within bounds of the literal body and 2) non-overlapping. 
+\subsection{Segmentations}
+The \emph{segmentation} of a proto-pattern is the finite set of references to spliced types or patterns. As with references to spliced expressions, the language checks that the references to spliced terms in a proto-expansion 1) are within bounds of the literal body; 2) are non-overlapping; and 3) operate at a consistent sort and type.
 
 % An editor or pretty-printer can convey the summ information using color, as shown in the examples above.
 
@@ -1251,7 +1246,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
           \begin{quote}
             The segmentation determined by the proto-expansion actually segments the literal body (i.e. each segment is in-bounds and the segments are non-overlapping.)
           \end{quote}
-        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item $\segof{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
         \item (\textbf{Typing 2}) $\sseq{
               \expandsTU{\uDelta}
               {
@@ -1281,7 +1276,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
             {\tau_i}
         }{\npat}$  and $\sseq{\patType{\pctx_i}{p_i}{\tau_i}}{\npat}$
           \begin{quote}
-            Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the splice summary.
+            Each spliced pattern has a well-typed expansion that matches values of the type indicated by the corresponding type annotation in the segmentation.
           \end{quote}
       \item (\textbf{No Hidden Bindings}) $\uG = \biguplus_{0 \leq i < \npat} \uG_i$ and $\Gamma = \bigcup_{0 \leq i < \npat} \pctx_i$
         \begin{quote}

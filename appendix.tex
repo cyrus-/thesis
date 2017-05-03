@@ -1220,7 +1220,7 @@ $\arraycolsep=2pt\begin{array}{lllllll}
 &&& \acematchwith{n}{\ce}{\seqschemaX{\crv}} & \matchwith{\ce}{\seqschemaX{\crv}} & \text{match}\\
 \mathsf{PrRule} & \crv & ::= & \acematchrule{p}{\ce} & \matchrule{p}{\ce} & \text{rule}\\
 \mathsf{PrPat} & \cpv & ::= & \acewildp & \wildp & \text{wildcard pattern}\\
-&&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
+&&& \acefoldp{\cpv} & \foldp{\cpv} & \text{fold pattern}\\
 &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
 &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
 % \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
@@ -1316,70 +1316,120 @@ Again, rather than picking a particular definition of $\tCEPat$ and defining the
 \end{condition}
 \end{grayparbox}
 
-\subsubsection{Splice Summaries}
-The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, \graytxtbox{or proto-pattern, $\summaryOf{\cpv}$,} is the finite set of references to spliced types, expressions \graytxtbox{and patterns} that it mentions.
+\subsubsection{Segmentations}\label{appendix:segmentations-U}
+The \emph{segmentation}, $\psi$, of a proto-type, $\segof{\ctau}$ or proto-expression, $\segof{\ce}$, is the finite set of references to spliced types and expressions that it mentions.
+\[
+\begin{array}{lll}
+\segof{t} & = & \emptyset\\
+\segof{\aceparr{\ctau_1}{\ctau_2}} & = & \segof{\ctau_1} \cup \segof{\ctau_2}\\
+\segof{\aceall{t}{\ctau}} & = & \segof{\ctau}\\
+\segof{\acerec{t}{\ctau}} & = & \segof{\ctau}\\
+\segof{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ctau_i}\\
+\segof{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ctau_i}\\
+\segof{\acesplicedt{m}{n}} & = & \{ \acesplicedt{m}{n} \}\\
+~\\
+\segof{x} & = & \emptyset\\
+\segof{\aceasc{\ctau}{\ce}} & = & \segof{\ctau} \cup \segof{\ce}\\
+\segof{\aceletsyn{x}{\ce_1}{\ce_2}} & = & \segof{\ce_1} \cup \segof{\ce_2}\\
+\segof{\acelam{\ctau}{x}{\ce}} & = & \segof{\ctau} \cup \segof{\ce}\\
+\segof{\aceap{\ce_1}{\ce_2}} & = & \segof{\ce_1} \cup \segof{\ce_2}\\
+\segof{\acetlam{t}{\ce}} & = & \segof{\ce}\\
+\segof{\acetap{\ce}{\ctau}} & = & \segof{\ce} \cup \segof{\ctau}\\
+\segof{\acefold{\ce}} & = & \segof{\ce}\\
+\segof{\aceunfold{\ce}} & = & \segof{\ce}\\
+\segof{\acetpl{\labelset}{\mapschemab{x}{\ce}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ce_i}\\
+\segof{\acepr{\ell}{\ce}} & = & \segof{\ce}\\
+\segof{\acein{\ell}{\ce}} & = & \segof{\ce}\\
+\segof{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}} & = & \segof{\ce} \cup \bigcup_{i \in \labelset} \segof{\ce_i}\\
+\segof{\acesplicede{m}{n}{\ctau}} & = & \{ \acesplicede{m}{n}{\ctau} \} \cup \segof{\ctau}\\
+\LCC \color{light-gray} & \color{light-gray} & \color{light-gray}\\
+\segof{\acematchwith{n}{\ce}{\seqschemaX{\crv}}} & = & \segof{\ce} \cup \bigcup_{1 \leq i \leq n} \segof{\crv_i}\\
+~\\
+\segof{\acematchrule{p}{\ce}} & = & \segof{\ce}\ECC
+\end{array}
+\]
 
-\subsubsection{Segmentations}
-A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by its splice summary.
+\begin{grayparbox}
+The splice summary of a proto-pattern, $\segof{\cpv}$, is the finite set of references to spliced types and patterns that it mentions.
+\[
+\begin{array}{lll}
+\segof{\acewildp} & = & \emptyset\\
+\segof{\acefoldp{\cpv}} & = & \segof{\cpv}\\
+\segof{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\cpv_i}\\
+\segof{\aceinjp{\ell}{\cpv}} & = & \segof{\cpv}\\
+\segof{\acesplicedp{m}{n}{\ctau}} & = & \{ \acesplicedp{m}{n}{\ctau} \} \cup \segof{\ctau}
+\end{array}\]
+\end{grayparbox}
 
+The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has positive length and is within bounds of $b$, and that the segments in $\psi$ do not overlap and operate at consistent sorts or types.
 
-% Segments consist of two natural numbers and a sort, i.e. segments are of the form $\segExp{m}{n}$ or $\segTyp{m}{n}$\graytxtbox{ or $\segPat{m}{n}$}.
-
-% The metafunction $\segof{\ce}$ determines the segmentation of $\ce$ by generating one segment for each reference to a spliced expression or type, respectively. More specifically:
-% \begin{itemize}
-% \item We define $\segof{\ctau}$ as follows:
-% \[\arraycolsep=1pt\begin{array}{rl}
-%   \segof{t} & = \emptyset\\
-%   \segof{\aceparr{\ctau_1}{\ctau_2}} & = \segof{\ctau_1} \cup \segof{\ctau_2}\\
-%   \segof{\aceall{t}{\ctau}} &= \segof{\ctau}\\
-%   \segof{\acerec{t}{\ctau}} & = \segof{\ctau}\\
-%   \segof{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ctau_i}\\
-%   \segof{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ctau_i}\\
-%   \segof{\acesplicedt{m}{n}} & = \{ \segTyp{m}{n} \}
-%   \end{array}\]
-% \item We define $\segof{\ce}$ as follows:
-% \[\arraycolsep=1pt\begin{array}{rl} 
-
-% \segof{x} & = \emptyset\\
-% \segof{\acelam{\ctau}{x}{\ce}} & = \segof{\ctau} \cup \segof{\ce} \\
-% \segof{\acetlam{t}{\ce}} & = \segof{\ce}\\
-% \segof{\acetap{\ce}{\ctau}} & = \segof{\ctau} \cup \segof{\ce}\\
-% \segof{\acefold{\ce}} & = \segof{\ce}\\
-% \segof{\aceunfold{\ce}} & = \segof{\ce}\\
-% \segof{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\ce_i}\\
-% \segof{\acepr{\ell}{\ce}} & = \segof{\ce}\\
-% \segof{\acein{\ell}{\ce}} & = \segof{\ce}\\
-% \segof{\acecase{\labelset}{\ce}{\mapschemab{x}{\ce}{i}{\labelset}}} & = \segof{\ce} \cup_{i \in \labelset} \segof{\ce_i}\\
-% \segof{\acesplicede{m}{n}{\ctau}} & = \{ \segExp{m}{n} \} \cup \segof{\ctau}\\
-% \LCC \color{light-gray} & \color{light-gray}\\
-% \segof{\acematchwith{n}{\ce}{\seqschemaX{\crv}}} & = \segof{\ce} \cup_{1 \leq i \leq n} \segof{\crv_i}\ECC 
-% \end{array}\]
-% \end{itemize}
-% \begin{grayparbox}
-% \begin{itemize}
-% \item We define $\segof{\crv}$ as follows:
-% \[\arraycolsep=1pt\begin{array}{rl} 
-
-% \segof{\acematchrule{p}{\ce}} & = \segof{\ce}
-% \end{array}\]
-% \end{itemize}
-
-% The metafunction $\segof{\cpv}$ determines the segmentation of $\cpv$ by generating one segment for each reference to a spliced type or pattern:
-% \[
-% \arraycolsep=1pt\begin{array}{rl}
-
-% \segof{\acewildp} & = \emptyset\\
-% \segof{\acefoldp{\cpv}} & = \segof{\cpv}\\
-% \segof{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}} & = \cup_{i \in \labelset} \segof{\cpv_i}\\
-% \segof{\aceinjp{\ell}{\cpv}} & = \segof{\cpv}\\
-% \segof{\acesplicedp{m}{n}{\ctau}} & = \{ \segPat{m}{n} \} \cup \segof{\ctau}
-% \end{array}
-% \]
-
-% \end{grayparbox}
-
-The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
-
+\begin{definition}[Segmentation Validity] $\segOK{\psi}{b}$ iff 
+\begin{enumerate}
+  \item For each $\acesplicedt{m}{n} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedt{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$; or 
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicede{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+    \begin{grayparbox}
+    \begin{enumerate}
+      \item[(d)] For each $\acesplicedp{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+    \end{grayparbox}
+  \item For each $\acesplicede{m}{n}{\ctau} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedt{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicede{m'}{n'}{\ctau'} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$ and $\ctau=\ctau'$; or 
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+\begin{grayparbox}
+\begin{enumerate}
+\item[3.] For each $\acesplicedp{m}{n}{\ctau} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedt{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicede{m'}{n'}{\ctau'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedp{m'}{n'}{\ctau'} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$ and $\ctau=\ctau'$; or 
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+\end{grayparbox}
+\end{definition}
 
 \subsection{Proto-Type Validation}\label{appendix:proto-type-validation-SES}
 %Each of these rules is defined based on the corresponding type formation rule, i.e. Rules (\ref{rule:istypeU-var}) through (\ref{rule:istypeU-sum}), respectively. For example, the following candidate expansion type validation rules are based on type formation rules (\ref{rule:istypeU-var}), (\ref{rule:istypeU-parr}) and (\ref{rule:istypeU-all}), respectively: 
@@ -2520,7 +2570,7 @@ Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \subsection{Abstract Reasoning Principles}\label{appendix:SES-reasoning-principles}
 \begin{lemma}[Proto-Type Expansion Decomposition] 
 \label{thm:proto-type-expansion-decomposition-SES}
-If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ where $\summaryOf{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
+If $\cvalidT{\Delta}{\tsceneU{\uDD{\uD}{\Delta_\text{app}}}{b}}{\ctau}{\tau}$ where $\segof{\ctau} = \sseq{\acesplicedt{m_i}{n_i}}{n}$ then all of the following hold:
 \begin{enumerate}
 \item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
   \parseUTypF{\bsubseq{b}{m_i}{n_i}}
@@ -2538,7 +2588,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
     \item \ctau = t \BY{assumption}
     \item \tau = t \BY{assumption}
     \item \Delta = \Delta', \Dhyp{t} \BY{assumption} \pflabel{Delta}
-    \item \summaryOf{\ctau} = \emptyset \BY{definition}
+    \item \segof{\ctau} = \emptyset \BY{definition}
     \item \fvof{t} = \{ t \} \BY{definition} \pflabel{fv}
     \item \{ t \} \subset \domof{\Delta} \cup \emptyset \BY{definition} \pflabel{subset}
     \end{pfsteps}
@@ -2556,9 +2606,9 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
     \item \tau = \aparr{\tau'_1}{\tau'_2} \BY{assumption}
     \item \cvalidT{\Delta}{\tscenev}{\ctau_1}{\tau'_1} \BY{assumption} \pflabel{cvalidT1}
     \item \cvalidT{\Delta}{\tscenev}{\ctau_2}{\tau'_2} \BY{assumption} \pflabel{cvalidT2}
-    \item \summaryOf{\ctau} = \summaryOf{\ctau_1} \cup \summaryOf{\ctau_2} \BY{definition} \pflabel{summaryOf}
-    \item \summaryOf{\ctau_1} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{0}{n'} \BY{definition} \pflabel{summaryOf1}
-    \item \summaryOf{\ctau_2} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{n'}{n} \BY{definition} \pflabel{summaryOf2}
+    \item \segof{\ctau} = \segof{\ctau_1} \cup \segof{\ctau_2} \BY{definition} \pflabel{summaryOf}
+    \item \segof{\ctau_1} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{0}{n'} \BY{definition} \pflabel{summaryOf1}
+    \item \segof{\ctau_2} = \sseqS{\acesplicedt{m_{i}}{n_{i}}}{n'}{n} \BY{definition} \pflabel{summaryOf2}
     \item \sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
   \parseUTypF{\bsubseq{b}{m_i}{n_i}}
 }{\tau_i}}{n'} 
@@ -2613,7 +2663,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
   \item[\text{(\ref{rule:cvalidT-U-splicedt})}] ~
   \begin{pfsteps}
   \item \ctau = \acesplicedt{m}{n} \BY{assumption}
-  \item \summaryOf{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
+  \item \segof{\acesplicedt{m}{n}} = \{ \acesplicedt{m}{n} \} \BY{definition}
   \item \parseUTyp{\bsubseq{b}{m}{n}}{\utau} \BY{assumption} \pflabel{parseUTyp}
   \item \expandsTU{\uDD{\uD}{\Delta_\text{app}}}{\utau}{\tau} \BY{assumption} \pflabel{expandsTU}
   \item t \notin \domof{\Delta} \BY{identification convention} \pflabel{notin}
@@ -2640,7 +2690,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
     {\uDD{\uD}{\Delta_\text{app}}}
     {\uGG{\uG}{\Gamma_\text{app}}}
     {\uPsi}{\uPhi}{b}
-  }{\ce}{e}{\tau}$ where $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ then all of the following hold:
+  }{\ce}{e}{\tau}$ where $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ then all of the following hold:
   \begin{enumerate}
     \item $\sseq{
           \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
@@ -2679,7 +2729,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
 
 \begin{grayparbox}
 \begin{enumerate}
-\item[2.] If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and \[\summaryOf{\crv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
+\item[2.] If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ and \[\segof{\crv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
   \begin{enumerate}
     \item $\sseq{
           \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
@@ -2724,7 +2774,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
     \item \ce=x \BY{assumption}
     \item e=x \BY{assumption}
     \item \Gamma = \Gamma', x : \tau \BY{assumption}
-    \item \summaryOf{x}=\{ \} \BY{definition}
+    \item \segof{x}=\{ \} \BY{definition}
     \item \fvof{x} = \{ x \} \BY{definition}
     \item \fvof{x} \subset \domof{\Gamma} \BY{definition} \pflabel{fv}
     \item \fvof{x} \subset \domof{\Gamma} \cup \domof{\Delta} \BY{\pfref{fv} and definition of subset} \pflabel{fv2}
@@ -2741,8 +2791,8 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
   \item[\text{(\ref{rule:cvalidE-U-asc}) \textbf{through} (\ref{rule:cvalidE-U-case})}] These cases follow by straightforward inductive argument.
   \item[\text{(\ref{rule:cvalidE-U-splicede})}] \begin{pfsteps}
     \item \ce=\acesplicede{m}{n}{\ctau} \BY{assumption}
-    \item \summaryOf{\acesplicede{m}{n}{\ctau}} = \summaryOf{\ctau} \cup \{ \acesplicede{m}{n}{\ctau} \} \BY{definition}
-    \item \summaryOf{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \BY{definition} \pflabel{ctau}
+    \item \segof{\acesplicede{m}{n}{\ctau}} = \segof{\ctau} \cup \{ \acesplicede{m}{n}{\ctau} \} \BY{definition}
+    \item \segof{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \BY{definition} \pflabel{ctau}
     \item \cvalidT{\emptyset}{\tsfrom{\escenev}}{\ctau}{\tau} \BY{assumption} \pflabel{cvalidT}
     \item \parseUExp{\bsubseq{b}{m}{n}}{\ue} \BY{assumption} \pflabel{parseUExp}
     \item \expandsSG{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{\ue}{e}{\tau}
@@ -2779,9 +2829,9 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
     \item $\cvalidE{\Delta}{\Gamma}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidE}
     \item $\{\cvalidR{\Delta}{\Gamma}{\escenev}{\crv_j}{r_j}{\tau'}{\tau}\}_{1 \leq j \leq \nrules}$
     \BY{assumption} \pflabel{cvalidR}
-    \item $\summaryOf{\acematchwith{\nrules}{\ce'}{\seqschemaX{\crv}}} = \summaryOf{\ce} \cup \bigcup_{0 \leq i < \nrules} \summaryOf{\crv_i}$ \BY{definition} 
-    \item $\summaryOf{\ce'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty'} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp'}$ \BY{definition} \pflabel{summaryOfscrut}
-    \item $\{\summaryOf{\crv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicede{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\nexpj}\}_{0 \leq j < \nrules}$ \BY{definition} \pflabel{summaryOfr}
+    \item $\segof{\acematchwith{\nrules}{\ce'}{\seqschemaX{\crv}}} = \segof{\ce} \cup \bigcup_{0 \leq i < \nrules} \segof{\crv_i}$ \BY{definition} 
+    \item $\segof{\ce'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty'} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp'}$ \BY{definition} \pflabel{summaryOfscrut}
+    \item $\{\segof{\crv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicede{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\nexpj}\}_{0 \leq j < \nrules}$ \BY{definition} \pflabel{summaryOfr}
     \item $\sseq{
               \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
               {
@@ -2906,8 +2956,8 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
       \item $r=\aematchrule{p}{e}$ \BY{assumption}
       \item $\patType{\pctx'}{p}{\tau}$ \BY{assumption} \pflabel{patType}
       \item $\cvalidE{\Delta}{\Gcons{\Gamma}{\pctx'}}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalid}
-      \item $\summaryOf{\crv} = \summaryOf{\ce}$ \BY{definition}
-      \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOfce}
+      \item $\segof{\crv} = \segof{\ce}$ \BY{definition}
+      \item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOfce}
       \item $\sseq{
             \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
             {
@@ -2991,7 +3041,7 @@ If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv
 \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -3038,7 +3088,7 @@ If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv
   \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption} \pflabel{decodeCondE}
   \item $\segOK{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
   \item $\cvalidE{\emptyset}{\emptyset}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
-  \item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOf}
+  \item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ \BY{definition} \pflabel{summaryOf}
   \item $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -3127,7 +3177,7 @@ The conclusions hold as follows:
 \label{lemma:proto-pattern-expansion-decomposition-S}
 If $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ where  
 \[ 
-\summaryOf{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}
+\segof{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}
 \]
 then all of the following hold:
 \begin{enumerate}
@@ -3163,7 +3213,7 @@ then all of the following hold:
       \item $\cpv=\acewildp$ \BY{assumption}
       \item $e = \aewildp$ \BY{assumption}
       \item $\upctx = \uGG{\emptyset}{\emptyset}$ \BY{assumption}
-      \item $\summaryOf{\acewildp} = \emptyset$ \BY{definition}
+      \item $\segof{\acewildp} = \emptyset$ \BY{definition}
     \end{pfsteps*}
     The conclusions hold as follows:
     \begin{enumerate}
@@ -3179,8 +3229,8 @@ then all of the following hold:
       \item $p=\aefoldp{p'}$ \BY{assumption}
       \item $\tau=\arec{t}{\tau'}$ \BY{assumption}
       \item $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{[\arec{t}{\tau'}/t]\tau'}$ \BY{assumption} \pflabel{cvalidP}
-      \item $\summaryOf{\acefoldp{\cpv'}} = \summaryOf{\cpv'}$ \BY{definition} \pflabel{summaryOf}
-      \item $\summaryOf{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\segof{\acefoldp{\cpv'}} = \segof{\cpv'}$ \BY{definition} \pflabel{summaryOf}
+      \item $\segof{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
       \item $\sseq{
             \expandsTU{\uDelta}
             {
@@ -3219,8 +3269,8 @@ then all of the following hold:
       \item $\tau = \aprod{\labelset}{\mapschema{\tau}{j}{\labelset}}$ \BY{assumption}
       \item $\upctx=\biguplus_{j \in \labelset}{\upctx_j}$ \BY{assumption} \pflabel{Gconsi}
       \item $\{\cvalidP{\upctx_j}{\pscenev}{\cpv_j}{p_j}{\tau_j}\}_{j \in \labelset}$ \BY{assumption} \pflabel{cvalidP}
-      \item $\summaryOf{\acetplp{\labelset}{\mapschema{\cpv}{j}{\labelset}}} = \bigcup_{j \in \labelset} \summaryOf{\cpv_j}$ \BY{definition}
-      \item $\{ \summaryOf{\cpv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicedp{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\npatj} \}_{j \in \labelset}$ \BY{definition}\pflabel{summaryOf2}
+      \item $\segof{\acetplp{\labelset}{\mapschema{\cpv}{j}{\labelset}}} = \bigcup_{j \in \labelset} \segof{\cpv_j}$ \BY{definition}
+      \item $\{ \segof{\cpv_j} = \sseq{\acesplicedt{m'_{i,j}}{n'_{i,j}}}{\ntyj} \cup \sseq{\acesplicedp{m_{i,j}}{n_{i,j}}{\ctau_{i,j}}}{\npatj} \}_{j \in \labelset}$ \BY{definition}\pflabel{summaryOf2}
       \item $\npat = \Sigma_{j \in \labelset} \npatj$ \BY{definition}
       \item $\{\sseq{
             \expandsTU{\uDelta}
@@ -3261,8 +3311,8 @@ then all of the following hold:
       \item $p=\aeinjp{\ell}{p'}$ \BY{assumption}
       \item $\tau=\asum{\labelset, \ell}{\mapschema{\tau}{i}{\labelset}; \mapitem{\ell}{\tau'}}$ \BY{assumption}
       \item $\cvalidP{\upctx}{\pscenev}{\cpv}{p}{\tau'}$ \BY{assumption} \pflabel{cvalidP}
-      \item $\summaryOf{\aceinjp{\ell}{\cpv'}} = \summaryOf{\cpv'}$ \BY{definition} \pflabel{summaryOf}
-      \item $\summaryOf{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\segof{\aceinjp{\ell}{\cpv'}} = \segof{\cpv'}$ \BY{definition} \pflabel{summaryOf}
+      \item $\segof{\cpv'} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$ \BY{definition} \pflabel{summaryOf2}
       \item $\sseq{
             \expandsTU{\uDelta}
             {
@@ -3300,8 +3350,8 @@ then all of the following hold:
       \item $\cvalidT{\emptyset}{\tsceneUP{\uDelta}{b}}{\ctau}{\tau}$ \BY{assumption} \pflabel{cvalidT}
       \item $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption} \pflabel{parseUPat}
       \item $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$ \BY{assumption} \pflabel{patExpands}
-      \item $\summaryOf{\acesplicedp{m}{n}{\ctau}} = \summaryOf{\ctau} \cup \{ \acesplicedp{m}{n}{\ctau} \}$ \BY{definition} \pflabel{summaryOf}
-      \item $\summaryOf{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty}$ \BY{definition} \pflabel{summaryOf2}
+      \item $\segof{\acesplicedp{m}{n}{\ctau}} = \segof{\ctau} \cup \{ \acesplicedp{m}{n}{\ctau} \}$ \BY{definition} \pflabel{summaryOf}
+      \item $\segof{\ctau} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty}$ \BY{definition} \pflabel{summaryOf2}
       \item $\sseq{\expandsTU{\uDD{\uD}{\Delta_\text{app}}}{
   \parseUTypF{\bsubseq{b}{m_i}{n_i}}
 }{\tau_i}}{n}$ \BY{Lemma \ref{thm:proto-type-expansion-decomposition-SES} on \pfref{cvalidT} and \pfref{summaryOf2}} \pflabel{expandsTU}
@@ -3327,7 +3377,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
         \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
-        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item $\segof{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
         \item (\textbf{Typing 2}) $\sseq{
               \expandsTU{\uDelta}
               {
@@ -3365,7 +3415,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
       \item $\decodeCEPat{\ecand}{\cpv}$ \BY{assumption} \pflabel{decodeCEPat}
       \item $\segOK{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ \BY{assumption} \pflabel{cvalidP}
-      \item $\summaryOf{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}}{\npat}$ \BY{definition}\pflabel{summaryOf}
+      \item $\segof{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}}{\npat}$ \BY{definition}\pflabel{summaryOf}
       \item $\sseq{
             \expandsTU{\uDelta}
             {
@@ -5348,7 +5398,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}\\
   \decodePCEExp{e_\text{pproto}}{\pce}\\\\
   \prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
-  \segOK{\segof{\ce}}{b}\\
+     \segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}\\
   \cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}
 }{
   \expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{[\omega]e}{[\omega]\tau_\text{proto}}
@@ -5570,7 +5620,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   \evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}\\
   \decodePCEPat{e_\text{pproto}}{\pcp}\\\\
   \prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}\\\\
-      \segOK{\segof{\cpv}}{b}\\
+     \segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}\\
   \cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}
 }{
   \patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{[\omega]\tau_\text{proto}}
@@ -6088,7 +6138,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \subsubsection{Syntax -- Proto-Patterns}
 \[\begin{array}{lllllll}
 \mathsf{PrPat} & \cpv & ::= & \acewildp & \wildp & \text{wildcard pattern}\\
-&&& \acefoldp{p} & \foldp{p} & \text{fold pattern}\\
+&&& \acefoldp{\cpv} & \foldp{\cpv} & \text{fold pattern}\\
 &&& \acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}} & \tplp{\mapschema{\cpv}{i}{\labelset}} & \text{labeled tuple pattern}\\
 &&& \aceinjp{\ell}{\cpv} & \injp{\ell}{\cpv} & \text{injection pattern}\\
 % \LCC &&& \color{Yellow} & \color{Yellow} & \color{Yellow}\\
@@ -6194,14 +6244,169 @@ Again, rather than picking a particular definition of $\tPCEPat$ and defining th
 \end{enumerate}
 \end{condition}
 
-\subsubsection{Splice Summaries}
-The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, or proto-pattern, $\summaryOf{\cpv}$, is the finite set of references to spliced kinds, constructions, expressions and patterns that it mentions.
+\subsubsection{Segmentations}\label{appendix:segmentations-P}
+The \emph{segmentation}, $\psi$, of a proto-kind, $\segof{\cekappa}$, proto-construction, $\segof{\cec}$, proto-expression, $\segof{\ce}$, or proto-rule, $\segof{\crv}$, is the finite set of references to spliced kinds, constructions and expressions that it mentions.
+\[
+\begin{array}{lll}
+\segof{\acekdarr{\cekappa_1}{u}{\cekappa_2}} & = & \segof{\cekappa_1} \cup \segof{\cekappa_2} \\
+\segof{\acekunit} & = & \emptyset\\
+\segof{\acekdbprod{\cekappa_1}{u}{\cekappa_2}} & = & \segof{\cekappa_1} \cup \cekappa_2\\
+\segof{\acekty} & = & \emptyset\\
+\segof{\aceksing{\ctau}} & = & \segof{\ctau}\\
+\segof{\acesplicedk{m}{n}} & = & \{ \acesplicedk{m}{n} \}\\
+~\\
+\segof{u} & = & \emptyset\\
+\segof{\acecabs{u}{\cec}} & = & \segof{\cec}\\
+\segof{\acecapp{\cec_1}{\cec_2}} & = & \segof{\cec_1} \cup \segof{\cec_2}\\
+\segof{\acectriv} & = & \emptyset\\
+\segof{\acecpair{\cec_1}{\cec_2}} & = & \segof{\cec_1} \cup \segof{\cec_2}\\
+\segof{\acecprl{\cec}} & = & \segof{\cec}\\
+\segof{\acecprr{\cec}} & = & \segof{\cec}\\
+\segof{\aceparr{\ctau_1}{\ctau_2}} & = & \segof{\ctau_1} \cup \segof{\ctau_2}\\
+\segof{\aceallu{\cekappa}{u}{\ctau}} & = & \segof{\cekappa} \cup \segof{\ctau}\\
+\segof{\acerec{t}{\ctau}} & = & \segof{\ctau}\\
+\segof{\aceprod{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ctau_i}\\
+\segof{\acesum{\labelset}{\mapschema{\ctau}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ctau_i}\\
+\segof{\acemcon{X}} & = & \emptyset\\
+\segof{\acesplicedc{m}{n}{\cekappa}} & = & \{ \acesplicedc{m}{n}{\cekappa} \} \cup \segof{\cekappa}\\
+~\\
+\segof{x} & = & \emptyset\\
+\segof{\aceasc{\ctau}{\ce}} & = & \segof{\ctau} \cup \segof{\ce}\\
+\segof{\aceletsyn{x}{\ce_1}{\ce_2}} & = & \segof{\ce_1} \cup \segof{\ce_2}\\
+\segof{\acelam{\ctau}{x}{\ce}} & = & \segof{\ctau} \cup \segof{\ce}\\
+\segof{\aceap{\ce_1}{\ce_2}} & = & \segof{\ce_1} \cup \segof{\ce_2}\\
+\segof{\aceclam{\cekappa}{u}{\ce}} & = & \segof{\cekappa} \cup \segof{\ce}\\
+\segof{\acecap{\ce}{\cec}} & = & \segof{\ce} \cup \segof{\cec}\\
+\segof{\acefold{\ce}} & = & \segof{\ce}\\
+\segof{\aceunfold{\ce}} & = & \segof{\ce}\\
+\segof{\acetpl{\labelset}{\mapschema{\ce}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\ce_i}\\
+\segof{\acepr{\ell}{\ce}} & = & \segof{\ce}\\
+\segof{\aceanain{\ell}{\ce}} & = & \segof{\ce}\\
+\segof{\acematchwith{n}{\ce}{\seqschemaX{\crv}}} & = & \segof{\ce} \cup \bigcup_{1 \leq i \leq n} \segof{\crv_i}\\
+\segof{\acemval{X}} & = & \emptyset\\
+\segof{\acesplicede{m}{n}{\ctau}} & = & \{\acesplicede{m}{n}{\ctau}\} \cup \segof{\ctau}\\
+~\\
+\segof{\acematchrule{p}{\ce}} & = & \segof{\ce}
+\end{array}
+\]
 
-\subsubsection{Segmentations}
-A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by the splice summary.
+The segmentation of a proto-pattern, $\segof{\cpv}$, is the finite set of references to spliced patterns and types that it mentions.
+\[
+\begin{array}{lll}
+\segof{\acewildp} & = & \emptyset\\
+\segof{\acefoldp{\cpv}} & = & \segof{\cpv}\\
+\segof{\acetplp{\labelset}{\mapschema{\cpv}{i}{\labelset}}} & = & \bigcup_{i \in \labelset} \segof{\cpv_i}\\
+\segof{\aceinjp{\ell}{\cpv}} & = & \segof{\cpv}\\
+\segof{\acesplicedp{m}{n}{\ctau}} & = & \{ \acesplicedp{m}{n}{\ctau} \} \cup \segof{\ctau}
+\end{array}
+\]
 
-The predicate $\segOK{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap.
+The predicate $\segOKP{\Omega}{\cscenev}{\psi}{b}$ checks that each segment in $\psi$, has non-negative length and is within bounds of $b$, and that the segments in $\psi$ do not overlap and operate at consistent sorts, kinds and types. The contexts are needed because kind and type equivalence are contextual.
 
+\begin{definition}[Segmentation Validity] $\segOKP{\Omega}{\cscenev}{\psi}{b}$ where \[\cscenev=\csceneP{\omega : \OParams}{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}}{b}\] iff
+\begin{enumerate}
+  \item For each $\acesplicedk{m}{n} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedk{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$; or
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedc{m'}{n'}{\cekappa} \in \psi$, either
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}        
+      \item For each $\acesplicede{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedp{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+  \item For each $\acesplicedc{m}{n}{\cekappa} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedk{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedc{m'}{n'}{\cekappa'} \in \psi$, either
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$ and $\cvalidKX{\cekappa}{\kappa}$ and $\cvalidKX{\cekappa'}{\kappa'}$ and $\kequal{\Omega \cup \Omega_\text{app}}{\kappa}{\kappa'}$; or
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}        
+      \item For each $\acesplicede{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedp{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+  \item For each $\acesplicede{m}{n}{\ctau} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedk{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedc{m'}{n'}{\cekappa'} \in \psi$, either
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}        
+      \item For each $\acesplicede{m'}{n'}{\ctau'} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$ and $\cvalidCX{\ctau}{\tau}{\akty}$ and $\cvalidCX{\ctau'}{\tau'}{\akty}$ and $\cequal{\Omega \cup \Omega_\text{app}}{\tau}{\tau'}{\akty}$; or
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedp{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+  \item For each $\acesplicedp{m}{n}{\ctau} \in \psi$, all of the following hold:
+    \begin{enumerate}
+      \item $0 \leq m < n \leq \sizeof{b}$
+      \item For each $\acesplicedk{m'}{n'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedc{m'}{n'}{\cekappa'} \in \psi$, either
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}        
+      \item For each $\acesplicede{m'}{n'}{\ctau'} \in \psi$, either 
+        \begin{enumerate}
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+      \item For each $\acesplicedp{m'}{n'}{\ctau} \in \psi$, either 
+        \begin{enumerate}
+          \item $m=m'$ and $n=n'$ and $\cvalidCX{\ctau}{\tau}{\akty}$ and $\cvalidCX{\ctau'}{\tau'}{\akty}$ and $\cequal{\Omega \cup \Omega_\text{app}}{\tau}{\tau'}{\akty}$; or
+          \item $n' < m$; or 
+          \item $m' > n$
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+\end{definition}
 % \subsubsection{Segmentations}
 % A \emph{segmentation}, $\psi$, is a finite set of \emph{segments}. Segments consist of two natural numbers and a sort, i.e. segments are of the form $\segKind{m}{n}$ or $\segCon{m}{n}$ or $\segExp{m}{n}$ or $\segPat{m}{n}$.
 
@@ -7383,7 +7588,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
 ~
 \begin{enumerate}
   \item If $\cvalidC{\Omega}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cec}{c}{\kappa}$
-    where $\summaryOf{\cec} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
+    where $\segof{\cec} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
     \begin{enumerate}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
@@ -7392,7 +7597,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
       \item $\mathsf{fv}(c') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \domof{\Omega}$
     \end{enumerate}
   \item If $\cvalidK{\Omega}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa}{\kappa}$
-    where $\summaryOf{\cekappa} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
+    where $\segof{\cekappa} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ then 
     \begin{enumerate}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
@@ -7416,8 +7621,8 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
   \item $\cExpands{\uOmega}{\uc}{c}{[\omega]\kappa}$ \BY{assumption} \pflabel{cExpands}
   \item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$ \BY{assumption} \pflabel{uOmega}
   \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{assumption} \pflabel{domof}
-  \item $\summaryOf{\acesplicedc{m}{n}{\cekappa}} = \summaryOf{\cekappa} \cup \{ \acesplicedc{m}{n}{\cekappa} \}$ \BY{definition} \pflabel{summaryOf1}
-  \item $\summaryOf{\cekappa} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon - 1}$ \BY{definition} \pflabel{summaryOf2}
+  \item $\segof{\acesplicedc{m}{n}{\cekappa}} = \segof{\cekappa} \cup \{ \acesplicedc{m}{n}{\cekappa} \}$ \BY{definition} \pflabel{summaryOf1}
+  \item $\segof{\cekappa} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon - 1}$ \BY{definition} \pflabel{summaryOf2}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{IH, part 2 on \pfref{cvalidK} and \pfref{summaryOf2}} \pflabel{puk}
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{{\ncon - 1}}$ \BY{IH, part 2 on \pfref{cvalidK} and \pfref{summaryOf2}} \pflabel{cvalidK2}
       \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{{\ncon - 1}}$ \BY{IH, part 2 on \pfref{cvalidK} and \pfref{summaryOf2}} \pflabel{cExpands2}
@@ -7462,7 +7667,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
 ~
 \begin{enumerate}
   \item If $\cvalidEP{\Omega}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau_\text{proto}}$
-    where $\summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
+    where $\segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
     \begin{enumerate}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
@@ -7473,7 +7678,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
       \item $\mathsf{fv}(e'') \subset \sseq{k_i}{\nkind} \cup \sseq{u_i}{\ncon} \cup \sseq{x_i}{\nexp} \cup \domof{\Omega}$
     \end{enumerate}
   \item If $\cvalidRP{\Omega}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$
-    where $\summaryOf{\crv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
+    where $\segof{\crv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}$ then 
     \begin{enumerate}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$
@@ -7498,8 +7703,8 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
         \item $\expandsP{\uOmega}{\uPsi}{\uPhi}{\ue}{e}{[\omega]\tau}$ \BY{assumption} \pflabel{expandsP}
         \item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$ \BY{assumption}
         \item $\domof{\Omega} \cap \domof{\Omega_\text{app}} = \emptyset$ \BY{assumption}
-        \item $\summaryOf{\ce} = \summaryOf{\ctau} \cup \{ \acesplicede{m}{n}{\ctau} \}$ \BY{assumption}
-        \item $\summaryOf{\ctau} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$  \BY{definition} \pflabel{sumC}
+        \item $\segof{\ce} = \segof{\ctau} \cup \{ \acesplicede{m}{n}{\ctau} \}$ \BY{assumption}
+        \item $\segof{\ctau} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$  \BY{definition} \pflabel{sumC}
         \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{sumC}} \pflabel{A}
         \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{sumC}} \pflabel{B}
         \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{sumC}} \pflabel{C}
@@ -7524,7 +7729,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
           \item $r=\matchrule{p}{e}$ \BY{assumption}
           \item $\patTypeP{\Omega'}{p}{\tau}$ \BY{assumption} \pflabel{pattype}
           \item $\cvalidEP{\Gcons{\Omega}{\Omega'}}{\escenev}{\ce}{e}{\tau'}$ \BY{assumption} \pflabel{cvalidEP}
-          \item $\summaryOf{\crv} = \summaryOf{e}$ \BY{definition} \pflabel{summ}
+          \item $\segof{\crv} = \segof{e}$ \BY{definition} \pflabel{summ}
           \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{IH, part 1 on \pfref{cvalidEP} and \pfref{summ}} \pflabel{c1}
           \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$ \BY{IH, part 1 on \pfref{cvalidEP} and \pfref{summ}} \pflabel{c2}
           \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ \BY{IH, part 1 on \pfref{cvalidEP} and \pfref{summ}} \pflabel{c3}
@@ -7566,12 +7771,12 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
     \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$
   \item $\decodePCEExp{e_\text{pproto}}{\pce}$
   \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
-  \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
+  \item (\textbf{Segmentation}) $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}$
   \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$
   \item $e = [\omega]e'$
   \item $\tau' = [\omega]\tau_\text{proto}$
   \item $
-    \summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
+    \segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
                \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}
     $
   \item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$
@@ -7600,12 +7805,12 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
         \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$ \BY{IH on \pfref{expands}} \pflabel{H}
       \item $\decodePCEExp{e_\text{pproto}}{\pce}$ \BY{IH on \pfref{expands}} \pflabel{I}
       \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{IH on \pfref{expands}} \pflabel{J}
-      \item $\segOK{\segof{\ce}}{b}$ \BY{IH on \pfref{expands}} \pflabel{K}
+      \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}$ \BY{IH on \pfref{expands}} \pflabel{K}
       \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$ \BY{IH on \pfref{expands}} \pflabel{L}
       \item $e = [\omega]e'$ \BY{IH on \pfref{expands}} \pflabel{M}
       \item $\tau' = [\omega]\tau_\text{proto}$ \BY{IH on \pfref{expands}} \pflabel{N}
       \item $
-        \summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup 
+        \segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup 
                    \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}
         $ \BY{IH on \pfref{expands}} \pflabel{O}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$ \BY{IH on \pfref{expands}} \pflabel{P}
@@ -7657,7 +7862,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
       \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{e_\text{pproto}}}$ \BY{assumption} \pflabel{evalU}
       \item $\decodePCEExp{e_\text{pproto}}{\pce}$ \BY{assumption} \pflabel{decode}
       \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prepce}
-      \item $\segOK{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
+      \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalid}
       \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:peTSM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
       \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:peTSM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
@@ -7672,7 +7877,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
       \item $\hastypeP{\Omega_\text{app}}{e}{\tau}$ \BY{Theorem \ref{thm:typed-expression-expansion-P} on \pfref{expands}} \pflabel{hastype}
       \item $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ \BY{Lemma \ref{lemma:expression-deparameterization-P} on \pfref{prepce}} \pflabel{omegaType}
       \item $
-    \summaryOf{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
+    \segof{\ce} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
                \sseq{\acesplicede{m''_i}{n''_i}{\ctau_i}}{\nexp}
     $ \BY{definition} \pflabel{summaryOf}
        \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{Lemma \ref{lemma:proto-expr-decomp} on \pfref{cvalid} and \pfref{summaryOf}} \pflabel{A}
@@ -7724,7 +7929,7 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 \label{lemma:proto-pattern-decomposition-P}
 If $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau}$ where \[
   \begin{array}{lll}
-  \summaryOf{\cpv} & = &\sseq{\acesplicedk{m_i}{n_i}}{\nkind} \\
+  \segof{\cpv} & = &\sseq{\acesplicedk{m_i}{n_i}}{\nkind} \\
   & \cup & \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \\
   & \cup & \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
   \end{array}
@@ -7747,8 +7952,8 @@ If $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{
       \item $\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau}{\tau}{\akty}$ \BY{assumption} \pflabel{cvalidC}
       \item $\parseUPat{\bsubseq{b}{m}{n}}{\upv}$ \BY{assumption} \pflabel{parseUPat}
       \item $\patExpandsP{\uOmega'}{\uPhi}{\upv}{p}{[\omega]\tau}$ \BY{assumption} \pflabel{patExpandsP}
-      \item $\summaryOf{\cpv} = \summaryOf{\ctau} \cup \{ \acesplicedp{m}{n}{\ctau} \}$ \BY{definition} \pflabel{summ}
-      \item $\summaryOf{\ctau} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ \BY{definition} \pflabel{ctausumm}
+      \item $\segof{\cpv} = \segof{\ctau} \cup \{ \acesplicedp{m}{n}{\ctau} \}$ \BY{definition} \pflabel{summ}
+      \item $\segof{\ctau} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon}$ \BY{definition} \pflabel{ctausumm}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{ctausumm}} \pflabel{A}
       \item $\sseq{\cvalidK{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\cekappa'_i}{\kappa'_i}}{\ncon}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{ctausumm}} \pflabel{B}
       \item $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ \BY{Lemma \ref{lemma:proto-con-decomp} on \pfref{cvalidC} and \pfref{ctausumm}} \pflabel{C}
@@ -7781,11 +7986,11 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}$
   \item $\decodePCEPat{e_\text{pproto}}{\pcp}$
   \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$
-  \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
+  \item (\textbf{Segmentation}) $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}$
   \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
   \item $\tau'=[\omega]\tau_\text{proto}$
   \item $
-  \summaryOf{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
+  \segof{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup\\
              \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
   $
   \item (\textbf{Kinding 1}) $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$
@@ -7818,11 +8023,11 @@ By rule induction over Rules (\ref{rules:patExpandsP}). There are two rules that
       \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}$\BY{IH on \pfref{patExpands}} \pflabel{H}
       \item $\decodePCEPat{e_\text{pproto}}{\pcp}$\BY{IH on \pfref{patExpands}} \pflabel{I}
       \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$\BY{IH on \pfref{patExpands}} \pflabel{J}
-      \item $\segOK{\segof{\cpv}}{b}$\BY{IH on \pfref{patExpands}} \pflabel{K}
+      \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}$ \BY{IH on \pfref{patExpands}} \pflabel{K}
       \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$\BY{IH on \pfref{patExpands}} \pflabel{L}
       \item $\tau'=[\omega]\tau_\text{proto}$ \BY{IH on \pfref{patExpands}}\pflabel{L2}
       \item $
-      \summaryOf{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
+      \segof{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
                  \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
       $\BY{IH on \pfref{patExpands}} \pflabel{M}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ and $\sseq{\iskind{\Omega_\text{app}}{\kappa_i}}{\nkind}$\BY{IH on \pfref{patExpands}} \pflabel{N}
@@ -7869,7 +8074,7 @@ By rule induction over Rules (\ref{rules:patExpandsP}). There are two rules that
       \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessP}}{e_\text{pproto}}}$ \BY{assumption} \pflabel{eval}
       \item $\decodePCEPat{e_\text{pproto}}{\pcp}$ \BY{assumption} \pflabel{decode}
       \item $\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prep}
-      \item $\segOK{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
+      \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalidPP}
         \item $\tau=[\omega]\tau_\text{proto}$ \BY{assumption} \pflabel{tau}
       \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:ppTSM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
@@ -7884,7 +8089,7 @@ By rule induction over Rules (\ref{rules:patExpandsP}). There are two rules that
       \item $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ \BY{assumption} \pflabel{patExpandsA}
       \item $\patTypePC{\Omega_\text{app}}{\uOmega'}{p}{\tau}$ \BY{Theorem \ref{thm:typed-pattern-expansion-P} on \pfref{patExpandsA}} \pflabel{patType}
       \item $\hastypeP{\Omega_\text{app}}{\omega}{\Omega_\text{params}}$ \BY{Lemma \ref{lemma:pattern-deparameterization-P} on \pfref{prep}} \pflabel{omegaType}
-      \item $\summaryOf{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
+      \item $\segof{\cpv} = \sseq{\acesplicedk{m_i}{n_i}}{\nkind} \cup \sseq{\acesplicedc{m'_i}{n'_i}{\cekappa'_i}}{\ncon} \cup
              \sseq{\acesplicedp{m''_i}{n''_i}{\ctau_i}}{\npat}
   $ \BY{definition} \pflabel{summ}
       \item $\sseq{\kExpands{\uOmega}{\parseUKindF{\bsubseq{b}{m_i}{n_i}}}{\kappa_i}}{\nkind}$ \BY{Lemma \ref{lemma:proto-pattern-decomposition-P} on \pfref{cvalidPP} and \pfref{summ}} \pflabel{A}
@@ -8516,7 +8721,7 @@ The type $\tCEExp$ and the judgements $\encodeCondE{\ce}{e}$ and $\decodeCondE{e
 The type $\tCEPat$ and the judgements $\encodeCEPat{\cpv}{e}$ and $\decodeCEPat{e}{\cpv}$ are characterized as described in Sec. \ref{appendix:proto-expansions-SES}.
 
 \subsubsection{Splice Summaries}
-The \emph{splice summary} of a proto-expression, $\summaryOf{\ce}$, or proto-pattern, $\summaryOf{\cpv}$, is the finite set of references to spliced types, expressions {and patterns} that it mentions.
+The \emph{splice summary} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the finite set of references to spliced types, expressions {and patterns} that it mentions.
 
 \subsubsection{Segmentations}
 A \emph{segment set}, $\psi$, is a finite set of pairs of natural numbers indicating the locations of spliced terms. The \emph{segmentation} of a proto-expression, $\segof{\ce}$, or proto-pattern, $\segof{\cpv}$, is the segment set implied by its splice summary.
@@ -9111,7 +9316,7 @@ By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana
     {\uDD{\uD}{\Delta_\text{app}}}
     {\uGG{\uG}{\Gamma_\text{app}}}
     {\uPsi}{\uPhi}{b}
-  }{\ce}{e}{\tau}$) where $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ then all of the following hold:
+  }{\ce}{e}{\tau}$) where $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$ then all of the following hold:
   \begin{enumerate}
     \item $\sseq{
           \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
@@ -9146,7 +9351,7 @@ By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana
     %   {\Gamma \cup \sseq{x_i : \tau_i}{\nexp}}
     %   {e'}{\tau}$
   \end{enumerate}
-\item If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ where \[\summaryOf{\crv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
+\item If $\cvalidR{\Delta}{\Gamma}{\esceneUP{\uDD{\uD}{\Delta_\text{app}}}{\uGG{\uG}{\Gamma_\text{app}}}{\uPsi}{\uPhi}{b}}{\crv}{r}{\tau}{\tau'}$ where \[\segof{\crv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}\] then all of the following hold:
   \begin{enumerate}
     \item $\sseq{
           \expandsTU{\uDD{\uD}{\Delta_\text{app}}}
@@ -9203,7 +9408,7 @@ If \[\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}
 \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -9250,7 +9455,7 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
 \item $\evalU{\ap{\eparse}{\ebody}}{\aein{\mathtt{SuccessE}}{\ecand}}$
 \item $\decodeCondE{\ecand}{\ce}$
 \item (\textbf{Segmentation}) $\segOK{\segof{\ce}}{b}$
-\item $\summaryOf{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
+\item $\segof{\ce} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicede{m_i}{n_i}{\ctau_i}}{\nexp}$
 \item \textbf{(Typing 2)} $\sseq{
       \expandsTU{\uDD{\uD}{\Delta}}
       {
@@ -9321,7 +9526,7 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
 \label{lemma:proto-pattern-expansion-decomposition-B}
 If $\cvalidP{\upctx}{\pscene{\uDelta}{\uPhi}{b}}{\cpv}{p}{\tau}$ where  
 \[ 
-\summaryOf{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}
+\segof{\cpv} = \sseq{\acesplicedt{m'_i}{n'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}
 \]
 then all of the following hold:
 \begin{enumerate}
@@ -9362,7 +9567,7 @@ If \[\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}\] where $\uDelta=\uD
         \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
-        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item $\segof{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
         \item (\textbf{Typing 2}) $\sseq{
               \expandsTU{\uDelta}
               {
@@ -9400,7 +9605,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
         \item $\evalU{\eparse(\ebody)}{\aein{\mathtt{SuccessP}}{\ecand}}$
         \item $\decodeCEPat{\ecand}{\cpv}$
         \item (\textbf{Segmentation}) $\segOK{\segof{\cpv}}{b}$
-        \item $\summaryOf{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
+        \item $\segof{\cpv} = \sseq{\acesplicedt{n'_i}{m'_i}}{\nty} \cup \sseq{\acesplicedp{m_i}{n_i}{\ctau_i}}{\npat}$
         \item (\textbf{Typing 2}) $\sseq{
               \expandsTU{\uDelta}
               {
