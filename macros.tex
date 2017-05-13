@@ -236,16 +236,16 @@
 \newcommand{\uesyntax}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
 \newcommand{\uesyntaxq}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{expressions}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
 
-\newcommand{\audefuetsm}[4]{\abopcc{usyntaxue}{#2}{#1}{#3.#4}}
+\newcommand{\audefuetsm}[4]{\abopcc{usyntaxse}{#2}{#1}{#3.#4}}
 \newcommand{\utsmap}[2]{#1~\texttt{\lq}#2\texttt{\lq}}
-\newcommand{\autsmap}[2]{\texttt{uapuetsm}[#1]\texttt{[}#2\texttt{]}}
+\newcommand{\autsmap}[2]{\texttt{uapsetlm}[#1]\texttt{[}#2\texttt{]}}
 \newcommand{\uet}[1]{\ue_\text{#1}}
 \newcommand{\ueparse}{\uet{parse}}
 
-% TSM expressions
+% TLM expressions
 \newcommand{\tsmv}{\hat{a}}
 \newcommand{\utsmdef}[2]{\texttt{syntax}~@~#1~\texttt{\{}#2\texttt{\}}}
-\newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tsm}}
+\newcommand{\istsmU}[2]{#1 \vdash #2~\mathsf{tlm}}
 
 \newcommand{\uGamma}{\hat{\Gamma}}
 \newcommand{\uDelta}{\hat{\Delta}}
@@ -281,14 +281,14 @@
 \newcommand{\expandsPX}[3]{\expandsP{\uOmega}{\uPsi}{\uPhi}{#1}{#2}{#3}}
 \newcommand{\expandsTU}[3]{#1 \vdash #2 \leadsto #3~\mathsf{type}}
 \newcommand{\domof}[1]{\text{dom}(#1)}
-\newcommand{\xuetsmdef}[2]{\abop{setsm}{#1;\,#2}}
+\newcommand{\xuetsmdef}[2]{\abop{setlm}{#1;\,#2}}
 \newcommand{\xuetsmbnd}[3]{#1 \hookrightarrow \xuetsmdef{#2}{#3}}
-\newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{seTSMs}}
-\newcommand{\petsmenv}[2]{#1 \vdash #2~\mathsf{peTSMs}}
-\newcommand{\pptsmenv}[2]{#1 \vdash #2~\mathsf{ppTSMs}}
-\newcommand{\uetsmctx}[2]{#1 \vdash #2~\mathsf{seTSMctx}}
-\newcommand{\petsmctx}[2]{#1 \vdash #2~\mathsf{peTSMctx}}
-\newcommand{\pptsmctx}[2]{#1 \vdash #2~\mathsf{ppTSMctx}}
+\newcommand{\uetsmenv}[2]{#1 \vdash #2~\mathsf{seTLMs}}
+\newcommand{\petsmenv}[2]{#1 \vdash #2~\mathsf{peTLMs}}
+\newcommand{\pptsmenv}[2]{#1 \vdash #2~\mathsf{ppTLMs}}
+\newcommand{\uetsmctx}[2]{#1 \vdash #2~\mathsf{seTLMctx}}
+\newcommand{\petsmctx}[2]{#1 \vdash #2~\mathsf{peTLMctx}}
+\newcommand{\pptsmctx}[2]{#1 \vdash #2~\mathsf{ppTLMctx}}
 \newcommand{\encodeBody}[2]{#1 \downarrow_\mathsf{Body} #2}
 \newcommand{\decodeBody}[2]{#1 \uparrow_\mathsf{Body} #2}
 \newcommand{\ebody}{\etxt{body}}
@@ -410,8 +410,8 @@
 
 \newcommand{\usyntaxueP}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for expressions}~\{#3\}~\texttt{in}~#4}
 \newcommand{\usyntaxup}[4]{\texttt{syntax}~#1~\texttt{at}~#2~\texttt{for}~\texttt{patterns}~\texttt{by}~\texttt{static}~#3~\texttt{in}~#4}
-\newcommand{\audefuptsm}[4]{\abopcc{usyntaxup}{#2}{#1}{#3.#4}}
-\newcommand{\auapuptsm}[2]{\texttt{uapuptsm}[#1]\texttt{[}#2\texttt{]}}
+\newcommand{\audefuptsm}[4]{\abopcc{usyntaxsp}{#2}{#1}{#3.#4}}
+\newcommand{\auapuptsm}[2]{\texttt{uapsptlm}[#1]\texttt{[}#2\texttt{]}}
 
 \newcommand{\expandsUP}[7]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7} % there's a multiline one in the document done manually
 \newcommand{\expandsUPX}[3]{\expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{#1}{#2}{#3}}
@@ -420,10 +420,10 @@
 
 \newcommand{\ruleExpands}[8]{#1~#2 \vdash_{#3;\,#4} #5 \leadsto #6 : #7 \Mapsto #8}
 \newcommand{\patExpands}[5]{\uDelta \vdash_{#2} #3 \leadsto #4 : #5 \dashV #1}
-\newcommand{\xuptsmdef}[2]{\abop{sptsm}{#1;\,#2}}
+\newcommand{\xuptsmdef}[2]{\abop{sptlm}{#1;\,#2}}
 \newcommand{\xuptsmbnd}[3]{#1 \hookrightarrow \xuptsmdef{#2}{#3}}
-\newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{spTSMs}}
-\newcommand{\uptsmctx}[2]{#1 \vdash #2~\mathsf{spTSMctx}}
+\newcommand{\uptsmenv}[2]{#1 \vdash #2~\mathsf{spTLMs}}
+\newcommand{\uptsmctx}[2]{#1 \vdash #2~\mathsf{spTLMctx}}
 
 \newcommand{\tParseResultPat}{\mathtt{ParseResultSP}} 
 \newcommand{\tCEPat}{\mathtt{PrPat}} % Typed expansion
@@ -634,7 +634,7 @@
 \newcommand{\expsortq}{\mathtt{Exp}}
 \newcommand{\patsortq}{\mathtt{Pat}}
 
-% Parameterized TSMs
+% Parameterized TLMs
 \newcommand{\urho}{{\hat\rho}}
 \newcommand{\uepsilon}{{\hat\epsilon}}
 \newcommand{\uX}{{\hat X}}
@@ -647,22 +647,22 @@
 
 \newcommand{\audefpetsm}[4]{\abopcc{usyntaxpe}{#2}{#1}{#3.#4}}
 \newcommand{\aumdefpetsm}[4]{\abopcc{umsyntaxpe}{#2}{#1}{#3.#4}}
-\newcommand{\auappetsm}[2]{\abopicz{uappetsm}{#1}{#2}}
+\newcommand{\auappetsm}[2]{\abopicz{uappetlm}{#1}{#2}}
 \newcommand{\uletpetsm}[3]{\texttt{let}~\texttt{syntax}~#1=#2~\texttt{for}~\texttt{expressions}~\texttt{in}~#3}
-\newcommand{\auletpetsm}[3]{\abopc{uletpetsm}{#1}{#2.#3}}
-\newcommand{\aumletpetsm}[3]{\abopc{umletpetsm}{#1}{#2.#3}}
+\newcommand{\auletpetsm}[3]{\abopc{uletpetlm}{#1}{#2.#3}}
+\newcommand{\aumletpetsm}[3]{\abopc{umletpetlm}{#1}{#2.#3}}
 
 \newcommand{\uletpetsmH}[4]{#1~\texttt{let}~\texttt{syntax}~#2=#3~\texttt{for}~\texttt{expressions}~\texttt{in}~#4}
 
 \newcommand{\audefpptsm}[4]{\abopcc{usyntaxpp}{#2}{#1}{#3.#4}}
 \newcommand{\aumdefpptsm}[4]{\abopcc{umsyntaxpp}{#2}{#1}{#3.#4}}
-\newcommand{\auappptsm}[2]{\abopicz{uappptsm}{#1}{#2}}
+\newcommand{\auappptsm}[2]{\abopicz{uappptlm}{#1}{#2}}
 \newcommand{\uletpptsm}[3]{\texttt{let}~\texttt{syntax}~#1=#2~\texttt{for}~\texttt{patterns}~\texttt{in}~#3}
 
 \newcommand{\uletpptsmH}[4]{#1~\texttt{let}~\texttt{syntax}~#2=#3~\texttt{for}~\texttt{patterns}~\texttt{in}~#4}
 
-\newcommand{\auletpptsm}[3]{\abopc{uletpptsm}{#1}{#2.#3}}
-\newcommand{\aumletpptsm}[3]{\abopc{umletpptsm}{#1}{#2.#3}}
+\newcommand{\auletpptsm}[3]{\abopc{uletpptlm}{#1}{#2.#3}}
+\newcommand{\aumletpptsm}[3]{\abopc{umletpptlm}{#1}{#2.#3}}
 
 \newcommand{\aetype}[1]{\abop{type}{#1}}
 \newcommand{\autype}[1]{\abop{utype}{#1}}
@@ -772,11 +772,11 @@
 \newcommand{\staticenv}[4]{#1 : #2; #3; #4}
 
 
-\newcommand{\petsmdefn}[3]{#1 \hookrightarrow \texttt{petsm}(#2; #3)}
-\newcommand{\pptsmdefn}[3]{#1 \hookrightarrow \texttt{pptsm}(#2; #3)}
+\newcommand{\petsmdefn}[3]{#1 \hookrightarrow \texttt{petlm}(#2; #3)}
+\newcommand{\pptsmdefn}[3]{#1 \hookrightarrow \texttt{pptlm}(#2; #3)}
 
-\newcommand{\istsmty}[2]{#1 \vdash #2~\mathsf{tsmty}}
-\newcommand{\tsmtyExpands}[3]{#1 \vdash #2 \leadsto #3 ~\mathsf{tsmty}}
+\newcommand{\istsmty}[2]{#1 \vdash #2~\mathsf{tlmty}}
+\newcommand{\tsmtyExpands}[3]{#1 \vdash #2 \leadsto #3 ~\mathsf{tlmty}}
 
 \newcommand{\tParseResultPCEExp}{\mathtt{ParseResult}(\mathtt{PPrExpr})}
 \newcommand{\tPProtoExpr}{\mathtt{PPrExpr}}
@@ -801,7 +801,7 @@
 \newcommand{\tsmexpEvalsPat}[4]{#1 \vdash_{#2}^\mathsf{Pat} #3 \Downarrow #4}
 
 
-\newcommand{\tsmdefof}[1]{\mathsf{tsmdef}(#1)}
+\newcommand{\tsmdefof}[1]{\mathsf{tlmdef}(#1)}
 
 \newcommand{\decodePCEExp}[2]{#1 \uparrow_\mathsf{PPrExpr} #2}
 \newcommand{\encodePCEExp}[2]{#1 \downarrow_\mathsf{PPrExpr} #2}

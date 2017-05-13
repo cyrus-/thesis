@@ -1,15 +1,15 @@
 % !TEX root = omar-thesis.tex
-\chapter{TSM Implicits}\label{chap:tsls}
-When applying a TSM, library clients must explicitly prefix each literal form with a TSM name and, in some cases, several parameters. In situations where the client is repeatedly applying a TSM to small literal forms, this can itself be costly. For example, list literals are often small, so applying \li{#\dolla#intlist} repeatedly can be distracting and syntactically costly.
+\chapter{TLM Implicits}\label{chap:tsls}
+When applying a TLM, library clients must explicitly prefix each literal form with a TLM name and, in some cases, several parameters. In situations where the client is repeatedly applying a TLM to small literal forms, this can itself be costly. For example, list literals are often small, so applying \li{#\dolla#intlist} repeatedly can be distracting and syntactically costly.
 
-To further lower the syntactic cost of using TSMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one expression TSM and one pattern TSM as that type's \emph{designated TSMs} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TSM name (an \emph{unadorned literal form}), it implicitly applies the TSM designated at the type that the expression or pattern is being checked against. 
-This chapter will introduce {TSM implicits} first by example in Sec. \ref{sec:tsm-implicits-by-example} and then formally in Sec. \ref{sec:b-miniverse}. %Simple TSM implicits operate at a single specified type. In the next chapter, we will consider \emph{parametric TSM implicits}, which operate across a parameterized family of types.
+To further lower the syntactic cost of using TLMs, so that it compares to the syntactic cost of using derived forms built primitively into a language, VerseML allows clients to designate, for any type, one expression TLM and one pattern TLM as that type's \emph{designated TLMs} within a delimited scope. When VerseML's \emph{local type inference} system encounters a generalized literal form not prefixed by a TLM name (an \emph{unadorned literal form}), it implicitly applies the TLM designated at the type that the expression or pattern is being checked against. 
+This chapter will introduce {TLM implicits} first by example in Sec. \ref{sec:tsm-implicits-by-example} and then formally in Sec. \ref{sec:b-miniverse}. %Simple TLM implicits operate at a single specified type. In the next chapter, we will consider \emph{parametric TLM implicits}, which operate across a parameterized family of types.
 
-\section{TSM Implicits By Example}\label{sec:tsm-implicits-by-example}
+\section{TLM Implicits By Example}\label{sec:tsm-implicits-by-example}
 \subsection{Designation and Usage}
-On Lines 1-2 of Figure \ref{fig:implicits-example}, the client has \emph{designated} the expression TSM \li{#\dolla#rx} for implicit application to \emph{unadorned literal forms} being checked against type \li{rx}, like the unadorned literal form on Line 5. 
+On Lines 1-2 of Figure \ref{fig:implicits-example}, the client has \emph{designated} the expression TLM \li{#\dolla#rx} for implicit application to \emph{unadorned literal forms} being checked against type \li{rx}, like the unadorned literal form on Line 5. 
 
-Similarly, on Line 3 of Figure \ref{fig:implicits-example} the client has designated the pattern TSM \li{#\dolla#rx} for implicit application to unadorned pattern literal forms matching values of type \li{rx}, like the pattern form on Line 8.
+Similarly, on Line 3 of Figure \ref{fig:implicits-example} the client has designated the pattern TLM \li{#\dolla#rx} for implicit application to unadorned pattern literal forms matching values of type \li{rx}, like the pattern form on Line 8.
 
 \begin{figure}[t]
 \begin{lstlisting}
@@ -24,14 +24,14 @@ in
     | _ => None
 end
 \end{lstlisting}
-\caption{An example of simple TSM implicits in VerseML}
+\caption{An example of simple TLM implicits in VerseML}
 \label{fig:implicits-example}
 \end{figure}
 
 
-Type annotations on TSM designations are technically redundant -- the definition of the designated TSM determines the designated type. Annotations are included in our examples for readability.
+Type annotations on TLM designations are technically redundant -- the definition of the designated TLM determines the designated type. Annotations are included in our examples for readability.
 
-Expression and pattern TSMs need not be designated together, nor have the same name if they are. However, this is a common idiom, so for convenience, VerseML also provides a derived designation form that combines the two designations in Figure \ref{fig:implicits-example}:
+Expression and pattern TLMs need not be designated together, nor have the same name if they are. However, this is a common idiom, so for convenience, VerseML also provides a derived designation form that combines the two designations in Figure \ref{fig:implicits-example}:
 \begin{lstlisting}[numbers=none]
 implicit syntax $rx at rx in (* ... *) end 
 \end{lstlisting}
@@ -43,7 +43,7 @@ During typed expansion of a subexpression, $e'$, of an expresssion, $e$, we say 
 
 If the type that $e'$ must be assigned is not determined by the surrounding context -- i.e. $e'$ must be examined to synthesize its type -- we instead say that the expression appears in a \emph{synthetic position}. For example, a top-level expression, or an expression being bound without a type ascription, appears in synthetic position.
 
-An expression of unadorned literal form is valid only in analytic position, because its type must be known to be able to determine the designated TSM that will control its expansion. For example, typed expansion of the following expression will fail because an expression of unadorned literal form appears in synthetic position:
+An expression of unadorned literal form is valid only in analytic position, because its type must be known to be able to determine the designated TLM that will control its expansion. For example, typed expansion of the following expression will fail because an expression of unadorned literal form appears in synthetic position:
 \begin{lstlisting}[numbers=none]
 val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ (* INVALID *)
 \end{lstlisting}
@@ -51,7 +51,7 @@ val ssn = /SURL\d\d\d-\d\d-\d\d\d\dEURL/ (* INVALID *)
 Patterns can always be of unadorned literal form in VerseML, because the scrutinee of a match expression is always in synthetic position, and so the type of value that each pattern appearing within the match expression must match is always known. 
 
 \section{\texorpdfstring{Bidirectional $\miniVersePat$}{Bidirectional miniVerseS}}\label{sec:b-miniverse}
-To formalize TSM implicits, we will now develop a reduced calculus called \emph{Bidirectional $\miniVersePat$}. The full definition of this calculus is given in Appendix \ref{appendix:simple-implicits}. We choose to base our calculus on the simpler $\miniVersePat$ calculus, rather than $\miniVerseParam$, to communicate the essential character of TSM implicits. Section \ref{sec:parametric-simple-implicits} briefly considers the small changes that would be necessary to incorporate the same mechanism into a bidirectionally typed variant of $\miniVerseParam$.
+To formalize TLM implicits, we will now develop a reduced calculus called \emph{Bidirectional $\miniVersePat$}. The full definition of this calculus is given in Appendix \ref{appendix:simple-implicits}. We choose to base our calculus on the simpler $\miniVersePat$ calculus, rather than $\miniVerseParam$, to communicate the essential character of TLM implicits. Section \ref{sec:parametric-simple-implicits} briefly considers the small changes that would be necessary to incorporate the same mechanism into a bidirectionally typed variant of $\miniVerseParam$.
 
 \subsection{Expanded Language}
 The Bidirectional $\miniVersePat$ expanded language (XL) is the same as the  $\miniVersePat$ XL, which was described in Sections \ref{sec:inner-core-syntax-UP} through \ref{sec:dynamics-UP}. %It consists of types, $\tau$, expanded expressions, $e$, expanded rules, $r$, and expanded patterns, $p$.
@@ -75,9 +75,9 @@ The Bidirectional $\miniVersePat$ expanded language (XL) is the same as the  $\m
 % &&
 %& \auletsyn{\ux}{\ue}{\ue} 
 % & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
-&&& \implicite{\tsmv}{\ue} & \text{seTSM designation}\\
-&&& \implicitp{\tsmv}{\ue} & \text{spTSM designation}\\
-&&& \lit{b} & \text{seTSM unadorned literal}\\
+&&& \implicite{\tsmv}{\ue} & \text{seTLM designation}\\
+&&& \implicitp{\tsmv}{\ue} & \text{spTLM designation}\\
+&&& \lit{b} & \text{seTLM unadorned literal}\\
 % &&& \auanalam{\ux}{\ue} & \analam{\ux}{\ue} & \text{abstraction (unannotated)}\\
 % &&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction (annotated)}\\
 % &&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
@@ -89,18 +89,18 @@ The Bidirectional $\miniVersePat$ expanded language (XL) is the same as the  $\m
 % &&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
 % &&& \auanain{\ell}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
 % &&& \aumatchwithb{n}{\ue}{\seqschemaX{\urv}} & \matchwith{\ue}{\seqschemaX{\urv}} & \text{match}\\
-% &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTSM definition}\\
+% &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTLM definition}\\
 % &&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
 % \LCC &&& \lightgray & \lightgray & \lightgray \\
-% &&& \auimplicite{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{ueTSM designation}\\
+% &&& \auimplicite{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{ueTLM designation}\\
 % &&&                          & \texttt{expressions\,in}~\ue\\ \ECC
-% &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\\%\ECC
+% &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTLM application}\\%\ECC
 % \LCC &&& \lightgray & \lightgray & \lightgray \\
-% &&& \auelit{b} & {\lit{b}}  & \text{ueTSM unadorned literal}\\\ECC
-% &&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTSM definition}\\
+% &&& \auelit{b} & {\lit{b}}  & \text{ueTLM unadorned literal}\\\ECC
+% &&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\
 % \LCC &&& \lightgray & \lightgray & \lightgray \\
-% &&& \auimplicitp{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{upTSM designation}\\
+% &&& \auimplicitp{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{upTLM designation}\\
 % &&&                          & \texttt{patterns\,in}~\ue\\ \ECC
 \mathsf{URule} & \urv & ::= 
 %& \aumatchrule{\upv}{\ue} 
@@ -108,14 +108,14 @@ The Bidirectional $\miniVersePat$ expanded language (XL) is the same as the  $\m
 \mathsf{UPat} & \upv & ::= 
 %& \ux 
 & \cdots & \text{(as in $\miniVersePat$)}\\
-&&& \lit{b} & \text{spTSM unadorned literal}
+&&& \lit{b} & \text{spTLM unadorned literal}
 % &&& \auwildp & \wildp & \text{wildcard pattern}\\
 % &&& \aufoldp{\upv} & \foldp{\upv} & \text{fold pattern}\\
 % &&& \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}} & \tplp{\mapschema{\upv}{i}{\labelset}} & \text{labeled tuple pattern}\\
 % &&& \auinjp{\ell}{\upv} & \injp{\ell}{\upv} & \text{injection pattern}\\
-% &&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTSM application}\\
+% &&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTLM application}\\
 % \LCC &&& \lightgray & \lightgray & \lightgray\\
-% &&& \auplit{b} & \lit{b} & \text{upTSM unadorned literal}\ECC
+% &&& \auplit{b} & \lit{b} & \text{upTLM unadorned literal}\ECC
 \end{array}\]\vspace{-8px}
 \caption[Syntax of unexpanded terms in Bidirectional $\miniVersePat$]{Syntax of unexpanded terms in Bidirectional $\miniVersePat$}
 \vspace{-5px}
@@ -169,8 +169,8 @@ As in $\miniVersePat$, there is also a textual syntax for the UL, characterized 
 % \end{align*}
 % \end{itemize}
 
-% %Eight unexpanded forms relate to TSMs: the unexpanded expression forms for ueTSM definition, ueTSM designation, ueTSM application, ueTSM unadorned literals, upTSM definition and upTSM designation, and the unexpanded pattern forms for upTSM application and upTSM undorned literals. 
-% The forms related to TSM implicits are highlighted in gray in Figure \ref{fig:B-unexpanded-terms}.
+% %Eight unexpanded forms relate to TLMs: the unexpanded expression forms for ueTLM definition, ueTLM designation, ueTLM application, ueTLM unadorned literals, upTLM definition and upTLM designation, and the unexpanded pattern forms for upTLM application and upTLM undorned literals. 
+% The forms related to TLM implicits are highlighted in gray in Figure \ref{fig:B-unexpanded-terms}.
 
 \subsection{Bidirectionally Typed Expansion}
 Unexpanded terms are checked and expanded simultaneously according to the \emph{bidirectionally typed expansion judgements}:
@@ -190,7 +190,7 @@ Unexpanded terms are checked and expanded simultaneously according to the \emph{
 \emph{Unexpanded type formation contexts}, $\uDelta$, were defined in Sec. \ref{sec:typed-expansion-U}. The \emph{type expansion judgement}, $\expandsTU{\uDelta}{\utau}{\tau}$, is inductively defined as in $\miniVersePat$ by Rules (\ref{rules:expandsTU}).
 
 \subsubsection{Bidirectionally Typed Expression and Rule Expansion}
-In order to clearly define the semantics of TSM implicits, we must make a judgmental distinction between \emph{type synthesis} and \emph{type analysis}. In the former, the type is determined from the term, while in the latter, the type is presumed known. Type systems that make this distinction are called \emph{bidirectional type systems} \cite{Pierce:2000:LTI:345099.345100}. (Pierce characterizes the idea as folklore predating his paper.)
+In order to clearly define the semantics of TLM implicits, we must make a judgmental distinction between \emph{type synthesis} and \emph{type analysis}. In the former, the type is determined from the term, while in the latter, the type is presumed known. Type systems that make this distinction are called \emph{bidirectional type systems} \cite{Pierce:2000:LTI:345099.345100}. (Pierce characterizes the idea as folklore predating his paper.)
 
 The \emph{typed expression expansion judgements}, $\esynX{\ue}{e}{\tau}$, for type synthesis, and $\eanaX{\ue}{e}{\tau}$, for type analysis, and the typed rule expansion judgement, $\rana{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\urv}{r}{\tau}{\tau'}$, are defined mutually inductively by Rules (\ref{rules:esyn-S}),  Rules (\ref{rules:eana-S}) and Rule (\ref{rule:rana-S}), respectively. We will reproduce only certain ``interesting'' rules below -- the appendix gives the complete set of rules.
 
@@ -287,19 +287,19 @@ The pattern expansion judgement, $\patExpands{\upctx}{\uPhi}{\upv}{p}{\tau}$, is
 
 \paragraph{Other Shared Forms} Other constructs of shared form have similar bidirectional rules, given in the appendix.
 
-\paragraph{TSMs} seTSM contexts, $\uPsi$, take the form 
+\paragraph{TLMs} seTLM contexts, $\uPsi$, take the form 
 \[ 
 \uASI{\uA}{\Psi}{\uI}
 \]
-and spTSM contexts, $\uPhi$, take the form
+and spTLM contexts, $\uPhi$, take the form
 \[
 \uASI{\uA}{\Phi}{\uI}
 \]
-where TSM identifier expansion contexts, $\uA$, seTSM definition contexts, $\Psi$, and spTSM definition contexts, $\Phi$, are defined as in $\miniVersePat$. \emph{TSM implicit designation contexts}, $\uI$, are new to Bidirectional $\miniVersePat$ and defined below.
+where TLM identifier expansion contexts, $\uA$, seTLM definition contexts, $\Psi$, and spTLM definition contexts, $\Phi$, are defined as in $\miniVersePat$. \emph{TLM implicit designation contexts}, $\uI$, are new to Bidirectional $\miniVersePat$ and defined below.
 
-Before considering TSM implicits, let us briefly review the rules for defining and explicitly applying TSMs. These rules are nearly identical to their counterparts in $\miniVersePat$, differing only in that they have been made bidirectional.
+Before considering TLM implicits, let us briefly review the rules for defining and explicitly applying TLMs. These rules are nearly identical to their counterparts in $\miniVersePat$, differing only in that they have been made bidirectional.
 
-TSMs can be defined in synthetic or analytic position. The rules for seTSMs are reproduced below (the rules for spTSMs are analagous -- see appendix.)
+TLMs can be defined in synthetic or analytic position. The rules for seTLMs are reproduced below (the rules for spTLMs are analagous -- see appendix.)
 \begin{equation*}\tag{\ref{rule:esyn-defuetsm}}
 \inferrule{
   \expandsTU{\uDelta}{\utau}{\tau}\\
@@ -321,7 +321,7 @@ TSMs can be defined in synthetic or analytic position. The rules for seTSMs are 
 }
 \end{equation*}
 
-The rule for explicitly applying an seTSM is reproduced below:
+The rule for explicitly applying an seTLM is reproduced below:
 \begin{equation*}\tag{\ref{rule:esyn-S-apuetsm}}
 \inferrule{
   \uPsi = \uPsi', \uShyp{\tsmv}{a}{\tau}{\eparse}\\\\
@@ -335,7 +335,7 @@ The rule for explicitly applying an seTSM is reproduced below:
 }
 \end{equation*}
 
-Similarly, the rule for explicitly applying an spTSM is reproduced below:
+Similarly, the rule for explicitly applying an spTLM is reproduced below:
 
 \begin{equation*}\tag{\ref{rule:patExpands-B-apuptsm}}
 \inferrule{
@@ -351,12 +351,12 @@ Similarly, the rule for explicitly applying an spTSM is reproduced below:
 \end{equation*}
 
 
-\paragraph{TSM Implicits}
+\paragraph{TLM Implicits}
 
-\emph{TSM implicit designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some TSM name $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
+\emph{TLM implicit designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TLM designation} $\designate{\tau}{a}$, for some TLM name $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TLM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
 
-The following rules governs seTSM designation in synthetic and analytic position, respectively:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-%\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+The following rules governs seTLM designation in synthetic and analytic position, respectively:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+%\begin{definition}[TLM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
 
 \begin{equation*}\tag{\ref{rule:esyn-S-implicite}}
   \inferrule{
@@ -376,7 +376,7 @@ The following rules governs seTSM designation in synthetic and analytic position
   }
 \end{equation*}
 
-Similarly, the following rules govern spTSM designation in synthetic and analytic position, respectively:
+Similarly, the following rules govern spTLM designation in synthetic and analytic position, respectively:
 \begin{equation*}\tag{\ref{rule:esyn-S-implicitp}}
   \inferrule{
     \uPhi = \uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\\\\
@@ -394,7 +394,7 @@ Similarly, the following rules govern spTSM designation in synthetic and analyti
   }
 \end{equation*}
 
-The following rule determines the TSM designated at the type that the expression of unadorned literal form is being analyzed against and applies it implicitly:
+The following rule determines the TLM designated at the type that the expression of unadorned literal form is being analyzed against and applies it implicitly:
 \begin{equation*}\tag{\ref{rule:eana-S-lit}}
   \inferrule{
     \uPsi = \uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}\\\\
@@ -408,7 +408,7 @@ The following rule determines the TSM designated at the type that the expression
   }
 \end{equation*}
 
-Similarly, the following rule determines the TSM designated at the type that the pattern of unadorned literal form is matching against and applies it implicitly:
+Similarly, the following rule determines the TLM designated at the type that the pattern of unadorned literal form is matching against and applies it implicitly:
 \begin{equation*}\tag{\ref{rule:patExpands-B-lit}}
 \inferrule{
   \uPhi = \uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}\\\\
@@ -528,10 +528,10 @@ The following theorem establishes that bidirectionally typed expression and rule
 \end{enumerate}
 \end{theorem}
 
-The following theorem establishes abstract reasoning principles for implicitly applied expression TSMs. These are analagous to those described in Section \ref{sec:uetsms-reasoning-principles} for explicitly applied expression TSMs.
+The following theorem establishes abstract reasoning principles for implicitly applied expression TLMs. These are analagous to those described in Section \ref{sec:uetsms-reasoning-principles} for explicitly applied expression TLMs.
 \begingroup
 \def\thetheorem{\ref{thm:tsc-B}}
-\begin{theorem}[seTSM Abstract Reasoning Principles - Implicit Application]
+\begin{theorem}[seTLM Abstract Reasoning Principles - Implicit Application]
 If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}\] then:
 \begin{enumerate}
 \item (\textbf{Typing 1}) $\uPsi = \uASI{\uA}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}$ and $\hastypeU{\Delta}{\Gamma}{e}{\tau}$
@@ -576,11 +576,11 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
 \end{theorem}
 \endgroup
 
-Similarly, the following theorem establishes abstract reasoning principles for implicitly applied pattern TSMs. These are analagous to those described in Sec. \ref{sec:uptsms-abstract-reasoning-principles} for explicitly applied pattern TSMs.
+Similarly, the following theorem establishes abstract reasoning principles for implicitly applied pattern TLMs. These are analagous to those described in Sec. \ref{sec:uptsms-abstract-reasoning-principles} for explicitly applied pattern TLMs.
 
 \begingroup
-\def\thetheorem{\ref{thm:spTSM-Typing-Segmentation-Implicit-B}}
-\begin{theorem}[spTSM Abstract Reasoning Principles - Implicit Application]
+\def\thetheorem{\ref{thm:spTLM-Typing-Segmentation-Implicit-B}}
+\begin{theorem}[spTLM Abstract Reasoning Principles - Implicit Application]
 If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi = \uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}$ and $\patType{\pctx}{p}{\tau}$
@@ -656,7 +656,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\esyn{\uDelta}{\uGamma}{\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
 %               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Outer IH, part 1(a)(i) on \pfref{uetsmenv3} and \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -669,7 +669,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
 %               \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-%               \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
+%               \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
 %               \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
 %               \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
 %               \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, \pfref{gamma-cap} and \pfref{istype}} \pflabel{penultimate}
@@ -692,7 +692,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -744,10 +744,10 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\eana{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
 %               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -788,7 +788,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -946,7 +946,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}\\
 % \sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 % \end{align*}
-% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
+% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTLM literal bodies in $\ue$,
 % \begin{align*}
 % \sizeof{\ux} & = 0\\
 % \sizeof{\auasc{\utau}{\ue}} & = \sizeof{\ue}\\
@@ -1001,8 +1001,8 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{proof} 
 \endgroup
 
-\section{Parametric TSM Implicits}\label{sec:parametric-simple-implicits}
-Incorporating simple implicits into a bidirectionally typed dialect of $\miniVerseParam$ would require that the implicit context, $\uI$, be a finite function from {equivalence classes} of types to TSM expressions, $\epsilon$ (rather than from syntactic types, $\tau$, to TSM names, $a$.)
+\section{Parametric TLM Implicits}\label{sec:parametric-simple-implicits}
+Incorporating simple implicits into a bidirectionally typed dialect of $\miniVerseParam$ would require that the implicit context, $\uI$, be a finite function from {equivalence classes} of types to TLM expressions, $\epsilon$ (rather than from syntactic types, $\tau$, to TLM names, $a$.)
 
-We consider a more sophisticated mechanism that allows a TSM implicit designation itself  to operate over a parameterized family of types as future work in Sec. \ref{sec:parametric-designations}. 
+We consider a more sophisticated mechanism that allows a TLM implicit designation itself  to operate over a parameterized family of types as future work in Sec. \ref{sec:parametric-designations}. 
 

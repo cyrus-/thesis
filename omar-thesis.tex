@@ -268,19 +268,19 @@ Third-party library providers are, justifiably, envious of this special arrangem
 
 Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. Typed, hygienic term-rewriting macro systems are more reasonable, but offer only limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-This work formally introduces \emph{typed syntax macros (TSMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TSMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TSM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TSM client to maintain:
+This work formally introduces \emph{typed literal macros (TLMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TLM client to maintain:
 \begin{itemize}
 \item a \emph{type discipline}, meaning that the client can reason about types while holding literal expansions abstract; and 
 \item a \emph{hygienic binding discipline}, meaning that the client can be sure that:
   \begin{enumerate}
-    \item  literal expansions cannot shadow bindings that appear at the TSM application site; and 
+    \item  literal expansions cannot shadow bindings that appear at the TLM application site; and 
   \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
 In short, we describe a programming language (in the ML tradition) with a \emph{reasonably} programmable syntax.
 
-%We discuss both explicit application of TSMs (with support for partial parameter application) and implicit, type-directed application of TSMs, which further reduces cognitive cost.
+%We discuss both explicit application of TLMs (with support for partial parameter application) and implicit, type-directed application of TLMs, which further reduces cognitive cost.
 \end{abstract}
 
 \begin{acknowledgments}
@@ -345,16 +345,16 @@ problem.}\begin{flushright}John Reynolds (1970) \cite{Reynolds70}\end{flushright
 %VerseML will take a less \emph{ad hoc} approach -- rather than privileging particular library constructs with primitive syntactic support, VerseML exposes primitives that allow library providers to introduce new expansion logic on their own, in a modular manner. Before describing these primitives in the remaining chapters, we will survey existing approaches to the problem of reducing syntactic cost (and in so doing, highlight some of the problems that we aim to resolve in our work) in Sec. \ref{sec:existing-approaches}. %Lists need no special consideration from the language specification.
 %The purpose of this section is to  a and then introduce VerseML's syntax extension mechanisms. %For forms with a clear analogy to a form in Standard ML, we will assume the  semantics are analagous without providing details.
 
-%We will begin in Sec. \ref{sec:examples} by detailing another example for which such a mechanism would be useful: regular expression (regex) patterns expressed using abstract data types. We will refer to this example throughout the proposal. In Sec. \ref{sec:syntax-existing}, we discuss how the usual approach of using dynamic string parsing to introduce regex patterns is not ideal. We also survey existing alternatives to dynamic string parsing, finding that they involve an unacceptable loss of modularity and other undesirable trade-offs. In Secs. \ref{sec:tsms} and \ref{sec:tsls}, we introduce our proposed alternatives -- \emph{typed syntax macros} (TSMs) and the related \emph{type-specific languages} (TSLs) -- and discuss how they resolve these issues (as well as some limitations that they have). We  also give an overview of how TSMs are formally specified. We give a concrete timeline for the remaining work in Sec. \ref{sec:syntax-timeline}, and conclude in Sec. \ref{sec:conclusion}.
+%We will begin in Sec. \ref{sec:examples} by detailing another example for which such a mechanism would be useful: regular expression (regex) patterns expressed using abstract data types. We will refer to this example throughout the proposal. In Sec. \ref{sec:syntax-existing}, we discuss how the usual approach of using dynamic string parsing to introduce regex patterns is not ideal. We also survey existing alternatives to dynamic string parsing, finding that they involve an unacceptable loss of modularity and other undesirable trade-offs. In Secs. \ref{sec:tsms} and \ref{sec:tsls}, we introduce our proposed alternatives -- \emph{typed literal macros} (TLMs) and the related \emph{type-specific languages} (TSLs) -- and discuss how they resolve these issues (as well as some limitations that they have). We  also give an overview of how TLMs are formally specified. We give a concrete timeline for the remaining work in Sec. \ref{sec:syntax-timeline}, and conclude in Sec. \ref{sec:conclusion}.
 \input{preliminaries.tex}
 \input{motivating-examples}
 \input{existing-approaches}
 
-% \part{Simple TSMs}\label{part:simple-tsms}
+% \part{Simple TLMs}\label{part:simple-tsms}
 \input{uetsms}
 \input{uptsms}
 
-%\part[Parametric TSMs]{Parametric TSMs
+%\part[Parametric TLMs]{Parametric TLMs
 % ~\\ ~\\ ~\\ 
 % \begin{center}
 %                      \begin{minipage}[l]{11cm}
@@ -367,7 +367,7 @@ problem.}\begin{flushright}John Reynolds (1970) \cite{Reynolds70}\end{flushright
 \input{ptsms}
 \input{static-language}
 
-% \part{TSM Implicits}\label{part:implicits}
+% \part{TLM Implicits}\label{part:implicits}
 \input{tsls}
 
 % \part{Conclusion}

@@ -394,24 +394,24 @@ The problem here is that there is no way to extract the spliced expressions from
 %%Our broad aim in the work being proposed is to introduce primitive language mechanisms that give library providers the ability to  express new syntactic expansions as well as new types and operators in a safe and modularly composable manner. 
 %To summarize our motivating argument: the widespread proliferation of syntax dialects and syntax definition systems suggests that programmers value library-specific (a.k.a. domain-specific) syntactic sugar. However, the dialect-oriented approach seems to be incompatible with the best practices of programming in the large.  
 
-This work introduces a system of \textbf{typed syntax macros (TSMs)} that gives library providers substantially more syntactic control than existing typed term-rewriting macro systems while maintaining the ability to reason abstractly about types, binding and segmentation.% abstract reasoning principles. % comparable to the level of control they have when defining a syntax dialect.
+This work introduces a system of \textbf{typed literal macros (TLMs)} that gives library providers substantially more syntactic control than existing typed term-rewriting macro systems while maintaining the ability to reason abstractly about types, binding and segmentation.% abstract reasoning principles. % comparable to the level of control they have when defining a syntax dialect.
 
-Client programmers apply TSMs to \emph{generalized literal forms}. For example, in Figure \ref{fig:first-tsm-example} we apply a TSM named \li{#\dolla#html} to a generalized literal form delimited by backticks. TSM names are prefixed by \li{#\dolla#} to clearly distinguish TSM application from function application. The semantics delegates control over the parsing and expansion of each literal body to the applied TSM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. 
+Client programmers apply TLMs to \emph{generalized literal forms}. For example, in Figure \ref{fig:first-tsm-example} we apply a TLM named \li{#\dolla#html} to a generalized literal form delimited by backticks. TLM names are prefixed by \li{#\dolla#} to clearly distinguish TLM application from function application. The semantics delegates control over the parsing and expansion of each literal body to the applied TLM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. 
 \begin{figure}[ht!]
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
 $html `SURL<p>Hello, {[join ($str ' ') ($strlist [first, last])]}</p>EURL`
 \end{lstlisting}
-\caption[An example of a TSM being applied to a generalized literal form]{An example of a TSM being applied to a generalized literal form. The literal body, in green, is initially left unparsed according to the language's context-free syntax.}
+\caption[An example of a TLM being applied to a generalized literal form]{An example of a TLM being applied to a generalized literal form. The literal body, in green, is initially left unparsed according to the language's context-free syntax.}
 % \vspace{-5px}
 \label{fig:first-tsm-example}
 \end{figure}
 
-Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in green in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained and left unparsed. For example, the \li{#\dolla#html} TSM is free to use an Ur/Web-inspired HTML syntax (compare Figure \ref{fig:first-tsm-example} to Figure \ref{fig:urweb}.) This choice is not imposed by the language definition. Generalized literal forms have no TSM-independent meaning.
+Generalized literal forms subsume a variety of common syntactic forms because the context-free syntax of the language only defines which outer delimiters are available. \emph{Literal bodies} (in green in Figure \ref{fig:first-tsm-example}) are otherwise syntactically unconstrained and left unparsed. For example, the \li{#\dolla#html} TLM is free to use an Ur/Web-inspired HTML syntax (compare Figure \ref{fig:first-tsm-example} to Figure \ref{fig:urweb}.) This choice is not imposed by the language definition. Generalized literal forms have no TLM-independent meaning.
 % Because the context-free syntax is never extended, syntactic conflicts are not a concern.
 
-% The semantics delegates control over the parsing and expansion of each literal body to the applied TSM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. %As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TSM programmatically generates to ensure that clients can answer critical questions related to types and binding, like those enumerated in Section \ref{sec:abs-reasoning-intro}. Clients need not have knowledge of the implementation of the TSM or of the generated expansion, i.e. there are useful principles of syntactic abstraction.
+% The semantics delegates control over the parsing and expansion of each literal body to the applied TLM during a semantic phase called \emph{typed expansion}, which generalizes the usual typing phase. %As such, the semantics can take the type and binding structure of the surrounding program into account when validating the expansion that the TLM programmatically generates to ensure that clients can answer critical questions related to types and binding, like those enumerated in Section \ref{sec:abs-reasoning-intro}. Clients need not have knowledge of the implementation of the TLM or of the generated expansion, i.e. there are useful principles of syntactic abstraction.
 
-The primary technical challenge has to do with the fact that the applied TSM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TSM (in color), can always be automatically generated no matter how each applied TSM has been implemented. 
+The primary technical challenge has to do with the fact that the applied TLM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TLM (in color), can always be automatically generated no matter how each applied TLM has been implemented. 
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
@@ -421,13 +421,13 @@ $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSCSS,ECSS last])SURL]
 \label{fig:first-tsm-example-marked}
 \end{figure}
 
-Notice that both arguments to \li{join} are themselves of TSM application form -- the TSMs named \li{#\dolla#str} and \li{#\dolla#strlist} are applied to generalized literal forms  delimited by quotation marks and square brackets, respectively. The bracket-delimited literal form, in turn, contains two spliced expressions of variable form -- \li{first} and \li{last}.
+Notice that both arguments to \li{join} are themselves of TLM application form -- the TLMs named \li{#\dolla#str} and \li{#\dolla#strlist} are applied to generalized literal forms  delimited by quotation marks and square brackets, respectively. The bracket-delimited literal form, in turn, contains two spliced expressions of variable form -- \li{first} and \li{last}.
  
- % We design our mechanism such that these locations can easily be determined from the output of the TSM. This is essential for our hygiene mechanism, and it is also useful in that this information can be presented to the user (e.g. as shown in Figure \ref{fig:first-tsm-example-marked}). %As such, we must develop a mechanism where 1) the positions of spliced subterms can be determined without examining the macro implementation (e.g. so that they can be presented to the user differently by an editor or pretty-printer, ;  and 2) the hygiene mechanism must give only portions of the expansion that correspond to these spliced subterms access to the application site context. 
+ % We design our mechanism such that these locations can easily be determined from the output of the TLM. This is essential for our hygiene mechanism, and it is also useful in that this information can be presented to the user (e.g. as shown in Figure \ref{fig:first-tsm-example-marked}). %As such, we must develop a mechanism where 1) the positions of spliced subterms can be determined without examining the macro implementation (e.g. so that they can be presented to the user differently by an editor or pretty-printer, ;  and 2) the hygiene mechanism must give only portions of the expansion that correspond to these spliced subterms access to the application site context. 
 
 
 
-TSMs come equipped with useful principles of syntactic abstraction. We will more precisely characterize these abstract reasoning principles as we proceed. For now, to develop some intuitions, consider Figure \ref{fig:K-tsm-example}, which uses TSMs to express the ``unreasonable'' example from Figure \ref{fig:K-dialect}.
+TLMs come equipped with useful principles of syntactic abstraction. We will more precisely characterize these abstract reasoning principles as we proceed. For now, to develop some intuitions, consider Figure \ref{fig:K-tsm-example}, which uses TLMs to express the ``unreasonable'' example from Figure \ref{fig:K-dialect}.
 \begin{figure}[h]
 \vspace{-3px}
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
@@ -436,7 +436,7 @@ TSMs come equipped with useful principles of syntactic abstraction. We will more
   val y = $kquery `SURL(!R)@&{&/EURLxSURL!/:2_!EURLxSURL}'!R}EURL`
 \end{lstlisting}
 \vspace{-5px}
-\caption{TSMs make examples like the one from Figure \ref{fig:K-dialect} more reasonable.}
+\caption{TLMs make examples like the one from Figure \ref{fig:K-dialect} more reasonable.}
 \vspace{-3px}
 \label{fig:K-tsm-example}
 \end{figure}
@@ -445,16 +445,16 @@ TSMs come equipped with useful principles of syntactic abstraction. We will more
 Without examining the expansion of Line 3, we can reason as follows:
 
 \begin{enumerate}
-\item \textbf{(Responsibility)} The applied TSM, \li{$kquery}, is solely responsible for typed expansion of the literal body. 
+\item \textbf{(Responsibility)} The applied TLM, \li{$kquery}, is solely responsible for typed expansion of the literal body. 
 \item \textbf{(Segmentation)} By examining the segmentation, we know that the two instances of \li{x} on Line 3 are parsed as spliced expressions, whereas \li{R} is parsed in some other way peculiar to this form.
 \item \textbf{(Capture)} The system prevents capture, so the spliced expression \li{x} must refer to the binding of \li{x} on Line 2 -- it cannot capture an unseen binding introduced in the expansion of Line 3.
 \item \textbf{(Context Dependence)} The system enforces context independence, so the expansion of Line 3 cannot  rely on the fact that, for example, \li{w} is in scope.
-\item \textbf{(Typing)} An explicit type annotation on the definition of \li{$kquery} determines the type that every expansion it generates will have. We will see an example of a TSM definition in Chapter \ref{chap:uetsms}. 
+\item \textbf{(Typing)} An explicit type annotation on the definition of \li{$kquery} determines the type that every expansion it generates will have. We will see an example of a TLM definition in Chapter \ref{chap:uetsms}. 
 
-Moreover, each segment in the segmentation also comes paired with the type it is expected to have. This information is usually not necessary to reason about typing, but it can be conveyed to the programmer upon request by the program editor if desired. %TSM definitions follow the usual scoping rules, so it is easy to ``jump to the definition'' of \li{$kquery}.
+Moreover, each segment in the segmentation also comes paired with the type it is expected to have. This information is usually not necessary to reason about typing, but it can be conveyed to the programmer upon request by the program editor if desired. %TLM definitions follow the usual scoping rules, so it is easy to ``jump to the definition'' of \li{$kquery}.
 \end{enumerate}
 
-% The primary technical challenge has to do with the fact that the applied TSM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TSM (in green), can always be automatically generated no matter how each applied TSM has been implemented. 
+% The primary technical challenge has to do with the fact that the applied TLM needs to be able to parse terms out of the literal body for inclusion in the expansion. We refer to these as \emph{spliced terms}. For example, Figure \ref{fig:first-tsm-example-marked} reveals the locations of the spliced expressions in Figure \ref{fig:first-tsm-example} by coloring them black. We have designed our system so that a figure like this, which presents a \emph{segmentation} of each literal body into spliced terms (in black) and characters parsed in some other way by the applied TLM (in green), can always be automatically generated no matter how each applied TLM has been implemented. 
 
 
 % \begin{figure}[h]
@@ -468,51 +468,51 @@ Moreover, each segment in the segmentation also comes paired with the type it is
 % \end{figure}
 
 
-% There is also no ambiguity with regard to which TSM has control over each form, and searching for the definition of a TSM is no more difficult than searching for any other binding, i.e. there are well-defined scoping rules.
+% There is also no ambiguity with regard to which TLM has control over each form, and searching for the definition of a TLM is no more difficult than searching for any other binding, i.e. there are well-defined scoping rules.
 
-% In other words, TSMs maintain a useful notion of syntactic abstraction. %More specifically, TSMs maintain a \emph{hygienic binding discipline}, meaning that questions Questions 4 and 5 above were concerned with are disallowed entirely. 
+% In other words, TLMs maintain a useful notion of syntactic abstraction. %More specifically, TLMs maintain a \emph{hygienic binding discipline}, meaning that questions Questions 4 and 5 above were concerned with are disallowed entirely. 
 % We will, of course, make this notion more technically precise as we continue.
 
 \subsection{Outline}
 % The remainder of this document is organized as follows.
 
-After introducing necessary background material and summarizing the related work in greater detail in Chapter \ref{chap:background}, we formally introduce TSMs in Chapter \ref{chap:uetsms} by integrating them into a simple language of expressions and types. The introductory examples above can be expressed using the language introduced in Chapter \ref{chap:uetsms}. 
+After introducing necessary background material and summarizing the related work in greater detail in Chapter \ref{chap:background}, we formally introduce TLMs in Chapter \ref{chap:uetsms} by integrating them into a simple language of expressions and types. The introductory examples above can be expressed using the language introduced in Chapter \ref{chap:uetsms}. 
 
-% In the remaining chapters, we enrich the language developed in Chapter \ref{chap:uetsms} with advanced features based on those found in full-scale general-purpose languages like ML and Scala, and enhance our TSM mechanism with these new features.
+% In the remaining chapters, we enrich the language developed in Chapter \ref{chap:uetsms} with advanced features based on those found in full-scale general-purpose languages like ML and Scala, and enhance our TLM mechanism with these new features.
 
-In Chapter \ref{chap:uptsms}, we add structural pattern matching to the language of Chapter \ref{chap:uetsms} and introduce \emph{pattern TSMs}, i.e. TSMs that generate patterns rather than expressions.
+In Chapter \ref{chap:uptsms}, we add structural pattern matching to the language of Chapter \ref{chap:uetsms} and introduce \emph{pattern TLMs}, i.e. TLMs that generate patterns rather than expressions.
 
-% We next develop a more sophisticated account of TSMs in Chapters \ref{chap:ptsms} and \ref{chap:static-eval}, with the aim of working out details necessary to integrate TSMs into full-scale general-purpose languages like ML or Scala. %These two chapters constitute Part \ref{part:parametric-tsms} of our contributions.
+% We next develop a more sophisticated account of TLMs in Chapters \ref{chap:ptsms} and \ref{chap:static-eval}, with the aim of working out details necessary to integrate TLMs into full-scale general-purpose languages like ML or Scala. %These two chapters constitute Part \ref{part:parametric-tsms} of our contributions.
 
-In Chapter \ref{chap:ptsms}, we equip the language of Chapter \ref{chap:uptsms} with type functions and an ML-style module system. We then introduce \emph{parametric TSMs}, i.e. TSMs that take type and module parameters. Parameters serve two purposes:
+In Chapter \ref{chap:ptsms}, we equip the language of Chapter \ref{chap:uptsms} with type functions and an ML-style module system. We then introduce \emph{parametric TLMs}, i.e. TLMs that take type and module parameters. Parameters serve two purposes:
 \begin{enumerate}
-\item They enable TSMs that operate not just at a single type, but over a type- and module-parameterized family of types. For example, rather than defining a TSM \li{#\dolla#strlist} for string lists and another TSM \li{#\dolla#intlist} for integer lists, we can define a single parametric TSM \li{#\dolla#list} that operates uniformly across the type-parameterized family of list types. 
-\item They allow the expansions that TSMs generate to refer to application site bindings in a context independent manner. 
+\item They enable TLMs that operate not just at a single type, but over a type- and module-parameterized family of types. For example, rather than defining a TLM \li{#\dolla#strlist} for string lists and another TLM \li{#\dolla#intlist} for integer lists, we can define a single parametric TLM \li{#\dolla#list} that operates uniformly across the type-parameterized family of list types. 
+\item They allow the expansions that TLMs generate to refer to application site bindings in a context independent manner. 
 \end{enumerate}
-We also demonstrate support for partial parameter application in TSM abbreviations, which decreases the syntactic cost of this explicit parameter passing style. Figure \ref{fig:first-ptsm-example-marked} demonstrates all of these features.
+We also demonstrate support for partial parameter application in TLM abbreviations, which decreases the syntactic cost of this explicit parameter passing style. Figure \ref{fig:first-ptsm-example-marked} demonstrates all of these features.
 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none,xleftmargin=0px]
 let syntax $strlist = $list string in 
 $html `SURL<p>Hello, {[EURLjoin ($str ' ') ($strlist [firstSURL,EURL last])SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The example from Figure \ref{fig:first-tsm-example-marked} expressed using parametric TSMs}
+\caption{The example from Figure \ref{fig:first-tsm-example-marked} expressed using parametric TLMs}
 \label{fig:first-ptsm-example-marked}
 \end{figure}
 
-In these first chapters, we assume for the sake of technical simplicity that each TSM definition is self-contained, needing no access to libraries or to other TSMs. This is an impractical assumption in practice. We relax this assumption in Chapter \ref{chap:static-eval}, introducing a \emph{static environment} shared between TSM definitions. We also give examples of TSMs that are useful for defining other TSMs, e.g. TSMs that implement parser generators and quasiquotation.
+In these first chapters, we assume for the sake of technical simplicity that each TLM definition is self-contained, needing no access to libraries or to other TLMs. This is an impractical assumption in practice. We relax this assumption in Chapter \ref{chap:static-eval}, introducing a \emph{static environment} shared between TLM definitions. We also give examples of TLMs that are useful for defining other TLMs, e.g. TLMs that implement parser generators and quasiquotation.
 
 %\item \textbf{Type-specific languages}, or \textbf{TSLs}. TSLs, described 
-In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TSM implicits} that allows library clients to contextually designate, for any type, a privileged TSM at that type. The semantics applies this privileged TSM implicitly to unadorned literal forms that appear where a term of the associated type is expected. For example, if we designate \li{#\dolla#str} as the privileged TSM at the \li{string} type and \li{#\dolla#strlist} as the privileged TSM at the \li{list(string)} type, we can express the example from Figure \ref{fig:first-tsm-example-marked} instead as shown in Figure \ref{fig:first-tsm-example-implicit} (assuming \li{join} has type \li{string -> list(string) -> string}.) 
+In Chapter \ref{chap:tsls}, we develop a mechanism of \emph{TLM implicits} that allows library clients to contextually designate, for any type, a privileged TLM at that type. The semantics applies this privileged TLM implicitly to unadorned literal forms that appear where a term of the associated type is expected. For example, if we designate \li{#\dolla#str} as the privileged TLM at the \li{string} type and \li{#\dolla#strlist} as the privileged TLM at the \li{list(string)} type, we can express the example from Figure \ref{fig:first-tsm-example-marked} instead as shown in Figure \ref{fig:first-tsm-example-implicit} (assuming \li{join} has type \li{string -> list(string) -> string}.) 
 \begin{figure}[h]
 \begin{lstlisting}[numbers=none]
 $html`SURL<p>Hello, {[EURLjoin ' ' [firstSURL,EURL last]SURL]}</p>EURL`
 \end{lstlisting}
-\caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TSM implicits}
+\caption{The example from Figure \ref{fig:first-tsm-example-marked} drawn to take advantage of TLM implicits}
 \label{fig:first-tsm-example-implicit}
 \end{figure}
 
-\noindent This approach is competitive in cost with library-specific syntax dialects (e.g. compare Figure \ref{fig:first-tsm-example-implicit} to Figure \ref{fig:urweb}), while maintaining the abstract reasoning principles characteristic of our approach. To further demonstrate the favorable economics of this approach, Figure \ref{fig:big-html-example} gives an example of a function that produces a value of type \li{html}. The body of this function assumes implicit TSM designations at seven different types (the unspliced segments are typeset in a color corresponding to the type that the enclosing literal form is being checked against.) This collection of TSMs, together with the mechanism for applying them implicitly, obviates the need for a web-programming-specific syntax dialect of our language like Ur/Web. An analysis of string literals used in open source projects discovered a wide variety of other examples like this \cite{TSLs}.
+\noindent This approach is competitive in cost with library-specific syntax dialects (e.g. compare Figure \ref{fig:first-tsm-example-implicit} to Figure \ref{fig:urweb}), while maintaining the abstract reasoning principles characteristic of our approach. To further demonstrate the favorable economics of this approach, Figure \ref{fig:big-html-example} gives an example of a function that produces a value of type \li{html}. The body of this function assumes implicit TLM designations at seven different types (the unspliced segments are typeset in a color corresponding to the type that the enclosing literal form is being checked against.) This collection of TLMs, together with the mechanism for applying them implicitly, obviates the need for a web-programming-specific syntax dialect of our language like Ur/Web. An analysis of string literals used in open source projects discovered a wide variety of other examples like this \cite{TSLs}.
 
 \begin{figure}[h]
 \begin{lstlisting}[deletekeywords={for}, escapechar=@]
@@ -537,7 +537,7 @@ fun resultsFor(searchQuery : string, page : int) : html =>
   </body>
   </html>EHTML`
 \end{lstlisting}
-\caption{A non-trivial example demonstrating implicit TSM application at seven different types: \li{SURIurlEURI}, \li{SHTMLhtmlEHTML}, \li{SCSScssECSS}, \li{SCOLORcolorECOLOR}, \li{SPCTpercentageEPCT}, \li{SSTRstringESTR} and \li{SSQLsqlESQL}}
+\caption{A non-trivial example demonstrating implicit TLM application at seven different types: \li{SURIurlEURI}, \li{SHTMLhtmlEHTML}, \li{SCSScssECSS}, \li{SCOLORcolorECOLOR}, \li{SPCTpercentageEPCT}, \li{SSTRstringESTR} and \li{SSQLsqlESQL}}
 \label{fig:big-html-example}
 \end{figure}
 %\item \textbf{Metamodules}, introduced in Sec. \ref{sec:metamodules}, reduce the need to primitively build in the type structure of constructs like records (and variants thereof),  labeled sums and other interesting constructs that we will introduce later by giving library providers programmatic ``hooks'' directly into the semantics, which are specified as a \emph{type-directed translation semantics} targeting a small \emph{typed internal language} (introduced in Sec. \ref{sec:VerseML}). %For example, a library provider can implement the type structure of records with a metamodule that:
@@ -551,7 +551,7 @@ fun resultsFor(searchQuery : string, page : int) : html =>
 
 % As vehicles for this work, we will define a small programming language in each of the three parts just mentioned, each building conceptually upon the previous language. All of our formal contributions are relative to these small languages.
 
-We conclude in Chapter \ref{chap:conclusion} with a discussion of the present limitations of TSMs, and outline various directions for future work.
+We conclude in Chapter \ref{chap:conclusion} with a discussion of the present limitations of TLMs, and outline various directions for future work.
 
 \subsection{Thesis Statement}
 In summary, this work defends the following statement:
@@ -563,18 +563,18 @@ programmatically control the parsing and expansion of expressions and patterns o
 
 \section{VerseML}
 
-The code examples in this document are written in a new full-scale functional language called VerseML.\footnote{We distinguish VerseML from Wyvern, which is the language described in our prior publications about some of the work that we will describe, because Wyvern is a group effort evolving independently.} VerseML is the language of Chapter \ref{chap:tsls}  extended with some additional conveniences that are commonly found in other functional languages (in particular, in the ML family of languages) and, notionally, orthogonal to TSMs (e.g. higher-rank polymorphism \cite{conf/icfp/DunfieldK13}, signature abbreviations, and syntactic sugar that is not library-specific, e.g. for curried functions.) %VerseML is, as its name suggests, a conceptual descendent of ML. It diverges from other dialects of ML that have a similar type structure in that it has a bidirectional type system \cite{Pierce:2000:LTI:345099.345100} (like, for example, Scala \cite{OdeZenZen01}) for reasons that have to do with the mechanism of TSM implicits described in Chapters \ref{chap:tsls} and \ref{chap:ptsms}. 
-%The reason we will not follow Standard ML \cite{mthm97-for-dart} in giving a complete formal definition of VerseML in this work is both to emphasize that the primitives we introduce are ``insensitive'' to the details of the underlying type structure of the language (so TSMs can be considered for inclusion in a variety of languages, not only dialects of ML), and to avoid distracting the reader (and the author) with definitions that are already well-understood in the literature and that are orthogonal to those that are the focus of this work. 
+The code examples in this document are written in a new full-scale functional language called VerseML.\footnote{We distinguish VerseML from Wyvern, which is the language described in our prior publications about some of the work that we will describe, because Wyvern is a group effort evolving independently.} VerseML is the language of Chapter \ref{chap:tsls}  extended with some additional conveniences that are commonly found in other functional languages (in particular, in the ML family of languages) and, notionally, orthogonal to TLMs (e.g. higher-rank polymorphism \cite{conf/icfp/DunfieldK13}, signature abbreviations, and syntactic sugar that is not library-specific, e.g. for curried functions.) %VerseML is, as its name suggests, a conceptual descendent of ML. It diverges from other dialects of ML that have a similar type structure in that it has a bidirectional type system \cite{Pierce:2000:LTI:345099.345100} (like, for example, Scala \cite{OdeZenZen01}) for reasons that have to do with the mechanism of TLM implicits described in Chapters \ref{chap:tsls} and \ref{chap:ptsms}. 
+%The reason we will not follow Standard ML \cite{mthm97-for-dart} in giving a complete formal definition of VerseML in this work is both to emphasize that the primitives we introduce are ``insensitive'' to the details of the underlying type structure of the language (so TLMs can be considered for inclusion in a variety of languages, not only dialects of ML), and to avoid distracting the reader (and the author) with definitions that are already well-understood in the literature and that are orthogonal to those that are the focus of this work. 
 We will not formally define these features mainly to avoid unnecessarily complicating our presentation with details that are not essential to the ideas introduced herein. As such, all examples written in VerseML should be understood to be informal motivating material for the subsequent formal material. %We anticipate that future full-scale language specifications will be able to combine the ideas  in the proposed work without trouble. %The purpose of the work being proposed is to serve as a reference for those interested in the new constructs we introduce, not to serve as a language specification. 
 %We will give a brief overview of these languages are organized in Sec. \ref{sec:VerseML}.
 
-%TSMs, like other macro systems, perform \emph{static code generation} (also sometimes called \emph{static} or \emph{compile-time metaprogramming}), meaning that the relevant rules in the static semantics of the language call for the evaluation of \emph{static functions} that generate term encodings. Static functions are functions that are evaluated statically, i.e. during typing. %Library providers write these static functions using the VerseML \emph{static language} (SL).  
+%TLMs, like other macro systems, perform \emph{static code generation} (also sometimes called \emph{static} or \emph{compile-time metaprogramming}), meaning that the relevant rules in the static semantics of the language call for the evaluation of \emph{static functions} that generate term encodings. Static functions are functions that are evaluated statically, i.e. during typing. %Library providers write these static functions using the VerseML \emph{static language} (SL).  
 %Maintaining a separation between the static (or ``compile-time'') phase and the dynamic (or ``run-time'') phase is an important facet of VerseML's design. % static code generation. %We will  also introduce a simple variant of each of these primitives that leverages VerseML's support for local type inference to further reduce syntactic cost in certain common situations. 
 
 \section{Disclaimers}
 Before we continue, it may be prudent to explicitly acknowledge that eliminating the need for syntax dialects would indeed be asking for too much: certain syntax design decisions are fundamentally incompatible with others or require coordination across a language design. We aim only to diminish the need for syntax dialects by finding a reasonable ``sweet spot'' in the design space, not to give control over all design decisions to library providers. %We summarize some of the situations that we explicitly do not consider here in Sec. \ref{sec:future-work}. % out a larger design space within a single language, VerseML.%a subset of constructs that can be specified by a semantics of a certain ``shape'' specified by VerseML (we will make this more specific later). %There is nothing ``universal'' about VerseML.
 
-It may also be prudent to explicitly acknowledge that library providers could use TSMs  to define syntactic forms that are ``in poor taste.'' In practice, programmers should defer to established community guidelines before defining their own TSMs (following the example of languages that support operator overloading or \emph{ad hoc} polymorphism using type classes \cite{Hall:1996:TCH:227699.227700,conf/popl/DreyerHCK07}, which also have some potential for ``abuse'' or ``overuse''.) %For most programmers, using VerseML will not require explicitly defining a TSM on their own.%be substantially different from using a language like ML or one of its dialects. 
-The majority of programmers should very rarely need to define a TSM on their own. The reasoning principles that we will develop ensure that even poorly designed TSMs cannot prevent clients from reasoning abstractly about the behavior of a program.
+It may also be prudent to explicitly acknowledge that library providers could use TLMs  to define syntactic forms that are ``in poor taste.'' In practice, programmers should defer to established community guidelines before defining their own TLMs (following the example of languages that support operator overloading or \emph{ad hoc} polymorphism using type classes \cite{Hall:1996:TCH:227699.227700,conf/popl/DreyerHCK07}, which also have some potential for ``abuse'' or ``overuse''.) %For most programmers, using VerseML will not require explicitly defining a TLM on their own.%be substantially different from using a language like ML or one of its dialects. 
+The majority of programmers should very rarely need to define a TLM on their own. The reasoning principles that we will develop ensure that even poorly designed TLMs cannot prevent clients from reasoning abstractly about the behavior of a program.
 
 %Finally, VerseML is not designed as a dependently-typed language like Coq, Agda or Idris. %because these languages do not maintain a phase separation between ``compile-time'' and ``run-time.'' This phase separation is useful for programming tasks (where one would like to be able to discover errors before running a program, particularly programs that may have an effect) but less so for theorem proving tasks (where it is mainly the fact that a pure expression is well-typed that is of interest, by the propositions-as-types principle). 

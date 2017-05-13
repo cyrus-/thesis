@@ -29,7 +29,7 @@ Finally, one might consider cognitive cost comparatively using quantitative empi
 
 Our goal in this work is to provide a means by which library providers can introduce alternative syntactic forms of their own design. We leave it up to each library provider to establish the cognitive costs associated with the alternative forms that they introduce, according to whichever operationalization of the concept that they favor. For the examples in this document, we will mainly utilize syntactic cost, because claims about syntactic cost can be evaluated quantitatively. In a few cases, we also make heuristic arguments. 
 
-We claim also that the abstract reasoning principles that TSMs come equipped with serve to limit cognitive costs that a client programmer that encounters an unfamiliar form would otherwise incur when attempting to reason about types and binding. This claim follows from the intuitive assumption that examining only type annotations is less costly than examining the full expansion of an unexpanded term and the logic that produced that expansion. 
+We claim also that the abstract reasoning principles that TLMs come equipped with serve to limit cognitive costs that a client programmer that encounters an unfamiliar form would otherwise incur when attempting to reason about types and binding. This claim follows from the intuitive assumption that examining only type annotations is less costly than examining the full expansion of an unexpanded term and the logic that produced that expansion. 
 
 % There is much that remains to be understood about cognitive cost, particularly when the subject is an experienced programmer. Many of the difficulties that we will confront in this work have to do with the fact that allowing programmers to add new derived forms unconstrained to a syntax definition can decrease cognitive cost ``in the small'', i.e. for programmers who understand all of the details of the newly introduced desugaring transformations, while increasing cognitive cost ``in the large'' because programmers have few clear modular reasoning principles that they can rely on when they encounter an unfamiliar form. Our aim is to control cognitive cost at all scales. % (Indeed, many of challenges of programming language design might be said to have this flavor.)% Our contributions, however, are not directly in this area, so we will stop here. 
 
@@ -52,7 +52,7 @@ This datatype declaration generates:
 \end{itemize}
 We will return to the significance of the identifier \li{op::} in Sec. \ref{sec:Fixity-directives} below.
 
-VerseML does not support SML-style datatype declarations directly. Instead, type functions, recursive types, sum types, product types, value constructors, pattern constructors and type generativity arise through orthogonal mechanisms, as in foundational accounts of these concepts (e.g. \emph{PFPL} \cite{pfpl}.) This is mainly for pedagogical purposes -- it will take until Chapter \ref{chap:ptsms} to build up all of the machinery that would be necessary to integrate TSMs into a language with SML-style datatype declarations. By exposing more granular primitives, we can define sub-languages of VerseML in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms} that communicate certain fundamental ideas more clearly and generally.
+VerseML does not support SML-style datatype declarations directly. Instead, type functions, recursive types, sum types, product types, value constructors, pattern constructors and type generativity arise through orthogonal mechanisms, as in foundational accounts of these concepts (e.g. \emph{PFPL} \cite{pfpl}.) This is mainly for pedagogical purposes -- it will take until Chapter \ref{chap:ptsms} to build up all of the machinery that would be necessary to integrate TLMs into a language with SML-style datatype declarations. By exposing more granular primitives, we can define sub-languages of VerseML in Chapter \ref{chap:uetsms} and Chapter \ref{chap:uptsms} that communicate certain fundamental ideas more clearly and generally.
 
 With that in mind, the family of list types are defined in VerseML as follows:
 \begin{lstlisting}[numbers=none]
@@ -86,7 +86,7 @@ One way to lower syntactic cost is to define the following polymorphic values, c
 val Nil : list('a) = fold(inj[Nil] ())
 fun Cons(x : 'a * list('a)) : list('a) => fold(inj[Cons] x)
 \end{lstlisting}
-In fact, VerseML generates constructors like these automatically.\footnote{A more general mechanism that allows values to be generated from type definitions is beyond the scope of our work on TSMs.} 
+In fact, VerseML generates constructors like these automatically.\footnote{A more general mechanism that allows values to be generated from type definitions is beyond the scope of our work on TLMs.} 
 Using these list value constructors, we can equivalently express the values above as follows:
 \begin{lstlisting}[numbers=none]
 val nil_int : list(int) = Nil
@@ -105,7 +105,7 @@ fun map (f : 'a -> 'b) (xs : list('a)) : list('b) =>
 \end{lstlisting}
 
 
-The primitive pattern forms above are drawn like the corresponding primitive value forms (though it is important to keep in mind that the syntactic overlap is superficial -- patterns and expressions are distinct sorts of trees.) To lower syntactic cost, VerseML automatically inserts folds, injections and trivial arguments into patterns of constructor form, i.e. those of the form \li{Lbl} and \li{Lbl p} where \li{Lbl} is a capitalized label and \li{p} is another pattern:\footnote{Pattern TSMs, introduced in Chapter \ref{chap:uptsms}, could be used to manually achieve a similar syntax for any particular type, or in Chapter \ref{chap:ptsms}, across a particular family of types, but because this syntactic sugar is useful for all recursive labeled sum types, we build it primitively into VerseML.}
+The primitive pattern forms above are drawn like the corresponding primitive value forms (though it is important to keep in mind that the syntactic overlap is superficial -- patterns and expressions are distinct sorts of trees.) To lower syntactic cost, VerseML automatically inserts folds, injections and trivial arguments into patterns of constructor form, i.e. those of the form \li{Lbl} and \li{Lbl p} where \li{Lbl} is a capitalized label and \li{p} is another pattern:\footnote{Pattern TLMs, introduced in Chapter \ref{chap:uptsms}, could be used to manually achieve a similar syntax for any particular type, or in Chapter \ref{chap:ptsms}, across a particular family of types, but because this syntactic sugar is useful for all recursive labeled sum types, we build it primitively into VerseML.}
 \begin{lstlisting}[numbers=none]
 fun map (f : 'a -> 'b) (xs : list('a)) : list('b) => 
   match xs with 
@@ -115,7 +115,7 @@ fun map (f : 'a -> 'b) (xs : list('a)) : list('b) =>
 \end{lstlisting}
 %To avoid syntactic ambiguity, variables must not begin with an uppercase letter.
 
-We group the type and value definitions above, as well as some other standard utility functions like \li{append}, into a \emph{module} \li{List : LIST}, where \li{LIST} is the \emph{signature} defined in Figure \ref{fig:LIST}. These definitions are not privileged in any way by the language definition. In particular, there are no list-specific derived forms built in to the textual syntax of VerseML. We will show how TSMs allow programmers to achieve a similar syntax for lists over the next several chapters.
+We group the type and value definitions above, as well as some other standard utility functions like \li{append}, into a \emph{module} \li{List : LIST}, where \li{LIST} is the \emph{signature} defined in Figure \ref{fig:LIST}. These definitions are not privileged in any way by the language definition. In particular, there are no list-specific derived forms built in to the textual syntax of VerseML. We will show how TLMs allow programmers to achieve a similar syntax for lists over the next several chapters.
 
 \begin{figure}[h!]
 \begin{lstlisting}[numbers=none]

@@ -22,7 +22,7 @@ Empty finite sets and finite functions are written $\emptyset$, or omitted entir
 \label{appendix:miniVerseSES}
 
 \ificfp
-This section defines $\miniVersePat$, the calculus of simple expression and pattern TSMs. For some readers, it might be useful to snip out pattern matching to get a language strictly of expression TSMs. To support that, one can omit the segments typeset in gray backgrounds below to recover $\miniVerseUE$, a calculus of simple expression TSMs. We have included the necessary eliminators below (they are technically redundant with pattern matching, but don't hurt things so they're left in white.)
+This section defines $\miniVersePat$, the calculus of simple expression and pattern TLMs. For some readers, it might be useful to snip out pattern matching to get a language strictly of expression TLMs. To support that, one can omit the segments typeset in gray backgrounds below to recover $\miniVerseUE$, a calculus of simple expression TLMs. We have included the necessary eliminators below (they are technically redundant with pattern matching, but don't hurt things so they're left in white.)
 \else
 
 This section defines $\miniVersePat$, the language of Chapter \ref{chap:uptsms}. The language of Chapter \ref{chap:uetsms}, $\miniVerseUE$, can be recovered by omitting the segments typeset in a gray backgrounds below.
@@ -556,10 +556,10 @@ Our subsequent developments do not make mention of particular rules in the dynam
 & \caseof{\ue}{\mapschemab{\ux}{\ue}{i}{\labelset}} & \text{case analysis}\\
 &&
 %& \audefuetsm{\utau}{e}{\tsmv}{\ue} 
-& \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{seTSM definition}\\ 
+& \uesyntax{\tsmv}{\utau}{e}{\ue} & \text{seTLM definition}\\ 
 &&
 %& \autsmap{b}{\tsmv} 
-& \utsmap{\tsmv}{b} & \text{seTSM application}\\%\ECC
+& \utsmap{\tsmv}{b} & \text{seTLM application}\\%\ECC
 \LCC  \color{light-gray} & \color{light-gray} & \color{light-gray}
 & \color{light-gray} 
 & \color{light-gray} & \color{light-gray} \\
@@ -569,7 +569,7 @@ Our subsequent developments do not make mention of particular rules in the dynam
 &&
 %& \audefuptsm{\utau}{e}{\tsmv}{\ue} 
 & \usyntaxup{\tsmv}{\utau}{e}{\ue}
-& \text{spTSM definition}\\
+& \text{spTLM definition}\\
 \mathsf{URule} & \urv & ::= 
 %& \aumatchrule{\upv}{\ue} 
 & \matchrule{\upv}{\ue} & \text{match rule}\\
@@ -591,7 +591,7 @@ Our subsequent developments do not make mention of particular rules in the dynam
 % \LCC &&& \color{light-gray} & \color{light-gray} & \color{light-gray}\\
 &&
 %& \auapuptsm{b}{\tsmv} 
-& \utsmap{\tsmv}{b} & \text{spTSM application}\ECC
+& \utsmap{\tsmv}{b} & \text{spTLM application}\ECC
 \end{array}\]
 
 \clearpage
@@ -808,30 +808,30 @@ L_\mathtt{SP} & \defeq \lbltxt{ParseError}, \lbltxt{SuccessP}\\
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 \end{grayparbox}
 
-\subsubsection{seTSM Contexts}
+\subsubsection{seTLM Contexts}
 
-\emph{seTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM identifier expansion context} and $\Psi$ is a \emph{seTSM definition context}. 
+\emph{seTLM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TLM identifier expansion context} and $\Psi$ is a \emph{seTLM definition context}. 
 
-A \emph{TSM identifier expansion context}, $\uA$, is a finite function mapping each TSM identifier $\tsmv \in \domof{\uA}$ to the \emph{TSM identifier expansion}, $\vExpands{\tsmv}{a}$, for some \emph{TSM name}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the TSM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM identifiers (i.e. the previous mapping is \emph{updated}.)
+A \emph{TLM identifier expansion context}, $\uA$, is a finite function mapping each TLM identifier $\tsmv \in \domof{\uA}$ to the \emph{TLM identifier expansion}, $\vExpands{\tsmv}{a}$, for some \emph{TLM name}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the TLM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TLM identifiers (i.e. the previous mapping is \emph{updated}.)
 
-An \emph{seTSM definition context}, $\Psi$, is a finite function mapping each TSM name $a \in \domof{\Psi}$ to an \emph{expanded seTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of the appropriate type.
+An \emph{seTLM definition context}, $\Psi$, is a finite function mapping each TLM name $a \in \domof{\Psi}$ to an \emph{expanded seTLM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTLM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of the appropriate type.
 
-\begin{definition}[seTSM Definition Context Formation]\label{def:seTSM-def-ctx-formation} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{a}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$.\end{definition}
+\begin{definition}[seTLM Definition Context Formation]\label{def:seTLM-def-ctx-formation} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{a}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$.\end{definition}
 
-\begin{definition}[seTSM Context Formation] $\uetsmctx{\Delta}{\uAS{\uA}{\Psi}}$ iff $\uetsmenv{\Delta}{\Psi}$ and for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Psi}$.
+\begin{definition}[seTLM Context Formation] $\uetsmctx{\Delta}{\uAS{\uA}{\Psi}}$ iff $\uetsmenv{\Delta}{\Psi}$ and for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Psi}$.
 \end{definition}
 
 We define $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPsi=\uAS{\uA}{\Phi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}\]
 %\vspace{10px}
 
-\begin{grayparbox}\vspace{-15px}\subsubsection{spTSM Contexts}
-\emph{spTSM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a {TSM identifier expansion context}, defined above, and $\Phi$ is a \emph{spTSM definition context}. 
+\begin{grayparbox}\vspace{-15px}\subsubsection{spTLM Contexts}
+\emph{spTLM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a {TLM identifier expansion context}, defined above, and $\Phi$ is a \emph{spTLM definition context}. 
 
-An \emph{spTSM definition context}, $\Phi$, is a finite function mapping each TSM name $a \in \domof{\Phi}$ to an \emph{expanded seTSM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of the appropriate type.
+An \emph{spTLM definition context}, $\Phi$, is a finite function mapping each TLM name $a \in \domof{\Phi}$ to an \emph{expanded seTLM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTLM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of the appropriate type.
 
-\begin{definition}[spTSM Definition Context Formation]\label{def:spTSM-def-ctx-formation} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}$.\end{definition}
+\begin{definition}[spTLM Definition Context Formation]\label{def:spTLM-def-ctx-formation} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}$.\end{definition}
 
-\begin{definition}[spTSM Context Formation] $\uptsmctx{\Delta}{\uAS{\uA}{\Phi}}$ iff $\uptsmenv{\Delta}{\Phi}$ and for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Phi}$.
+\begin{definition}[spTLM Context Formation] $\uptsmctx{\Delta}{\uAS{\uA}{\Phi}}$ iff $\uptsmenv{\Delta}{\Phi}$ and for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Phi}$.
 \end{definition}
 
 We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$, as an abbreviation of \[\uAS{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}\]
@@ -1034,7 +1034,7 @@ We define $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$, when $\uPhi=\uAS{\uA}{\Phi}$
 %     \expandsUX{\autap{\ue}{\utau'}}{\aetap{e}{\tau'}}{[\tau'/t]\tau}
 %   }
 % \end{equation}
-% Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTSM context, $\uPsi$, passes opaquely through these rules (we will define ueTSM contexts below). Rules (\ref{rules:expandsTU}) were similarly generated by mechanically transforming Rules (\ref{rules:istypeU}).
+% Observe that, in each of these rules, the unexpanded and expanded expression forms in the conclusion correspond, and the premises correspond to those of the typing rule for the expanded expression form, i.e. Rules (\ref{rule:hastypeU-var}) through (\ref{rule:hastypeU-tap}), respectively. In particular, each type expansion premise in each rule above corresponds to a  type formation premise in the corresponding typing rule, and each typed expression expansion premise in each rule above corresponds to a typing premise in the corresponding typing rule. The type assigned in the conclusion of each rule above is identical to the type assigned in the conclusion of the corresponding typing rule. The ueTLM context, $\uPsi$, passes opaquely through these rules (we will define ueTLM contexts below). Rules (\ref{rules:expandsTU}) were similarly generated by mechanically transforming Rules (\ref{rules:istypeU}).
 
 % We can express this scheme more precisely with the following rule transformation. For each rule in Rules (\ref{rules:istypeU}) and Rules (\ref{rules:hastypeU}),
 % \begin{mathpar}
@@ -1259,7 +1259,7 @@ $\arraycolsep=2pt\begin{array}{lllllll}
   \begin{align*}
   \Cof{\aematchrule{p}{e}} & = \acematchrule{p}{\Cof{e}}
   \end{align*}
-  Notice that proto-rules bind expanded patterns, not proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by seTSMs. It would not be sensible for an seTSM to splice a pattern out of a literal body.
+  Notice that proto-rules bind expanded patterns, not proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by seTLMs. It would not be sensible for an seTLM to splice a pattern out of a literal body.
   \item Each expanded pattern, $p$, except for the variable patterns, maps onto a proto-pattern, $\Cof{p}$, as follows:
   \begin{align*}
   \Cof{\aewildp} & = \acewildp\\
@@ -2098,7 +2098,7 @@ The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cval
 i.e. by the definitions above, 
 \[\sizeof{\upv} < \sizeof{b}\]
 
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
+This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TLM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
 \end{proof}
 
 \end{grayparbox}
@@ -2190,7 +2190,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
   \item \expandsSG{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
 %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
   \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
 \end{pfsteps}
 \resetpfcounter 
@@ -2238,7 +2238,7 @@ By mutual rule induction over Rules (\ref{rules:expandsU}), \graytxtbox{Rule (\r
           \item \expandsUP{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau} \BY{assumption}\pflabel{expandsU}
         %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
          \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-        %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+        %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:seTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
           \item \hastypeU{\Delta}{\Gamma}{e}{\tau} \BY{IH, part 1(a) on \pfref{expandsU}}
         \end{pfsteps}
         \resetpfcounter 
@@ -2398,7 +2398,7 @@ The mutual induction can be shown to be well-founded by showing that the followi
 \sizeof{\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\ue}{e}{\tau}} & = \sizeof{\ue}\\
 \sizeof{\cvalidE{\Delta}{\Gamma}{\esceneSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 \end{align*}
-where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the seTSM literal bodies in $\ue$, as defined in Sec. \ref{appendix:SES-syntax}.
+where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the seTLM literal bodies in $\ue$, as defined in Sec. \ref{appendix:SES-syntax}.
 
 The only case in the proof of part 1 that invokes part 2 is Case (\ref{rule:expandsU-tsmap}). There, we have that the metric remains stable: \begin{align*}
  & \sizeof{\expandsSG{\uDelta}{\uGamma}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}}\\
@@ -2410,7 +2410,7 @@ The only case in the proof of part 2 that invokes part 1 is Case (\ref{rule:cval
 i.e. by the definitions above, 
 \[\sizeof{\ue} < \sizeof{b}\]
 
-This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and Condition \ref{condition:body-parsing}, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply a TSM and delimit each literal body. 
+This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and Condition \ref{condition:body-parsing}, which states that an unexpanded expression constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply a TLM and delimit each literal body. 
 Combining these conditions, we have that $\sizeof{\ue} < \sizeof{b}$ as needed.
 \end{proof}
 
@@ -3032,7 +3032,7 @@ By rule induction over Rules (\ref{rules:cvalidT-U}). In the following, let $\uD
 % }
 % \end{equation}
 
-\begin{theorem}[seTSM Abstract Reasoning Principles]
+\begin{theorem}[seTLM Abstract Reasoning Principles]
 \label{thm:tsc-SES}
 If $\expandsSG{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}$ then:
 \begin{enumerate}
@@ -3368,8 +3368,8 @@ then all of the following hold:
 \end{byCases}
 \end{proof}
 
-\begin{theorem}[spTSM Abstract Reasoning Principles]
-\label{thm:spTSM-Typing-Segmentation}
+\begin{theorem}[spTLM Abstract Reasoning Principles]
+\label{thm:spTLM-Typing-Segmentation}
 If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
@@ -4494,22 +4494,22 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 % & \color{Yellow} & \color{Yellow}\\
 &&
 %& \aumdefpetsm{\urho}{e}{\tsmv}{\uM} 
-& \defpetsm{\tsmv}{\urho}{e}{\uM} & \text{peTSM definition}\\
+& \defpetsm{\tsmv}{\urho}{e}{\uM} & \text{peTLM definition}\\
 %&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \aumletpetsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpetsm{\tsmv}{\uepsilon}{\uM} & \text{peTSM binding}\\
+& \uletpetsm{\tsmv}{\uepsilon}{\uM} & \text{peTLM binding}\\
 % &&&                                  & \texttt{expressions}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{peTSM designation}\\
+% &&& ... & ... & \text{peTLM designation}\\
 &&
 %& \audefpptsm{\urho}{e}{\tsmv}{\uM} 
-& \defpptsm{\tsmv}{\urho}{e}{\uM} & \text{ppTSM definition}\\
+& \defpptsm{\tsmv}{\urho}{e}{\uM} & \text{ppTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \auletpptsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}%\ECC%
+& \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTLM binding}%\ECC%
 % &&& & \texttt{patterns}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{ppTSM designation}\ECC
+% &&& ... & ... & \text{ppTLM designation}\ECC
 \end{array}\]%\vspace{-15px}
 % \caption[Syntax of unexpanded module expressions and signatures in $\miniVerseParam$]{Syntax of unexpanded module expressions and signatures in $\miniVerseParam$.}\vspace{-5px}
 % \label{fig:P-unexpanded-modules-signatures}
@@ -4645,20 +4645,20 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 % \LCC &&
 % %& \color{Yellow} 
 % & \color{Yellow} & \color{Yellow} \\
-% &&& \audefpetsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{peTSM definition}\\
+% &&& \audefpetsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{peTLM definition}\\
 % &&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
-% &&& \auletpetsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{peTSM binding}\\
+% &&& \auletpetsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{peTLM binding}\\
 % &&&                                  & \texttt{expressions}~\texttt{in}~\ue\\
-% &&& ... & ... & \text{peTSM designation}\\
+% &&& ... & ... & \text{peTLM designation}\\
 &&
 %& \auappetsm{b}{\uepsilon} 
-& \utsmap{\uepsilon}{b} & \text{peTSM application}\\%\ECC\\%\ECC
-% &&& \auelit{b} & {\lit{b}}  & \text{peTSM unadorned literal}\\
-% &&& \audefpptsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{ppTSM definition}\\
+& \utsmap{\uepsilon}{b} & \text{peTLM application}\\%\ECC\\%\ECC
+% &&& \auelit{b} & {\lit{b}}  & \text{peTLM unadorned literal}\\
+% &&& \audefpptsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{ppTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\
-% &&& \auletpptsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{ppTSM binding}\\
+% &&& \auletpptsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{ppTLM binding}\\
 % &&& & \texttt{patterns}~\texttt{in}~\ue\\
-% &&& ... & ... & \text{ppTSM designation}\\\ECC
+% &&& ... & ... & \text{ppTLM designation}\\\ECC
 \mathsf{URule} & \urv & ::= 
 %& \aumatchrule{\upv}{\ue} 
 & \matchrule{\upv}{\ue} & \text{match rule}\\
@@ -4683,14 +4683,14 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 % & \color{Yellow} & \color{Yellow}\\
 &&
 %& \auappptsm{b}{\uepsilon} 
-& \utsmap{\uepsilon}{b} & \text{ppTSM application}%\ECC
-% &&& \auplit{b} & \lit{b} & \text{ppTSM unadorned literal}\ECC
+& \utsmap{\uepsilon}{b} & \text{ppTLM application}%\ECC
+% &&& \auplit{b} & \lit{b} & \text{ppTLM unadorned literal}\ECC
 \end{array}\]
 % \caption[Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$.}
 % \label{fig:P-unexpanded-terms}
 % \end{figure}
 
-\subsubsection{Stylized Syntax -- Unexpanded TSM Types and Expressions}
+\subsubsection{Stylized Syntax -- Unexpanded TLM Types and Expressions}
 % \begin{figure}[p]
 \[\begin{array}{lllllll}
 \textbf{Sort} & & 
@@ -4711,7 +4711,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 & \allmods{\uX}{\usigma}{\urho} & \text{module parameterization}\\
 \mathsf{UMExp} & \uepsilon & ::= 
 %& \abindref{\tsmv} 
-& \tsmv & \text{TSM identifier reference}\\
+& \tsmv & \text{TLM identifier reference}\\
 % &&
 %& \auabstype{\ut}{\uepsilon} 
 % & \abstype{\ut}{\uepsilon} & \text{type abstraction}\\
@@ -4726,11 +4726,11 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 & \apmod{\uepsilon}{\uX} & \text{module application}%\ECC
 \end{array}
 \]
-% \caption{Syntax of unexpanded TSM types and expressions.}
+% \caption{Syntax of unexpanded TLM types and expressions.}
 % \label{fig:P-macro-expressions-types-u}
 % \end{figure}
 
-\subsubsection{Stylized Syntax -- TSM Types and Expressions}
+\subsubsection{Stylized Syntax -- TLM Types and Expressions}
 
 % \clearpage
 % \begin{figure}[p]
@@ -4752,7 +4752,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 & \text{module parameterization}\\
 \mathsf{MExp} & \epsilon & ::= & \adefref{a} 
 %& a 
-& \text{TSM definition reference}\\
+& \text{TLM definition reference}\\
 % &&& \aeabstype{t}{\epsilon} 
 %& \abstype{t}{\epsilon} 
 % & \text{type abstraction}\\
@@ -4766,7 +4766,7 @@ The Progress condition ensures that evaluation of a well-typed expanded expressi
 %& \aptype{\epsilon}{M} 
 & \text{module application}%\ECC
 \end{array}\]
-% \caption[Syntax of TSM types and expressions in $\miniVerseParam$]{Syntax of TSM types and expressions.}
+% \caption[Syntax of TLM types and expressions in $\miniVerseParam$]{Syntax of TLM types and expressions.}
 % \label{fig:P-macro-expressions-types}
 % \end{figure}
 
@@ -4963,26 +4963,26 @@ L_\mathtt{P} & \defeq \lbltxt{ParseError}, \lbltxt{Success}\\
 % \lbltxt{SuccessP}\cdot e & \defeq \aein{L_\mathtt{P}}{\mathtt{Success}}{\mapitem{\mathtt{ParseError}}{\tpl{}}, \mapitem{\mathtt{Success}}{\tCEPat}}{e}
 \end{align*} %[\mapitem{\lbltxt{ParseError}}{\prodt{}}, \mapitem{\lbltxt{SuccessE}}{\tCEExp}]
 
-\subsubsection{TSM Contexts}
-\emph{peTSM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TSM identifier expansion context} and $\Psi$ is a \emph{peTSM definition context}.
+\subsubsection{TLM Contexts}
+\emph{peTLM contexts}, $\uPsi$, are of the form $\uAS{\uA}{\Psi}$, where $\uA$ is a \emph{TLM identifier expansion context} and $\Psi$ is a \emph{peTLM definition context}.
 
-\emph{ppTSM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a TSM identifier expansion context and $\Phi$ is a \emph{ppTSM definition context}.
+\emph{ppTLM contexts}, $\uPhi$, are of the form $\uAS{\uA}{\Phi}$, where $\uA$ is a TLM identifier expansion context and $\Phi$ is a \emph{ppTLM definition context}.
 
-A \emph{TSM identifier expansion context}, $\uA$, is a finite function mapping each TSM identifier $\tsmv \in \domof{\uA}$ to the \emph{TSM identifier expansion}, $\vExpands{\tsmv}{\epsilon}$, for some \emph{TSM expression}, $\epsilon$. We write $\ctxUpdate{\uA}{\tsmv}{\epsilon}$ for the TSM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{\epsilon}$, and defers to $\uA$ for all other TSM identifiers (i.e. the previous mapping is \emph{updated}.)
+A \emph{TLM identifier expansion context}, $\uA$, is a finite function mapping each TLM identifier $\tsmv \in \domof{\uA}$ to the \emph{TLM identifier expansion}, $\vExpands{\tsmv}{\epsilon}$, for some \emph{TLM expression}, $\epsilon$. We write $\ctxUpdate{\uA}{\tsmv}{\epsilon}$ for the TLM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{\epsilon}$, and defers to $\uA$ for all other TLM identifiers (i.e. the previous mapping is \emph{updated}.)
 
-A \emph{peTSM definition context}, $\Psi$, is a finite function mapping each TSM name $a \in \domof{\Psi}$ to an \emph{expanded peTSM definition}, $\petsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the peTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \petsmdefn{a}{\rho}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\petsmdefn{a}{\rho}{\eparse}$. We write $\petsmenv{\Omega}{\Psi}$  when all the TSM type annotations in $\Psi$ are well-formed assuming $\Omega$, and the parse functions in $\Psi$ are closed and of the appropriate type.
+A \emph{peTLM definition context}, $\Psi$, is a finite function mapping each TLM name $a \in \domof{\Psi}$ to an \emph{expanded peTLM definition}, $\petsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the peTLM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \petsmdefn{a}{\rho}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\petsmdefn{a}{\rho}{\eparse}$. We write $\petsmenv{\Omega}{\Psi}$  when all the TLM type annotations in $\Psi$ are well-formed assuming $\Omega$, and the parse functions in $\Psi$ are closed and of the appropriate type.
 
 
-\begin{definition}[peTSM Definition Context Formation]\label{def:peTSM-def-ctx-formation} $\petsmenv{\Omega}{\Psi}$ iff for each ${\petsmdefn{a}{\rho}{\eparse}} \in \Psi$, we have $\istsmty{\Omega}{\rho}$ and \[\hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\]\end{definition}
+\begin{definition}[peTLM Definition Context Formation]\label{def:peTLM-def-ctx-formation} $\petsmenv{\Omega}{\Psi}$ iff for each ${\petsmdefn{a}{\rho}{\eparse}} \in \Psi$, we have $\istsmty{\Omega}{\rho}$ and \[\hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPCEExp}}\]\end{definition}
 
-\begin{definition}[peTSM Context Formation] $\petsmctx{\Omega}{\uAS{\uA}{\Psi}}$ iff $\petsmenv{\Omega}{\Psi}$ and for each $\vExpands{\tsmv}{\epsilon} \in \uA$ we have $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ for some $\rho$.
+\begin{definition}[peTLM Context Formation] $\petsmctx{\Omega}{\uAS{\uA}{\Psi}}$ iff $\petsmenv{\Omega}{\Psi}$ and for each $\vExpands{\tsmv}{\epsilon} \in \uA$ we have $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ for some $\rho$.
 \end{definition}
 
-A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM name $a \in \domof{\Phi}$ to an \emph{expanded ppTSM definition}, $\pptsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the ppTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \pptsmdefn{a}{\rho}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\pptsmdefn{a}{\rho}{\eparse}$. We write $\pptsmenv{\Omega}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Omega$, and the parse functions in $\Phi$ are closed and of the appropriate type.
+A \emph{ppTLM definition context}, $\Phi$, is a finite function mapping each TLM name $a \in \domof{\Phi}$ to an \emph{expanded ppTLM definition}, $\pptsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the ppTLM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \pptsmdefn{a}{\rho}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\pptsmdefn{a}{\rho}{\eparse}$. We write $\pptsmenv{\Omega}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Omega$, and the parse functions in $\Phi$ are closed and of the appropriate type.
 
-\begin{definition}[ppTSM Definition Context Formation]\label{def:ppTSM-def-ctx-formation} $\pptsmenv{\Omega}{\Phi}$ iff for each $\pptsmdefn{\tsmv}{\rho}{\eparse} \in \Phi$, we have $\istsmty{\Omega}{\rho}$ and \[\hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\]\end{definition}
+\begin{definition}[ppTLM Definition Context Formation]\label{def:ppTLM-def-ctx-formation} $\pptsmenv{\Omega}{\Phi}$ iff for each $\pptsmdefn{\tsmv}{\rho}{\eparse} \in \Phi$, we have $\istsmty{\Omega}{\rho}$ and \[\hastypeP{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultCEPat}}\]\end{definition}
 
-\begin{definition}[ppTSM Context Formation] $\pptsmctx{\Omega}{\uAS{\uA}{\Phi}}$ iff $\pptsmenv{\Omega}{\Phi}$ and for each $\vExpands{\tsmv}{\epsilon} \in \uA$ we have $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ for some $\rho$.
+\begin{definition}[ppTLM Context Formation] $\pptsmctx{\Omega}{\uAS{\uA}{\Phi}}$ iff $\pptsmenv{\Omega}{\Phi}$ and for each $\vExpands{\tsmv}{\epsilon} \in \uA$ we have $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ for some $\rho$.
 \end{definition}
 
 \subsubsection{Signature and Module Expansion}
@@ -5366,7 +5366,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
   }
 \end{equation}
 
-% ueTSMs can be defined and applied in synthetic position.
+% ueTLMs can be defined and applied in synthetic position.
 % \begin{equation}\label{rule:expandsP-defpetsm}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -5407,14 +5407,14 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 
 % These rules are nearly identical to Rules (\ref{rule:expandsUP-syntax}) and (\ref{rule:expandsUP-tsmap}), differing only in that the typed expansion premises have been replaced by corresponding synthetic typed expansion premises. The premises of these rules can be understood as described in Sections \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. The body encoding judgement and candidate expansion expression decoding judgements were characterized in Sec. \ref{sec:typed-expansion-UP}. We discuss candidate expansion validation in Sec. \ref{sec:ce-validation-B} below.
 
-% To support ueTSM implicits, ueTSM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TSM naming contexts, $\uA$, and ueTSM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
+% To support ueTLM implicits, ueTLM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TLM naming contexts, $\uA$, and ueTLM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
 
-% \emph{TSM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
+% \emph{TLM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TLM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TLM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
 
-% The TSM designation context in the ueTSM context is updated by expressions of ueTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-%\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+% The TLM designation context in the ueTLM context is updated by expressions of ueTLM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+%\begin{definition}[TLM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
 
-% \todo{peTSM implicit designation}
+% \todo{peTLM implicit designation}
 % \begin{equation}\label{rule:expandsP-implicite}
 %   \inferrule{
 %     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
@@ -5423,7 +5423,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 %   }
 % \end{equation}
 
-% % Like ueTSMs, upTSMs can be defined in synthetic position.
+% % Like ueTLMs, upTLMs can be defined in synthetic position.
 % \begin{equation}\label{rule:expandsP-syntaxup}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -5446,11 +5446,11 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 
 % % This rule is nearly identical to Rule (\ref{rule:expandsUP-defuptsm}), differing only in that the typed expansion premise has been replaced by the corresponding synthetic typed expansion premise. The premises can be understood as described in Section \ref{sec:uptsm-definition}.
 
-% % To support upTSM implicits, upTSM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTSM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
+% % To support upTLM implicits, upTLM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTLM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
 
-% % The TSM designation context in the upTSM context is updated by expressions of upTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-% %\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
-% \todo{ppTSM implicit designation}
+% % The TLM designation context in the upTLM context is updated by expressions of upTLM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+% %\begin{definition}[TLM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+% \todo{ppTLM implicit designation}
 % \begin{equation}\label{rule:expandsP-implicitp}
 %   \inferrule{
 %     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
@@ -5472,7 +5472,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 
 % Rule (\ref{rule:esyn-match}) governed match expressions in synthetic position. The following rule governs match expressions in analytic position.
 
-% Rule (\ref{rule:esyn-defuetsm}) governed ueTSM definitions in synthetic position. The following rule governs ueTSM definitions in analytic position.
+% Rule (\ref{rule:esyn-defuetsm}) governed ueTLM definitions in synthetic position. The following rule governs ueTLM definitions in analytic position.
 % \begin{equation}\label{rule:expandsP-defpetsm}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -5492,8 +5492,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 % }
 % \end{equation}
 
-% \todo{peTSM implicit designation}
-% Rule (\ref{rule:esyn-implicite}) governed ueTSM designations in synthetic position. The following rule governs ueTSM designations in analytic position.
+% \todo{peTLM implicit designation}
+% Rule (\ref{rule:esyn-implicite}) governed ueTLM designations in synthetic position. The following rule governs ueTLM designations in analytic position.
 % \begin{equation}\label{rule:expandsP-implicite}
 %   \inferrule{
 %     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
@@ -5502,11 +5502,11 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 %   }
 % \end{equation}
 
-% \todo{peTSM implicit application}
-% % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TSM designated at the type that the expression is being analyzed against from the TSM designation context in the ueTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
+% \todo{peTLM implicit application}
+% % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TLM designated at the type that the expression is being analyzed against from the TLM designation context in the ueTLM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
 
 
-% Rule (\ref{rule:esyn-defuptsm}) governed upTSM definitions in synthetic position. The following rule governs upTSM definitions in analytic position.
+% Rule (\ref{rule:esyn-defuptsm}) governed upTLM definitions in synthetic position. The following rule governs upTLM definitions in analytic position.
 % \begin{equation}\label{rule:expandsP-syntaxup}
 % \inferrule{
 %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -5528,8 +5528,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 % \end{equation}
 
 
-% \todo{ppTSM implicit designation}
-% % Rule (\ref{rule:esyn-implicitp}) governed upTSM designations in synthetic position. The following rule governs upTSM designations in analytic position.
+% \todo{ppTLM implicit designation}
+% % Rule (\ref{rule:esyn-implicitp}) governed upTLM designations in synthetic position. The following rule governs upTLM designations in analytic position.
 % \begin{equation}\label{rule:expandsP-implicitp}
 %   \inferrule{
 %     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
@@ -5628,7 +5628,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\subsubsection{TSM Type and Expression Expansion}
+\subsubsection{TLM Type and Expression Expansion}
 \noindent\fbox{$\strut\tsmtyExpands{\uOmega}{\urho}{\rho}$}~~$\urho$ has well-formed expansion $\rho$
 \begin{subequations}\label{rules:tsmtyExpands}
 \begin{equation}\label{rule:tsmtyExpands-type}
@@ -5655,7 +5655,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho}$}~~$\uepsilon$ has peTSM expression expansion $\epsilon$ at $\rho$
+\noindent\fbox{$\strut\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho}$}~~$\uepsilon$ has peTLM expression expansion $\epsilon$ at $\rho$
 \begin{subequations}\label{rules:tsmexpExpandsExp}
 \begin{equation}\label{rule:tsmexpExpandsExp-bindref}
 \inferrule{
@@ -5697,7 +5697,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpExpandsPat{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho}$}~~$\uepsilon$ has ppTSM expression expansion $\epsilon$ at $\rho$
+\noindent\fbox{$\strut\tsmexpExpandsPat{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho}$}~~$\uepsilon$ has ppTLM expression expansion $\epsilon$ at $\rho$
 \begin{subequations}\label{rules:tsmexpExpandsPat}
 \begin{equation}\label{rule:tsmexpExpandsPat-bindref}
 \inferrule{
@@ -5739,8 +5739,8 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\subsubsection{Statics of the TSM Language}
-\noindent\fbox{$\strut\istsmty{\Omega}{\rho}$}~~$\rho$ is a TSM type
+\subsubsection{Statics of the TLM Language}
+\noindent\fbox{$\strut\istsmty{\Omega}{\rho}$}~~$\rho$ is a TLM type
 \begin{subequations}\label{rules:istsmty}
 \begin{equation}\label{rule:istsmty-type}
 \inferrule{
@@ -5766,7 +5766,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$}~~$\epsilon$ is a peTSM expression at $\rho$
+\noindent\fbox{$\strut\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$}~~$\epsilon$ is a peTLM expression at $\rho$
 \begin{subequations}\label{rules:hastsmtypeExp}
 \begin{equation}\label{rule:hastsmtypeExp-defref}
 \inferrule{
@@ -5808,7 +5808,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$}~~$\epsilon$ is a ppTSM expression at $\rho$
+\noindent\fbox{$\strut\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$}~~$\epsilon$ is a ppTLM expression at $\rho$
 \begin{subequations}\label{rules:hastsmtypePat}
 \begin{equation}\label{rule:hastsmtypePat-defref}
 \inferrule{
@@ -5851,7 +5851,7 @@ A \emph{ppTSM definition context}, $\Phi$, is a finite function mapping each TSM
 
 \end{subequations}
 
-The following metafunction extracts the TSM name from a TSM expression.
+The following metafunction extracts the TLM name from a TLM expression.
 \begin{subequations}
 \begin{align}
 \tsmdefof{\adefref{a}} & = a \label{eqn:tsmdefof-adefref}\\
@@ -5862,9 +5862,9 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{align}
 \end{subequations}
 
-\subsubsection{Dynamics of the TSM Language}
+\subsubsection{Dynamics of the TLM Language}
 
-\noindent\fbox{$\strut\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ transitions to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTLM expression $\epsilon$ transitions to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpStepsExp}
 % \begin{equation}\label{rule:tsmexpStepsExp-aptype-1}
 % \inferrule{
@@ -5892,7 +5892,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ transitions to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTLM expression $\epsilon$ transitions to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpStepsPat}
 % \begin{equation}\label{rule:tsmexpStepsPat-aptype-1}
 % \inferrule{
@@ -5920,7 +5920,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTLM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpMultistepsExp}
 \begin{equation}\label{rule:tsmexpMultistepsExp-refl}
 \inferrule{ }{
@@ -5944,7 +5944,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpMultistepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpMultistepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTLM expression $\epsilon$ transitions in multiple steps to $\epsilon'$
 \begin{subequations}\label{rules:tsmexpMultistepsPat}
 \begin{equation}\label{rule:tsmexpMultistepsPat-refl}
 \inferrule{ }{
@@ -5968,7 +5968,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\strut\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTSM expression $\epsilon$ normalizes to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~peTLM expression $\epsilon$ normalizes to $\epsilon'$
 \begin{equation}\label{rule:tsmexpEvalsExp}
 \inferrule{
   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
@@ -5979,7 +5979,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 
 
-\noindent\fbox{$\strut\tsmexpEvalsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTSM expression $\epsilon$ normalizes to $\epsilon'$
+\noindent\fbox{$\strut\tsmexpEvalsPat{\Omega}{\Psi}{\epsilon}{\epsilon'}$}~~ppTLM expression $\epsilon$ normalizes to $\epsilon'$
 \begin{equation}\label{rule:tsmexpEvalsPat}
 \inferrule{
   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
@@ -5990,7 +5990,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 
 
-\noindent\fbox{$\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal peTSM expression
+\noindent\fbox{$\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal peTLM expression
 \begin{subequations}\label{rules:tsmexpNormalExp}
 \begin{equation}\label{rule:tsmexpNormalExp-defref}
 \inferrule{ }{
@@ -6025,7 +6025,7 @@ The following metafunction extracts the TSM name from a TSM expression.
 \end{equation}
 \end{subequations}
 
-\noindent\fbox{$\tsmexpNormalPat{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal ppTSM expression
+\noindent\fbox{$\tsmexpNormalPat{\Omega}{\Psi}{\epsilon}$}~~$\epsilon$ is a normal ppTLM expression
 \begin{subequations}\label{rules:tsmexpNormalPat}
 \begin{equation}\label{rule:tsmexpNormalPat-defref}
 \inferrule{ }{
@@ -6190,7 +6190,7 @@ Each expanded term, with a few exceptions noted below, maps onto a proto-expansi
   \begin{align*}
   \Cof{\aematchrule{p}{e}} & = \acematchrule{p}{\Cof{e}}
   \end{align*}
-  Notice that proto-rules bind expanded patterns, not proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by peTSMs. It would not be sensible for an peTSM to splice a pattern out of a literal body.
+  Notice that proto-rules bind expanded patterns, not proto-patterns. This is because proto-rules appear in proto-expressions, which are generated by peTLMs. It would not be sensible for an peTLM to splice a pattern out of a literal body.
   \item Each expanded pattern, $p$, except for the variable patterns, maps onto a proto-pattern, $\Cof{p}$, as follows:
   \begin{align*}
   \Cof{\aewildp} & = \acewildp\\
@@ -6479,7 +6479,7 @@ The predicate $\segOKP{\Omega}{\cscenev}{\psi}{b}$ checks that each segment in $
 \begin{minipage}{0.42\textwidth}
 \noindent\fbox{$\strut\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$}\end{minipage}
 \begin{minipage}{0.58\textwidth}
-When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
+When applying peTLM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepce}
 \begin{equation}\label{rule:prepce-ceexp}
 \inferrule{
@@ -6510,7 +6510,7 @@ When applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rh
 \noindent\begin{minipage}{0.42\textwidth}
 \fbox{$\strut\prepcp{\Omega_\text{app}}{\Phi}{\pcp}{\cpv}{\epsilon}{\rho}{\omega}{\Omega_\text{params}}$}\end{minipage}
 \begin{minipage}{0.58\textwidth}
-When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
+When applying ppTLM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\rho$ with parameter substitution $\omega$\end{minipage}
 \begin{subequations}\label{rules:prepcp}
 \begin{equation}\label{rule:prepcp-cepat}
 \inferrule{
@@ -6561,7 +6561,7 @@ When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\r
 
 \subsection{Proto-Expansion Validation}
 \subsubsection{Splicing Scenes}
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{construction splicing scenes}, $\cscenev$, are of the form $\csceneP{\omega : \Omega_\text{params}}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}$. We write $\csfrom{\escenev}$ for the construction splicing scene constructed by dropping the TSM contexts from $\escenev$:
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{construction splicing scenes}, $\cscenev$, are of the form $\csceneP{\omega : \Omega_\text{params}}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}$. We write $\csfrom{\escenev}$ for the construction splicing scene constructed by dropping the TLM contexts from $\escenev$:
 \[\csfrom{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}} = \csceneP{\omega : \OParams}{\uOmega}{b}\]
 
 \subsubsection{Proto-Kind and Proto-Construction Validation}
@@ -6925,9 +6925,9 @@ When applying ppTSM $\epsilon$, $\pcp$ has deparameterization $\cpv$ leaving $\r
 
 
 \section{Metatheory}\label{appendix:metatheory-P}
-\subsection{TSM Expressions}
-\begin{lemma}[peTSM Regularity]
-\label{lemma:peTSM-regularity}
+\subsection{TLM Expressions}
+\begin{lemma}[peTLM Regularity]
+\label{lemma:peTLM-regularity}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
 \end{lemma}
 \begin{proof}
@@ -6962,32 +6962,32 @@ If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
   \end{byCases}
 \end{proof}
 
-\begin{lemma}[ppTSM Regularity]
-\label{lemma:ppTSM-regularity}
+\begin{lemma}[ppTLM Regularity]
+\label{lemma:ppTLM-regularity}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then $\istsmty{\Omega}{\rho}$.
 \end{lemma}
 \begin{proof}
-By rule induction over Rules (\ref{rules:hastsmtypePat}). The proof is nearly identical to the proof of Lemma \ref{lemma:peTSM-regularity}, differing only in that ppTSM contexts and the corresponding judgements are mentioned.
+By rule induction over Rules (\ref{rules:hastsmtypePat}). The proof is nearly identical to the proof of Lemma \ref{lemma:peTLM-regularity}, differing only in that ppTLM contexts and the corresponding judgements are mentioned.
 \end{proof}
 
-\begin{lemma}[peTSM Unicity]
-\label{lemma:peTSM-unicity}
+\begin{lemma}[peTLM Unicity]
+\label{lemma:peTLM-unicity}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho'}$ then $\rho=\rho'$.
 \end{lemma}
 \begin{proof}
   By rule induction over Rules (\ref{rules:hastsmtypeExp}). The rules are syntax-directed, so the proof is by straightforward observations of syntactic contradictions.
 \end{proof}
 
-\begin{lemma}[ppTSM Unicity]
-\label{lemma:ppTSM-unicity}
+\begin{lemma}[ppTLM Unicity]
+\label{lemma:ppTLM-unicity}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho'}$ then $\rho=\rho'$.
 \end{lemma}
 \begin{proof}
   By rule induction over Rules (\ref{rules:hastsmtypePat}). The rules are syntax-directed, so the proof is by straightforward observations of syntactic contradictions.
 \end{proof}
 
-\begin{theorem}[peTSM Preservation]
-\label{thm:peTSM-preservation}
+\begin{theorem}[peTLM Preservation]
+\label{thm:peTLM-preservation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{theorem}
 \begin{proof}
@@ -7031,38 +7031,38 @@ By rule induction over Rules (\ref{rules:tsmexpStepsExp}).
 \end{byCases}
 \end{proof}
 
-\begin{corollary}[peTSM Preservation (Multistep)]
-\label{thm:peTSM-preservation-multistep}
+\begin{corollary}[peTLM Preservation (Multistep)]
+\label{thm:peTLM-preservation-multistep}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:peTSM-preservation} over each step. \end{proof}
+\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:peTLM-preservation} over each step. \end{proof}
 
-\begin{corollary}[peTSM Preservation (Evaluation)]
-\label{thm:peTSM-preservation-evaluation}
+\begin{corollary}[peTLM Preservation (Evaluation)]
+\label{thm:peTLM-preservation-evaluation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:peTSM-preservation-multistep}. \end{proof}
+\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:peTLM-preservation-multistep}. \end{proof}
 
-\begin{theorem}[ppTSM Preservation]
-\label{thm:ppTSM-preservation}
+\begin{theorem}[ppTLM Preservation]
+\label{thm:ppTLM-preservation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{theorem}
-\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-preservation}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTLM-preservation}, differing only in that ppTLM contexts and the corresponding judgements are mentioned. \end{proof}
 
-\begin{corollary}[ppTSM Preservation (Multistep)]
-\label{thm:ppTSM-preservation-multistep}
+\begin{corollary}[ppTLM Preservation (Multistep)]
+\label{thm:ppTLM-preservation-multistep}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:ppTSM-preservation} over each step. \end{proof}
+\begin{proof} The multistep relation is the reflexive, transitive closure of the single step relation, so the proof follows by applying Theorem \ref{thm:ppTLM-preservation} over each step. \end{proof}
 
-\begin{corollary}[ppTSM Preservation (Evaluation)]
-\label{thm:ppTSM-preservation-evaluation}
+\begin{corollary}[ppTLM Preservation (Evaluation)]
+\label{thm:ppTLM-preservation-evaluation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpEvalsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{corollary}
-\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:ppTSM-preservation-multistep}. \end{proof}
+\begin{proof} The evaluation relation is the multistep relation with an additional requirement, so the proof follows directly from Corollary \ref{thm:ppTLM-preservation-multistep}. \end{proof}
 
-\begin{theorem}[peTSM Progress]
-\label{thm:peTSM-progress}
+\begin{theorem}[peTLM Progress]
+\label{thm:peTLM-progress}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then either $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$.
 \end{theorem}
 \begin{proof}
@@ -7141,11 +7141,11 @@ By rule induction over Rules (\ref{rules:hastsmtypeExp}).
 \end{byCases}
 \end{proof}
 
-\begin{theorem}[ppTSM Progress]
-\label{thm:ppTSM-progress}
+\begin{theorem}[ppTLM Progress]
+\label{thm:ppTLM-progress}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalPat{\Omega}{\Phi}{\epsilon}$.
 \end{theorem}
-\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-progress}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTLM-progress}, differing only in that ppTLM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsection{Typed Expansion}
 \subsubsection{Kinds, Constructions and Signatures}
@@ -7168,8 +7168,8 @@ If $\sigExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\usigma}{\sigma}$ then $\i
 \begin{proof} By rule induction over Rule (\ref{rule:sigExpandsP}). Apply Theorem \ref{thm:kind-and-constructor-expansion-P} to each premise, then apply Rule (\ref{rule:issig}). \end{proof}
 
 
-\subsubsection{TSM Types and Expressions}
-\begin{theorem}[TSM Type Expansion]
+\subsubsection{TLM Types and Expressions}
+\begin{theorem}[TLM Type Expansion]
 \label{thm:tsm-type-expansion-P}
 If $\tsmtyExpands{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\urho}{\rho}$ then $\istsmty{\Omega}{\rho}$.
 \end{theorem}
@@ -7199,8 +7199,8 @@ If $\tsmtyExpands{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\urho}{\rho}$ then $\ists
 
 \end{proof}
 
-\begin{theorem}[peTSM Expression Expansion]
-\label{thm:peTSM-expression-expansion}
+\begin{theorem}[peTLM Expression Expansion]
+\label{thm:peTLM-expression-expansion}
 If $\tsmexpExpandsExp{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$.
 \end{theorem}
 \begin{proof}
@@ -7241,11 +7241,11 @@ By rule induction over Rules (\ref{rules:tsmexpExpandsExp}). In the following, l
 
 \end{proof}
 
-\begin{theorem}[ppTSM Expression Expansion]
-\label{thm:ppTSM-expression-expansion}
+\begin{theorem}[ppTLM Expression Expansion]
+\label{thm:ppTLM-expression-expansion}
 If $\tsmexpExpandsPat{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$.
 \end{theorem}
-\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTSM-expression-expansion}, differing only in that ppTSM contexts and the corresponding judgements are mentioned. \end{proof}
+\begin{proof} The proof is nearly identical to the proof of Theorem \ref{thm:peTLM-expression-expansion}, differing only in that ppTLM contexts and the corresponding judgements are mentioned. \end{proof}
 
 \subsubsection{Patterns}
 \begin{lemma}[Proto-Pattern Deparameterization]
@@ -7757,7 +7757,7 @@ By rule induction over Rules (\ref{rules:mExpandsP}). In the following, let $\uO
   \end{enumerate}
 \end{proof}
 
-\begin{theorem}[peTSM Abstract Reasoning Principles]
+\begin{theorem}[peTLM Abstract Reasoning Principles]
 \label{thm:petsm-abstract-reasoning-principles}
 If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 \begin{enumerate}
@@ -7864,12 +7864,12 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
       \item $\prepce{\Omega_\text{app}}{\Psi}{\pce}{\ce}{\epsilon_\text{normal}}{\aetype{\tau_\text{proto}}}{\omega}{\Omega_\text{params}}$ \BY{assumption} \pflabel{prepce}
       \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\ce}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidEP{\Omega_\text{params}}{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}}{\ce}{e'}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalid}
-      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:peTSM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
-      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:peTSM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:peTLM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
+      \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:peTLM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
       \item $\hastsmtypeExp{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{[\omega]\aetype{\tau_\text{proto}}}$ \BY{Lemma \ref{lemma:expression-deparameterization-P} on \pfref{prepce}} \pflabel{hastsmtypeNormal2}
-      \item $\aetype{\tau_\text{final}} = [\omega]\aetype{\tau_\text{proto}}$ \BY{Theorem \ref{lemma:peTSM-unicity} on \pfref{hastsmtypeNormal} and \pfref{hastsmtypeNormal2}} \pflabel{tsmtypeseq}
+      \item $\aetype{\tau_\text{final}} = [\omega]\aetype{\tau_\text{proto}}$ \BY{Theorem \ref{lemma:peTLM-unicity} on \pfref{hastsmtypeNormal} and \pfref{hastsmtypeNormal2}} \pflabel{tsmtypeseq}
       \item $\tau_\text{final}=[\omega]\tau_\text{proto}=\tau$ \BY{definition of substitution and \pfref{tsmtypeseq} and \pfref{tau}} \pflabel{feqp}
-      \item $\istsmty{\Omega_\text{app}}{\aetype{\tau_\text{final}}}$ \BY{Lemma \ref{lemma:peTSM-regularity} on \pfref{hastsmtype}} \pflabel{istsmty}
+      \item $\istsmty{\Omega_\text{app}}{\aetype{\tau_\text{final}}}$ \BY{Lemma \ref{lemma:peTLM-regularity} on \pfref{hastsmtype}} \pflabel{istsmty}
       \item $\haskind{\Omega_\text{app}}{\tau}{\akty}$ \BY{Inversion of Rule (\ref{rule:istsmty-type}) on \pfref{istsmty}} \pflabel{istype}
       \item $\cequal{\Omega_\text{app}}{\tau}{\tau}{\akty}$ \BY{Rule (\ref{rule:cequal-refl}) on \pfref{istype}} \pflabel{refl}
       \item $\issubtypeP{\Omega_\text{app}}{\tau}{\tau}$ \BY{Rule (\ref{rule:issubtypeP-equal}) on \pfref{refl}} \pflabel{subty}
@@ -7972,7 +7972,7 @@ If $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{
 
  \end{proof}
 
-\begin{theorem}[ppTSM Abstract Reasoning Principles]
+\begin{theorem}[ppTLM Abstract Reasoning Principles]
 \label{thm:pptsm-abstract-reasoning-principles}
 If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
 \begin{enumerate}
@@ -8077,12 +8077,12 @@ By rule induction over Rules (\ref{rules:patExpandsP}). There are two rules that
       \item $\segOKP{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\segof{\cpv}}{b}$ \BY{assumption} \pflabel{segOK}
       \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$ \BY{assumption} \pflabel{cvalidPP}
         \item $\tau=[\omega]\tau_\text{proto}$ \BY{assumption} \pflabel{tau}
-      \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:ppTSM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
-      \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:ppTSM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon}{\aetype{\tau_\text{final}}}$ \BY{Theorem \ref{thm:ppTLM-expression-expansion} on \pfref{tsmexpExpands}} \pflabel{hastsmtype}
+      \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{\aetype{\tau_\text{final}}}$ \BY{Corollary \ref{thm:ppTLM-preservation-evaluation} on \pfref{hastsmtype} and \pfref{tsmexpEvals}} \pflabel{hastsmtypeNormal}
       \item $\hastsmtypePat{\Omega_\text{app}}{\Psi}{\epsilon_\text{normal}}{[\omega]\aetype{\tau_\text{proto}}}$ \BY{Lemma \ref{lemma:pattern-deparameterization-P} on \pfref{prep}} \pflabel{hastsmtypeNormal2}
-      \item $\aetype{\tau_\text{final}} = [\omega]\aetype{\tau_\text{proto}}$ \BY{Theorem \ref{lemma:ppTSM-unicity} on \pfref{hastsmtypeNormal} and \pfref{hastsmtypeNormal2}} \pflabel{tsmtypeseq}
+      \item $\aetype{\tau_\text{final}} = [\omega]\aetype{\tau_\text{proto}}$ \BY{Theorem \ref{lemma:ppTLM-unicity} on \pfref{hastsmtypeNormal} and \pfref{hastsmtypeNormal2}} \pflabel{tsmtypeseq}
       \item $\tau_\text{final}=[\omega]\tau_\text{proto}=\tau$ \BY{definition of substitution and \pfref{tsmtypeseq} and \pfref{tau}} \pflabel{feqp}
-      \item $\istsmty{\Omega_\text{app}}{\aetype{\tau_\text{final}}}$ \BY{Lemma \ref{lemma:ppTSM-regularity} on \pfref{hastsmtype}} \pflabel{istsmty}
+      \item $\istsmty{\Omega_\text{app}}{\aetype{\tau_\text{final}}}$ \BY{Lemma \ref{lemma:ppTLM-regularity} on \pfref{hastsmtype}} \pflabel{istsmty}
       \item $\haskind{\Omega_\text{app}}{\tau}{\akty}$ \BY{Inversion of Rule (\ref{rule:istsmty-type}) on \pfref{istsmty}} \pflabel{istype}
       \item $\cequal{\Omega_\text{app}}{\tau}{\tau}{\akty}$ \BY{Rule (\ref{rule:cequal-refl}) on \pfref{istype}} \pflabel{refl}
       \item $\issubtypeP{\Omega_\text{app}}{\tau}{\tau}$ \BY{Rule (\ref{rule:issubtypeP-equal}) on \pfref{refl}} \pflabel{subty}
@@ -8195,9 +8195,9 @@ The stylized syntax extends the stylized syntax of the $\miniVersePat$ UL given 
 % &&
 %& \auletsyn{\ux}{\ue}{\ue} 
 % & \letsyn{\ux}{\ue}{\ue} & \text{value binding}\\
-&&& \implicite{\tsmv}{\ue} & \text{seTSM designation}\\
-&&& \implicitp{\tsmv}{\ue} & \text{spTSM designation}\\
-&&& \lit{b} & \text{seTSM unadorned literal}\\
+&&& \implicite{\tsmv}{\ue} & \text{seTLM designation}\\
+&&& \implicitp{\tsmv}{\ue} & \text{spTLM designation}\\
+&&& \lit{b} & \text{seTLM unadorned literal}\\
 % &&& \auanalam{\ux}{\ue} & \analam{\ux}{\ue} & \text{abstraction (unannotated)}\\
 % &&& \aulam{\utau}{\ux}{\ue} & \lam{\ux}{\utau}{\ue} & \text{abstraction (annotated)}\\
 % &&& \auap{\ue}{\ue} & \ap{\ue}{\ue} & \text{application}\\
@@ -8209,18 +8209,18 @@ The stylized syntax extends the stylized syntax of the $\miniVersePat$ UL given 
 % &&& \aupr{\ell}{\ue} & \prj{\ue}{\ell} & \text{projection}\\
 % &&& \auanain{\ell}{\ue} & \inj{\ell}{\ue} & \text{injection}\\
 % &&& \aumatchwithb{n}{\ue}{\seqschemaX{\urv}} & \matchwith{\ue}{\seqschemaX{\urv}} & \text{match}\\
-% &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTSM definition}\\
+% &&& \audefuetsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{ueTLM definition}\\
 % &&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
 % \LCC &&& \color{light-gray} & \color{light-gray} & \color{light-gray} \\
-% &&& \auimplicite{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{ueTSM designation}\\
+% &&& \auimplicite{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{ueTLM designation}\\
 % &&&                          & \texttt{expressions\,in}~\ue\\ \ECC
-% &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTSM application}\\%\ECC
+% &&& \autsmap{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{ueTLM application}\\%\ECC
 % \LCC &&& \color{light-gray} & \color{light-gray} & \color{light-gray} \\
-% &&& \auelit{b} & {\lit{b}}  & \text{ueTSM unadorned literal}\\\ECC
-% &&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTSM definition}\\
+% &&& \auelit{b} & {\lit{b}}  & \text{ueTLM unadorned literal}\\\ECC
+% &&& \audefuptsm{\utau}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\utau~\texttt{for} & \text{upTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\
 % \LCC &&& \color{light-gray} & \color{light-gray} & \color{light-gray} \\
-% &&& \auimplicitp{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{upTSM designation}\\
+% &&& \auimplicitp{\tsmv}{\ue} & \texttt{implicit\,syntax}~\tsmv~\texttt{for} & \text{upTLM designation}\\
 % &&&                          & \texttt{patterns\,in}~\ue\\ \ECC
 \mathsf{URule} & \urv & ::= 
 %& \aumatchrule{\upv}{\ue} 
@@ -8228,14 +8228,14 @@ The stylized syntax extends the stylized syntax of the $\miniVersePat$ UL given 
 \mathsf{UPat} & \upv & ::= 
 %& \ux 
 & \cdots & \text{(as in $\miniVersePat$)}\\
-&&& \lit{b} & \text{spTSM unadorned literal}
+&&& \lit{b} & \text{spTLM unadorned literal}
 % &&& \auwildp & \wildp & \text{wildcard pattern}\\
 % &&& \aufoldp{\upv} & \foldp{\upv} & \text{fold pattern}\\
 % &&& \autplp{\labelset}{\mapschema{\upv}{i}{\labelset}} & \tplp{\mapschema{\upv}{i}{\labelset}} & \text{labeled tuple pattern}\\
 % &&& \auinjp{\ell}{\upv} & \injp{\ell}{\upv} & \text{injection pattern}\\
-% &&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTSM application}\\
+% &&& \auapuptsm{b}{\tsmv} & \utsmap{\tsmv}{b} & \text{upTLM application}\\
 % \LCC &&& \color{light-gray} & \color{light-gray} & \color{light-gray}\\
-% &&& \auplit{b} & \lit{b} & \text{upTSM unadorned literal}\ECC
+% &&& \auplit{b} & \lit{b} & \text{upTLM unadorned literal}\ECC
 \end{array}\]
 \subsubsection{Body Lengths}
 We write $\sizeof{b}$ for the length of $b$. The metafunction $\sizeof{\ue}$ computes the sum of the lengths of expression literal bodies in $\ue$. It is defined by extending the definition given in Sec. \ref{appendix:SES-syntax} with the following additional cases:
@@ -8282,28 +8282,28 @@ The type $\tBody$ and the judgements $\encodeBody{b}{e}$ and $\decodeBody{e}{b}$
 \subsubsection{Parse Results}
 The types $\tParseResultExp$ and $\tParseResultPat$ are defined as in Sec. \ref{appendix:typed-expression-expansion-S}.
 
-\subsubsection{TSM Contexts}
+\subsubsection{TLM Contexts}
 
-\emph{seTSM contexts}, $\uPsi$, are of the form $\uASI{\uA}{\Psi}{\uI}$, where $\uA$ is a \emph{TSM identifier expansion context}, $\Psi$ is a \emph{seTSM definition context} and $\uI$ is a \emph{TSM implicit designation context}.
+\emph{seTLM contexts}, $\uPsi$, are of the form $\uASI{\uA}{\Psi}{\uI}$, where $\uA$ is a \emph{TLM identifier expansion context}, $\Psi$ is a \emph{seTLM definition context} and $\uI$ is a \emph{TLM implicit designation context}.
 
-\emph{spTSM contexts}, $\uPhi$, are of the form $\uASI{\uA}{\Phi}{\uI}$, where $\uA$ is a {TSM identifier expansion context}, defined above, and $\Phi$ is a \emph{spTSM definition context}. 
+\emph{spTLM contexts}, $\uPhi$, are of the form $\uASI{\uA}{\Phi}{\uI}$, where $\uA$ is a {TLM identifier expansion context}, defined above, and $\Phi$ is a \emph{spTLM definition context}. 
 
-A \emph{TSM identifier expansion context}, $\uA$, is a finite function mapping each TSM identifier $\tsmv \in \domof{\uA}$ to the \emph{TSM identifier expansion}, $\vExpands{\tsmv}{a}$, for some \emph{TSM name}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the TSM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TSM identifiers (i.e. the previous mapping is \emph{updated}.)
+A \emph{TLM identifier expansion context}, $\uA$, is a finite function mapping each TLM identifier $\tsmv \in \domof{\uA}$ to the \emph{TLM identifier expansion}, $\vExpands{\tsmv}{a}$, for some \emph{TLM name}, $a$. We write $\ctxUpdate{\uA}{\tsmv}{a}$ for the TLM identifier expansion context that maps $\tsmv$ to $\vExpands{\tsmv}{a}$, and defers to $\uA$ for all other TLM identifiers (i.e. the previous mapping is \emph{updated}.)
 
-An \emph{seTSM definition context}, $\Psi$, is a finite function mapping each TSM name $a \in \domof{\Psi}$ to an \emph{expanded seTSM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTSM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of the appropriate type.
+An \emph{seTLM definition context}, $\Psi$, is a finite function mapping each TLM name $a \in \domof{\Psi}$ to an \emph{expanded seTLM definition}, $\xuetsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the seTLM's type annotation, and $\eparse$ is its parse function. We write $\Psi, \xuetsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Psi}$ for the extension of $\Psi$ that maps $a$ to $\xuetsmbnd{a}{\tau}{\eparse}$. We write $\uetsmenv{\Delta}{\Psi}$  when all the type annotations in $\Psi$ are well-formed assuming $\Delta$, and the parse functions in $\Psi$ are closed and of the appropriate type.
 
-\begin{definition}[seTSM Definition Context Formation]\label{def:seTSM-def-ctx-formation-B} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{a}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$.\end{definition}
+\begin{definition}[seTLM Definition Context Formation]\label{def:seTLM-def-ctx-formation-B} $\uetsmenv{\Delta}{\Psi}$ iff for each $\xuetsmbnd{a}{\tau}{\eparse} \in \Psi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultExp}}$.\end{definition}
 
-An \emph{spTSM definition context}, $\Phi$, is a finite function mapping each TSM name $a \in \domof{\Phi}$ to an \emph{expanded seTSM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTSM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of the appropriate type.
+An \emph{spTLM definition context}, $\Phi$, is a finite function mapping each TLM name $a \in \domof{\Phi}$ to an \emph{expanded seTLM definition}, $\xuptsmbnd{a}{\tau}{\eparse}$, where $\tau$ is the spTLM's type annotation, and $\eparse$ is its parse function. We write $\Phi, \xuptsmbnd{a}{\tau}{\eparse}$ when $a \notin \domof{\Phi}$ for the extension of $\Phi$ that maps $a$ to $\xuptsmbnd{a}{\tau}{\eparse}$. We write $\uptsmenv{\Delta}{\Phi}$  when all the type annotations in $\Phi$ are well-formed assuming $\Delta$, and the parse functions in $\Phi$ are closed and of the appropriate type.
 
-\begin{definition}[spTSM Definition Context Formation]\label{def:spTSM-def-ctx-formation-B} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}$.\end{definition}
+\begin{definition}[spTLM Definition Context Formation]\label{def:spTLM-def-ctx-formation-B} $\uptsmenv{\Delta}{\Phi}$ iff for each $\xuptsmbnd{a}{\tau}{\eparse} \in \Phi$, we have $\istypeU{\Delta}{\tau}$ and $\hastypeU{\emptyset}{\emptyset}{\eparse}{\aparr{\tBody}{\tParseResultPat}}$.\end{definition}
 
-A \emph{TSM implicit designation context}, $\uI$, is a finite function that maps each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some TSM name $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM implicit designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated.)
+A \emph{TLM implicit designation context}, $\uI$, is a finite function that maps each type $\tau \in \domof{\uI}$ to the \emph{TLM designation} $\designate{\tau}{a}$, for some TLM name $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TLM implicit designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated.)
 
-\begin{definition}[TSM Implicit Designation Context Formation]\label{def:implicit-designation-ctx-formation-S} $\uIOK{\Delta}{\uI}$ iff for each $\designate{\tau}{a} \in \uI$, we have $\istypeU{\Delta}{\tau}$.
+\begin{definition}[TLM Implicit Designation Context Formation]\label{def:implicit-designation-ctx-formation-S} $\uIOK{\Delta}{\uI}$ iff for each $\designate{\tau}{a} \in \uI$, we have $\istypeU{\Delta}{\tau}$.
 \end{definition}
 
-\begin{definition}[seTSM Context Formation] $\uetsmctx{\Delta}{\uASI{\uA}{\Psi}{\uI}}$ iff
+\begin{definition}[seTLM Context Formation] $\uetsmctx{\Delta}{\uASI{\uA}{\Psi}{\uI}}$ iff
 \begin{enumerate}
 \item $\uetsmenv{\Delta}{\Psi}$; and
 \item for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Psi}$; and
@@ -8312,7 +8312,7 @@ A \emph{TSM implicit designation context}, $\uI$, is a finite function that maps
 \end{enumerate}
 \end{definition}
 
-\begin{definition}[spTSM Context Formation] $\uptsmctx{\Delta}{\uASI{\uA}{\Phi}{\uI}}$ iff 
+\begin{definition}[spTLM Context Formation] $\uptsmctx{\Delta}{\uASI{\uA}{\Phi}{\uI}}$ iff 
 \begin{enumerate}
 \item $\uptsmenv{\Delta}{\Phi}$; and
 \item for each $\vExpands{\tsmv}{a} \in \uA$ we have $a \in \domof{\Phi}$; and
@@ -9115,7 +9115,7 @@ The mutual induction can be shown to be well-founded by an argument nearly ident
 % i.e. by the definitions above, 
 % \[\sizeof{\upv} < \sizeof{b}\]
 
-% This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TSM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
+% This is established by appeal to Condition \ref{condition:body-subsequences}, which states that subsequences of $b$ are no longer than $b$, and the Condition \ref{condition:pattern-parsing}, which states that an unexpanded pattern constructed by parsing a textual sequence $b$ is strictly smaller, as measured by the metric defined above, than the length of $b$, because some characters must necessarily be used to apply the pattern TLM and delimit each literal body. Combining Conditions \ref{condition:body-subsequences} and \ref{condition:pattern-parsing}, we have that $\sizeof{\upv} < \sizeof{b}$ as needed.
 \end{proof}
 \subsection{Typed Expression and Rule Expansion}\label{appendix:P-typed-expression-expansion}
 \begin{theorem}[Typed Expression and Rule Expansion]\label{thm:typed-expansion-full-B} ~
@@ -9399,7 +9399,7 @@ By mutual rule induction over Rules (\ref{rules:esyn-S}), Rules (\ref{rules:eana
 % }
 % \end{equation}
 
-\begin{theorem}[seTSM Abstract Reasoning Principles - Explicit Application]
+\begin{theorem}[seTLM Abstract Reasoning Principles - Explicit Application]
 \label{thm:tsc-implicit-B}
 If \[\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}}{e}{\tau}\] then:
 \begin{enumerate}
@@ -9446,7 +9446,7 @@ If \[\esyn{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\utsmap{\tsmv}{b}
 \begin{proof} By rule induction over Rules (\ref{rules:esyn-S}). The proof follows the proof of Theorem \ref{thm:tsc-SES}.
 \end{proof}
 
-\begin{theorem}[seTSM Abstract Reasoning Principles - Implicit Application]
+\begin{theorem}[seTLM Abstract Reasoning Principles - Implicit Application]
 \label{thm:tsc-B}
 If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}\] then:
 \begin{enumerate}
@@ -9490,7 +9490,7 @@ If \[\eana{\uDD{\uD}{\Delta}}{\uGG{\uG}{\Gamma}}{\uPsi}{\uPhi}{\lit{b}}{e}{\tau}
   % {e'}{\tau}$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:eana-S}). The proof follows the proof of Theorem \ref{thm:tsc-SES}, differing only in how the TSM definition is looked up.
+\begin{proof} By rule induction over Rules (\ref{rules:eana-S}). The proof follows the proof of Theorem \ref{thm:tsc-SES}, differing only in how the TLM definition is looked up.
 \end{proof}
 
 
@@ -9558,8 +9558,8 @@ then all of the following hold:
 \begin{proof} By rule induction over Rules (\ref{rules:cvalidP-B}). The proof follows the proof of Theorem \ref{lemma:proto-pattern-expansion-decomposition-S}.
 \end{proof}
 
-\begin{theorem}[spTSM Abstract Reasoning Principles - Explicit Application]
-\label{thm:spTSM-Typing-Segmentation-B}
+\begin{theorem}[spTLM Abstract Reasoning Principles - Explicit Application]
+\label{thm:spTLM-Typing-Segmentation-B}
 If \[\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi=\uPhi', \uPhyp{\tsmv}{a}{\tau}{\eparse}$ and $\patType{\pctx}{p}{\tau}$
@@ -9593,11 +9593,11 @@ If \[\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}\] where $\uDelta=\uD
       \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTSM-Typing-Segmentation}.
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTLM-Typing-Segmentation}.
 \end{proof}
 
-\begin{theorem}[spTSM Abstract Reasoning Principles - Implicit Application]
-\label{thm:spTSM-Typing-Segmentation-Implicit-B}
+\begin{theorem}[spTLM Abstract Reasoning Principles - Implicit Application]
+\label{thm:spTLM-Typing-Segmentation-Implicit-B}
 If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\Delta}$ and $\uGamma=\uGG{\uG}{\Gamma}$ then all of the following hold:
 \begin{enumerate}
         \item (\textbf{Typing 1}) $\uPhi = \uASI{\uA}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI, \designate{\tau}{a}}$ and $\patType{\pctx}{p}{\tau}$
@@ -9631,7 +9631,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
       \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
-\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTSM-Typing-Segmentation}, differing only in how the parse function is looked up.
+\begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTLM-Typing-Segmentation}, differing only in how the parse function is looked up.
 \end{proof}
 
 \fi
@@ -9948,7 +9948,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   }
 % \end{equation}
 
-% % ueTSMs can be defined and applied in synthetic position.
+% % ueTLMs can be defined and applied in synthetic position.
 % % \begin{equation}\label{rule:esynP-defpetsm}
 % % \inferrule{
 % %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -9988,14 +9988,14 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 
 % % These rules are nearly identical to Rules (\ref{rule:expandsUP-syntax}) and (\ref{rule:expandsUP-tsmap}), differing only in that the typed expansion premises have been replaced by corresponding synthetic typed expansion premises. The premises of these rules can be understood as described in Sections \ref{sec:U-uetsm-definition} and \ref{sec:U-uetsm-application}. The body encoding judgement and candidate expansion expression decoding judgements were characterized in Sec. \ref{sec:typed-expansion-UP}. We discuss candidate expansion validation in Sec. \ref{sec:ce-validation-B} below.
 
-% % To support ueTSM implicits, ueTSM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TSM naming contexts, $\uA$, and ueTSM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
+% % To support ueTLM implicits, ueTLM contexts, $\uPsi$, are redefined to take the form $\uASI{\uA}{\Psi}{\uI}$. TLM naming contexts, $\uA$, and ueTLM definition contexts, $\Psi$, were defined in Sec. \ref{sec:typed-expansion-UP}. We write $\uPsi, \uShyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPsi=\uASI{\uA}{\Psi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI}\]
 
-% % \emph{TSM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TSM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TSM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
+% % \emph{TLM designation contexts}, $\uI$, are finite functions that map each type $\tau \in \domof{\uI}$ to the \emph{TLM designation} $\designate{\tau}{a}$, for some symbol $a$. We write $\uI \uplus \designate{\tau}{a}$ for the TLM designation context that maps $\tau$ to $\designate{\tau}{a}$ and defers to $\uI$ for all other types (i.e. the previous designation, if any, is updated). 
 
-% % The TSM designation context in the ueTSM context is updated by expressions of ueTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-% %\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+% % The TLM designation context in the ueTLM context is updated by expressions of ueTLM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+% %\begin{definition}[TLM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
 
-% % \todo{peTSM implicit designation}
+% % \todo{peTLM implicit designation}
 % % \begin{equation}\label{rule:esynP-implicite}
 % %   \inferrule{
 % %     \esyn{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
@@ -10004,7 +10004,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % %   }
 % % \end{equation}
 
-% % % Like ueTSMs, upTSMs can be defined in synthetic position.
+% % % Like ueTLMs, upTLMs can be defined in synthetic position.
 % % \begin{equation}\label{rule:esynP-syntaxup}
 % % \inferrule{
 % %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -10027,11 +10027,11 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 
 % % % This rule is nearly identical to Rule (\ref{rule:expandsUP-defuptsm}), differing only in that the typed expansion premise has been replaced by the corresponding synthetic typed expansion premise. The premises can be understood as described in Section \ref{sec:uptsm-definition}.
 
-% % % To support upTSM implicits, upTSM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTSM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
+% % % To support upTLM implicits, upTLM contexts, $\uPhi$, are redefined to take the form $\uASI{\uA}{\Phi}{\uI}$. upTLM definition contexts, $\Phi$, were defined in Sec. \ref{sec:uptsm-definition}. We write $\uPhi, \uPhyp{\tsmv}{a}{\tau}{\eparse}$ when $\uPhi=\uASI{\uA}{\Phi}{\uI}$ as shorthand for \[\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI}\]
 
-% % % The TSM designation context in the upTSM context is updated by expressions of upTSM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
-% % %\begin{definition}[TSM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
-% % \todo{ppTSM implicit designation}
+% % % The TLM designation context in the upTLM context is updated by expressions of upTLM designation form. Such expressions can appear in synthetic position, where they are governed by the following rule:% We write $\uIOK{\Delta}{\uI}$ when each type in $\uI$ is well-formed assuming $\Delta$.
+% % %\begin{definition}[TLM Designation Context Well-Formedness] $\uIOK{\Delta}{{\uI}$ iff for each $\designate{\tau}{a}$ we have $\istypeU{\Delta}{\tau}$.\end{definition}
+% % \todo{ppTLM implicit designation}
 % % \begin{equation}\label{rule:esynP-implicitp}
 % %   \inferrule{
 % %     \esyn{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
@@ -10124,7 +10124,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   }
 % \end{equation}
 
-% % Rule (\ref{rule:esyn-defuetsm}) governed ueTSM definitions in synthetic position. The following rule governs ueTSM definitions in analytic position.
+% % Rule (\ref{rule:esyn-defuetsm}) governed ueTLM definitions in synthetic position. The following rule governs ueTLM definitions in analytic position.
 % % \begin{equation}\label{rule:eanaP-defpetsm}
 % % \inferrule{
 % %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -10144,8 +10144,8 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % % }
 % % \end{equation}
 
-% % \todo{peTSM implicit designation}
-% % Rule (\ref{rule:esyn-implicite}) governed ueTSM designations in synthetic position. The following rule governs ueTSM designations in analytic position.
+% % \todo{peTLM implicit designation}
+% % Rule (\ref{rule:esyn-implicite}) governed ueTLM designations in synthetic position. The following rule governs ueTLM designations in analytic position.
 % % \begin{equation}\label{rule:eanaP-implicite}
 % %   \inferrule{
 % %     \eana{\uDelta}{\uGamma}{\uASI{\uA \uplus \vExpands{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\uPhi}{\ue}{e}{\tau'}
@@ -10154,8 +10154,8 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % %   }
 % % \end{equation}
 
-% % \todo{peTSM implicit application}
-% % % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TSM designated at the type that the expression is being analyzed against from the TSM designation context in the ueTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
+% % \todo{peTLM implicit application}
+% % % An expression of unadorned literal form can appear only in analytic position. The following rule extracts the TLM designated at the type that the expression is being analyzed against from the TLM designation context in the ueTLM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:esyn-apuetsm}).
 % \begin{equation}\label{rule:eanaP-lit}
 %   \inferrule{
 %     \encodeBody{b}{\ebody}\\
@@ -10167,7 +10167,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   }
 % \end{equation}
 
-% % Rule (\ref{rule:esyn-defuptsm}) governed upTSM definitions in synthetic position. The following rule governs upTSM definitions in analytic position.
+% % Rule (\ref{rule:esyn-defuptsm}) governed upTLM definitions in synthetic position. The following rule governs upTLM definitions in analytic position.
 % % \begin{equation}\label{rule:eanaP-syntaxup}
 % % \inferrule{
 % %   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -10189,8 +10189,8 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % % \end{equation}
 
 
-% % \todo{ppTSM implicit designation}
-% % % Rule (\ref{rule:esyn-implicitp}) governed upTSM designations in synthetic position. The following rule governs upTSM designations in analytic position.
+% % \todo{ppTLM implicit designation}
+% % % Rule (\ref{rule:esyn-implicitp}) governed upTLM designations in synthetic position. The following rule governs upTLM designations in analytic position.
 % % \begin{equation}\label{rule:eanaP-implicitp}
 % %   \inferrule{
 % %     \eana{\uDelta}{\uGamma}{\uPsi}{\uASI{\uA\uplus\vExpands{\tsmv}{a}}{\Phi, \xuptsmbnd{a}{\tau}{\eparse}}{\uI \uplus \designate{\tau}{a}}}{\ue}{e}{\tau'}
@@ -10299,8 +10299,8 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % }
 % \end{equation}
 
-% \todo{ppTSM implicit application}
-% % Unexpanded patterns of unadorned literal form are governed by the following rule, which extracts the designated upTSM from the upTSM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:patExpandsP-apuptsm}).
+% \todo{ppTLM implicit application}
+% % Unexpanded patterns of unadorned literal form are governed by the following rule, which extracts the designated upTLM from the upTLM context and applies it implicitly, i.e. the premises correspond to those of Rule (\ref{rule:patExpandsP-apuptsm}).
 % \begin{equation}\label{rule:patExpandsP-B-lit}
 % \inferrule{
 %   \encodeBody{b}{\ebody}\\
@@ -10367,7 +10367,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   \msyn{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-% \todo{peTSM implicit designation at module level}
+% \todo{peTLM implicit designation at module level}
 % \begin{equation}\label{rule:msyn-implicitpe}
 % \inferrule{
 %   ...
@@ -10392,7 +10392,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   \msyn{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-% \todo{ppTSM implicit designation at module level}
+% \todo{ppTLM implicit designation at module level}
 % \begin{equation}\label{rule:msyn-implicitpp}
 % \inferrule{
 %   ...
@@ -10437,7 +10437,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   \mana{\uOmega}{\uASI{\uA}{\Psi}{\uI}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-% \todo{peTSM implicit designation at module level}
+% \todo{peTLM implicit designation at module level}
 % \begin{equation}\label{rule:mana-implicitpe}
 % \inferrule{
 %   ...
@@ -10462,7 +10462,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %   \mana{\uOmega}{\uPsi}{\uASI{\uA}{\Phi}{\uI}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 % }
 % \end{equation}
-% \todo{ppTSM implicit designation at module level}
+% \todo{ppTLM implicit designation at module level}
 % \begin{equation}\label{rule:mana-implicitpp}
 % \inferrule{
 %   ...
@@ -10472,42 +10472,42 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% \subsubsection{TSM Types and Expressions}
-% TSM Expression Typing
+% \subsubsection{TLM Types and Expressions}
+% TLM Expression Typing
 
 % \vspace{10px}
 % $\begin{array}{ll}
 % \textbf{Judgement Form} & \textbf{Description}\\
-% \istsmty{\Omega}{\rho} & \text{$\rho$ is a well-formed TSM type}\\
-% \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{peTSM expression $\epsilon$ has TSM type $\rho$}\\
-% \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{ppTSM expression $\epsilon$ has TSM type $\rho$}
+% \istsmty{\Omega}{\rho} & \text{$\rho$ is a well-formed TLM type}\\
+% \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{peTLM expression $\epsilon$ has TLM type $\rho$}\\
+% \hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{ppTLM expression $\epsilon$ has TLM type $\rho$}
 % \end{array}$
 % \vspace{10px}
 
-% peTSM Expression Evaluation
+% peTLM Expression Evaluation
 
 % \vspace{10px}
 % $\begin{array}{ll}
 % \textbf{Judgement Form} & \textbf{Description}\\
-% \tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{peTSM expression $\epsilon$ is in normal form}\\
-% \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTSM expression $\epsilon$ transitions to $\epsilon'$}\\
+% \tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{peTLM expression $\epsilon$ is in normal form}\\
+% \tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTLM expression $\epsilon$ transitions to $\epsilon'$}\\
 % \end{array}$
 % \vspace{10px}
 
 % + auxiliary judgements for multi-step transitions and evaluation
 
-% unexpanded TSM types and expressions
+% unexpanded TLM types and expressions
 
 % \vspace{10px}
 % $\begin{array}{ll}
 % \textbf{Judgement Form} & \textbf{Description}\\
 % \tsmtyExpands{\uOmega}{\urho}{\rho} & \text{$\urho$ has expansion $\rho$}\\
-% \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded peTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}\\
-% \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded ppTSM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}
+% \tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded peTLM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}\\
+% \tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\rho} & \text{unexpanded ppTLM expression $\uepsilon$ has expansion $\epsilon$ and type $\rho$}
 % \end{array}$
 % \vspace{10px}
 
-% TSM type formation
+% TLM type formation
 % \begin{subequations}\label{rules:istsmty-B}
 % \begin{equation}\label{rule:istsmty-B-type}
 % \inferrule{
@@ -10533,7 +10533,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% Unexpanded TSM type expansion
+% Unexpanded TLM type expansion
 % \begin{subequations}\label{rules:tsmtyExpands-B}
 % \begin{equation}\label{rule:tsmtyExpands-B-type}
 % \inferrule{
@@ -10558,7 +10558,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % }
 % \end{equation}
 % \end{subequations}
-% peTSM Expression Typing
+% peTLM Expression Typing
 % \begin{subequations}\label{rules:hastsmtypeExp-B}
 % \begin{equation}\label{rule:hastsmtypeExp-B-defref}
 % \inferrule{ }{
@@ -10598,7 +10598,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% ppTSM Expression Typing
+% ppTLM Expression Typing
 % \begin{subequations}\label{rules:hastsmtypePat-B}
 % \begin{equation}\label{rule:hastsmtypePat-B-defref}
 % \inferrule{ }{
@@ -10639,7 +10639,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 
 % \end{subequations}
 
-% peTSM Expression Expansion
+% peTLM Expression Expansion
 % \begin{subequations}\label{rules:tsmexpExpandsExp-B}
 % \begin{equation}\label{rule:tsmexpExpandsExp-B-bindref}
 % \inferrule{
@@ -10681,7 +10681,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% ppTSM expression expansion
+% ppTLM expression expansion
 % \begin{subequations}\label{rules:tsmexpExpandsPat-B}
 % \begin{equation}\label{rule:tsmexpExpandsPat-B-bindref}
 % \inferrule{
@@ -10723,7 +10723,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% peTSM expression normal forms
+% peTLM expression normal forms
 % \begin{subequations}\label{rules:tsmexpNormalExp-B}
 % \begin{equation}\label{rule:tsmexpNormalExp-B-defref}
 % \inferrule{ }{
@@ -10758,7 +10758,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% peTSM transitions
+% peTLM transitions
 % \begin{subequations}\label{rules:tsmexpStepsExp-B}
 % \begin{equation}\label{rule:tsmexpStepsExp-B-aptype-1}
 % \inferrule{
@@ -10786,7 +10786,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% peTSM reflexive, transitive transitions
+% peTLM reflexive, transitive transitions
 % \begin{subequations}\label{rules:tsmexpMultistepsExp-B}
 % \begin{equation}\label{rule:tsmexpMultistepsExp-B-refl}
 % \inferrule{ }{
@@ -10810,7 +10810,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \end{equation}
 % \end{subequations}
 
-% peTSM normalization
+% peTLM normalization
 % \begin{equation}\label{rule:tsmexpEvalsExp-B}
 % \inferrule{
 %   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
@@ -10820,7 +10820,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % }
 % \end{equation}
 
-% TSM expression definition extraction
+% TLM expression definition extraction
 
 % \begin{subequations}
 % \begin{align}
@@ -11351,7 +11351,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\esyn{\uDelta}{\uGamma}{\uASI{\ctxUpdate{\uA}{\tsmv}{a}}{\Psi, \xuetsmbnd{a}{\tau'}{\eparse}}{\uI}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
 %               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{Outer IH, part 1(a)(i) on \pfref{uetsmenv3} and \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -11364,7 +11364,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\decodeCondE{\ecand}{\ce}$ \BY{assumption}
 %               \item $\cana{\emptyset}{\emptyset}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}$ \BY{assumption}\pflabel{cvalidE}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption} \pflabel{uetsmenv}
-%               \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
+%               \item $\istypeU{\Delta}{\tau}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv}} \pflabel{istype}
 %               \item $\emptyset \cap \Delta = \emptyset$ \BY{finite set intersection identity} \pflabel{delta-cap}
 %               \item ${\emptyset} \cap \domof{\Gamma} = \emptyset$ \BY{finite set intersection identity} \pflabel{gamma-cap}
 %               \item $\hastypeU{\emptyset \cup \Delta}{\emptyset \cup \Gamma}{e}{\tau}$ \BY{IH, part 2(a)(i) on \pfref{cvalidE}, \pfref{delta-cap}, \pfref{gamma-cap} and \pfref{istype}} \pflabel{penultimate}
@@ -11387,7 +11387,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\esyn{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(a)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -11439,10 +11439,10 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\eana{\uDelta}{\uGamma}{\uPsi, \uShyp{\tsmv}{a}{\tau'}{\eparse}}{\uPhi}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %               \item $\uetsmenv{\Delta}{\Psi}$ \BY{assumption}\pflabel{uetsmenv1}
 %               \item $\istypeU{\Delta}{\tau'}$ \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTSM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%               \item $\uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}}$ \BY{Definition \ref{def:ueTLM-def-ctx-formation-UP} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -11483,7 +11483,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 %               \item $\eana{\uDelta}{\uGamma}{\uPsi}{\uPhi, \uPhyp{\tsmv}{a}{\tau'}{\eparse}}{\ue'}{e}{\tau}$ \BY{assumption}\pflabel{expandsU}
 %             %  \item \uetsmenv{\Delta}{\Psi} \BY{assumption}\pflabel{uetsmenv1}
 %             %  \item \istypeU{\Delta}{\tau'} \BY{Lemma \ref{lemma:type-expansion-U} to \pfref{expandsTU}} \pflabel{istype}
-%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTSM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
+%             %  \item \uetsmenv{\Delta}{\Psi, \xuetsmbnd{\tsmv}{\tau'}{\eparse}} \BY{Definition \ref{def:ueTLM-def-ctx-formation} on \pfref{uetsmenv1}, \pfref{istype} and \pfref{eparse}}\pflabel{uetsmenv3}
 %               \item $\hastypeU{\Delta}{\Gamma}{e}{\tau}$ \BY{IH, part 1(b)(i) on \pfref{expandsU}}
 %             \end{pfsteps*}
 %             \resetpfcounter
@@ -11641,7 +11641,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
 % \sizeof{\csyn{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}\\
 % \sizeof{\cana{\Delta}{\Gamma}{\esceneUP{\uDelta}{\uGamma}{\uPsi}{\uPhi}{b}}{\ce}{e}{\tau}} & = \sizeof{b}
 % \end{align*}
-% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTSM literal bodies in $\ue$,
+% where $\sizeof{b}$ is the length of $b$ and $\sizeof{\ue}$ is the sum of the lengths of the ueTLM literal bodies in $\ue$,
 % \begin{align*}
 % \sizeof{\ux} & = 0\\
 % \sizeof{\auasc{\utau}{\ue}} & = \sizeof{\ue}\\

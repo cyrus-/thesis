@@ -2,10 +2,10 @@
 % !TEX root = ./icfp17-supplement.tex
 \ificfp \else  
 \chapter{Static Evaluation}\label{chap:static-eval}
-In the previous chapters, we have assumed that the parse functions in TSM definitions are closed expanded expressions. This is unrealistic in practice -- writing a parser generally requires access to various libraries. Moreover, the parse function might itself be written more concisely using TSMs. In this chapter, we address these problems by introducing a \emph{static environment} shared between parse functions.
+In the previous chapters, we have assumed that the parse functions in TLM definitions are closed expanded expressions. This is unrealistic in practice -- writing a parser generally requires access to various libraries. Moreover, the parse function might itself be written more concisely using TLMs. In this chapter, we address these problems by introducing a \emph{static environment} shared between parse functions.
 
 \section{Static Values}
-Figure \ref{fig:static-module-example} shows an example of a module, \li{ParserCombos} (see Sec. \ref{sec:parser-combinators}). The \li{static} qualifier indicates that this module is bound for use within the parse functions of the subsequent TSM definitions.
+Figure \ref{fig:static-module-example} shows an example of a module, \li{ParserCombos} (see Sec. \ref{sec:parser-combinators}). The \li{static} qualifier indicates that this module is bound for use within the parse functions of the subsequent TLM definitions.
 \begin{figure}[h]
 \begin{lstlisting}
 static module ParserCombos = 
@@ -35,11 +35,11 @@ val y = (* ParserCombos CANNOT be used here *)
 The values that arise during the the evaluation of parse functions do not need to persist from ``compile-time'' to ``run-time'', so we do not need a full staged computation system \cite{Taha99multi-stageprogramming:}. Instead, a sequence of static bindings operates like a lexically-scoped read-evaluate-print loop (REPL), in that each static expression is evaluated immediately and the evaluated values are tracked by a \emph{static environment}.
 
 
-\section{Applying TSMs Within TSM Definitions}\label{sec:tsms-for-tsms}
-TSMs and TSM abbreviations can also be qualified with the \li{static} keyword, which marks them for use within subsequent static expressions and patterns. Let us consider some examples of particular relevance to TSM providers.
+\section{Applying TLMs Within TLM Definitions}\label{sec:tsms-for-tsms}
+TLMs and TLM abbreviations can also be qualified with the \li{static} keyword, which marks them for use within subsequent static expressions and patterns. Let us consider some examples of particular relevance to TLM providers.
 
 \subsection{Quasiquotation}
-TSMs must generate values of type \li{proto_expr} or \li{proto_pat}. Constructing values of these types explicitly can have high syntactic cost. To decrease this cost, we can define TSMs that provide support for \emph{quasiquotation syntax} (similar to that built in to languages like Lisp \cite{Bawd99a} and Scala \cite{shabalin2013quasiquotes}):
+TLMs must generate values of type \li{proto_expr} or \li{proto_pat}. Constructing values of these types explicitly can have high syntactic cost. To decrease this cost, we can define TLMs that provide support for \emph{quasiquotation syntax} (similar to that built in to languages like Lisp \cite{Bawd99a} and Scala \cite{shabalin2013quasiquotes}):
 \begin{lstlisting}[numbers=none]
 static syntax $proto_expr at proto_expr by static fn(b) => 
   (* proto-expression quasiquotation parser here *)
@@ -88,14 +88,14 @@ end
 \label{fig:PARSEGEN}
 \end{figure}
 
-Rather than constructing a grammar using various operations (whose specifications are elided in \li{PARSEGEN}), we wish to use a syntax for grammars that follows standard conventions. We can do so by defining a static parametric TSM \li{#\dolla#grammar}:
+Rather than constructing a grammar using various operations (whose specifications are elided in \li{PARSEGEN}), we wish to use a syntax for grammars that follows standard conventions. We can do so by defining a static parametric TLM \li{#\dolla#grammar}:
 \begin{lstlisting}[numbers=none]
 static syntax $grammar (P : PARSEGEN) 'a at P.grammar('a) by 
   static fn(b) => (* ... *)
 end
 \end{lstlisting}
 
-Using these definitions, we might define a TSM for regexes (implementing a subset of the POSIX regex syntax for simplicity) as shown in Figure \ref{fig:rx-grammar-based}.
+Using these definitions, we might define a TLM for regexes (implementing a subset of the POSIX regex syntax for simplicity) as shown in Figure \ref{fig:rx-grammar-based}.
 
 \begin{figure}[h!]
 \vspace{-5px}
@@ -142,7 +142,7 @@ In the examples above, we explicitly qualified various definitions with the \li{
 For example, a language-external library manager for VerseML similar to SML/NJ's CM \cite{blume:smlnj-cm} could support a \li{static} qualifier on imported libraries, which would place the definitions exported by the imported library into the static phase of the library being defined. In particular, a library definition in such a compilation manager might look like this:
 \begin{lstlisting}[numbers=none,morekeywords={Library,is}]
 Library 
-  (* ... exported module, signature and TSM names ... *)
+  (* ... exported module, signature and TLM names ... *)
 is 
   (* ... files defining those exports ... *)
 
@@ -209,22 +209,22 @@ The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. Th
 % & \color{Yellow} & \color{Yellow}\\
 &&
 %& \aumdefpetsm{\urho}{e}{\tsmv}{\uM} 
-& \defpetsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{peTSM definition}\\
+& \defpetsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{peTLM definition}\\
 %&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \aumletpetsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpetsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{peTSM binding}\\
+& \uletpetsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{peTLM binding}\\
 % &&&                                  & \texttt{expressions}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{peTSM designation}\\
+% &&& ... & ... & \text{peTLM designation}\\
 &&
 %& \audefpptsm{\urho}{e}{\tsmv}{\uM} 
-& \defpptsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{ppTSM definition}\\
+& \defpptsmH{\yellowbox{\varphi}}{\tsmv}{\urho}{\yellowbox{\ue}}{\uM} & \text{ppTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \auletpptsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpptsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}%\ECC%
+& \uletpptsmH{\yellowbox{\varphi}}{\tsmv}{\uepsilon}{\uM} & \text{ppTLM binding}%\ECC%
 % &&& & \texttt{patterns}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{ppTSM designation}\ECC
+% &&& ... & ... & \text{ppTLM designation}\ECC
 \end{array}\]
 \caption{Syntax of unexpanded modules in $\miniVersePH$}
 \label{fig:syntax-uM-PH}
@@ -304,7 +304,7 @@ The rule for the $\staticphase$ phase module let binding construct, on the other
 }
 \end{equation}
 
-The standard peTSM definition construct is governed by the following rule:
+The standard peTLM definition construct is governed by the following rule:
 \begin{equation}\label{rule:mExpandsPH-syntaxpe-standard}
 \inferrule{
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -316,9 +316,9 @@ The standard peTSM definition construct is governed by the following rule:
   \mExpandsPH{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\defpetsmH{\standardphase}{\tsmv}{\urho}{\ueparse}{\uM}}{M}{\sigma}{\Sigma}
 }
 \end{equation}
-The difference here is that the parse function is an unexpanded (rather than an expanded) expression. It is expanded under the static environment's unified context, $\uOmega_S$. Then the substitution, $\omega$, is applied to the resulting expanded parse function before it is added to the peTSM context.
+The difference here is that the parse function is an unexpanded (rather than an expanded) expression. It is expanded under the static environment's unified context, $\uOmega_S$. Then the substitution, $\omega$, is applied to the resulting expanded parse function before it is added to the peTLM context.
 
-The static peTSM definition construct operates similarly, differing only in that the static environment's peTSM context is extended, rather than the standard peTSM context:
+The static peTLM definition construct operates similarly, differing only in that the static environment's peTLM context is extended, rather than the standard peTLM context:
 \begin{equation}\label{rule:mExpandsPH-syntaxpe-static}
 \inferrule{
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -333,7 +333,7 @@ The static peTSM definition construct operates similarly, differing only in that
 \end{equation}
 
 
-The static environment passes opaquely through the standard peTSM abbreviation construct:
+The static environment passes opaquely through the standard peTLM abbreviation construct:
 \begin{equation}\label{rule:mExpandsPH-letpetsm-standard}
 \inferrule{
   \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\
@@ -343,7 +343,7 @@ The static environment passes opaquely through the standard peTSM abbreviation c
 }
 \end{equation}
 
-The static peTSM abbreviation construct updates the static peTSM identifier expansion context, $\uA_S$:
+The static peTLM abbreviation construct updates the static peTLM identifier expansion context, $\uA_S$:
 \begin{equation}\label{rule:mExpandsPH-letpetsm-static}
 \inferrule{
   \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\\\
@@ -355,7 +355,7 @@ The static peTSM abbreviation construct updates the static peTSM identifier expa
 }
 \end{equation}
 
-The rules governing ppTSM definitions and abbreviations are analagous:
+The rules governing ppTLM definitions and abbreviations are analagous:
 \begin{equation}\label{rule:mExpandsPH-syntaxpp-standard}
 \inferrule{ 
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\

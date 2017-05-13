@@ -1,6 +1,6 @@
 % !TEX root = omar-thesis.tex
 
-\chapter{Parametric TSMs (pTSMs)}\label{chap:ptsms}
+\chapter{Parametric TLMs (pTLMs)}\label{chap:ptsms}
 \begin{quote}\textit{You know me, I gotta put in a big tree.}
 \begin{flushright} --- Bob Ross, \emph{The Joy of Painting}\end{flushright}
 \end{quote}
@@ -11,11 +11,11 @@
 % ~\\
 ~\\
 \noindent
-This chapter introduces \emph{parametric TSMs} (pTSMs). Parametric TSMs can be defined over a parameterized family of types, rather than just a single type, and the expansions that they generate can refer to  supplied type and module parameters. 
+This chapter introduces \emph{parametric TLMs} (pTLMs). Parametric TLMs can be defined over a parameterized family of types, rather than just a single type, and the expansions that they generate can refer to  supplied type and module parameters. 
 
-This chapter is organized like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parametric TSMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then develop a reduced calculus of parametric TSMs, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
+This chapter is organized like the preceding chapters. We begin in Sec. \ref{sec:parameterized-tsms-by-example} by introducing parametric TLMs by example in VerseML. In particular, we discuss type parameters in Sec. \ref{sec:type-parameters} and module parameters in Sec. \ref{sec:module-parameters}. We then develop a reduced calculus of parametric TLMs, $\miniVerseParam$, in Sec. \ref{sec:miniVerseP}.
 
-\section{Parametric TSMs By Example}\label{sec:parameterized-tsms-by-example}
+\section{Parametric TLMs By Example}\label{sec:parameterized-tsms-by-example}
 
 \subsection{Type Parameters}\label{sec:type-parameters}
 Recall from Sec. \ref{sec:lists} the definition of the type-parameterized family of list types:
@@ -26,7 +26,7 @@ type list('a) = rec(self => Nil + Cons of 'a * self)
 % \emph{Kinds} classify construction expressions, much like types classify expressions. Types are construction expressions of kind \li{T}, and type constructions are construction expressions of arrow kind. Here, \li{list} takes a single type parameter, so it has arrow kind \li{T -> T}.
 
 % ML dialects commonly define derived syntactic forms for constructing and pattern matching over values of list type. VerseML, in contrast, does not build in derived list forms. Instead, 
-Figure \ref{fig:petsm-list} defines a \emph{parametric expression TSM} (peTSM) and a \emph{parametric pattern TSM} (ppTSM), both named \li{#\dolla#list}. These TSMs operate uniformly over this family of types.
+Figure \ref{fig:petsm-list} defines a \emph{parametric expression TLM} (peTLM) and a \emph{parametric pattern TLM} (ppTLM), both named \li{#\dolla#list}. These TLMs operate uniformly over this family of types.
 \begin{figure}[h]
 \begin{lstlisting}
 syntax $list('a) at list('a) for expressions by 
@@ -35,28 +35,28 @@ and for patterns by
   static fn(b : body) : parse_result(proto_pat) => (* ... *) 
 end
 \end{lstlisting}
-\caption{The type-parameterized \texttt{\$list} TSMs.}
+\caption{The type-parameterized \texttt{\$list} TLMs.}
 \label{fig:petsm-list}
 \end{figure}
 
 Line 1 specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which establishes that:
 \begin{enumerate}
-\item The peTSM \li{#\dolla#list}, when applied to a type \li{T} and a generalized literal form, can only generate expansions of type \li{list(T)}.
-\item The ppTSM \li{#\dolla#list}, when applied to a type \li{T} and a generalized literal form, can only generate expansions that match values of type \li{list(T)}.
+\item The peTLM \li{#\dolla#list}, when applied to a type \li{T} and a generalized literal form, can only generate expansions of type \li{list(T)}.
+\item The ppTLM \li{#\dolla#list}, when applied to a type \li{T} and a generalized literal form, can only generate expansions that match values of type \li{list(T)}.
 \end{enumerate}
 For example, we can apply \li{#\dolla#list} to \li{int} and a generalized literal form delimited by square brackets as follows:
 % val y = $list int [3SURL, EURL4SURL, EURL5]
 \begin{lstlisting}[numbers=none]
 val x = $list int [xSURL, EURLySURL :: EURLxs]
 \end{lstlisting}
-The parse function (elided above for concision) segments the literal body into  spliced expressions. The trailing spliced expression is prefixed by two colons (\li{SURL::EURL}), which the TSM takes to mean that it should be the tail of the list. The final expansion of the example above is equivalent to the following when the list value constructors are in scope:
+The parse function (elided above for concision) segments the literal body into  spliced expressions. The trailing spliced expression is prefixed by two colons (\li{SURL::EURL}), which the TLM takes to mean that it should be the tail of the list. The final expansion of the example above is equivalent to the following when the list value constructors are in scope:
 \begin{lstlisting}[numbers=none]
 val x = Cons(x, Cons(y, xs))
 \end{lstlisting}
 As in the preceding chapters, the expansion itself must use the explicit \li{fold} and \li{inj} operators rather than the list value constructors \li{Cons} and \li{Nil} due to the prohibition on context dependence.
 
 \subsection{Module Parameters}\label{sec:module-parameters}
-We can finally address the inconvenience of needing to use explicit \li{fold} and \li{inj}  operators by  defining a module-parameterized TSM.
+We can finally address the inconvenience of needing to use explicit \li{fold} and \li{inj}  operators by  defining a module-parameterized TLM.
 
 Recall that in Figure \ref{fig:LIST}, we defined a signature \li{LIST} that exported the definition of \li{list} and specified the list value constructors (and some other values.) The definition of \li{#\dolla#list'} shown in Figure \ref{fig:ptsm-listprime} takes modules matching this signature as an additional parameter.
 
@@ -68,10 +68,10 @@ for patterns by
   static fn(b : body) : parse_result(proto_pat) => (* ... *)
 end
 \end{lstlisting}
-\caption{The type- and module-parameterized \texttt{\$list'} TSMs}
+\caption{The type- and module-parameterized \texttt{\$list'} TLMs}
 \label{fig:ptsm-listprime}
 \end{figure}
-% differing only in that any type parameter that the peTSM specifies can appear free in the generated expansion.
+% differing only in that any type parameter that the peTLM specifies can appear free in the generated expansion.
 
 We can apply \li{#\dolla#list'} to the module \li{List} and the type \li{int} as follows:
 \begin{lstlisting}[numbers=none]
@@ -83,24 +83,24 @@ The expansion is:
 val y = List.Cons(3, List.Cons(4, List.Cons(5, List.Nil)))
 val x = List.Cons(1, List.Cons(2, y))
 \end{lstlisting}
-There is no need to use explicit \li{fold} and \li{inj} operators in this expansion, because the expansion projects the constructors out of the provided module parameter. The TSM itself did not assume that the module would be named \li{List} (internally, the proto-expansion refers to it as \li{L}.)
+There is no need to use explicit \li{fold} and \li{inj} operators in this expansion, because the expansion projects the constructors out of the provided module parameter. The TLM itself did not assume that the module would be named \li{List} (internally, the proto-expansion refers to it as \li{L}.)
 
-This makes matters simpler for the TSM provider, but there is a syntactic cost associated with supplying a module parameter at each TSM application site. To reduce this cost, VerseML supports partial parameter application in TSM abbreviations. For example, we can define \li{#\dolla#list} by partially applying \li{#\dolla#list'} as follows:
+This makes matters simpler for the TLM provider, but there is a syntactic cost associated with supplying a module parameter at each TLM application site. To reduce this cost, VerseML supports partial parameter application in TLM abbreviations. For example, we can define \li{#\dolla#list} by partially applying \li{#\dolla#list'} as follows:
 \begin{lstlisting}[numbers=none]
 let syntax $list = $list' List
 \end{lstlisting}
-(This abbreviates both the expression and pattern TSMs -- sort qualifiers can be added to restrict the abbreviation if desired.)
+(This abbreviates both the expression and pattern TLMs -- sort qualifiers can be added to restrict the abbreviation if desired.)
 
 
-% Similarly, in lieu of derived list pattern forms, we define the following \emph{parameterized pattern TSM} (ppTSM):
+% Similarly, in lieu of derived list pattern forms, we define the following \emph{parameterized pattern TLM} (ppTLM):
 % \begin{lstlisting}[numbers=none]
 % syntax $list('a) at list('a) for patterns {
 %   static fn(body : Body) : ParseResult(CEPat) => (* ... *)
 % }
 % \end{lstlisting}
-% Again, Line 1 names the ppTSM \li{#\dolla#list} and specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when apply to a type \li{'a} and a generalized literal form, will only generate patterns that match values of type \li{list('a)}. 
+% Again, Line 1 names the ppTLM \li{#\dolla#list} and specifies a single type parameter, \li{'a}. This type parameter appears in the type annotation, which specifies that \li{#\dolla#list}, when apply to a type \li{'a} and a generalized literal form, will only generate patterns that match values of type \li{list('a)}. 
 
-% For example, we can apply the ppTSM \li{#\dolla#list} and the \li{#\dolla#list} to define the polymorphic map function as follows.
+% For example, we can apply the ppTLM \li{#\dolla#list} and the \li{#\dolla#list} to define the polymorphic map function as follows.
 % \begin{lstlisting}[numbers=none]
 % fun map (f : 'a -> 'b) (x : list('a)) => match x { 
 %   $list('a) [] => $list('b) []
@@ -114,7 +114,7 @@ let syntax $list = $list' List
 % | Cons(hd, tl) => Cons(f hd, map f tl)
 % }
 % \end{lstlisting}
-% This is somewhat unsatisfying, however, because the expansion is more concise than the unexpanded definition of \li{map}. To further reduce syntactic cost, we can designate \li{#\dolla#list} as the implicit TSM for both expressions and patterns at all types \li{'a list} around our definition of \li{map} as follows.
+% This is somewhat unsatisfying, however, because the expansion is more concise than the unexpanded definition of \li{map}. To further reduce syntactic cost, we can designate \li{#\dolla#list} as the implicit TLM for both expressions and patterns at all types \li{'a list} around our definition of \li{map} as follows.
 % \begin{lstlisting}[numbers=none]
 % implicit syntax $list('a) in
 %   fun map (f : 'a -> 'b) (x : 'a list) : 'b list => match x {
@@ -123,9 +123,9 @@ let syntax $list = $list' List
 %   }
 % end
 % \end{lstlisting}
-% By designating an implicit TSM, we no longer need to explicitly apply \li{#\dolla#list} within expressions in analytic position or patterns.
+% By designating an implicit TLM, we no longer need to explicitly apply \li{#\dolla#list} within expressions in analytic position or patterns.
 
-% When designating an implicit TSM, we assume that free type variables in the type annotation, e.g. here \li{'a}, range over all types. We can make this more explicit by specifying a type parameter explicitly as follows:
+% When designating an implicit TLM, we assume that free type variables in the type annotation, e.g. here \li{'a}, range over all types. We can make this more explicit by specifying a type parameter explicitly as follows:
 % \begin{lstlisting}[numbers=none]
 % implicit syntax('a) $list('a) at list('a) in
 % 	(* ... *)
@@ -133,7 +133,7 @@ let syntax $list = $list' List
 % \end{lstlisting}
 % All type parameters must appear in the type annotation.
 % \subsection{More Examples}
-Module parameters also allow us to define TSMs that operate uniformly over module-parameterized families of abstract types. For example, the module-parameterized TSM \texttt{\$r} defined in Figure \ref{fig:param-tsm-r} supports the POSIX regex syntax for any type \li{R.t} where \li{R : RX}. 
+Module parameters also allow us to define TLMs that operate uniformly over module-parameterized families of abstract types. For example, the module-parameterized TLM \texttt{\$r} defined in Figure \ref{fig:param-tsm-r} supports the POSIX regex syntax for any type \li{R.t} where \li{R : RX}. 
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -142,7 +142,7 @@ syntax $r(R : RX) at R.t by
 end
 \end{lstlisting}
 \vspace{-8px}
-\caption{The module-parameterized TSM \texttt{\$r}}
+\caption{The module-parameterized TLM \texttt{\$r}}
 \label{fig:param-tsm-r}
 \vspace{-4px}
 \end{figure}
@@ -157,7 +157,7 @@ let dna = R1.Or(R1.Str "SSTRAESTR", R1.Or(R1.Str "SSTRTESTR",
 	        R1.Or(R1.Str "SSTRGESTR", R1.Str "SSTRCESTR")))
 \end{lstlisting}
 
-To be clear: parameters are available to the generated expansion, but they are not available to the parse function that generates the expansion. For example, the following TSM definition is not well-typed because it refers to \li{M} from within the parse function:
+To be clear: parameters are available to the generated expansion, but they are not available to the parse function that generates the expansion. For example, the following TLM definition is not well-typed because it refers to \li{M} from within the parse function:
 \begin{lstlisting}[numbers=none]
 syntax $badM(M : A) at T by 
   static fn(b : body) => let x = M.x in (* ... *)
@@ -178,13 +178,13 @@ end
 
 % There are many possible structures that implement this signature. For example, we can define a structure \li{ListQueue} that represents queues internally as lists, where the head of the list is the back of the queue. With this representation, \li{insert} is a constant time operation, but \li{remove} is a linear time operation. Alternatively, we might define a structure \li{TwoListQueue} that represents queues internally as a pair of lists, maintaining the invariant that one is the reverse of the other, so that both \li{insert} and \li{remove} are constant time operations (see \cite{harper1997programming} for the details of this and other possibilities). 
 
-% Regardless of the implementation that the client chooses, we would like for the client to be able to introduce queues more naturally and at lower syntactic cost than is possible by directly applying the functions specified by the signature above. In VerseML, we can give clients of structures matching the signature \li{QUEUE} this ability by defining the following parameterized expression TSM:
+% Regardless of the implementation that the client chooses, we would like for the client to be able to introduce queues more naturally and at lower syntactic cost than is possible by directly applying the functions specified by the signature above. In VerseML, we can give clients of structures matching the signature \li{QUEUE} this ability by defining the following parameterized expression TLM:
 % \begin{lstlisting}[numbers=none]
 % syntax $queue(Q : QUEUE)('a) at Q.queue('a) {
 %   static fn(body : Body) : ParseResult(CEExp) => (* ... *)
 % }
 % \end{lstlisting}
-% This peTSM specifies one module parameter, \li{Q}, which must match the signature \li{QUEUE}, and one type parameter, \li{'a} (implicitly of kind \li{T}). These appear in the type annotation, which specifies that expansions that arise from applying \li{#\dolla#queue} to a module \li{Q : QUEUE} and a type \li{'a} will be of type \li{Q.queue('a)}. For example:
+% This peTLM specifies one module parameter, \li{Q}, which must match the signature \li{QUEUE}, and one type parameter, \li{'a} (implicitly of kind \li{T}). These appear in the type annotation, which specifies that expansions that arise from applying \li{#\dolla#queue} to a module \li{Q : QUEUE} and a type \li{'a} will be of type \li{Q.queue('a)}. For example:
 % \begin{lstlisting}
 % val q = $queue TwoListQueue int [SURL> EURL1SURL, EURL2SURL, EURL3]
 % val q' = $queue TwoListQueue int [qSURL > EURL4SURL, EURL5]
@@ -218,7 +218,7 @@ end
 
 
 
-% Another way to reduce syntactic cost is by designating \li{#\dolla#queue Q 'a} the implicit TSM at all types of the form \li{Q.queue('a)} where \li{Q : QUEUE}. This is written as follows:
+% Another way to reduce syntactic cost is by designating \li{#\dolla#queue Q 'a} the implicit TLM at all types of the form \li{Q.queue('a)} where \li{Q : QUEUE}. This is written as follows:
 % \begin{lstlisting}[numbers=none]
 % implicit syntax (Q : QUEUE) ('a) => $queue Q 'a in
 %   val q : TwoListQueue.queue(int) = [SURL> EURL1SURL, EURL2SURL, EURL3]
@@ -229,14 +229,14 @@ end
 % \begin{lstlisting}[numbers=none]
 % enqueue_jobs : Q.queue(Job) -> Ticket
 % \end{lstlisting}
-% for some module \li{Q : QUEUE} and types \li{Job} and \li{Ticket}. We can enqueue a sequence of jobs \li{j1} through \li{j4} under the TSM designation above as follows:
+% for some module \li{Q : QUEUE} and types \li{Job} and \li{Ticket}. We can enqueue a sequence of jobs \li{j1} through \li{j4} under the TLM designation above as follows:
 % \begin{lstlisting}[numbers=none]
 % enqueue_jobs [SURL> EURLj1SURL, EURLj2SURL, EURLj3SURL, EURLj4]
 % \end{lstlisting}
 
 \vspace{-5px}
 \section{\texorpdfstring{$\miniVerseParam$}{miniVerseP}}\label{sec:miniVerseP}
-We will now define a reduced dialect of VerseML called $\miniVerseParam$ that supports parametric expression and pattern TSMs (peTSMs and ppTSMs.) This language, like $\miniVersePat$, consists of an unexpanded language (UL) defined by typed expansion to an expanded language (XL). The full definition of $\miniVerseParam$ is given in Appendix \ref{appendix:miniVerseParam} -- we will detail only  particularly interesting constructs below.
+We will now define a reduced dialect of VerseML called $\miniVerseParam$ that supports parametric expression and pattern TLMs (peTLMs and ppTLMs.) This language, like $\miniVersePat$, consists of an unexpanded language (UL) defined by typed expansion to an expanded language (XL). The full definition of $\miniVerseParam$ is given in Appendix \ref{appendix:miniVerseParam} -- we will detail only  particularly interesting constructs below.
 
 \subsection{Syntax of the Expanded Language (XL)}\label{sec:P-expanded-terms}
 
@@ -631,7 +631,7 @@ Sealing enforces \emph{representation independence} -- the abstract construction
 
 The judgements above obey standard lemmas, including Weakening, Substitution and Decomposition (see Appendix \ref{appendix:P-statics}.)
 
-We omit certain features of the ML module system in  $\miniVerseParam$, such as its support for hierarchical modules and functors. Our formulation also does not support ``width'' subtyping and subkinding for simplicity. These are straightforward extensions of $\miniVerseParam$, but because their inclusion would not change the semantics of parametric TSMs, we did not include them (see \cite{pfpl} for a discussion of these features.)
+We omit certain features of the ML module system in  $\miniVerseParam$, such as its support for hierarchical modules and functors. Our formulation also does not support ``width'' subtyping and subkinding for simplicity. These are straightforward extensions of $\miniVerseParam$, but because their inclusion would not change the semantics of parametric TLMs, we did not include them (see \cite{pfpl} for a discussion of these features.)
 
 \subsection{Structural Dynamics}
 The structural dynamics of modules is defined as a transition system, and is organized around judgements of the following form:
@@ -722,22 +722,22 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \color{Yellow} & \color{Yellow}\\
 &&
 %& \aumdefpetsm{\urho}{e}{\tsmv}{\uM} 
-& \defpetsm{\tsmv}{\urho}{e}{\uM} & \text{peTSM definition}\\
+& \defpetsm{\tsmv}{\urho}{e}{\uM} & \text{peTLM definition}\\
 %&&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \aumletpetsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpetsm{\tsmv}{\uepsilon}{\uM} & \text{peTSM binding}\\
+& \uletpetsm{\tsmv}{\uepsilon}{\uM} & \text{peTLM binding}\\
 % &&&                                  & \texttt{expressions}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{peTSM designation}\\
+% &&& ... & ... & \text{peTLM designation}\\
 &&
 %& \audefpptsm{\urho}{e}{\tsmv}{\uM} 
-& \defpptsm{\tsmv}{\urho}{e}{\uM} & \text{ppTSM definition}\\
+& \defpptsm{\tsmv}{\urho}{e}{\uM} & \text{ppTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\uM\\
 &&
 %& \auletpptsm{\uepsilon}{\tsmv}{\uM} 
-& \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTSM binding}\ECC%
+& \uletpptsm{\tsmv}{\uepsilon}{\uM} & \text{ppTLM binding}\ECC%
 % &&& & \texttt{patterns}~\texttt{in}~\uM\\
-% &&& ... & ... & \text{ppTSM designation}\ECC
+% &&& ... & ... & \text{ppTLM designation}\ECC
 \end{array}$%\vspace{-5px}
 \caption[Syntax of unexpanded module expressions and signatures in $\miniVerseParam$]{Syntax of unexpanded module expressions and signatures in $\miniVerseParam$}%\vspace{-5px}
 \label{fig:P-unexpanded-modules-signatures}
@@ -869,20 +869,20 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 \LCC &&
 % %& \color{Yellow} 
 & \color{Yellow} & \color{Yellow} \\
-% &&& \audefpetsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{peTSM definition}\\
+% &&& \audefpetsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{peTLM definition}\\
 % &&&                                    & \texttt{expressions}~\{e\}~\texttt{in}~\ue\\
-% &&& \auletpetsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{peTSM binding}\\
+% &&& \auletpetsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{peTLM binding}\\
 % &&&                                  & \texttt{expressions}~\texttt{in}~\ue\\
-% &&& ... & ... & \text{peTSM designation}\\
+% &&& ... & ... & \text{peTLM designation}\\
 &&
 %& \auappetsm{b}{\uepsilon} 
-& \utsmap{\uepsilon}{b} & \text{peTSM application}\ECC\\%\ECC
-% &&& \auelit{b} & {\lit{b}}  & \text{peTSM unadorned literal}\\
-% &&& \audefpptsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{ppTSM definition}\\
+& \utsmap{\uepsilon}{b} & \text{peTLM application}\ECC\\%\ECC
+% &&& \auelit{b} & {\lit{b}}  & \text{peTLM unadorned literal}\\
+% &&& \audefpptsm{\urho}{e}{\tsmv}{\ue} & \texttt{syntax}~\tsmv~\texttt{at}~\urho~\texttt{for} & \text{ppTLM definition}\\
 % &&&                                    & \texttt{patterns}~\{e\}~\texttt{in}~\ue\\
-% &&& \auletpptsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{ppTSM binding}\\
+% &&& \auletpptsm{\uepsilon}{\tsmv}{\ue} & \texttt{let}~\texttt{syntax}~\tsmv=\uepsilon~\texttt{for} & \text{ppTLM binding}\\
 % &&& & \texttt{patterns}~\texttt{in}~\ue\\
-% &&& ... & ... & \text{ppTSM designation}\\\ECC
+% &&& ... & ... & \text{ppTLM designation}\\\ECC
 \mathsf{URule} & \urv & ::= 
 %& \aumatchrule{\upv}{\ue} 
 & \matchrule{\upv}{\ue} & \text{match rule}\\
@@ -907,8 +907,8 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \color{Yellow} & \color{Yellow}\\
 &&
 %& \auappptsm{b}{\uepsilon} 
-& \utsmap{\uepsilon}{b} & \text{ppTSM application}\ECC
-% &&& \auplit{b} & \lit{b} & \text{ppTSM unadorned literal}\ECC
+& \utsmap{\uepsilon}{b} & \text{ppTLM application}\ECC
+% &&& \auplit{b} & \lit{b} & \text{ppTLM unadorned literal}\ECC
 \end{array}\]
 \caption[Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$]{Syntax of unexpanded expressions, rules and patterns in $\miniVerseParam$}
 \label{fig:P-unexpanded-terms}
@@ -938,7 +938,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \allmods{\uX}{\usigma}{\urho} & \text{module parameterization}\\
 \mathsf{UMExp} & \uepsilon & ::= 
 %& \abindref{\tsmv} 
-& \tsmv & \text{TSM identifier reference}\\
+& \tsmv & \text{TLM identifier reference}\\
 % &&
 %& \auabstype{\ut}{\uepsilon} 
 % & \abstype{\ut}{\uepsilon} & \text{type abstraction}\\
@@ -953,7 +953,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \apmod{\uepsilon}{\uX} & \text{module application}\ECC
 \end{array}
 \]
-\caption{Syntax of unexpanded TSM types and expressions  in $\miniVerseParam$}
+\caption{Syntax of unexpanded TLM types and expressions  in $\miniVerseParam$}
 \label{fig:P-macro-expressions-types-u}
 \end{figure}
 \begin{figure}[t]
@@ -975,7 +975,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 & \text{module parameterization}\\
 \mathsf{MExp} & \epsilon & ::= & \adefref{a} 
 %& a 
-& \text{TSM definition reference}\\
+& \text{TLM definition reference}\\
 % &&& \aeabstype{t}{\epsilon} 
 %& \abstype{t}{\epsilon} 
 % & \text{type abstraction}\\
@@ -989,7 +989,7 @@ $\arraycolsep=4pt\begin{array}{lllllll}
 %& \aptype{\epsilon}{M} 
 & \text{module application}\ECC
 \end{array}\]
-\caption[Syntax of TSM types and expressions in $\miniVerseParam$]{Syntax of TSM types and expressions  in $\miniVerseParam$}
+\caption[Syntax of TLM types and expressions in $\miniVerseParam$]{Syntax of TLM types and expressions  in $\miniVerseParam$}
 \label{fig:P-macro-expressions-types}
 \end{figure}
 \subsection{Syntax of the Unexpanded Language}
@@ -1001,7 +1001,7 @@ Kind variables, $k$, are one exception. Kind variables are used only in the meta
 
 The other two exceptions are constructions of the form $\amcon{M}$ and expressions of the form $\amval{M}$ where $M$ is of the form $\astruct{c}{e}$. Projection out of a module expression of the form $\astruct{c}{e}$ was supported in the XL only because this is needed to give the language  a conventional structural dynamics. Programmers refer to modules exclusively through module identifiers in unexpanded programs. 
 
-In addition to the common forms, there are several forms related to pTSMs, highlighted in yellow in these figures. We need syntax for unexpanded TSM types, $\urho$, and unexpanded TSM expressions, $\uepsilon$, to support parameterization and parameter application. Internally, these expand to TSM expressions, $\epsilon$, and TSM types, $\rho$, respectively.
+In addition to the common forms, there are several forms related to pTLMs, highlighted in yellow in these figures. We need syntax for unexpanded TLM types, $\urho$, and unexpanded TLM expressions, $\uepsilon$, to support parameterization and parameter application. Internally, these expand to TLM expressions, $\epsilon$, and TLM types, $\rho$, respectively.
 
 There is also a context-free textual syntax for the UL. For our purposes, we need only posit the existence of partial metafunctions that satisfy the following condition. 
 \begingroup
@@ -1061,47 +1061,47 @@ $\begin{array}{ll}
 
 The judgements above are defined by the rules given in Appendix \ref{appendix:typed-expansion-P}. Most of these rules simply serve to ``mirror'' corresponding rules in the statics of the XL, as was described in Sec. \ref{sec:miniVerseU}. The interesting rules, governing the forms highlighted in yellow, will be reproduced as we discuss them below.
 
-The remaining judgements assign meaning to TSM types and expressions. We will detail these below. In particular, the fourth group of judgements define TSM type and expression expansion.
+The remaining judgements assign meaning to TLM types and expressions. We will detail these below. In particular, the fourth group of judgements define TLM type and expression expansion.
 
 \vspace{6px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
 \tsmtyExpands{\uOmega}{\urho}{\rho} & \text{$\urho$ has well-formed expansion $\rho$}\\
-\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{$\uepsilon$ has peTSM expression expansion $\epsilon$ at $\rho$}\\
-\tsmexpExpandsPat{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{$\uepsilon$ has ppTSM expression expansion $\epsilon$ at $\rho$}
+\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{$\uepsilon$ has peTLM expression expansion $\epsilon$ at $\rho$}\\
+\tsmexpExpandsPat{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\rho} & \text{$\uepsilon$ has ppTLM expression expansion $\epsilon$ at $\rho$}
 \end{array}$
 \vspace{6px}
 
-The fifth group of judgements define the statics of TSM expressions.
+The fifth group of judgements define the statics of TLM expressions.
 
 \vspace{6px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\istsmty{\Omega}{\rho} & \text{$\rho$ is a TSM type}\\
-\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{$\epsilon$ is a peTSM expression at $\rho$}\\
-\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{$\epsilon$ is a ppTSM expression at $\rho$}
+\istsmty{\Omega}{\rho} & \text{$\rho$ is a TLM type}\\
+\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho} & \text{$\epsilon$ is a peTLM expression at $\rho$}\\
+\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho} & \text{$\epsilon$ is a ppTLM expression at $\rho$}
 \end{array}$
 \vspace{6px}
 
-The sixth group of judgements define the dynamics of TSM expressions.
+The sixth group of judgements define the dynamics of TLM expressions.
 
 \vspace{6px}
 $\begin{array}{ll}
 \textbf{Judgement Form} & \textbf{Description}\\
-\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTSM expression $\epsilon$ transitions to $\epsilon'$}\\
-\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{ppTSM expression $\epsilon$ transitions to $\epsilon'$}\\
-\tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{$\epsilon$ is a normal peTSM expression}\\
-\tsmexpNormalPat{\Omega}{\Psi}{\epsilon} & \text{$\epsilon$ is a normal ppTSM expression}
+\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{peTLM expression $\epsilon$ transitions to $\epsilon'$}\\
+\tsmexpStepsPat{\Omega}{\Psi}{\epsilon}{\epsilon'} & \text{ppTLM expression $\epsilon$ transitions to $\epsilon'$}\\
+\tsmexpNormalExp{\Omega}{\Psi}{\epsilon} & \text{$\epsilon$ is a normal peTLM expression}\\
+\tsmexpNormalPat{\Omega}{\Psi}{\epsilon} & \text{$\epsilon$ is a normal ppTLM expression}
 \end{array}$
 \vspace{6px}
 
-We define the multi-step transition judgements $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ and $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ as the reflexive transitive closures of the corresponding transition judgements. We also define the peTSM expression normalization judgement $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ iff $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ and $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}$. Similarly, we define the ppTSM expression normalization judgement $\tsmexpEvalsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ iff $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ and $\tsmexpNormalPat{\Omega}{\Phi}{\epsilon'}$.
+We define the multi-step transition judgements $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ and $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ as the reflexive transitive closures of the corresponding transition judgements. We also define the peTLM expression normalization judgement $\tsmexpEvalsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ iff $\tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ and $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon'}$. Similarly, we define the ppTLM expression normalization judgement $\tsmexpEvalsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ iff $\tsmexpMultistepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ and $\tsmexpNormalPat{\Omega}{\Phi}{\epsilon'}$.
 
-\subsection{TSM Definitions}
-TSMs are scoped to module expressions. (Adding support for TSM definitions scoped to a single expression would be a straightforward exercise, so we omit the details for simplicity.)
+\subsection{TLM Definitions}
+TLMs are scoped to module expressions. (Adding support for TLM definitions scoped to a single expression would be a straightforward exercise, so we omit the details for simplicity.)
 
-\subsubsection{peTSM Definitions}
-The rule governing peTSM definitions is reproduced below:
+\subsubsection{peTLM Definitions}
+The rule governing peTLM definitions is reproduced below:
 \begin{equation*}\tag{\ref{rule:mExpandsP-syntaxpe}}
 \inferrule{
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -1113,7 +1113,7 @@ The rule governing peTSM definitions is reproduced below:
 }
 \end{equation*}
 
-peTSM definitions differ from ueTSM definitions in that the unexpanded type annotation is an \emph{unexpanded TSM type}, $\urho$, rather than an unexpanded type, $\utau$. This unexpanded TSM type determines the parameterization of the TSM. The first premise of the rule above expands the unexpanded TSM type to produce a \emph{TSM type}, $\rho$. The straightforward rules governing TSM type expansion are reproduced below.
+peTLM definitions differ from ueTLM definitions in that the unexpanded type annotation is an \emph{unexpanded TLM type}, $\urho$, rather than an unexpanded type, $\utau$. This unexpanded TLM type determines the parameterization of the TLM. The first premise of the rule above expands the unexpanded TLM type to produce a \emph{TLM type}, $\rho$. The straightforward rules governing TLM type expansion are reproduced below.
 \begin{equation*}\tag{\ref{rule:tsmtyExpands-type}}
 \inferrule{
   \cExpandsX{\utau}{\tau}{\akty}
@@ -1138,14 +1138,14 @@ peTSM definitions differ from ueTSM definitions in that the unexpanded type anno
 \end{equation*}
 Rule (\ref{rule:tsmtyExpands-type}) defines quantification over modules matching a given signature. There is no mechanism for quantification over types in the calculus because it can be understood as quantification over a module with a single type component.
 
-The second premise of Rule (\ref{rule:mExpandsP-syntaxpe}) checks that the parse function is of the appropriate type. The types $\tBody$ and $\tParseResultPCEExp$ are characterized in Appendix \ref{appendix:typed-expansion-P}. The type $\tPProtoExpr$ classifies \emph{encodings of parameterized proto-expressions}, which we will return to when we discuss TSM application below.
+The second premise of Rule (\ref{rule:mExpandsP-syntaxpe}) checks that the parse function is of the appropriate type. The types $\tBody$ and $\tParseResultPCEExp$ are characterized in Appendix \ref{appendix:typed-expansion-P}. The type $\tPProtoExpr$ classifies \emph{encodings of parameterized proto-expressions}, which we will return to when we discuss TLM application below.
 
 The third premise of Rule (\ref{rule:mExpandsP-syntaxpe}) evaluates the parse function to a value.
 
-The final premise of Rule (\ref{rule:mExpandsP-syntaxpe}) extends the \emph{peTSM context}, $\uPsi$, which consists of a \emph{TSM identifier expansion context}, $\uA$, and a \emph{peTSM definition context}, $\Psi$. A peTSM definition context maps TSM names, $a$, to an expanded peTSM definition, $\petsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the TSM type determined from the annotation and $\eparse$ is its parse function. A TSM identifier context maps TSM identifiers, $\tsmv$, to \emph{TSM expressions}, $\epsilon$. In this case, the TSM expression is simply a reference to the newly introduced TSM definition, $\adefref{a}$. We discuss the other TSM expression forms when we discuss TSM abbreviations below.
+The final premise of Rule (\ref{rule:mExpandsP-syntaxpe}) extends the \emph{peTLM context}, $\uPsi$, which consists of a \emph{TLM identifier expansion context}, $\uA$, and a \emph{peTLM definition context}, $\Psi$. A peTLM definition context maps TLM names, $a$, to an expanded peTLM definition, $\petsmdefn{a}{\rho}{\eparse}$, where $\rho$ is the TLM type determined from the annotation and $\eparse$ is its parse function. A TLM identifier context maps TLM identifiers, $\tsmv$, to \emph{TLM expressions}, $\epsilon$. In this case, the TLM expression is simply a reference to the newly introduced TLM definition, $\adefref{a}$. We discuss the other TLM expression forms when we discuss TLM abbreviations below.
 
-\subsubsection{ppTSM Definitions}
-The rule governing ppTSM definitions is similar, and is reproduced below:
+\subsubsection{ppTLM Definitions}
+The rule governing ppTLM definitions is similar, and is reproduced below:
 \begin{equation*}\tag{\ref{rule:mExpandsP-syntaxpp}}
 \inferrule{ 
   \tsmtyExpands{\uOmega}{\urho}{\rho}\\
@@ -1156,13 +1156,13 @@ The rule governing ppTSM definitions is similar, and is reproduced below:
   \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\defpptsm{\tsmv}{\urho}{\eparse}{\uM}}{M}{\sigma}
 }
 \end{equation*}
-This rule differs from Rule (\ref{rule:mExpandsP-syntaxpe}) in the type of the parse function and in the fact that the \emph{ppTSM context}, $\uPhi$, rather than the peTSM context, is updated.
+This rule differs from Rule (\ref{rule:mExpandsP-syntaxpe}) in the type of the parse function and in the fact that the \emph{ppTLM context}, $\uPhi$, rather than the peTLM context, is updated.
 
-\subsection{TSM Abbreviations}
-It is possible to abbreviate a complex TSM expression by binding it to a TSM identifier.
+\subsection{TLM Abbreviations}
+It is possible to abbreviate a complex TLM expression by binding it to a TLM identifier.
 
-\subsubsection{peTSM Abbreviations}
-The rule governing peTSM abbreviations is reproduced below:
+\subsubsection{peTLM Abbreviations}
+The rule governing peTLM abbreviations is reproduced below:
 \begin{equation}\tag{\ref{rule:mExpandsP-letpetsm}}
 \inferrule{
   \tsmexpExpandsExp{\uOmega}{\uAS{\uA}{\Psi}}{\uepsilon}{\epsilon}{\rho}\\
@@ -1171,9 +1171,9 @@ The rule governing peTSM abbreviations is reproduced below:
   \mExpandsP{\uOmega}{\uAS{\uA}{\Psi}}{\uPhi}{\uletpetsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 }
 \end{equation}
-Here, $\uepsilon$ is an \emph{unexpanded TSM expression}. The first premise of the rule above expands it, producing a TSM expression $\epsilon$ at TSM type $\rho$. The second premise updates the peTSM identifier expansion context with this TSM expression.
+Here, $\uepsilon$ is an \emph{unexpanded TLM expression}. The first premise of the rule above expands it, producing a TLM expression $\epsilon$ at TLM type $\rho$. The second premise updates the peTLM identifier expansion context with this TLM expression.
 
-The rules below govern peTSM expression expansion. The first rule handles the base case, when the unexpanded TSM expression is a TSM identifier, $\tsmv$, by looking it up in $\uA$ and determining its TSM type according to the TSM expression typing judgement, $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ (which mirrors the rules below, and is defined in Appendix \ref{appendix:typed-expansion-P}.)
+The rules below govern peTLM expression expansion. The first rule handles the base case, when the unexpanded TLM expression is a TLM identifier, $\tsmv$, by looking it up in $\uA$ and determining its TLM type according to the TLM expression typing judgement, $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ (which mirrors the rules below, and is defined in Appendix \ref{appendix:typed-expansion-P}.)
 \begin{equation*}\tag{\ref{rule:tsmexpExpandsExp-bindref}}
 \inferrule{
   \hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}  
@@ -1182,7 +1182,7 @@ The rules below govern peTSM expression expansion. The first rule handles the ba
 }
 \end{equation*}
 
-The following rule allows a peTSM expression to itself abstract over a module. (This is necessary to support abbreviated application of parameters other than the first.)
+The following rule allows a peTLM expression to itself abstract over a module. (This is necessary to support abbreviated application of parameters other than the first.)
 % \begin{equation*}\tag{\ref{rule:tsmexpExpandsExp-abstype}}
 % \inferrule{
 %   \tsmexpExpandsExp{\uOmega, \uKhyp{\ut}{t}{\akty}}{\uPsi}{\uepsilon}{\epsilon}{\rho}
@@ -1217,8 +1217,8 @@ The final rule defines the semantics of parameter application.
 }
 \end{equation*}
 
-\subsubsection{ppTSM Abbreviations}
-The rule governing ppTSM abbreviations is analagous:
+\subsubsection{ppTLM Abbreviations}
+The rule governing ppTLM abbreviations is analagous:
 \begin{equation*}\tag{\ref{rule:mExpandsP-letpptsm}}
 \inferrule{
   \tsmexpExpandsPat{\uOmega}{\uAS{\uA}{\Phi}}{\uepsilon}{\epsilon}{\rho}\\
@@ -1227,12 +1227,12 @@ The rule governing ppTSM abbreviations is analagous:
   \mExpandsP{\uOmega}{\uPsi}{\uAS{\uA}{\Phi}}{\uletpptsm{\tsmv}{\uepsilon}{\uM}}{M}{\sigma}
 }
 \end{equation*}
-The ppTSM expression expansion judgement appearing as the first premise is defined analagously to the peTSM expression expansion judgement defined above, differing only in that the rule for TSM identifiers consults the ppTSM context rather than the peTSM context. The rules are reproduced in Appendix \ref{appendix:typed-expansion-P}.
+The ppTLM expression expansion judgement appearing as the first premise is defined analagously to the peTLM expression expansion judgement defined above, differing only in that the rule for TLM identifiers consults the ppTLM context rather than the peTLM context. The rules are reproduced in Appendix \ref{appendix:typed-expansion-P}.
 
-\subsection{TSM Application}
+\subsection{TLM Application}
 
-\subsubsection{peTSM Application}
-The rule for applying an unexpanded peTSM expression $\uepsilon$ to a generalized literal form with body $b$ is reproduced below:
+\subsubsection{peTLM Application}
+The rule for applying an unexpanded peTLM expression $\uepsilon$ to a generalized literal form with body $b$ is reproduced below:
 \begin{equation*}\tag{\ref{rule:expandsP-apuetsm}}
 \inferrule{
   \uOmega = \uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
@@ -1252,9 +1252,9 @@ The rule for applying an unexpanded peTSM expression $\uepsilon$ to a generalize
 }
 \end{equation*}
 
-The first two premises simply deconstruct $\uOmega$ and $\uPsi$. Next, we expand $\uepsilon$ according to the unexpanded peTSM expression expansion rules that we already described above. The resulting TSM expression, $\epsilon$, must be defined at a type (i.e. no quantification must remain.)
+The first two premises simply deconstruct $\uOmega$ and $\uPsi$. Next, we expand $\uepsilon$ according to the unexpanded peTLM expression expansion rules that we already described above. The resulting TLM expression, $\epsilon$, must be defined at a type (i.e. no quantification must remain.)
 
-The fourth premise performs \emph{peTSM expression normalization}. Normalization is defined in terms of a simple structural dynamics with two stepping rules:
+The fourth premise performs \emph{peTLM expression normalization}. Normalization is defined in terms of a simple structural dynamics with two stepping rules:
 % \begin{equation*}\tag{\ref{rule:tsmexpEvalsExp}}
 % \inferrule{
 %   \tsmexpMultistepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}\\
@@ -1288,7 +1288,7 @@ The fourth premise performs \emph{peTSM expression normalization}. Normalization
   \tsmexpStepsExp{\Omega}{\Psi}{\aeapmod{X}{\aeabsmod{\sigma}{X'}{\epsilon}}}{[X/X']\epsilon}
 }
 \end{equation*}
-The peTSM expression normal forms are defined as follows:
+The peTLM expression normal forms are defined as follows:
 \begin{equation*}\tag{\ref{rule:tsmexpNormalExp-defref}}
 \inferrule{ }{
   \tsmexpNormalExp{\Omega}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\adefref{a}}
@@ -1320,9 +1320,9 @@ The peTSM expression normal forms are defined as follows:
   \tsmexpNormalExp{\Omega}{\Psi}{\aeapmod{X}{\epsilon}}
 }
 \end{equation*}
-Normalization leaves only those parameter applications that cannot be reduced away immediately, i.e. those specified by the original TSM definition.
+Normalization leaves only those parameter applications that cannot be reduced away immediately, i.e. those specified by the original TLM definition.
 
-The TSM definition at the root of the normalized TSM expression is extracted by the third row of premises in Rule (\ref{rule:expandsP-apuetsm}). The first of these appeals to the following metafunction to produce the TSM definition's name.
+The TLM definition at the root of the normalized TLM expression is extracted by the third row of premises in Rule (\ref{rule:expandsP-apuetsm}). The first of these appeals to the following metafunction to produce the TLM definition's name.
 \begin{align}
 \tsmdefof{\adefref{a}} & = a \tag{\ref{eqn:tsmdefof-adefref}}\\
 % \tsmdefof{\aeabstype{t}{\epsilon}} & = \tsmdefof{\epsilon} \tag{\ref{eqn:tsmdefof-abstype}}\\
@@ -1346,7 +1346,7 @@ The fourth row of premises in Rule (\ref{rule:expandsP-apuetsm}) 1) encode the b
 \label{fig:P-pceexp}
 \end{figure}
 \noindent 
-There must be one binder in $\pce$ for each TSM parameter specified by $\tsmdefof{\epsilon_\text{normal}}$. (VerseML inserts these binders automatically as a convenience, but we consider only the underlying mechanism in this core calculus.) The judgement on the fifth row of Rule (\ref{rule:expandsP-apuetsm}) then \emph{deparameterizes} $\pce$ by peeling away these binders to produce 1) the underlying proto-expression, $\ce$, with the variables that stand for the parameters free; 2) a corresponding deparameterized type, $\tau_\text{proto}$, that uses the same free variables to stand for the parameters; 3) a \emph{substitution}, $\omega$, that pairs the applied parameters from $\epsilon_\text{normal}$ with the corresponding variables generated when peeling away the binders in $\pce$; and 4) a corresponding \emph{parameter context}, $\Omega_\text{params}$, that tracks the signatures of these variables. The two rules governing the proto-expression deparameterization judgement are reproduced below:
+There must be one binder in $\pce$ for each TLM parameter specified by $\tsmdefof{\epsilon_\text{normal}}$. (VerseML inserts these binders automatically as a convenience, but we consider only the underlying mechanism in this core calculus.) The judgement on the fifth row of Rule (\ref{rule:expandsP-apuetsm}) then \emph{deparameterizes} $\pce$ by peeling away these binders to produce 1) the underlying proto-expression, $\ce$, with the variables that stand for the parameters free; 2) a corresponding deparameterized type, $\tau_\text{proto}$, that uses the same free variables to stand for the parameters; 3) a \emph{substitution}, $\omega$, that pairs the applied parameters from $\epsilon_\text{normal}$ with the corresponding variables generated when peeling away the binders in $\pce$; and 4) a corresponding \emph{parameter context}, $\Omega_\text{params}$, that tracks the signatures of these variables. The two rules governing the proto-expression deparameterization judgement are reproduced below:
 \begin{equation*}\tag{\ref{rule:prepce-ceexp}}
 \inferrule{ }{
   \prepce{\Omega_\text{app}}{\Psi, \petsmdefn{a}{\rho}{\eparse}}{\apceexp{\ce}}{\ce}{\adefref{a}}{\rho}{\emptyset}{\emptyset}
@@ -1368,13 +1368,13 @@ There must be one binder in $\pce$ for each TSM parameter specified by $\tsmdefo
   \prepce{\Omega_\text{app}}{\Psi}{\apcebindmod{X}{\pce}}{\ce}{\aeapmod{X'}{\epsilon}}{\rho}{(\omega, X'/X)}{(\Omega, X : \sigma)}
 }
 \end{equation*}
-This judgement can be pronounced ``when applying peTSM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$''. Notice from Rule (\ref{rule:prepce-allmods}) that every module binding in $\pce$ must pair with a corresponding module parameter application. Moreover, the variables standing for parameters must not appear in $\Omega_\text{app}$, i.e. $\domof{\Omega_\text{params}}$ must be disjoint from $\domof{\Omega_\text{app}}$ (this requirement can always be discharged by alpha-variation.)
+This judgement can be pronounced ``when applying peTLM $\epsilon$, $\pce$ has deparameterization $\ce$ leaving $\rho$ with parameter substitution $\omega$''. Notice from Rule (\ref{rule:prepce-allmods}) that every module binding in $\pce$ must pair with a corresponding module parameter application. Moreover, the variables standing for parameters must not appear in $\Omega_\text{app}$, i.e. $\domof{\Omega_\text{params}}$ must be disjoint from $\domof{\Omega_\text{app}}$ (this requirement can always be discharged by alpha-variation.)
 
 The final row of premises in Rule (\ref{rule:expandsP-apuetsm}) performs proto-expansion validation. This involves first checking that the segmentation of $\ce$ is valid. Segmentation validation is contextual because kind and type equivalence are contextual (see Appendix \ref{appendix:segmentations-P} for details.) After checking the segmentation, the next premise checks that the proto-expansion is well-typed under the parameter context, $\Omega_\text{param}$ (rather than the empty context, as was the case in $\miniVersePat$.) The conclusion of the rule applies the parameter substitution, $\omega$, to the resulting expression and the deparameterized type it was checked against.
 
-\subsubsection{ppTSM Application}
+\subsubsection{ppTLM Application}
 
-The rule governing ppTSM application is similar:
+The rule governing ppTLM application is similar:
 \begin{equation*}\tag{\ref{rule:patExpandsP-apuptsm}}
 \inferrule{
   \uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}\\
@@ -1394,7 +1394,7 @@ The rule governing ppTSM application is similar:
 }
 \end{equation*}
 
-Although patterns themselves cannot make reference to surrounding bindings, the type annotations on spliced patterns can, so we need the notion of a \emph{parameterized proto-pattern}, $\pcp$, and a corresponding deparameterization judgement. The necessary definitions, which are analagous to those given above for peTSMs, are given in Appendix \ref{appendix:typed-expansion-P}.
+Although patterns themselves cannot make reference to surrounding bindings, the type annotations on spliced patterns can, so we need the notion of a \emph{parameterized proto-pattern}, $\pcp$, and a corresponding deparameterization judgement. The necessary definitions, which are analagous to those given above for peTLMs, are given in Appendix \ref{appendix:typed-expansion-P}.
 
 \subsection{Syntax of Proto-Expansions}\label{sec:ce-syntax-P}
 
@@ -1494,8 +1494,8 @@ $\arraycolsep=4pt\begin{array}{ll}
 \end{array}$
 \vspace{10px}
 
-\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{construction splicing scenes}, $\cscenev$, are of the form $\csceneP{\omega : \Omega_\text{params}}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}$. Their purpose is to ``remember'', during proto-expansion validation, the contexts and literal bodies from the TSM application site (cf. Rules (\ref{rule:expandsP-apuetsm}) and (\ref{rule:patExpandsP-apuptsm}) above), because these are necessary to validate references to spliced terms. They also keep around the parameter substitution and corresponding context, $\omega : \Omega_\text{params}$, because type/kind annotations on spliced terms need to be able to access parameters (but not expansion-local bindings.) 
-We write $\csfrom{\escenev}$ for the construction splicing scene constructed by dropping the TSM contexts from $\escenev$:
+\emph{Expression splicing scenes}, $\escenev$, are of the form $\esceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPsi}{\uPhi}{b}$, \emph{construction splicing scenes}, $\cscenev$, are of the form $\csceneP{\omega : \Omega_\text{params}}{\uOmega}{b}$, and \emph{pattern splicing scenes}, $\pscenev$, are of the form $\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}$. Their purpose is to ``remember'', during proto-expansion validation, the contexts and literal bodies from the TLM application site (cf. Rules (\ref{rule:expandsP-apuetsm}) and (\ref{rule:patExpandsP-apuptsm}) above), because these are necessary to validate references to spliced terms. They also keep around the parameter substitution and corresponding context, $\omega : \Omega_\text{params}$, because type/kind annotations on spliced terms need to be able to access parameters (but not expansion-local bindings.) 
+We write $\csfrom{\escenev}$ for the construction splicing scene constructed by dropping the TLM contexts from $\escenev$:
 \[\csfrom{\esceneP{\omega : \OParams}{\uOmega}{\uPsi}{\uPhi}{b}} = \csceneP{\omega : \OParams}{\uOmega}{b}\]
 
 The rules governing references to spliced terms are reproduced below:
@@ -1549,37 +1549,37 @@ Notice that the kind/type annotations on spliced terms can refer to the provided
 \subsection{Metatheory}
 A more detailed account of the metatheory is given in Appendix \ref{appendix:metatheory-P}. We will summarize the key theorems below.
 
-\subsubsection{TSM Expression Evaluation}
-The following theorems establish a notion of TSM type safety based on preservation and progress for TSM expression evaluation.
+\subsubsection{TLM Expression Evaluation}
+The following theorems establish a notion of TLM type safety based on preservation and progress for TLM expression evaluation.
 
 \begingroup
-\def\thetheorem{\ref{thm:peTSM-preservation}}
-\begin{theorem}[peTSM Preservation]
-% \label{thm:peTSM-preservation}
+\def\thetheorem{\ref{thm:peTLM-preservation}}
+\begin{theorem}[peTLM Preservation]
+% \label{thm:peTLM-preservation}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ and $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ then $\hastsmtypeExp{\Omega}{\Psi}{\epsilon'}{\rho}$.
 \end{theorem}
 \endgroup
 
 \begingroup
-\def\thetheorem{\ref{thm:ppTSM-preservation}}
-\begin{theorem}[ppTSM Preservation]
-% \label{thm:ppTSM-preservation}
+\def\thetheorem{\ref{thm:ppTLM-preservation}}
+\begin{theorem}[ppTLM Preservation]
+% \label{thm:ppTLM-preservation}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ and $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ then $\hastsmtypePat{\Omega}{\Phi}{\epsilon'}{\rho}$.
 \end{theorem}
 \endgroup
 
 \begingroup
-\def\thetheorem{\ref{thm:peTSM-progress}}
-\begin{theorem}[peTSM Progress]
-% \label{thm:peTSM-progress}
+\def\thetheorem{\ref{thm:peTLM-progress}}
+\begin{theorem}[peTLM Progress]
+% \label{thm:peTLM-progress}
 If $\hastsmtypeExp{\Omega}{\Psi}{\epsilon}{\rho}$ then either $\tsmexpStepsExp{\Omega}{\Psi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalExp{\Omega}{\Psi}{\epsilon}$.
 \end{theorem}
 \endgroup
 
 \begingroup
-\def\thetheorem{\ref{thm:ppTSM-progress}}
-\begin{theorem}[ppTSM Progress]
-% \label{thm:ppTSM-progress}
+\def\thetheorem{\ref{thm:ppTLM-progress}}
+\begin{theorem}[ppTLM Progress]
+% \label{thm:ppTLM-progress}
 If $\hastsmtypePat{\Omega}{\Phi}{\epsilon}{\rho}$ then either $\tsmexpStepsPat{\Omega}{\Phi}{\epsilon}{\epsilon'}$ for some $\epsilon'$ or $\tsmexpNormalPat{\Omega}{\Phi}{\epsilon}$.
 \end{theorem}
 \endgroup
@@ -1599,19 +1599,19 @@ If $\mExpandsP{\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega}}{\uPsi}{\uPhi}{\uM}{M}{\sigma
 
 (The proof of this theorem requires proving the corresponding theorems about the other typed expansion judgements, as well as the proto-expansion validation judgements -- see Appendix \ref{appendix:metatheory-P}.)
 
-\subsubsection{peTSM Abstract Reasoning Principles}
-The following theorem summarizes the abstract reasoning principles available to programmers when applying a peTSM. Descriptions of labeled clauses are given inline.
+\subsubsection{peTLM Abstract Reasoning Principles}
+The following theorem summarizes the abstract reasoning principles available to programmers when applying a peTLM. Descriptions of labeled clauses are given inline.
 
 \begingroup
 \def\thetheorem{\ref{thm:petsm-abstract-reasoning-principles}}
-\begin{theorem}[peTSM Abstract Reasoning Principles]
+\begin{theorem}[peTLM Abstract Reasoning Principles]
 If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 \begin{enumerate}
 	\item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$
 	\item $\uPsi=\uAS{\uA}{\Psi}$
   \item (\textbf{Typing 1}) $\tsmexpExpandsExp{\uOmega}{\uPsi}{\uepsilon}{\epsilon}{\aetype{\tau'}}$ and $\hastypeP{\Omega_\text{app}}{e}{\tau'}$ for $\tau'$ such that $\issubtypeP{\Omega_\text{app}}{\tau'}{\tau}$
 		\begin{quote}
-			The type of the expansion is consistent with the type annotation on the peTSM definition.
+			The type of the expansion is consistent with the type annotation on the peTLM definition.
 		\end{quote}
 	\item $\tsmexpEvalsExp{\Omega_\text{app}}{\Psi}{\epsilon}{\epsilon_\text{normal}}$
 	\item $\tsmdefof{\epsilon_\text{normal}}=a$
@@ -1664,19 +1664,19 @@ If $\expandsP{\uOmega}{\uPsi}{\uPhi}{\utsmap{\uepsilon}{b}}{e}{\tau}$ then:
 \end{theorem}
 \endgroup
 
-\subsubsection{ppTSM Abstract Reasoning Principles}
-The following theorem summarizes the abstract reasoning principles available to programmers when applying a ppTSM. Descriptions of labeled clauses are given inline.
+\subsubsection{ppTLM Abstract Reasoning Principles}
+The following theorem summarizes the abstract reasoning principles available to programmers when applying a ppTLM. Descriptions of labeled clauses are given inline.
 
 \begingroup
 \def\thetheorem{\ref{thm:pptsm-abstract-reasoning-principles}}
-\begin{theorem}[ppTSM Abstract Reasoning Principles]
+\begin{theorem}[ppTLM Abstract Reasoning Principles]
 If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
 \begin{enumerate}
   \item $\uOmega=\uOmegaEx{\uD}{\uG}{\uMctx}{\Omega_\text{app}}$
   \item $\uPhi=\uAS{\uA}{\Phi}$
   \item (\textbf{Typing 1}) $\tsmexpExpandsPat{\uOmega}{\uPhi}{\uepsilon}{\epsilon}{\aetype{\tau'}}$ and $\patTypePC{\Omega_\text{app}}{\uOmega'}{p}{\tau'}$ for $\tau'$ such that $\issubtypeP{\Omega_\text{app}}{\tau'}{\tau}$
   	\begin{quote}
-  		The final expansion matches values of the type specified by the ppTSM's type annotation.
+  		The final expansion matches values of the type specified by the ppTLM's type annotation.
   	\end{quote}
   \item $\tsmexpEvalsPat{\Omega_\text{app}}{\Phi}{\epsilon}{\epsilon_\text{normal}}$
   \item $\tsmdefof{\epsilon_\text{normal}}=a$
@@ -1717,7 +1717,7 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   	\end{quote}
       \item (\textbf{No Hidden Bindings}) $\uOmega'=\uOmegaEx{\emptyset}{\biguplus_{0 \leq i < \npat} \uG_i}{\emptyset}{\bigcup_{0 \leq i < \npat} \Omega_i}$
       	\begin{quote}
-      		The hypotheses generated by the TSM application are exactly those generated by the spliced patterns.
+      		The hypotheses generated by the TLM application are exactly those generated by the spliced patterns.
       	\end{quote}
 \end{enumerate}
 \end{theorem}
