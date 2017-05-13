@@ -233,19 +233,18 @@ deletestring=[d]{"},
 \title{\textbf{Reasonably Programmable Syntax}}
 \author{Cyrus Omar}
 \date{\today}
-\Year{2016}
-\trnumber{~}
+\Year{2017}
+\trnumber{CMU-CS-17-XXX}
 
 \committee{Jonathan Aldrich, Chair\\
 Robert Harper\\
 Karl Crary\\
 Eric Van Wyk, University of Minnesota}
 
-\support{\todo{Support}}
-%Funded by DOE CSGF, NSF GRFP, NSF, NSA, ...?
+\support{This research was supported by the DOE Computational Science Graduate Fellowship, the National Science Foundation Graduate Research Fellowship, by AFRL and DARPA under agreement \#FA8750-16-2-0042 and by NSA lablet contract \#H98230-14-C-0140.}
 
-\disclaimer{}
-\permission{\todo{CC0 license.}}
+% \disclaimer{}
+\permission{This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit \url{http://creativecommons.org/licenses/by/4.0/}.}
 
 % copyright notice generated automatically from Year and author.
 % permission added if \permission{} given.
@@ -254,8 +253,9 @@ Eric Van Wyk, University of Minnesota}
 
 \maketitle
 
-\begin{dedication}\todo{dedication}
-\end{dedication}
+% \begin{dedication}
+% For Ami and Hibbi Abu
+% \end{dedication}
 
 \pagestyle{plain} % for toc, was empty
 
@@ -266,19 +266,21 @@ Programming languages commonly provide ``syntactic sugar'' that decreases the sy
 For example, Standard ML builds in syntactic sugar for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
 Third-party library providers are, justifiably, envious of this special arrangement. After all, it is not difficult to find other examples of situationally useful library-specific syntactic sugar \cite{TSLs}. For example, 1) clients of a ``collections'' library might like syntactic sugar for finite sets and dictionaries; 2) clients of a ``web programming'' library might like syntactic sugar for HTML and JSON values; 3) a compiler writer might like syntactic sugar for the terms of the object language or various intermediate languages of interest; and 4) clients of a ``chemistry'' library might like syntactic sugar for chemical structures based on the SMILES standard \cite{anderson1987smiles}.
 
-Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. Typed, hygienic term-rewriting macro systems are more reasonable, but offer only limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. 
 
-This work formally introduces \emph{typed literal macros (TLMs)}, which reduce the need for library-specific syntax dialects by giving library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflict,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. In particular, expansion validation allows the TLM client to maintain:
+Typed, hygienic term-rewriting macro systems, like Scala's macro system \cite{ScalaMacros2013}, are somewhat more reasonable, but offer limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+
+This work formally introduces \emph{typed literal macros (TLMs)}, which give library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflicts between them,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. Most notably, expansion validation allows the TLM client to maintain:
 \begin{itemize}
 \item a \emph{type discipline}, meaning that the client can reason about types while holding literal expansions abstract; and 
-\item a \emph{hygienic binding discipline}, meaning that the client can be sure that:
+\item a \emph{strictly hygienic binding discipline}, meaning that the client can always be sure that:
   \begin{enumerate}
-    \item  literal expansions cannot shadow bindings that appear at the TLM application site; and 
+    \item  spliced terms cannot capture bindings that appear within the expansion; and 
   \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
-In short, we describe a programming language (in the ML tradition) with a \emph{reasonably} programmable syntax.
+In short, we describe a programming language in the ML tradition with a \emph{reasonably} programmable syntax.
 
 %We discuss both explicit application of TLMs (with support for partial parameter application) and implicit, type-directed application of TLMs, which further reduces cognitive cost.
 \end{abstract}

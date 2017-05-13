@@ -29,11 +29,11 @@ Pablo Picasso (1881-1973)\end{flushright}
 
 Experienced mathematicians and programmers define formal structures \emph{compositionally}, drawing from libraries of ``general-purpose'' abstractions. The problem that motivates this work is that the resulting terms are sometimes syntactically unwieldy, and, therefore, cognitively costly. % This can neutralize the cognitive benefits of abstraction and composition. We go, therefore, in search of a mechanism of syntactic control that maintains strong compositional reasoning principles. %This can lower productivity, readability and other quality attributes of interest.  %This saves time, one does not need to establish associated definitions and proofs anew, for each specialized structure of interest.
 
-Consider, for example, natural numbers. It is straightforward to define the natural numbers, $n$, as an inductive structure:
+Consider, for example, natural numbers. It is straightforward to define the natural numbers, $n$, with an inductive structure:
 \[ n ::= \textbf{z} ~\vert~ \textbf{s}(n)\]
 By defining natural numbers inductively, we immediately inherit a \emph{structural induction principle} -- we can establish that some property $P$ holds over the natural numbers if we establish $P(\textbf{z})$ and $P(\textbf{s}(n))$ assuming $P(n)$. The problem, of course, is that drawing particular natural numbers by repeatedly applying $\textbf{s}$ very quickly becomes syntactically unwieldy (in fact, the syntactic cost of the drawing grows linearly with $n$.)\footnote{We use the word ``drawing'' throughout this document to emphasize that syntactic cost is a property of the visual representation of a structure, rather than a semantic property.}
 
-Similarly, it is easy to define lists of natural numbers as an inductive structure:
+Similarly, it is easy to define lists of natural numbers with an inductive structure:
 \[ \vec{n} ::= \textbf{nil} ~\vert~ \textbf{cons}(n, \vec{n}) \]
 The problem once again is that drawings of particular lists quickly become unwieldy, and fail to resemble ``naturally occurring'' drawings of lists of numbers.
 
