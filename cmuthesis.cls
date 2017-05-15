@@ -82,7 +82,7 @@
 \begin{center}
     \em
     Submitted in partial fulfillment of the requirements \\
-    for the degree of Doctor of Philosophy.
+    for the degree of Doctor of Philosophy.\\[1.5ex]
 \end{center}
 
 
