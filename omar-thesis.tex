@@ -162,7 +162,7 @@ deletestring=[d]{"},
 \makeatother
 
 % Provides a draft mark at the bottom of the document. 
-\draftstamp{\today}{DRAFT}
+% \draftstamp{\today}{DRAFT}
 
 
 % I hate hyphenation.
@@ -234,14 +234,14 @@ deletestring=[d]{"},
 \author{Cyrus Omar}
 \date{\today}
 \Year{2017}
-\trnumber{CMU-CS-17-XXX}
+\trnumber{CMU-CS-17-113}
 
 \committee{Jonathan Aldrich, Chair\\
 Robert Harper\\
 Karl Crary\\
 Eric Van Wyk, University of Minnesota}
 
-\support{This research was supported by the DOE Computational Science Graduate Fellowship, the National Science Foundation Graduate Research Fellowship, by AFRL and DARPA under agreement \#FA8750-16-2-0042 and by NSA lablet contract \#H98230-14-C-0140.}
+\support{This research was supported by the DOE Computational Science Graduate Fellowship, the NSF Graduate Research Fellowship, by AFRL and DARPA under agreement \#FA8750-16-2-0042 and by NSA lablet contract \#H98230-14-C-0140.}
 
 % \disclaimer{}
 \permission{This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit \url{http://creativecommons.org/licenses/by/4.0/}.}
@@ -254,7 +254,7 @@ Eric Van Wyk, University of Minnesota}
 \maketitle
 
 % \begin{dedication}
-% For Ami and Hibbi Abu
+% Dedicated to the memory of Daniel Schreiber (1986 -- 2010), my friend.
 % \end{dedication}
 
 \pagestyle{plain} % for toc, was empty
@@ -268,35 +268,48 @@ Third-party library providers are, justifiably, envious of this special arrangem
 
 Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. 
 
-Typed, hygienic term-rewriting macro systems, like Scala's macro system \cite{ScalaMacros2013}, are somewhat more reasonable, but offer limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+Typed, hygienic term-rewriting macro systems, like Scala's macro system \cite{ScalaMacros2013}, are somewhat more reasonable, but they offer limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-This work formally introduces \emph{typed literal macros (TLMs)}, which give library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflicts between them,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. Most notably, expansion validation allows the TLM client to maintain:
+This work formally introduces \emph{typed literal macros (TLMs)}, which give library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflicts between them,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. Most notably, expansion validation maintains:
 \begin{itemize}
-\item a \emph{type discipline}, meaning that the client can reason about types while holding literal expansions abstract; and 
+\item a \emph{type discipline}, meaning that the client can reason about types while holding the literal expansion abstract; and 
 \item a \emph{strictly hygienic binding discipline}, meaning that the client can always be sure that:
   \begin{enumerate}
-    \item  spliced terms cannot capture bindings that appear within the expansion; and 
-  \item literal expansions do not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either explicit \emph{spliced terms} or \emph{parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+    \item spliced terms, i.e. terms that appear within literal bodies, cannot capture bindings that appear within the literal expansion; and 
+  \item the literal expansion does not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either {spliced terms} or {parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
-In short, we describe a programming language in the ML tradition with a \emph{reasonably} programmable syntax.
+In short, we formally define a programming language in the ML tradition with a \emph{reasonably} programmable syntax.
 
 %We discuss both explicit application of TLMs (with support for partial parameter application) and implicit, type-directed application of TLMs, which further reduces cognitive cost.
 \end{abstract}
 
 \begin{acknowledgments}
-\todo{acknowledgments}
+I owe a tremendous debt of gratitude to my advisor, Jonathan Aldrich, for being willing to take me on as a na\"ive neuroscience student interested in designing programming languages, and for guiding me patiently through many years of learning, experimentation and refinement. 
+Jonathan's depth of expertise and breadth of perspective has been invaluable. Thank you.%My work seeks to apply type theory to solve usability problems, so it has been a great fit.
+
+I would also like to thank Bob Harper and Karl Crary, who both generously served on my thesis committee and substantially influenced my approach. Through their teaching and scholarship, they taught me the type-theoretic foundations of programming languages, and more broadly, they taught me the tremendous value of precision in both formal and informal discourse on language design. These lessons were reinforced during long afternoons discussing theory papers with other POP students in the ConCert reading group,  and during long evenings grading and preparing for 15-150 (Functional Programming) and 15-312 (Principles of Programming Languages) with Dan Licata, Ian Voysey, Bob Harper, Shayak Sen and the rest of the course staff. Thank you all for being uncompromisingly mathematical in your approach.
+
+I have also learned a great deal about the psychological and social aspects of software development from Brad Myers of the HCI Institute and from the faculty and students of the Institute for Software Research (ISR), particularly Thomas LaToza and Joshua Sunshine. In addition, I have collaborated with Alex Potanin, who visited us on sabbatical, and with students Darya Melicher, Ligia Nistor, Benjamin Chung and Chenglong Wang on projects related to the work presented here. Thank you all for broadening my perspective on the art and science of language design.
+
+During my time in graduate school, I have had the privilege to attend a great many  conferences, workshops and summer schools where I participated in more illuminating conversations than I could  hope to recall here. I am particularly grateful for the conversations with Eric Van Wyk, who never failed to appreciate the subtle contours of the design space and graciously agreed to serve on my thesis committee. I would also like to thank the organizers and participants of the Oregon PL Summer School, where I had an amazing time learning how to properly prove the proper theorems. Finally, I am grateful to have collaborated with Ian Voysey, Michael Hilton and Matthew Hammer on Hazelnut, a side project that quite successfully delayed the completion of this dissertation.
+
+I would be remiss not to mention Brent Doiron, who took me as a student when I entered graduate school in the Neural Computation PhD program, and Garrett Kenyon,  who was my practicum supervisor during my ``man vs. wild'' stint at Los Alamos National Lab. Both of them left me with a deep appreciation for the  mathematical and computational methods used to study the dynamics of neurobiological systems. I hope some day, far in the future, to return to neuroscience with a pack full of truly modern programming tools.
+
+Graduate school can be an emotionally taxing experience, to say the least. Fortunately, my friends were there whenever I came up for air -- sometimes after going under for weeks at a time. Tommy and Sanna, you are beautiful souls and our travels together have been incredibly rejuvenating. Danielle, you have the most exquisite taste and I'm so glad to know you (yeh yeh yeh.) I don't tell the rest of the greater Miasma crew and the thursdz crew this enough: yinz are such fascinating people and I really enjoy the time we spend together. The same goes for so many other individuals that I've connected with, whether after-hours at conferences, through the CNBC, CSGF, LANL, WRCT, SCS, on Twitter, or at shows and festivals. You've made my years as a graduate student wonderfully memorable.
+
+I especially want to remember Dan Schreiber. Dan was one of my very closest friends, a romantic visionary and the greatest debate partner I have ever had. He died in 2010. I am so glad to have known him and I only wish that I could have heard his take on so many of the topics I've learned about since then -- proof theory, type theory, tech cooperatives, experimental music, long-distance cycling, old books, psychedelic films,  spontaneous theater and colonizing Venus, to name just a few! He is missed.
+
+Finally, so much of who I am is due to the love and support of my family. The diverse personalities of my aunts, uncles, cousins and their spouses made family gatherings so lively. My sister, Elisha, and now her husband, Pat, have been an endless source of great book recommendations and conversations. And finally, I am forever grateful to Ami and Hibbi Abu, my mother and father, who have given me so much love, offered so many heartfelt prayers and provided me with so much practical assistance and advice throughout my life. From an early age, they encouraged me to adopt only the best practices of the cultures around me, and to remember the Big Picture at all times. Those lessons, rooted in the traditions of our family going back generations, have proven incredibly valuable in research, and in life, time and time again.
+
+It's been so very good. Thanks, everyone. 
+
 % Mom, dad, other family
-% Jonathan
-% Bob
-% Karl
 % Eric
 % Dan and his family
 % Tommy, Sanna
 % Other friends:
-% POP group friends
-% SE friends
 % Twitter friends
 % CSGF friends
 % Funding: CSGF, NSF, ask Jonathan for grant information

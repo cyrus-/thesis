@@ -112,7 +112,7 @@
 \newenvironment{psuedochapter}[1]
   {\cleardoublepage
    \thispagestyle{empty}
-   \vspace*{\stretch{1}} 
+   %\vspace*{\stretch{1}} 
    \begin{center} \large {\bf #1} \end{center}
    %\addcontentsline{toc}{chapter}{\numberline{}#1} %--not yet mjz 
    \begin{quotation}}
