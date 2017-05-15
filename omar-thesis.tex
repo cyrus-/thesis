@@ -241,7 +241,11 @@ Robert Harper\\
 Karl Crary\\
 Eric Van Wyk, University of Minnesota}
 
-\support{This research was supported by the DOE Computational Science Graduate Fellowship, the NSF Graduate Research Fellowship, by AFRL and DARPA under agreement \#FA8750-16-2-0042 and by NSA lablet contract \#H98230-14-C-0140.}
+\support{This research was supported by the DOE Computational Science Graduate Fellowship, the NSF Graduate Research Fellowship, by AFRL and DARPA under agreement \#FA8750-16-2-0042 and by NSA lablet contract \#H98230-14-C-0140.
+% Any opinions or recommendations 
+%expressed in this material are those of the author and do not necessarily
+ %reflect the views of the DOE, NSF, AFRL, DARPA or NSA.
+ }
 
 % \disclaimer{}
 \permission{This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit \url{http://creativecommons.org/licenses/by/4.0/}.}
@@ -249,7 +253,7 @@ Eric Van Wyk, University of Minnesota}
 % copyright notice generated automatically from Year and author.
 % permission added if \permission{} given.
 
-\keywords{syntax, parsing, type systems, module systems, macro systems, hygiene, pattern matching, bidirectional typechecking, implicit dispatch, metaprogramming}
+\keywords{syntax, notation, parsing, type systems, module systems, macro systems, hygiene, pattern matching, bidirectional typechecking, implicit dispatch}
 
 \maketitle
 
@@ -266,17 +270,17 @@ Programming languages commonly provide ``syntactic sugar'' that decreases the sy
 For example, Standard ML builds in syntactic sugar for constructing and pattern matching on lists. %This decreases the cognitive cost of working with lists. %Semantically, lists are defined in the SML Basis library (i.e. SML's ``standard library''.)
 Third-party library providers are, justifiably, envious of this special arrangement. After all, it is not difficult to find other examples of situationally useful library-specific syntactic sugar \cite{TSLs}. For example, 1) clients of a ``collections'' library might like syntactic sugar for finite sets and dictionaries; 2) clients of a ``web programming'' library might like syntactic sugar for HTML and JSON values; 3) a compiler writer might like syntactic sugar for the terms of the object language or various intermediate languages of interest; and 4) clients of a ``chemistry'' library might like syntactic sugar for chemical structures based on the SMILES standard \cite{anderson1987smiles}.
 
-Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. 
+Defining a ``library-specific'' syntax dialect in each of these situations is problematic, because library clients cannot combine dialects like these in a manner that conserves syntactic determinism (i.e. syntactic conflicts can and do arise.) Moreover, it can become difficult for library clients to reason abstractly about types and binding when examining the text of a program that uses unfamiliar forms. Typed, hygienic term-rewriting macro systems, like Scala's macro system \cite{ScalaMacros2013}, while somewhat more reasonable, offer limited control over parsing.
 
-Typed, hygienic term-rewriting macro systems, like Scala's macro system \cite{ScalaMacros2013}, are somewhat more reasonable, but they offer limited syntactic control.% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
+% In other words, there are few clear \emph{abstract reasoning principles} available to client programmers. % As such, the dialect-oriented approach is difficult to reconcile with the best practices of  ``programming in the large.''
 
-This work formally introduces \emph{typed literal macros (TLMs)}, which give library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflicts between them,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. Most notably, expansion validation maintains:
+This thesis formally introduces \emph{typed literal macros (TLMs)}, which give library providers the ability to programmatically control the parsing and expansion, at ``compile-time'', of expressions and patterns of \emph{generalized literal form}. Library clients can use any combination of TLMs in a program without needing to consider the possibility of syntactic conflicts between them,  because the context-free syntax of the language is never extended (rather, it is  contextually repurposed.) Moreover, the language validates each expansion that a TLM generates in order to maintain useful abstract reasoning principles. Most notably, expansion validation maintains:
 \begin{itemize}
 \item a \emph{type discipline}, meaning that the client can reason about types while holding the literal expansion abstract; and 
 \item a \emph{strictly hygienic binding discipline}, meaning that the client can always be sure that:
   \begin{enumerate}
-    \item spliced terms, i.e. terms that appear within literal bodies, cannot capture bindings that appear within the literal expansion; and 
-  \item the literal expansion does not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go through either {spliced terms} or {parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
+    \item spliced terms, i.e. terms that appear within literal bodies, cannot capture bindings hidden within the literal expansion; and 
+  \item the literal expansion does not refer to definition-site or application-site bindings directly. Instead, all interactions with bindings external to the expansion go explicitly through {spliced terms} or {parameters}.% Support for partial parameter application helps reduce the syntactic cost of this explicit parameter passing style.
   \end{enumerate}
 \end{itemize}
 \noindent
@@ -291,28 +295,21 @@ Jonathan's depth of expertise and breadth of perspective has been invaluable. Th
 
 I would also like to thank Bob Harper and Karl Crary, who both generously served on my thesis committee and substantially influenced my approach. Through their teaching and scholarship, they taught me the type-theoretic foundations of programming languages, and more broadly, they taught me the tremendous value of precision in both formal and informal discourse on language design. These lessons were reinforced during long afternoons discussing theory papers with other POP students in the ConCert reading group,  and during long evenings grading and preparing for 15-150 (Functional Programming) and 15-312 (Principles of Programming Languages) with Dan Licata, Ian Voysey, Bob Harper, Shayak Sen and the rest of the course staff. Thank you all for being uncompromisingly mathematical in your approach.
 
-I have also learned a great deal about the psychological and social aspects of software development from Brad Myers of the HCI Institute and from the faculty and students of the Institute for Software Research (ISR), particularly Thomas LaToza and Joshua Sunshine. In addition, I have collaborated with Alex Potanin, who visited us on sabbatical, and with students Darya Melicher, Ligia Nistor, Benjamin Chung and Chenglong Wang on projects related to the work presented here. Thank you all for broadening my perspective on the art and science of language design.
+I have also learned a great deal about the psychological and social aspects of software development from Brad Myers of the HCI Institute and from the faculty and students of the Institute for Software Research (ISR), particularly Thomas LaToza and Joshua Sunshine. In addition, I have collaborated with Alex Potanin, who visited us on sabbatical, and with students Darya Melicher, Ligia Nistor, Benjamin Chung and Chenglong Wang on projects related to the work presented here. Thank you all for broadening my perspective on the art and science of language design. 
 
-During my time in graduate school, I have had the privilege to attend a great many  conferences, workshops and summer schools where I participated in more illuminating conversations than I could  hope to recall here. I am particularly grateful for the conversations with Eric Van Wyk, who never failed to appreciate the subtle contours of the design space and graciously agreed to serve on my thesis committee. I would also like to thank the organizers and participants of the Oregon PL Summer School, where I had an amazing time learning how to properly prove the proper theorems. Finally, I am grateful to have collaborated with Ian Voysey, Michael Hilton and Matthew Hammer on Hazelnut, a side project that quite successfully delayed the completion of this dissertation.
+During my time in graduate school, I have had the privilege to attend a great many  conferences, workshops and summer schools where I participated in more illuminating conversations than I could  hope to recall here. I am particularly grateful for the conversations with Eric Van Wyk, who never failed to appreciate the subtle contours of a design space and graciously served on my thesis committee. I would also like to thank the organizers and participants of the Oregon PL Summer School, where I had an amazing time learning how to properly prove the proper theorems. Finally, I am grateful to have collaborated with Ian Voysey, Michael Hilton and Matthew Hammer on Hazelnut, a side project that quite successfully delayed the completion of this dissertation. With friends and collaborators like them, why graduate?
 
 I would be remiss not to mention Brent Doiron, who took me as a student when I entered graduate school in the Neural Computation PhD program, and Garrett Kenyon,  who was my practicum supervisor during my ``man vs. wild'' stint at Los Alamos National Lab. Both of them left me with a deep appreciation for the  mathematical and computational methods used to study the dynamics of neurobiological systems. I hope some day, far in the future, to return to neuroscience with a pack full of truly modern programming tools.
 
-Graduate school can be an emotionally taxing experience, to say the least. Fortunately, my friends were there whenever I came up for air -- sometimes after going under for weeks at a time. Tommy and Sanna, you are beautiful souls and our travels together have been incredibly rejuvenating. Danielle, you have the most exquisite taste and I'm so glad to know you (yeh yeh yeh.) I don't tell the rest of the greater Miasma crew and the thursdz crew this enough: yinz are such fascinating people and I really enjoy the time we spend together. The same goes for so many other individuals that I've connected with, whether after-hours at conferences, through the CNBC, CSGF, LANL, WRCT, SCS, on Twitter, or at shows and festivals. You've made my years as a graduate student wonderfully memorable.
+I also want to explicitly acknowledge Deb Cavlovich, Catherine Copetas, Victoria Poprocky and all of the other staff that keep things running smoothly around the school, and at conferences and other events. I really appreciate all of the work that you do.
 
-I especially want to remember Dan Schreiber. Dan was one of my very closest friends, a romantic visionary and the greatest debate partner I have ever had. He died in 2010. I am so glad to have known him and I only wish that I could have heard his take on so many of the topics I've learned about since then -- proof theory, type theory, tech cooperatives, experimental music, long-distance cycling, old books, psychedelic films,  spontaneous theater and colonizing Venus, to name just a few! He is missed.
+Graduate school can be an emotionally taxing experience, to say the least. Fortunately, my friends were there whenever I came up for air -- sometimes after going under for weeks at a time. Tommy and Sanna, you are beautiful souls and our travels together have been incredibly rejuvenating. D, you have the most exquisite taste and it's so good to know you (yeh yeh yeh.) To the greater Miasma crew, Ian, V, Tom7 and the rest of the thursdz crew, and my former officemate, Harsha: yinz are such fascinating people and I really enjoy the time we spend together. The same goes for so many other individuals that I've connected with personally, whether at conferences, at office hours, through the CNBC, CSGF, LANL, WRCT, SCS, on Twitter, at shows and festivals, in the woods, or in apartments and backyards. You've made these years wonderfully memorable.
 
-Finally, so much of who I am is due to the love and support of my family. The diverse personalities of my aunts, uncles, cousins and their spouses made family gatherings so lively. My sister, Elisha, and now her husband, Pat, have been an endless source of great book recommendations and conversations. And finally, I am forever grateful to Ami and Hibbi Abu, my mother and father, who have given me so much love, offered so many heartfelt prayers and provided me with so much practical assistance and advice throughout my life. From an early age, they encouraged me to adopt only the best practices of the cultures around me, and to remember the Big Picture at all times. Those lessons, rooted in the traditions of our family going back generations, have proven incredibly valuable in research, and in life, time and time again.
+I especially want to remember Dan Schreiber. Dan was one of my very closest friends, a romantic visionary and the greatest debate partner I have ever had. He died in 2010. I am so glad to have known him and I only wish that I could have heard his take on so many of the topics I've learned about since then -- proof theory, type theory, tech cooperatives, experimental music, long-distance cycling, old books, psychedelic films,  spontaneous theater and colonizing Venus, to name just a few! Dan is truly missed.
 
-It's been so very good. Thanks, everyone. 
+Finally, so much of who I am is due to the love and support of my family. The diverse personalities of my aunts, uncles, cousins and their spouses made family gatherings so lively. My sister, Elisha, and now her husband, Pat, have been an endless source of great book recommendations and conversations. And I am forever grateful to Ami and Hibbi Abu, my mother and father, who have given me so much love, offered so many heartfelt prayers and provided me with so much practical assistance and advice throughout my life. From an early age, they encouraged me to adopt only the best practices of the cultures around me, and to remember the Big Picture at all times. Those lessons, rooted in the traditions of our family going back generations, have proven incredibly valuable in research, and in life, time and time again.
 
-% Mom, dad, other family
-% Eric
-% Dan and his family
-% Tommy, Sanna
-% Other friends:
-% Twitter friends
-% CSGF friends
-% Funding: CSGF, NSF, ask Jonathan for grant information
+It's been an unforgettable journey. Thanks everyone. 
 \end{acknowledgments}
 
 
