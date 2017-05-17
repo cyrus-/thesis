@@ -532,7 +532,7 @@ fun resultsFor(searchQuery : string, page : int) : html =>
       Search again: {EHTMLsearchBox "SSTRGo!ESTR"SHTML}
     </div>
     {EHTMLformatResults (db, 
-       `SSQLSELECT * FROM products WHERE {searchQuery} iSHTMLEHTMLn titleESQL`,
+       `SSQLSELECT * FROM products WHERE {ESQLsearchQuerySSQL} iSHTMLEHTMLn titleESQL`,
        10, page)SHTML}
   </body>
   </html>EHTML`
