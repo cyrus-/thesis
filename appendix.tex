@@ -1,5 +1,4 @@
 % !TEX root = omar-thesis.tex
-% !TEX root = ./icfp17-supplement.tex
 \ificfp\else \part*{Appendix} \fi
 
 \appendix
@@ -15,7 +14,7 @@ Empty finite sets and finite functions are written $\emptyset$, or omitted entir
 
 
 \ificfp
-\chapter{\texorpdfstring{$\miniVersePat$ (and $\miniVerseUE$)}{miniVerseS (and miniVerseSE)}}
+\chapter{\texorpdfstring{A Calculus of Simple TLMs}{A Calculus of Simple TLMs}}
 \else
 \chapter{\texorpdfstring{$\miniVerseUE$ and $\miniVersePat$}{miniVerseSE and miniVerseS}}
 \fi
@@ -3400,7 +3399,7 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
             {p_i}
             {\tau_i}
         }{\npat}$  and $\sseq{\patType{\pctx_i}{p_i}{\tau_i}}{\npat}$
-      \item (\textbf{No Hidden Bindings}) $\uG = \biguplus_{0 \leq i < \npat} \uG_i$ and $\Gamma = \bigcup_{0 \leq i < \npat} \pctx_i$
+      \item (\textbf{Visibility}) $\uG = \biguplus_{0 \leq i < \npat} \uG_i$ and $\Gamma = \bigcup_{0 \leq i < \npat} \pctx_i$
 \end{enumerate}
 \end{theorem}
 \begin{proof} By rule induction over Rules (\ref{rules:patExpands}). There is only one rule that applies.
@@ -3473,7 +3472,12 @@ If $\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}$ where $\uDelta=\uDD{
 %   \patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}
 % }}
 
-\chapter{\texorpdfstring{$\miniVerseParam$}{miniVerseP}}\label{appendix:miniVerseParam}
+\ificfp
+\chapter{\texorpdfstring{A Calculus of Parametric TLMs}{A Calculus of Parametric TLMs}}
+\else
+\chapter{\texorpdfstring{$\miniVerseParam$}{miniVerseP}}
+\fi
+\label{appendix:miniVerseParam}
 
 \clearpage
 \section{Expanded Language (XL)}
@@ -7998,7 +8002,7 @@ If $\patExpandsP{\uOmega'}{\uPhi}{\utsmap{\uepsilon}{b}}{p}{\tau}$ then:
   \item (\textbf{Kinding 3}) $\sseq{\cExpands{\uOmega}{\parseUConF{\bsubseq{b}{m'_i}{n'_i}}}{c_i}{[\omega]\kappa'_i}}{\ncon}$ and $\sseq{\haskind{\Omega_\text{app}}{c_i}{[\omega]\kappa'_i}}{\ncon}$
   \item (\textbf{Kinding 4}) $\sseq{\cvalidC{\OParams}{\csceneP{\omega : \OParams}{\uOmega}{b}}{\ctau_i}{\tau_i}{\akty}}{\npat}$ and $\sseq{\haskind{\Omega_\text{app}}{[\omega]\tau_i}{\akty}}{\npat}$
   \item (\textbf{Typing 2}) $\sseq{\patExpandsP{\uOmegaEx{\emptyset}{\uG_i}{\emptyset}{\Omega_i}}{\uPhi}{\parseUPatF{\bsubseq{b}{m''_i}{n''_i}}}{p_i}{[\omega]\tau_i}}{\npat}$ and $\sseq{\patTypePC{\Omega_\text{app}}{\Omega_i}{p_i}{[\omega]\tau_i}}{\npat}$
-      \item (\textbf{No Hidden Bindings}) $\uOmega'=\uOmegaEx{\emptyset}{\biguplus_{0 \leq i < \npat} \uG_i}{\emptyset}{\bigcup_{0 \leq i < \npat} \Omega_i}$
+      \item (\textbf{Visibility}) $\uOmega'=\uOmegaEx{\emptyset}{\biguplus_{0 \leq i < \npat} \uG_i}{\emptyset}{\bigcup_{0 \leq i < \npat} \Omega_i}$
 
   % \item $\cvalidPP{\uOmega'}{\psceneP{\omega : \Omega_\text{params}}{\uOmega}{\uPhi}{b}}{\cpv}{p}{\tau_\text{proto}}$
   % \item $\tau = [\omega]\tau_\text{proto}$
@@ -9590,7 +9594,7 @@ If \[\patExpands{\upctx}{\uPhi}{\utsmap{\tsmv}{b}}{p}{\tau}\] where $\uDelta=\uD
             {p_i}
             {\tau_i}
         }{\npat}$ 
-      \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
+      \item (\textbf{Visibility}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
 \begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTLM-Typing-Segmentation}.
@@ -9628,7 +9632,7 @@ If \[\patExpands{\upctx}{\uPhi}{\lit{b}}{p}{\tau}\] where $\uDelta=\uDD{\uD}{\De
             {p_i}
             {\tau_i}
         }{\npat}$ 
-      \item (\textbf{No Hidden Bindings}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
+      \item (\textbf{Visibility}) $\upctx = \biguplus_{0 \leq i < \npat} \upctx_i$
 \end{enumerate}
 \end{theorem}
 \begin{proof} By rule induction over Rules (\ref{rules:patExpands-B}). The proof follows the proof of Theorem \ref{thm:spTLM-Typing-Segmentation}, differing only in how the parse function is looked up.

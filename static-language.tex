@@ -1,11 +1,11 @@
+% !TEX root = ./pldi18-supplement.tex
 % !TEX root = omar-thesis.tex
-% !TEX root = ./icfp17-supplement.tex
-\ificfp \else  
+% \ificfp \else  
 \chapter{Static Evaluation}\label{chap:static-eval}
 In the previous chapters, we have assumed that the parse functions in TLM definitions are closed expanded expressions. This is unrealistic in practice -- writing a parser generally requires access to various libraries. Moreover, the parse function might itself be written more concisely using TLMs. In this chapter, we address these problems by introducing a \emph{static environment} shared between parse functions.
 
 \section{Static Values}
-Figure \ref{fig:static-module-example} shows an example of a module, \li{ParserCombos} (see Sec. \ref{sec:parser-combinators}). The \li{static} qualifier indicates that this module is bound for use within the parse functions of the subsequent TLM definitions.
+Figure \ref{fig:static-module-example} shows an example of a module, \li{ParserCombos}\ificfp \else (see Sec. \ref{sec:parser-combinators})\fi. The \li{static} qualifier indicates that this module is bound for use within the parse functions of the subsequent TLM definitions.
 \begin{figure}[h]
 \begin{lstlisting}
 static module ParserCombos = 
@@ -69,7 +69,7 @@ val fgx = App(Var 'SSTRfESTR', gx)
 % A similar approach can be taken for working with encodings of terms of other languages (e.g. when writing an interpretter or compiler in VerseML.)
 
 \subsection{Grammar-Based Parser Generators}
-In Sec. \ref{sec:grammars}, we discussed a number of grammar-based parser generators. Abstractly, a parser generator is a module matching the signature \li{PARSEGEN} defined in Figure \ref{fig:PARSEGEN}. Let us assume a module \li{P : PARSEGEN} and a grammar of spliced unexpanded expressions that have a given type annotation, \li{spliced_uexp : proto_typ -> P.grammar(proto_expr)}, in the discussion below.
+\ificfp \else In Sec. \ref{sec:grammars}, we discussed a number of grammar-based parser generators. \fi Abstractly, a parser generator is a module matching the signature \li{PARSEGEN} defined in Figure \ref{fig:PARSEGEN}. Let us assume a module \li{P : PARSEGEN} and a grammar of spliced unexpanded expressions that have a given type annotation, \li{spliced_uexp : proto_typ -> P.grammar(proto_expr)}, in the discussion below.
 
 
 
@@ -83,7 +83,7 @@ signature PARSEGEN = sig
 end
 \end{lstlisting}
 \vspace{-8px}
-\caption[A signature for parser generators]{A signature for parser generators. The type function \li{parse_result} was defined in Figure \ref{fig:candidate-exp-verseml}.}
+\caption[A signature for parser generators]{A signature for parser generators. \ificfp \else The type function \li{parse_result} was defined in Figure \ref{fig:candidate-exp-verseml}.\fi}
 \vspace{-8px}
 \label{fig:PARSEGEN}
 \end{figure}
@@ -139,7 +139,7 @@ end #\label{line:rx_parse_fn_end}#
 \section{Library Management}
 In the examples above, we explicitly qualified various definitions with the \li{static} keyword to make them available within static values. This captures the essential nature of the problem of static evaluation, but in practice, we would like to be able to use libraries within both static values and standard values as needed without duplicating code. This can be achieved by a library manager.
 
-For example, a language-external library manager for VerseML similar to SML/NJ's CM \cite{blume:smlnj-cm} could support a \li{static} qualifier on imported libraries, which would place the definitions exported by the imported library into the static phase of the library being defined. In particular, a library definition in such a compilation manager might look like this:
+For example, a language-external library manager \ificfp for VerseML \else \fi similar to SML/NJ's CM \cite{blume:smlnj-cm} could support a \li{static} qualifier on imported libraries, which would place the definitions exported by the imported library into the static phase of the library being defined. In particular, a library definition in such a compilation manager might look like this:
 \begin{lstlisting}[numbers=none,morekeywords={Library,is}]
 Library 
   (* ... exported module, signature and TLM names ... *)
@@ -155,21 +155,27 @@ A similar approach could be taken for languages the incorporate library manageme
 static import edu.cmu.comar.parsegen
 \end{lstlisting}
 
-For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken in the definition of Standard ML \cite{mthm97-for-dart}.) The problem of packaging macros into components has been studied for term-rewriting macros \cite{culpepper2005syntactic}.
+\ificfp \else For the sake of generality and simplicity, we will leave the details of library and compilation management out of our formal developments (following the approach taken in the definition of Standard ML \cite{mthm97-for-dart}.) The problem of packaging macros into components has been studied for term-rewriting macros \cite{culpepper2005syntactic}. \fi
 
-An alternative design that allows for the explicit lowering of standard-phase bindings to the static phase has been proposed for OCaml \cite{Ocaml/macros}. 
+An alternative design that allows for the explicit lowering of standard-phase bindings to the static phase has been proposed for OCaml \cite{Ocaml/macros}. \ificfp We are closely following this work in our implementation. \else \fi
+
+TLMs definitions can be exported from the top level of packages, but they cannot be exported from within ML-style modules because that would require that they also appear in signatures, and that, in turn, would complicate reasoning about signature equivalence, since TLM definitions contain arbitrary parse functions. 
+%It would also bring in confusion about whether the generated expansions can use private knowledge about type identity. 
+That said, it should be possible to export TLM \emph{abbreviations} from modules, since they refer to TLM definitions only through symbolic names. We have not yet formalized this intuition, but the work of \citet{culpepper2005syntactic,culpepper2007advanced} considered a closely related question: how should Typed Scheme's macros interact with its unit (i.e. package) system.
 
 
-\fi
+% \fi
 
 \ificfp
-\chapter{\texorpdfstring{$\miniVersePH$}{miniVersePH}}
+\section{\texorpdfstring{Formalizing Static Evaluation}{Formalizing Static Evaluation}}
 \else
 \section{\texorpdfstring{$\miniVersePH$}{miniVersePH}}
 \fi
 \ificfp
 
-We will now formalize the mechanisms outlined in Sec. 6 of the paper by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
+We will now formalize the mechanisms just discussed by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
+
+% We will now formalize the mechanisms outlined in Sec. 6 of the paper by developing a reduced calculus, $\miniVersePH$. This calculus is defined identically to $\miniVerseParam$ with the exception of the syntax and semantics of unexpanded module expressions, $\uM$, so we assume all of the definitions that were given in Appendix \ref{appendix:miniVerseParam} without restating them. 
 
 \else 
 
@@ -178,7 +184,7 @@ We will now formalize the mechanisms just discussed by developing a reduced calc
 \fi
 
 \ificfp
-\section{Syntax of Unexpanded Modules}
+\subsection{Syntax of Unexpanded Modules}
 \else
 \subsection{Syntax of Unexpanded Modules}
 \fi
@@ -231,7 +237,7 @@ The syntax of unexpanded modules is defined in Figure \ref{fig:syntax-uM-PH}. Th
 \end{figure}
 
 \ificfp
-\section{Module Expansion}
+\subsection{Module Expansion}
 \else
 \subsection{Module Expansion}
 \fi
@@ -404,7 +410,7 @@ The rules governing ppTLM definitions and abbreviations are analagous:
 \end{subequations}
 
 \ificfp
-\section{Metatheory}
+\subsection{Metatheory}
 \else
 \subsection{Metatheory}
 \fi

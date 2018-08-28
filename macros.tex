@@ -20,6 +20,15 @@
 \newcommand{\aletplain}[3]{\abop{let}{#1; #2.#3}}
 
 % Calculi Names
+\ificfp
+\newcommand{\miniVerse}{{\lambda}_\textbf{TLM}}
+\newcommand{\miniVerseUE}{\miniVerse^\textbf{SE}}
+\newcommand{\miniVersePat}{\miniVerse^\textbf{S}}
+\newcommand{\miniVerseParam}{\miniVerse^\textbf{P}}
+\newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
+\newcommand{\miniVerseUB}{\miniVerse^\textbf{SB}}
+\newcommand{\miniVersePH}{\miniVerse^\textbf{PH}}
+\else
 \newcommand{\miniVerse}{\mathsf{miniVerse}}
 \newcommand{\miniVerseUE}{\mathsf{miniVerse}_\textbf{SE}}
 \newcommand{\miniVersePat}{\mathsf{miniVerse}_\textbf{S}}
@@ -27,6 +36,7 @@
 \newcommand{\miniVerseTSL}{\mathsf{miniVerse}_\textbf{TSL}}
 \newcommand{\miniVerseUB}{\mathsf{miniVerse}_\textbf{S}^\textbf{B}}
 \newcommand{\miniVersePH}{\mathsf{miniVerse}_\textbf{PH}}
+\fi
 
 % General abstract syntax
 \newcommand{\aboppz}[2]{\texttt{#1}\texttt{[}#2\texttt{]}}
